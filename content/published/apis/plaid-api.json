@@ -1,0 +1,36 @@
+{
+  "id": "api-024",
+  "slug": "plaid-api",
+  "name": "Plaid API",
+  "provider": "Plaid",
+  "category": "Banking",
+  "summary": "Connect to business bank accounts and credit cards for transaction and balance data.",
+  "whatItDoes": "Aggregates bank balances, inflows, outflows, and categorized transactions — essential for cash flow forecasting, expense monitoring, and real-time liquidity visibility.",
+  "dataAvailable": [
+    "Account balances",
+    "Transaction history",
+    "Merchant and category labels",
+    "Recurring payment detection"
+  ],
+  "actionsSupported": [
+    "Link bank accounts via Plaid Link",
+    "Fetch transactions and balances",
+    "Retrieve identity verification metadata",
+    "Webhook on new transactions"
+  ],
+  "authenticationType": "API keys + Plaid Link (OAuth-style bank consent)",
+  "commonUseCases": [
+    "ai-cash-flow-forecaster",
+    "ai-expense-watchdog",
+    "ai-break-even-dashboard"
+  ],
+  "relatedDataSources": [
+    "bank-transactions",
+    "credit-card-transactions",
+    "fixed-costs"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Bank credentials never touch your servers — Plaid handles institution auth. Store only access tokens securely and honor user revocation.",
+  "documentationUrlPlaceholder": "https://plaid.com/docs",
+  "tags": ["banking", "plaid", "cash-flow"]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "api-029",
+  "slug": "clearbit-api",
+  "name": "Clearbit Enrichment API",
+  "provider": "Clearbit (HubSpot)",
+  "category": "Sales Intelligence",
+  "summary": "Enrich company and contact records with firmographic and technographic data.",
+  "whatItDoes": "Takes a domain or email and returns company size, industry, location, tech stack, and social profiles — used in CRM deduplication and lead scoring to fill missing fields.",
+  "dataAvailable": [
+    "Company name, domain, and logo",
+    "Employee count and revenue range",
+    "Industry and location",
+    "Technology stack tags"
+  ],
+  "actionsSupported": [
+    "Enrich by domain",
+    "Enrich by email",
+    "Prospector search",
+    "Reveal company from IP (web use)"
+  ],
+  "authenticationType": "API Key (Bearer token)",
+  "commonUseCases": [
+    "ai-crm-deduplication-enrichment",
+    "ai-lead-scoring-engine",
+    "ai-account-research-assistant"
+  ],
+  "relatedDataSources": [
+    "crm-records",
+    "business-websites",
+    "lead-forms"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Enrichment data may be stale. Clearbit is now part of HubSpot — verify current API availability and pricing for your plan.",
+  "documentationUrlPlaceholder": "https://clearbit.com/docs",
+  "tags": ["enrichment", "firmographics", "clearbit"]
+}

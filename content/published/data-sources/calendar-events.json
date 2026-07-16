@@ -1,0 +1,36 @@
+{
+  "id": "ds-002",
+  "slug": "calendar-events",
+  "name": "Calendar Events",
+  "examples": [
+    "Client consultations",
+    "Staff shift schedules",
+    "Service appointment blocks"
+  ],
+  "category": "Operations",
+  "summary": "Scheduled events with attendees, locations, and descriptions from your business calendar.",
+  "whatItContains": "Event title, start/end time, attendees, location, description, and recurrence rules.",
+  "whatAiCanDoWithIt": [
+    "Detect scheduling conflicts before they happen",
+    "Prepare meeting briefs from related emails and CRM notes",
+    "Suggest optimal booking slots based on availability patterns",
+    "Send prep reminders with context pulled from other systems"
+  ],
+  "relatedUseCases": [
+    "ai-meeting-prep-assistant",
+    "ai-booking-optimizer",
+    "ai-daily-inbox-briefing"
+  ],
+  "relatedApis": [
+    "google-calendar-api",
+    "calendly-api",
+    "microsoft-graph-outlook-api"
+  ],
+  "privacyLevel": "Internal",
+  "accessMethod": "OAuth calendar read/write scopes via Google Calendar or Microsoft Graph",
+  "tags": [
+    "scheduling",
+    "appointments",
+    "time"
+  ]
+}

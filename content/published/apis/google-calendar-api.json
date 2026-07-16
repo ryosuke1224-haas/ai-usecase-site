@@ -1,0 +1,39 @@
+{
+  "id": "api-003",
+  "slug": "google-calendar-api",
+  "name": "Google Calendar API",
+  "provider": "Google",
+  "category": "Scheduling",
+  "summary": "Read and manage Google Calendar events and availability.",
+  "whatItDoes": "Fetches upcoming appointments, checks free/busy times, and creates or updates events — essential for scheduling-aware AI workflows.",
+  "dataAvailable": [
+    "Event titles, times, and descriptions",
+    "Attendee lists",
+    "Recurring event rules",
+    "Free/busy status"
+  ],
+  "actionsSupported": [
+    "List upcoming events",
+    "Create and update events",
+    "Check availability",
+    "Set reminders"
+  ],
+  "authenticationType": "OAuth 2.0 (Google account)",
+  "commonUseCases": [
+    "ai-meeting-prep-assistant",
+    "ai-booking-optimizer",
+    "ai-daily-inbox-briefing"
+  ],
+  "relatedDataSources": [
+    "calendar-events",
+    "booking-data"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Calendar data often contains client names and meeting topics. Restrict access to business calendars only.",
+  "documentationUrlPlaceholder": "https://developers.google.com/calendar",
+  "tags": [
+    "calendar",
+    "google",
+    "scheduling"
+  ]
+}

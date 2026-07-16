@@ -1,0 +1,38 @@
+{
+  "id": "api-005",
+  "slug": "google-drive-api",
+  "name": "Google Drive API",
+  "provider": "Google",
+  "category": "File Storage",
+  "summary": "Access and manage files stored in Google Drive.",
+  "whatItDoes": "Lists, reads, and uploads documents in Drive — used to feed SOPs, handbooks, and training materials into AI knowledge workflows.",
+  "dataAvailable": [
+    "File names and metadata",
+    "Document text (via export)",
+    "Folder structure",
+    "Sharing permissions"
+  ],
+  "actionsSupported": [
+    "List files in folders",
+    "Download/export document content",
+    "Upload new files",
+    "Search by name or type"
+  ],
+  "authenticationType": "OAuth 2.0 or Service Account",
+  "commonUseCases": [
+    "ai-sop-builder",
+    "staff-training-assistant"
+  ],
+  "relatedDataSources": [
+    "documents-and-pdfs",
+    "staff-notes"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Internal documents may contain sensitive business info. Scope access to specific folders, not entire Drive.",
+  "documentationUrlPlaceholder": "https://developers.google.com/drive",
+  "tags": [
+    "files",
+    "google",
+    "documents"
+  ]
+}

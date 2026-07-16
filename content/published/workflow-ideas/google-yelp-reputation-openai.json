@@ -1,0 +1,35 @@
+{
+  "id": "wf-002",
+  "title": "Local Reputation Intelligence Stack",
+  "summary": "Pull reviews from Google Business Profile and Yelp, analyze with OpenAI, and generate responses or content — built for local businesses managing online reputation.",
+  "apiCombination": [
+    "google-business-profile-api",
+    "yelp-fusion-api",
+    "openai-api"
+  ],
+  "dataSources": [
+    "customer-reviews",
+    "social-media-comments"
+  ],
+  "possibleUseCases": [
+    "ai-review-intelligence",
+    "ai-review-response-assistant",
+    "local-seo-content-assistant",
+    "ai-content-calendar"
+  ],
+  "exampleWorkflow": "Weekly: fetch new Google and Yelp reviews. OpenAI clusters them into themes (service quality, pricing, wait times) and drafts owner responses for negative reviews. Positive review language is extracted for social content ideas. Owner approves responses before publishing via Google Business Profile API.",
+  "businessValue": "Faster review response times improve local SEO rankings. Theme analysis reveals operational fixes competitors aren't making.",
+  "implementationDifficulty": "Intermediate",
+  "recommendedFor": [
+    "Restaurants",
+    "Salons and spas",
+    "Home services",
+    "Retail shops"
+  ],
+  "risks": [
+    "Auto-published review responses can sound generic — require human approval",
+    "Yelp API rate limits may require batching",
+    "Competitor data usage must comply with platform terms"
+  ],
+  "slug": "google-yelp-reputation-openai"
+}

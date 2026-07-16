@@ -1,0 +1,37 @@
+{
+  "id": "wf-004",
+  "title": "Booking Operations Stack",
+  "summary": "Wire Calendly, Gmail, Slack, and OpenAI together for real-time booking notifications, lead qualification, and appointment follow-up.",
+  "apiCombination": [
+    "calendly-api",
+    "gmail-api",
+    "slack-api",
+    "openai-api"
+  ],
+  "dataSources": [
+    "booking-data",
+    "calendar-events",
+    "emails"
+  ],
+  "possibleUseCases": [
+    "ai-booking-optimizer",
+    "no-show-recovery-assistant",
+    "ai-meeting-prep-assistant",
+    "quote-request-assistant"
+  ],
+  "exampleWorkflow": "Calendly webhook fires on new booking. OpenAI reads the invitee's custom question answers and drafts a qualification summary. Slack notification posts to #bookings with client name, service type, and prep notes. 24 hours before the appointment, Gmail sends a confirmation with prep instructions generated from CRM notes.",
+  "businessValue": "Staff arrive prepared for every appointment. No-shows drop when confirmation sequences include personalized prep content.",
+  "implementationDifficulty": "Beginner",
+  "recommendedFor": [
+    "Coaches and consultants",
+    "Medical and dental practices",
+    "Legal and financial advisors",
+    "Home service providers"
+  ],
+  "risks": [
+    "Webhook reliability depends on Calendly plan tier",
+    "Slack notifications with client PII should use private channels",
+    "Lead qualification AI may misjudge intent — use as advisory only"
+  ],
+  "slug": "calendly-gmail-slack-openai"
+}

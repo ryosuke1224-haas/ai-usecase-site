@@ -1,0 +1,35 @@
+{
+  "id": "ds-014",
+  "slug": "documents-and-pdfs",
+  "name": "Documents and PDFs",
+  "examples": [
+    "Employee handbooks",
+    "Service procedure manuals",
+    "Vendor contracts and warranties"
+  ],
+  "category": "Knowledge",
+  "summary": "Business documents stored as files, including PDFs, Word docs, and internal wikis.",
+  "whatItContains": "Document text, headings, tables, metadata (author, date), and folder structure.",
+  "whatAiCanDoWithIt": [
+    "Convert existing docs into step-by-step SOPs",
+    "Answer staff questions from your document library",
+    "Extract key terms from contracts for quick reference",
+    "Generate training quizzes from handbook content"
+  ],
+  "relatedUseCases": [
+    "ai-sop-builder",
+    "staff-training-assistant"
+  ],
+  "relatedApis": [
+    "google-drive-api",
+    "notion-api",
+    "openai-api"
+  ],
+  "privacyLevel": "Internal",
+  "accessMethod": "Cloud storage API (Drive) or workspace tool API (Notion)",
+  "tags": [
+    "documents",
+    "knowledge-base",
+    "sops"
+  ]
+}

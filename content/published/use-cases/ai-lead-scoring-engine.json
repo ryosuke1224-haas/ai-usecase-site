@@ -1,0 +1,90 @@
+{
+  "id": "uc-029",
+  "slug": "ai-lead-scoring-engine",
+  "title": "AI Lead Scoring Engine",
+  "tagline": "Prioritize prospects based on fit, pain signals, and buying intent.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Marketing", "Business Development"],
+  "summary": "Scores leads based on industry fit, location, business size, review signals, website quality, CRM history, engagement, and likely need.",
+  "businessProblem": "Sales teams treat every lead equally — reps spend time on poor-fit prospects while high-intent accounts sit in the queue because there's no consistent scoring model beyond gut feel.",
+  "outcome": "Every lead and account carries a transparent score (0–100) with factor breakdown — reps work the highest-scored untouched leads first and marketing sees which segments convert.",
+  "whoItsFor": "B2B teams with 50+ leads per month where prioritization matters — agencies, SaaS, and professional services with defined ICPs.",
+  "requiredDataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites",
+    "crm-records",
+    "sales-activity-logs",
+    "lead-forms"
+  ],
+  "aiInputs": [
+    "ICP fit criteria: industry, geography, size proxies",
+    "Review sentiment and rating from public listings",
+    "Website quality signals (SSL, mobile, content freshness)",
+    "CRM engagement history: emails opened, meetings booked, form fills",
+    "Pain signal tags from lead finder or research workflows"
+  ],
+  "aiOutputs": [
+    "Composite lead score (0–100) with weighted factor breakdown",
+    "Tier label: Hot / Warm / Cold / Disqualified",
+    "Top 3 reasons for score with evidence citations",
+    "Recommended next action per tier",
+    "CRM field update payload for score and tier"
+  ],
+  "requiredApis": [
+    "hubspot-api",
+    "google-places-api",
+    "yelp-fusion-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "HubSpot lead scoring rules + ChatGPT enrichment columns in Sheets",
+    "Clay.com scoring table combining Places, reviews, and CRM lookup",
+    "Zapier: new lead → GPT score → HubSpot property update"
+  ],
+  "lowCodeTools": [
+    "n8n nightly: pull new leads → enrich → OpenAI score → CRM update",
+    "Google Sheets model with weighted factors + Apps Script CRM sync",
+    "Make.com with Salesforce Flow for score-triggered task creation"
+  ],
+  "customBuildStack": [
+    "Scoring engine with configurable weights per ICP factor",
+    "Google Places + Yelp enrichment pipeline",
+    "OpenAI for qualitative website and review analysis",
+    "HubSpot/Salesforce custom properties for score storage",
+    "Dashboard showing score distribution and conversion correlation"
+  ],
+  "implementationSteps": [
+    "Define scoring factors and weights aligned to your ICP — document in a rubric",
+    "Connect CRM and public data sources for enrichment fields",
+    "Build baseline rule-based score first; add AI qualitative layer second",
+    "Backtest scores against last 6 months won/lost deals — adjust weights",
+    "Set CRM automation: Hot leads → instant task; Cold → nurture sequence",
+    "Review score-to-close correlation monthly and recalibrate"
+  ],
+  "systemBehavior": [
+    "Recalculates on new lead creation and weekly for existing pipeline",
+    "Transparent factor breakdown — not a black-box number",
+    "Does not auto-disqualify without human-defined rules",
+    "Logs score history to detect drift over time",
+    "Read-only on external sources; writes score fields to CRM only"
+  ],
+  "risks": [
+    "Scores trained on biased historical data perpetuate bad targeting",
+    "Over-reliance on public review data skews toward consumer-facing businesses",
+    "Reps may ignore low-score leads that are actually strategic accounts",
+    "Frequent weight changes without communication erode team trust"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-local-lead-finder",
+    "ai-crm-deduplication-enrichment",
+    "ai-personalized-outreach-writer",
+    "ai-pipeline-risk-detector"
+  ],
+  "tags": ["scoring", "prioritization", "icp", "pipeline", "fit"],
+  "featured": false
+}

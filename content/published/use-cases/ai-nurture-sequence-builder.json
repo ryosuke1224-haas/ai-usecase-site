@@ -1,0 +1,87 @@
+{
+  "id": "uc-031",
+  "slug": "ai-nurture-sequence-builder",
+  "title": "AI Nurture Sequence Builder",
+  "tagline": "Create follow-up sequences matched to each prospect's pain points.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Marketing"],
+  "summary": "Builds multi-step email or message sequences based on lead segment, problem type, industry, and prior engagement.",
+  "businessProblem": "One-size-fits-all drip campaigns produce unsubscribes. Marketing builds generic 5-email sequences while sales knows each segment needs different pain points, proof, and timing.",
+  "outcome": "Segment-specific nurture sequences (3–7 touches) with personalized opening hooks, relevant case studies, and CTAs — ready to load into HubSpot sequences or CRM cadences.",
+  "whoItsFor": "B2B teams nurturing inbound leads and cold prospects who aren't ready to buy — especially agencies and SaaS with multiple buyer personas.",
+  "requiredDataSources": [
+    "crm-records",
+    "lead-forms",
+    "emails",
+    "customer-reviews",
+    "business-websites"
+  ],
+  "aiInputs": [
+    "Lead segment definition (industry, pain type, deal stage)",
+    "Prior engagement: emails opened, content downloaded, meetings no-show",
+    "Case studies and proof points library by segment",
+    "Sequence constraints: touch count, days between, channel (email vs. LinkedIn)"
+  ],
+  "aiOutputs": [
+    "Multi-step sequence outline with timing and channel per step",
+    "Full email copy for each step with subject lines",
+    "Segment-specific CTAs and objection-handling inserts",
+    "HubSpot sequence import format or copy-paste doc",
+    "Exit criteria: when to move to sales-assigned vs. continue nurture"
+  ],
+  "requiredApis": [
+    "hubspot-api",
+    "gmail-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "HubSpot sequences with ChatGPT-generated email templates per segment",
+    "Mailchimp or ActiveCampaign + GPT for segment copy variants",
+    "Notion nurture playbook + ChatGPT sequence generator"
+  ],
+  "lowCodeTools": [
+    "n8n: CRM segment tag → OpenAI sequence → HubSpot sequence create",
+    "Google Docs template library + Apps Script batch generation",
+    "Make.com: form submission → segment detect → Claude nurture draft"
+  ],
+  "customBuildStack": [
+    "Segment taxonomy synced from CRM properties",
+    "Prompt library per segment × pain type matrix",
+    "OpenAI/Claude batch generation with consistency checks",
+    "HubSpot Sequences API or Salesforce cadence integration",
+    "Analytics on step-level open/reply rates by segment"
+  ],
+  "implementationSteps": [
+    "Define 3–5 nurture segments with distinct pain points and proof points",
+    "Document case studies and resources assignable per segment",
+    "Build master prompt for sequence structure (hook → value → proof → CTA)",
+    "Generate sequences per segment; legal/compliance review on first batch",
+    "Load into CRM sequences; set enrollment triggers by lead score or form type",
+    "Measure reply and meeting-booked rates per segment monthly"
+  ],
+  "systemBehavior": [
+    "Generates sequences on demand or when new segments are defined — not per-lead real-time",
+    "Human approves sequence before enrollment automation goes live",
+    "Respects unsubscribe and do-not-email flags from CRM",
+    "Does not auto-enroll leads without defined trigger rules",
+    "Version-controls sequence copy when segments are updated"
+  ],
+  "risks": [
+    "Over-messaging cold leads accelerates unsubscribes and spam complaints",
+    "Segment misclassification sends wrong pain-point content",
+    "CAN-SPAM and GDPR require clear opt-out and lawful basis for nurture",
+    "Sequence fatigue if sales and marketing both email the same lead"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-personalized-outreach-writer",
+    "ai-lead-scoring-engine",
+    "ai-proposal-follow-up-assistant",
+    "ai-follow-up-engine"
+  ],
+  "tags": ["nurture", "sequences", "drip", "email-marketing", "segments"],
+  "featured": false
+}

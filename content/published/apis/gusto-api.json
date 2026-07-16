@@ -1,0 +1,37 @@
+{
+  "id": "api-022",
+  "slug": "gusto-api",
+  "name": "Gusto API",
+  "provider": "Gusto",
+  "category": "Payroll",
+  "summary": "Access payroll runs, employee records, and labor cost summaries from Gusto.",
+  "whatItDoes": "Pulls payroll history, scheduled pay runs, employee wages, and employer tax burdens — core data for payroll forecasting and hiring affordability workflows.",
+  "dataAvailable": [
+    "Payroll run totals",
+    "Employee wage and hour data",
+    "Employer tax and benefit costs",
+    "Pay schedule dates"
+  ],
+  "actionsSupported": [
+    "List payroll runs",
+    "Read employee compensation",
+    "Fetch pay period summaries",
+    "Export payroll reports"
+  ],
+  "authenticationType": "OAuth 2.0 (Gusto partner app)",
+  "commonUseCases": [
+    "ai-payroll-forecasting",
+    "ai-hiring-affordability-planner",
+    "ai-staffing-optimizer",
+    "ai-break-even-dashboard"
+  ],
+  "relatedDataSources": [
+    "payroll-records",
+    "staff-schedules",
+    "time-tracking-data"
+  ],
+  "difficulty": "Advanced",
+  "privacyNotes": "Payroll data is highly sensitive PII. Partner approval may be required. Never store SSNs or bank details in AI prompts.",
+  "documentationUrlPlaceholder": "https://docs.gusto.com",
+  "tags": ["payroll", "gusto", "labor"]
+}

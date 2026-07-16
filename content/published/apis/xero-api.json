@@ -1,0 +1,39 @@
+{
+  "id": "api-021",
+  "slug": "xero-api",
+  "name": "Xero API",
+  "provider": "Xero",
+  "category": "Accounting",
+  "summary": "Access invoices, bank feeds, payroll summaries, and financial reports from Xero.",
+  "whatItDoes": "Connects to Xero accounting for SMBs outside the US-heavy QuickBooks ecosystem — pulls AR/AP, P&L, cash summaries, and payroll-related journal data for forecasting workflows.",
+  "dataAvailable": [
+    "Invoices and bills",
+    "Bank transaction feeds",
+    "Profit and loss reports",
+    "Balance sheet summaries",
+    "Contact and customer records"
+  ],
+  "actionsSupported": [
+    "Query invoices and payments",
+    "Read bank transactions",
+    "Fetch financial reports",
+    "List contacts and accounts"
+  ],
+  "authenticationType": "OAuth 2.0 (Xero developer app)",
+  "commonUseCases": [
+    "ai-cash-flow-forecaster",
+    "ai-collections-assistant",
+    "ai-expense-watchdog",
+    "ai-budget-variance-explainer"
+  ],
+  "relatedDataSources": [
+    "invoices",
+    "bank-transactions",
+    "sales-history",
+    "budget-files"
+  ],
+  "difficulty": "Advanced",
+  "privacyNotes": "Financial and payroll-adjacent data requires strict OAuth scoping and encrypted storage. Read-only access is recommended for planning workflows.",
+  "documentationUrlPlaceholder": "https://developer.xero.com",
+  "tags": ["accounting", "xero", "finance"]
+}

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "src-openai-docs",
+    "name": "OpenAI Docs",
+    "url": "https://platform.openai.com/docs",
+    "type": "documentation",
+    "focus": "LLM APIs, structured outputs, embeddings, and agent patterns for SMB workflows",
+    "priority": "high",
+    "checkFrequency": "weekly",
+    "notes": "Primary reference for AI input/output design and prompt safety."
+  },
+  {
+    "id": "src-anthropic-docs",
+    "name": "Anthropic Docs",
+    "url": "https://docs.anthropic.com",
+    "type": "documentation",
+    "focus": "Claude API, long-context document processing, and safety guidelines",
+    "priority": "high",
+    "checkFrequency": "weekly",
+    "notes": "Useful for SOP generation, training content, and document-heavy use cases."
+  },
+  {
+    "id": "src-google-workspace-dev",
+    "name": "Google Workspace Developers",
+    "url": "https://developers.google.com/workspace",
+    "type": "api-reference",
+    "focus": "Gmail, Calendar, Sheets, Drive APIs and OAuth scopes",
+    "priority": "high",
+    "checkFrequency": "weekly",
+    "notes": "Core stack for inbox, calendar, and spreadsheet workflows."
+  },
+  {
+    "id": "src-microsoft-graph",
+    "name": "Microsoft Graph Docs",
+    "url": "https://learn.microsoft.com/graph/",
+    "type": "api-reference",
+    "focus": "Outlook mail, calendar, and Microsoft 365 integrations",
+    "priority": "medium",
+    "checkFrequency": "monthly",
+    "notes": "Alternative to Google stack for Microsoft-centric SMBs."
+  },
+  {
+    "id": "src-zapier-blog",
+    "name": "Zapier Blog",
+    "url": "https://zapier.com/blog/",
+    "type": "blog",
+    "focus": "No-code automation patterns and SMB workflow examples",
+    "priority": "medium",
+    "checkFrequency": "weekly",
+    "notes": "Good source for no-code implementation path ideas."
+  },
+  {
+    "id": "src-make-templates",
+    "name": "Make Templates",
+    "url": "https://www.make.com/en/templates",
+    "type": "templates",
+    "focus": "Pre-built automation scenarios across popular SMB tools",
+    "priority": "medium",
+    "checkFrequency": "monthly",
+    "notes": "Reference for low-code workflow patterns and tool combinations."
+  },
+  {
+    "id": "src-hubspot-dev",
+    "name": "HubSpot Developers",
+    "url": "https://developers.hubspot.com",
+    "type": "api-reference",
+    "focus": "CRM contacts, deals, tickets, and marketing automation APIs",
+    "priority": "medium",
+    "checkFrequency": "monthly",
+    "notes": "Sales and follow-up workflow integrations."
+  },
+  {
+    "id": "src-square-dev",
+    "name": "Square Developers",
+    "url": "https://developer.squareup.com",
+    "type": "api-reference",
+    "focus": "POS transactions, customers, and loyalty data",
+    "priority": "medium",
+    "checkFrequency": "monthly",
+    "notes": "Retail and food service winback and revenue recovery workflows."
+  },
+  {
+    "id": "src-stripe-docs",
+    "name": "Stripe Docs",
+    "url": "https://docs.stripe.com",
+    "type": "documentation",
+    "focus": "Online payments, subscriptions, and customer billing events",
+    "priority": "medium",
+    "checkFrequency": "monthly",
+    "notes": "E-commerce and SaaS billing workflow integrations."
+  },
+  {
+    "id": "src-quickbooks-dev",
+    "name": "QuickBooks Developer Docs",
+    "url": "https://developer.intuit.com",
+    "type": "api-reference",
+    "focus": "Invoices, accounts receivable, and financial reporting APIs",
+    "priority": "low",
+    "checkFrequency": "monthly",
+    "notes": "Owner briefing and admin organizer workflows; higher integration complexity."
+  }
+]

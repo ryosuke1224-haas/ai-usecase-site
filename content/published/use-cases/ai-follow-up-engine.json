@@ -1,0 +1,94 @@
+{
+  "id": "uc-003",
+  "slug": "ai-follow-up-engine",
+  "title": "AI Follow-up Engine",
+  "category": "Sales",
+  "industries": [
+    "Professional Services",
+    "Agencies",
+    "B2B",
+    "Contractors"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Customer Success"
+  ],
+  "summary": "Automatically identify conversations and deals that need follow-up, then draft context-aware messages referencing the last interaction.",
+  "businessProblem": "Deals stall and leads go cold because follow-ups depend on someone remembering to check CRM or inbox. 60–80% of sales require 5+ touchpoints, but most SMBs stop after one.",
+  "outcome": "Daily list of contacts needing follow-up with draft messages that reference the last email, call, or meeting — ready to send or schedule.",
+  "whoItsFor": "Sales-driven SMBs with 20–200 active leads in pipeline, especially service businesses where the owner is the primary salesperson.",
+  "requiredDataSources": [
+    "emails",
+    "crm-records",
+    "call-transcripts",
+    "calendar-events"
+  ],
+  "aiInputs": [
+    "CRM deal stage and last activity date",
+    "Last 2–3 email threads per contact",
+    "Call transcript or meeting notes if available",
+    "Follow-up rules (e.g., no contact in 5 days = follow up)"
+  ],
+  "aiOutputs": [
+    "Prioritized follow-up list with days since last contact",
+    "Draft follow-up email per contact referencing prior conversation",
+    "Suggested next action (call, email, send proposal)",
+    "CRM activity log entry draft"
+  ],
+  "requiredApis": [
+    "gmail-api",
+    "hubspot-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "HubSpot sequences with AI-generated content",
+    "Zapier: CRM stale deal trigger → OpenAI → Gmail draft",
+    "Folk or Pipedrive built-in AI follow-up suggestions"
+  ],
+  "lowCodeTools": [
+    "n8n daily CRM scan → OpenAI → draft emails",
+    "Clay.com for enriched follow-up personalization"
+  ],
+  "customBuildStack": [
+    "Daily cron querying HubSpot for stale deals",
+    "Gmail API for thread context",
+    "OpenAI for personalized draft generation",
+    "Optional: Twilio for SMS follow-up on high-value leads"
+  ],
+  "implementationSteps": [
+    "Define follow-up rules: days since contact by deal stage",
+    "Connect CRM and Gmail via API",
+    "Build prompt that includes last interaction context per contact",
+    "Generate daily follow-up queue each morning",
+    "Deliver as Gmail drafts or CRM task list",
+    "Track reply rates and adjust timing rules monthly"
+  ],
+  "systemBehavior": [
+    "Runs daily (batch), not per-message",
+    "Respects do-not-contact and unsubscribed flags in CRM",
+    "Drafts only — human sends or approves schedule",
+    "Skips contacts with open support tickets or recent complaints",
+    "Caps daily follow-up volume to prevent overwhelming the sender"
+  ],
+  "risks": [
+    "Over-automated follow-ups feel robotic if personalization is shallow",
+    "Contacting someone who already replied via a different channel creates awkward duplicates",
+    "CRM data staleness produces follow-ups to wrong deal stages",
+    "CAN-SPAM and GDPR apply to commercial follow-up emails"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "inactive-customer-winback",
+    "quote-request-assistant",
+    "ai-customer-response-assistant"
+  ],
+  "tags": [
+    "follow-up",
+    "crm",
+    "sales",
+    "pipeline"
+  ],
+  "featured": false
+}

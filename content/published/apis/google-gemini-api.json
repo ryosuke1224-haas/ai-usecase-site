@@ -1,0 +1,35 @@
+{
+  "id": "api-017",
+  "slug": "google-gemini-api",
+  "name": "Google Gemini API",
+  "provider": "Google",
+  "category": "AI / LLM",
+  "summary": "Google's multimodal AI for text generation and content analysis.",
+  "whatItDoes": "Alternative LLM layer with strong Google ecosystem integration — useful for content generation and analyzing mixed-format business data.",
+  "dataAvailable": [
+    "N/A — processing layer"
+  ],
+  "actionsSupported": [
+    "Text generation",
+    "Content analysis",
+    "Multimodal input (text + images)",
+    "Structured output"
+  ],
+  "authenticationType": "API Key",
+  "commonUseCases": [
+    "local-seo-content-assistant",
+    "ai-content-calendar"
+  ],
+  "relatedDataSources": [
+    "social-media-comments",
+    "customer-reviews"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Check Google's AI data handling terms. Prefer Vertex AI for enterprise data residency requirements.",
+  "documentationUrlPlaceholder": "https://ai.google.dev/docs",
+  "tags": [
+    "ai",
+    "llm",
+    "google"
+  ]
+}

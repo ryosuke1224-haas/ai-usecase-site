@@ -1,0 +1,37 @@
+{
+  "id": "ds-003",
+  "slug": "customer-reviews",
+  "name": "Customer Reviews",
+  "examples": [
+    "Google Business Profile reviews",
+    "Yelp reviews",
+    "Facebook recommendations"
+  ],
+  "category": "Reputation",
+  "summary": "Public customer feedback including star ratings, review text, and response history.",
+  "whatItContains": "Reviewer name, star rating, review text, date, platform, and any owner responses.",
+  "whatAiCanDoWithIt": [
+    "Surface recurring praise and complaint themes",
+    "Benchmark sentiment against local competitors",
+    "Draft on-brand review responses for owner approval",
+    "Generate content ideas from real customer language"
+  ],
+  "relatedUseCases": [
+    "ai-review-intelligence",
+    "ai-review-response-assistant",
+    "local-seo-content-assistant",
+    "ai-content-calendar"
+  ],
+  "relatedApis": [
+    "google-business-profile-api",
+    "yelp-fusion-api",
+    "openai-api"
+  ],
+  "privacyLevel": "Public",
+  "accessMethod": "Platform APIs or periodic export; some platforms require manual CSV import",
+  "tags": [
+    "reviews",
+    "reputation",
+    "marketing"
+  ]
+}

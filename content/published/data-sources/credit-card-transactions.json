@@ -1,0 +1,28 @@
+{
+  "id": "ds-022",
+  "slug": "credit-card-transactions",
+  "name": "Credit Card Transactions",
+  "examples": [
+    "Business credit card statements",
+    "Ramp or Brex expense feeds",
+    "Plaid-linked card transactions"
+  ],
+  "category": "Finance",
+  "summary": "Card charges for business expenses, subscriptions, and vendor payments.",
+  "whatItContains": "Charge date, merchant, amount, category, cardholder, and recurring subscription flags.",
+  "whatAiCanDoWithIt": [
+    "Detect duplicate SaaS subscriptions",
+    "Flag unusual spending spikes",
+    "Categorize discretionary vs fixed expenses",
+    "Support expense watchdog and variance analysis"
+  ],
+  "relatedUseCases": [
+    "ai-expense-watchdog",
+    "ai-budget-variance-explainer",
+    "ai-cash-flow-forecaster"
+  ],
+  "relatedApis": ["plaid-api", "quickbooks-api", "xero-api"],
+  "privacyLevel": "Sensitive",
+  "accessMethod": "Card platform export, Plaid, or accounting sync",
+  "tags": ["expenses", "credit-card", "subscriptions"]
+}

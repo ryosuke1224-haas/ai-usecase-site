@@ -1,0 +1,38 @@
+{
+  "id": "api-008",
+  "slug": "slack-api",
+  "name": "Slack API",
+  "provider": "Slack",
+  "category": "Team Communication",
+  "summary": "Send messages and notifications to Slack channels and users.",
+  "whatItDoes": "Posts automated briefings, booking alerts, and workflow notifications to team Slack channels — the output layer for many operational AI workflows.",
+  "dataAvailable": [
+    "Channel messages (with permission)",
+    "User list",
+    "Channel list"
+  ],
+  "actionsSupported": [
+    "Post messages to channels",
+    "Send DMs",
+    "Upload files",
+    "React to messages"
+  ],
+  "authenticationType": "OAuth 2.0 (Bot token)",
+  "commonUseCases": [
+    "ai-booking-optimizer",
+    "weekly-owner-briefing",
+    "no-show-recovery-assistant"
+  ],
+  "relatedDataSources": [
+    "staff-notes",
+    "booking-data"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Bot tokens should have minimal channel access. Avoid posting customer PII in public channels.",
+  "documentationUrlPlaceholder": "https://api.slack.com",
+  "tags": [
+    "slack",
+    "notifications",
+    "team"
+  ]
+}

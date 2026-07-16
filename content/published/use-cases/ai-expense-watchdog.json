@@ -1,0 +1,72 @@
+{
+  "id": "uc-023",
+  "slug": "ai-expense-watchdog",
+  "title": "AI Expense Watchdog",
+  "tagline": "Find cost leaks hiding in your business.",
+  "category": "Finance & Planning",
+  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
+  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "summary": "Scans expenses, subscriptions, vendor payments, and credit card transactions to flag unusual increases, duplicate tools, and potential savings.",
+  "businessProblem": "SMBs accumulate SaaS subscriptions, vendor creep, and duplicate tools over years — nobody audits spending until margins compress unexpectedly.",
+  "outcome": "Monthly expense audit report flagging: new recurring charges, price increases >10%, duplicate software, unused subscriptions, and estimated monthly savings if addressed.",
+  "whoItsFor": "Owners who haven't reviewed expenses line-by-line in 6+ months and suspect they're paying for tools nobody uses.",
+  "requiredDataSources": ["credit-card-transactions", "bank-transactions", "invoices", "fixed-costs", "spreadsheets"],
+  "aiInputs": [
+    "90 days credit card and bank transactions",
+    "Recurring charge detection list",
+    "Prior month expense categories for comparison",
+    "Known essential vs discretionary vendor list",
+    "Employee count for per-seat SaaS sanity check"
+  ],
+  "aiOutputs": [
+    "New subscriptions detected this quarter",
+    "Vendors with >10% month-over-month increase",
+    "Duplicate tool categories (e.g., two project management apps)",
+    "Estimated monthly savings per recommendation",
+    "Prioritized action list with cancellation difficulty rating"
+  ],
+  "requiredApis": ["plaid-api", "quickbooks-api", "google-sheets-api", "openai-api"],
+  "noCodeTools": [
+    "Mint/QuickBooks expense export + ChatGPT audit",
+    "Ramp or Brex spend report + GPT analysis",
+    "Monthly spreadsheet review ritual with Claude"
+  ],
+  "lowCodeTools": [
+    "n8n monthly: Plaid transactions → OpenAI categorization → report",
+    "Zapier + QBO expense sync + GPT flagging",
+    "Google Sheets expense log with GPT anomaly column"
+  ],
+  "customBuildStack": [
+    "Plaid transaction ingestion",
+    "Recurring charge detection algorithm",
+    "OpenAI for vendor grouping and duplicate detection",
+    "Monthly email report with savings estimate"
+  ],
+  "implementationSteps": [
+    "Connect bank/credit card via Plaid or accounting export",
+    "Run first-month baseline to catalog all recurring charges",
+    "Tag essential vs discretionary vendors with owner",
+    "Set alert thresholds for MoM increases",
+    "Review monthly report and action top 3 savings items",
+    "Re-run quarterly for vendor contract renewal timing"
+  ],
+  "systemBehavior": [
+    "Monthly scheduled scan",
+    "Read-only — never cancels subscriptions automatically",
+    "Groups merchants intelligently (e.g., AWS variants)",
+    "Compares to prior periods, not arbitrary benchmarks",
+    "Savings estimates are directional, not guaranteed"
+  ],
+  "risks": [
+    "False positives on legitimate one-time purchases",
+    "Cancelling wrong subscription can disrupt operations",
+    "Shared vendor accounts may look like duplicates",
+    "Not a substitute for accountant-led expense review"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Fully automated",
+  "valuePotential": "Medium",
+  "relatedUseCases": ["ai-budget-variance-explainer", "ai-cash-flow-forecaster"],
+  "tags": ["expenses", "subscriptions", "cost-cutting", "audit"],
+  "featured": false
+}

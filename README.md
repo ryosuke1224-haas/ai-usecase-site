@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Use Case Hub
+
+A structured SMB AI workflow knowledge base built with [Next.js](https://nextjs.org). Public pages read validated JSON from `content/published/` only.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Validate content before building:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run validate:content
+npm run build
+```
 
-## Learn More
+## Content layout
 
-To learn more about Next.js, take a look at the following resources:
+```
+content/
+  published/          # Live site content (one JSON file per item)
+    use-cases/
+    apis/
+    data-sources/
+    workflow-ideas/
+  suggestions/        # Draft LLM output — never rendered by the site
+    use-cases/
+    apis/
+    data-sources/
+    workflow-ideas/
+  sources/
+    sources.json      # Registry of external docs for future research
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Schemas and validation live in `src/content/schemas.ts` (Zod).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Content Growth Pipeline
+
+### Published vs suggestions
+
+| Location | Purpose | Rendered on site? |
+|----------|---------|-------------------|
+| `content/published/` | Reviewed, approved content | Yes |
+| `content/suggestions/` | Draft AI-generated JSON awaiting review | **No** |
+
+The Next.js app loads **only** from `content/published/`. Files in `content/suggestions/` are ignored at runtime so draft content cannot leak to production.
+
+### Adding new content manually
+
+1. Create a JSON file matching the Zod schema in `src/content/schemas.ts`.
+2. Filename must match the item `slug` (e.g. `my-use-case.json` → `"slug": "my-use-case"`).
+3. Run `npm run validate:content`.
+4. Commit the file under `content/published/`.
+
+### Reviewing AI-generated drafts
+
+When LLM automation is enabled (not yet active):
+
+1. `npm run research:sources` — checks registered sources in `content/sources/sources.json`.
+2. `npm run generate:suggestion` — writes draft JSON to `content/suggestions/` with `_meta.reviewRequired: true`.
+3. A human editor reviews the draft for accuracy, SMB relevance, and schema compliance.
+4. After approval, move or copy the inner `suggestion` object to `content/published/{type}/{slug}.json`.
+5. Run `npm run validate:content` and deploy.
+
+**Never** point the site loader at `content/suggestions/`. **Never** auto-publish from CI without human review.
+
+### Future Claude API automation
+
+`scripts/generate-suggestion.ts` is a placeholder for:
+
+- Loading context from `content/sources/sources.json` and existing published items
+- Calling the Claude API with structured-output prompts aligned to Zod schemas
+- Writing results to `content/suggestions/` only, with metadata (`generatedAt`, `model`, `sourceIds`)
+
+No API key or live generation is wired yet.
+
+### Future GitHub Actions automation
+
+A planned workflow:
+
+1. Scheduled `research:sources` job detects doc/template changes.
+2. `generate:suggestion` job creates draft PRs adding files under `content/suggestions/`.
+3. Maintainers review PRs, edit drafts, then move approved JSON to `content/published/`.
+4. `validate:content` runs in CI on every PR touching `content/`.
+
+### Why human review is required
+
+AI-generated workflow blueprints can contain incorrect API scopes, outdated tool names, or unsafe automation advice. Publishing without review risks misleading SMB operators. The suggestions layer exists so generation can scale while publication stays deliberate.
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run validate:content` | Validate all published JSON and `sources.json` |
+| `npm run generate:suggestion` | Placeholder — writes example draft to `content/suggestions/` |
+| `npm run research:sources` | Placeholder — lists registered research sources |
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Standard Next.js deployment. Ensure `npm run build` (which runs validation) passes in CI.

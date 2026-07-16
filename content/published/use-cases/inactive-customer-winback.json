@@ -1,0 +1,95 @@
+{
+  "id": "uc-014",
+  "slug": "inactive-customer-winback",
+  "title": "Inactive Customer Winback",
+  "category": "Marketing",
+  "industries": [
+    "Retail",
+    "Restaurants",
+    "Salons",
+    "Fitness",
+    "E-commerce"
+  ],
+  "businessFunctions": [
+    "Marketing",
+    "Revenue",
+    "Customer Success"
+  ],
+  "summary": "Identify customers who haven't purchased or visited in 60+ days and send personalized winback offers via email or SMS.",
+  "businessProblem": "Acquiring a new customer costs 5–7x more than retaining an existing one, but most SMBs have no system to re-engage lapsed customers. They simply disappear from revenue without anyone noticing.",
+  "outcome": "Monthly campaign targeting lapsed customers with personalized messages referencing their last purchase/visit, recovering 5–15% back to active status.",
+  "whoItsFor": "Businesses with repeat customers tracked in POS or CRM — retail, food, fitness, salons — where reactivation is more profitable than new acquisition.",
+  "requiredDataSources": [
+    "customer-list",
+    "pos-transactions",
+    "emails"
+  ],
+  "aiInputs": [
+    "Customer list filtered by last purchase/visit date (60+ days ago)",
+    "Last purchase details: items, amount, date",
+    "Available winback offer (discount, free item, loyalty points)",
+    "Communication preference and opt-in status"
+  ],
+  "aiOutputs": [
+    "Personalized winback email or SMS per customer",
+    "Segmentation: VIP lapsed vs. occasional vs. one-time",
+    "Campaign performance summary: sent, opened, returned",
+    "CRM tag update for contacted customers"
+  ],
+  "requiredApis": [
+    "square-api",
+    "gmail-api",
+    "twilio-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "Square Marketing campaigns with customer segments",
+    "Mailchimp winback automation template",
+    "Zapier: Square lapsed customer → GPT → Gmail"
+  ],
+  "lowCodeTools": [
+    "n8n monthly: Square customer query → OpenAI → email/SMS batch",
+    "Klaviyo winback flow with AI personalization"
+  ],
+  "customBuildStack": [
+    "Monthly cron querying POS for lapsed customers",
+    "OpenAI for personalized message per customer segment",
+    "Gmail API or Twilio for delivery",
+    "Tracking pixel / unique codes for conversion measurement"
+  ],
+  "implementationSteps": [
+    "Define 'inactive' threshold: 60, 90, or 120 days based on purchase cycle",
+    "Pull lapsed customer list from POS/CRM",
+    "Segment by value: VIP (high LTV), regular, one-time",
+    "Create winback offer appropriate per segment",
+    "Generate personalized messages with AI referencing last purchase",
+    "Send in batches (not all at once) and track 30-day return rate"
+  ],
+  "systemBehavior": [
+    "Runs monthly on a fixed schedule",
+    "Only contacts customers with documented marketing opt-in",
+    "Sends one winback message per cycle — no drip spam",
+    "Personalizes based on actual purchase history, not generic templates",
+    "Tags contacted customers to prevent duplicate outreach next month"
+  ],
+  "risks": [
+    "SMS winback without opt-in is a TCPA violation with serious penalties",
+    "Discount offers to lapsed customers can train them to wait for deals",
+    "POS data may not have email/phone for all customers",
+    "Over-messaging damages brand — cap at one winback per 90 days"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "no-show-recovery-assistant",
+    "ai-follow-up-engine"
+  ],
+  "tags": [
+    "winback",
+    "retention",
+    "marketing",
+    "revenue"
+  ],
+  "featured": false
+}

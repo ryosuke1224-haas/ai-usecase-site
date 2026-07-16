@@ -1,0 +1,40 @@
+{
+  "id": "api-001",
+  "slug": "gmail-api",
+  "name": "Gmail API",
+  "provider": "Google",
+  "category": "Email",
+  "summary": "Read, search, send, and label emails in Gmail programmatically.",
+  "whatItDoes": "Connects to Gmail inboxes to fetch messages, create drafts, send replies, and manage labels — the foundation for most email-based AI workflows.",
+  "dataAvailable": [
+    "Email threads and message bodies",
+    "Attachments metadata",
+    "Labels and read/unread status",
+    "Sender and recipient addresses"
+  ],
+  "actionsSupported": [
+    "List and search messages",
+    "Read message content",
+    "Create drafts and send emails",
+    "Apply labels and mark read/unread"
+  ],
+  "authenticationType": "OAuth 2.0 (Google Workspace or personal Gmail)",
+  "commonUseCases": [
+    "ai-daily-inbox-briefing",
+    "ai-customer-response-assistant",
+    "ai-follow-up-engine",
+    "quote-request-assistant"
+  ],
+  "relatedDataSources": [
+    "emails",
+    "website-form-submissions"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Requires explicit user consent via OAuth. Limit scopes to read-only where possible. Never store email content without a retention policy.",
+  "documentationUrlPlaceholder": "https://developers.google.com/gmail/api",
+  "tags": [
+    "email",
+    "google",
+    "communication"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "wf-003",
+  "title": "Revenue Recovery Stack",
+  "summary": "Combine Square POS data, Gmail, Twilio SMS, and OpenAI to win back inactive customers and recover revenue from no-shows and lapsed buyers.",
+  "apiCombination": [
+    "square-api",
+    "gmail-api",
+    "twilio-api",
+    "openai-api"
+  ],
+  "dataSources": [
+    "pos-transactions",
+    "customer-list",
+    "emails"
+  ],
+  "possibleUseCases": [
+    "inactive-customer-winback",
+    "no-show-recovery-assistant",
+    "ai-follow-up-engine"
+  ],
+  "exampleWorkflow": "Monthly: Square API pulls customers with no purchase in 60+ days. OpenAI drafts personalized winback emails referencing their last purchase. High-value lapsed customers also receive an SMS via Twilio. Track responses in a Google Sheet and log conversions back to Square customer notes.",
+  "businessValue": "Reactivating 5–10% of lapsed customers often pays for the entire automation stack. No-show recovery alone can recover 15–20% of lost appointment revenue.",
+  "implementationDifficulty": "Intermediate",
+  "recommendedFor": [
+    "Retail stores",
+    "Restaurants",
+    "Fitness studios",
+    "Salons"
+  ],
+  "risks": [
+    "SMS requires documented opt-in — verify before sending",
+    "Over-messaging lapsed customers damages brand trust",
+    "Personalization based on purchase history must respect privacy policies"
+  ],
+  "slug": "square-gmail-twilio-openai"
+}

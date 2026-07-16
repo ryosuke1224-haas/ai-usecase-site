@@ -1,0 +1,86 @@
+{
+  "id": "uc-034",
+  "slug": "ai-crm-hygiene-monitor",
+  "title": "AI CRM Hygiene Monitor",
+  "tagline": "Keep your pipeline clean and actionable.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Operations"],
+  "summary": "Finds stale leads, duplicate records, missing fields, old statuses, no-next-step opportunities, and records that need cleanup.",
+  "businessProblem": "CRM data decays fast — duplicate contacts, deals stuck in wrong stages, leads with no owner, and missing next steps make forecasting unreliable and reps waste time on dead records.",
+  "outcome": "Weekly hygiene report with prioritized cleanup tasks: merge duplicates, update stale stages, fill required fields, and assign owners — with one-click or bulk-fix recommendations.",
+  "whoItsFor": "Sales ops, RevOps, or owner-led teams using HubSpot or Salesforce who lack dedicated data stewardship.",
+  "requiredDataSources": [
+    "crm-records",
+    "sales-activity-logs",
+    "emails",
+    "customer-list"
+  ],
+  "aiInputs": [
+    "Full CRM export: contacts, companies, deals, activities",
+    "Hygiene rules: max days in stage, required fields, duplicate match keys",
+    "Last activity date per record",
+    "Owner assignment and territory rules"
+  ],
+  "aiOutputs": [
+    "Hygiene score per rep and team (0–100)",
+    "Duplicate cluster list with merge recommendations",
+    "Stale deal list: stage age exceeded threshold with suggested action",
+    "Missing required fields report by record type",
+    "No-next-step opportunities flagged for rep task creation"
+  ],
+  "requiredApis": [
+    "hubspot-api",
+    "salesforce-api",
+    "openai-api",
+    "slack-api"
+  ],
+  "noCodeTools": [
+    "HubSpot data quality tools + manual GPT cleanup suggestions",
+    "Salesforce duplicate rules + weekly report subscription",
+    "Zapier: weekly CRM export → ChatGPT hygiene summary → Slack"
+  ],
+  "lowCodeTools": [
+    "n8n weekly: CRM pull → rule engine → OpenAI narrative → Slack digest",
+    "Google Sheets CRM export + Apps Script duplicate detection",
+    "Make.com: Salesforce report → GPT cleanup tasks → Asana create"
+  ],
+  "customBuildStack": [
+    "CRM API nightly sync to data warehouse or Postgres",
+    "Rule engine for staleness, duplicates, missing fields",
+    "OpenAI for fuzzy duplicate clustering and merge suggestions",
+    "Slack weekly digest with actionable cleanup links",
+    "Audit log of auto-fixes vs. rep-approved fixes"
+  ],
+  "implementationSteps": [
+    "Document hygiene rules: required fields, max stage days, duplicate keys",
+    "Connect CRM API with read access; define write permissions for auto-fixes",
+    "Build duplicate detection: email, domain, phonetic company name",
+    "Generate weekly report segmented by rep with top 10 fixes each",
+    "Start with report-only mode; enable auto-merge for high-confidence dupes later",
+    "Track hygiene score trend and forecast accuracy improvement"
+  ],
+  "systemBehavior": [
+    "Runs weekly full scan; daily incremental check for new duplicates",
+    "Auto-fixes only high-confidence, low-risk items (e.g., trim whitespace)",
+    "Merge and stage changes require rep approval or ops role",
+    "Never deletes records — archives or merges with audit trail",
+    "Excludes legally required retention records from auto-archive"
+  ],
+  "risks": [
+    "Aggressive auto-merging destroys legitimate separate contacts",
+    "Stale-stage rules may conflict with long enterprise sales cycles",
+    "Bulk updates can trigger CRM workflow side effects unintentionally",
+    "Hygiene reports ignored by reps become noise — keep actionable and small"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "Medium",
+  "relatedUseCases": [
+    "ai-crm-deduplication-enrichment",
+    "ai-pipeline-risk-detector",
+    "ai-lead-scoring-engine"
+  ],
+  "tags": ["crm", "hygiene", "data-quality", "duplicates", "pipeline"],
+  "featured": false
+}

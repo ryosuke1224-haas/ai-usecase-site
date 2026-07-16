@@ -1,0 +1,39 @@
+{
+  "id": "wf-009",
+  "slug": "hubspot-gmail-claude-openai",
+  "title": "HubSpot Sales Execution Stack",
+  "summary": "HubSpot as CRM source of truth, Gmail for email context, and Claude/OpenAI for briefings, nurture sequences, proposal follow-ups, and pipeline risk detection — the daily sales ops stack.",
+  "apiCombination": [
+    "hubspot-api",
+    "gmail-api",
+    "openai-api",
+    "anthropic-claude-api",
+    "slack-api"
+  ],
+  "dataSources": [
+    "crm-records",
+    "emails",
+    "call-notes",
+    "proposal-history",
+    "sales-activity-logs"
+  ],
+  "possibleUseCases": [
+    "ai-sales-briefing",
+    "ai-nurture-sequence-builder",
+    "ai-proposal-follow-up-assistant",
+    "ai-pipeline-risk-detector"
+  ],
+  "exampleWorkflow": "Daily morning: pull today's calendar meetings from Google Calendar. For each external meeting, HubSpot provides deal context and Gmail provides last 3 threads. Claude generates a one-page sales briefing to Slack 1 hour before the call. Separately, a daily job scans deals in 'Proposal Sent' stage with no reply in 5+ days — OpenAI drafts follow-up emails as Gmail drafts. Weekly: pipeline risk scan flags deals with 14+ days no activity and posts rep-specific cleanup lists to Slack.",
+  "businessValue": "Unifies prep, follow-up, and risk detection in one CRM-centric workflow. Reps spend less time in tabs and more time on conversations. Proposal follow-up alone often recovers 10–15% of stalled deals.",
+  "implementationDifficulty": "Intermediate",
+  "recommendedFor": [
+    "HubSpot-centric SMB sales teams",
+    "Agencies with 5–20 person sales teams",
+    "Founder-led sales with heavy email volume"
+  ],
+  "risks": [
+    "Gmail API scope approval requires Google security review for production",
+    "Multiple daily automations can overwhelm reps with Slack noise — batch and prioritize",
+    "AI briefings with wrong CRM data erode trust — validate data quality first"
+  ]
+}

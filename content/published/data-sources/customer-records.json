@@ -1,0 +1,29 @@
+{
+  "id": "ds-025",
+  "slug": "customer-records",
+  "name": "Customer Records",
+  "examples": [
+    "CRM contact and account data",
+    "POS customer profiles",
+    "Membership and subscription lists"
+  ],
+  "category": "CRM",
+  "summary": "Structured customer data including count, segments, churn, and revenue contribution.",
+  "whatItContains": "Customer count, active vs inactive status, average revenue per customer, churn rate inputs, and segment tags.",
+  "whatAiCanDoWithIt": [
+    "Model revenue impact of customer count changes",
+    "Estimate break-even customers for a new hire",
+    "Simulate churn sensitivity in pricing scenarios",
+    "Segment collections priority by customer value"
+  ],
+  "relatedUseCases": [
+    "ai-revenue-scenario-planner",
+    "ai-pricing-impact-simulator",
+    "ai-hiring-affordability-planner",
+    "ai-collections-assistant"
+  ],
+  "relatedApis": ["hubspot-api", "square-api", "stripe-api", "quickbooks-api"],
+  "privacyLevel": "PII",
+  "accessMethod": "CRM API, POS customer export, or spreadsheet",
+  "tags": ["customers", "crm", "segmentation"]
+}

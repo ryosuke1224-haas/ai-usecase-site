@@ -1,0 +1,72 @@
+{
+  "id": "uc-017",
+  "slug": "ai-cash-flow-forecaster",
+  "title": "AI Cash Flow Forecaster",
+  "tagline": "See cash gaps before they happen.",
+  "category": "Finance & Planning",
+  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
+  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "summary": "Helps small business owners forecast 30/60/90-day cash flow using sales history, invoices, payroll, fixed costs, payment schedules, and upcoming revenue.",
+  "businessProblem": "Owners discover cash shortfalls when checks bounce or payroll is due — not weeks earlier when they could adjust spending, chase collections, or delay hires.",
+  "outcome": "A rolling 30/60/90-day cash projection updated weekly showing expected inflows, committed outflows, projected balance, and flagged low-cash weeks with suggested actions.",
+  "whoItsFor": "SMB owners managing cash manually in spreadsheets or checking accounts without a dedicated CFO — especially businesses with payroll, rent, and uneven revenue.",
+  "requiredDataSources": ["sales-history", "invoices", "payroll-records", "fixed-costs", "bank-transactions", "pos-transactions"],
+  "aiInputs": [
+    "Historical sales by week (90+ days)",
+    "Outstanding AR with due dates and payment history",
+    "Upcoming payroll dates and amounts",
+    "Fixed monthly costs and known large payments",
+    "Current bank balance and recent transaction patterns"
+  ],
+  "aiOutputs": [
+    "30/60/90-day cash balance projection chart data",
+    "Week-by-week inflow and outflow summary",
+    "Low-cash alert windows with severity",
+    "Narrative explanation of biggest cash drivers",
+    "Suggested actions (delay expense, accelerate collections, draw reserve)"
+  ],
+  "requiredApis": ["plaid-api", "quickbooks-api", "square-api", "openai-api"],
+  "noCodeTools": [
+    "Google Sheets cash model + ChatGPT monthly refresh",
+    "Float or Pulse app with manual AI summary paste",
+    "Zapier: QuickBooks + Plaid → Sheets → GPT narrative"
+  ],
+  "lowCodeTools": [
+    "n8n weekly: Plaid + QBO pull → OpenAI forecast → email",
+    "Google Sheets + Apps Script + OpenAI API",
+    "Causal or Finmark export + Claude analysis"
+  ],
+  "customBuildStack": [
+    "Plaid + QuickBooks/Xero API ingestion",
+    "Time-series forecast model + OpenAI narrative layer",
+    "Node.js cron with encrypted token storage",
+    "Dashboard in Retool or internal Next.js app"
+  ],
+  "implementationSteps": [
+    "Connect bank via Plaid and accounting via QuickBooks or Xero",
+    "Export 12 months sales history from POS or accounting",
+    "Document fixed costs and payroll schedule in a config sheet",
+    "Build prompt template for weekly projection with structured JSON output",
+    "Run in review mode for 4 weeks — compare projections to actuals",
+    "Set low-balance alert thresholds and delivery channel (email/Slack)"
+  ],
+  "systemBehavior": [
+    "Runs weekly or on-demand — not real-time intraday trading",
+    "Read-only on financial systems — never initiates payments",
+    "Uses conservative assumptions for unknown AR collection dates",
+    "Flags uncertainty ranges, not single-point false precision",
+    "Logs assumptions used each run for auditability"
+  ],
+  "risks": [
+    "Forecasts are only as good as input data — stale books produce wrong projections",
+    "Not a substitute for professional cash management or lending decisions",
+    "Bank feed delays can miss recent large transactions",
+    "Seasonal businesses need 12+ months history for reliable patterns"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": ["ai-payroll-forecasting", "ai-collections-assistant", "ai-break-even-dashboard"],
+  "tags": ["cash-flow", "forecasting", "liquidity", "planning"],
+  "featured": true
+}

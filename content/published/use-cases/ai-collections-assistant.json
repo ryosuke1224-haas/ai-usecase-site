@@ -1,0 +1,72 @@
+{
+  "id": "uc-022",
+  "slug": "ai-collections-assistant",
+  "title": "AI Collections Assistant",
+  "tagline": "Prioritize overdue invoices and draft follow-ups.",
+  "category": "Finance & Planning",
+  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
+  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "summary": "Reviews outstanding invoices, due dates, customer history, and payment patterns to prioritize collections and draft follow-up messages.",
+  "businessProblem": "Outstanding invoices pile up because owners avoid awkward collection conversations — cash sits in AR while they focus on delivery work.",
+  "outcome": "Weekly prioritized collections list with suggested follow-up emails ranked by amount, age, and customer payment history — drafts ready for owner approval.",
+  "whoItsFor": "B2B service businesses and clinics with net-30 invoicing and $10K+ in outstanding AR at any time.",
+  "requiredDataSources": ["invoices", "customer-records", "emails", "sales-history"],
+  "aiInputs": [
+    "All open invoices with amount, age, and due date",
+    "Customer payment history (average days to pay)",
+    "Prior follow-up thread history if available",
+    "Business tone guide for collection messages",
+    "Priority rules (e.g., >$500 and >30 days = urgent)"
+  ],
+  "aiOutputs": [
+    "Prioritized collections queue with urgency score",
+    "Draft follow-up email per invoice (escalating tone by age)",
+    "Summary of total AR and aging buckets",
+    "Flag for disputes or credits needed before contacting",
+    "Suggested call vs email channel per customer"
+  ],
+  "requiredApis": ["quickbooks-api", "xero-api", "gmail-api", "openai-api"],
+  "noCodeTools": [
+    "QuickBooks overdue report + ChatGPT draft emails",
+    "Zapier: QBO overdue trigger → GPT → Gmail draft",
+    "HubSpot sequences with AI-generated copy"
+  ],
+  "lowCodeTools": [
+    "n8n weekly: QBO AR aging → OpenAI → Gmail drafts",
+    "Make.com overdue invoice workflow",
+    "Xero + GPT collections assistant"
+  ],
+  "customBuildStack": [
+    "QuickBooks/Xero API AR query",
+    "Customer history join from CRM",
+    "OpenAI with escalating tone templates",
+    "Gmail draft API — never auto-send without approval"
+  ],
+  "implementationSteps": [
+    "Connect accounting system and email",
+    "Define aging buckets and escalation tone rules",
+    "Pull open invoices weekly",
+    "Generate prioritized queue and drafts",
+    "Owner reviews and sends — track responses in spreadsheet",
+    "Measure DSO monthly to tune priority rules"
+  ],
+  "systemBehavior": [
+    "Weekly batch — not real-time on invoice creation",
+    "Draft-only emails — owner must approve and send",
+    "Escalates tone at 30/60/90 day marks per policy",
+    "Skips customers with open disputes or credit memos",
+    "Collections support only — not legal debt collection"
+  ],
+  "risks": [
+    "Aggressive collection tone can damage client relationships",
+    "AI may contact wrong person if CRM data is stale",
+    "Legal collection limits vary — this is friendly AR follow-up only",
+    "Writing off bad debt still requires human judgment"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": ["ai-cash-flow-forecaster", "weekly-owner-briefing"],
+  "tags": ["collections", "accounts-receivable", "invoices", "cash"],
+  "featured": false
+}

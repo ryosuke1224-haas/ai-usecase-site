@@ -1,0 +1,96 @@
+{
+  "id": "uc-010",
+  "slug": "no-show-recovery-assistant",
+  "title": "No-show Recovery Assistant",
+  "category": "Customer Success",
+  "industries": [
+    "Healthcare",
+    "Salons",
+    "Fitness",
+    "Consulting",
+    "Legal"
+  ],
+  "businessFunctions": [
+    "Operations",
+    "Customer Success",
+    "Revenue"
+  ],
+  "summary": "Automatically detect appointment no-shows and send personalized recovery messages to rebook within 24 hours.",
+  "businessProblem": "No-shows cost appointment businesses $150–$500 per missed slot in lost revenue. Staff are too busy to follow up manually, and generic 'we missed you' texts get ignored.",
+  "outcome": "Within 2 hours of a no-show, the client receives a personalized message acknowledging the missed appointment and offering 2–3 rebooking options — recovering 15–25% of no-show revenue.",
+  "whoItsFor": "Appointment-based businesses with 5+ no-shows per month where each missed slot represents significant lost revenue.",
+  "requiredDataSources": [
+    "booking-data",
+    "calendar-events",
+    "customer-list"
+  ],
+  "aiInputs": [
+    "No-show event: client name, service, original time, history of past no-shows",
+    "Available rebooking slots in next 7 days",
+    "Business tone guide for recovery messages",
+    "Client communication preference (SMS vs. email)"
+  ],
+  "aiOutputs": [
+    "Personalized recovery SMS or email with rebooking link",
+    "Internal alert to staff with no-show context",
+    "CRM note logging the no-show and recovery attempt",
+    "Flag for owner if client has 3+ no-shows (policy action needed)"
+  ],
+  "requiredApis": [
+    "calendly-api",
+    "twilio-api",
+    "gmail-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "Calendly no-show workflow + manual text template",
+    "Zapier: Calendly no-show → OpenAI message → Twilio SMS",
+    "Acuity no-show follow-up automation"
+  ],
+  "lowCodeTools": [
+    "n8n: Calendly no-show webhook → OpenAI → Twilio SMS",
+    "Make.com with Calendly + Twilio modules"
+  ],
+  "customBuildStack": [
+    "Calendly webhook for no-show events",
+    "OpenAI for personalized message generation",
+    "Twilio for SMS delivery",
+    "Google Calendar API for available slot lookup"
+  ],
+  "implementationSteps": [
+    "Define no-show policy: how many before deposit required or client flagged",
+    "Connect Calendly no-show webhook",
+    "Build recovery message template with personalization variables",
+    "Set 2-hour delay before sending (client may be just running late)",
+    "Include direct rebooking link with 2–3 available slots",
+    "Track recovery rate: rebooked within 7 days / total no-shows"
+  ],
+  "systemBehavior": [
+    "Triggered by no-show status in booking system",
+    "Waits 2 hours before sending to avoid false positives",
+    "Sends one recovery message — no spam sequence",
+    "Escalates repeat no-show clients to owner for policy decision",
+    "Logs all recovery attempts and outcomes in CRM"
+  ],
+  "risks": [
+    "SMS without prior opt-in violates TCPA — verify consent collection",
+    "False no-show detection (client was present but not marked) causes embarrassing messages",
+    "Aggressive recovery on repeat no-show clients damages relationship",
+    "Rebooking links must reflect real availability to avoid double-booking"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Fully automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-booking-optimizer",
+    "inactive-customer-winback",
+    "ai-follow-up-engine"
+  ],
+  "tags": [
+    "no-show",
+    "recovery",
+    "sms",
+    "rebooking"
+  ],
+  "featured": false
+}

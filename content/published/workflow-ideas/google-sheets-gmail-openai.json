@@ -1,0 +1,36 @@
+{
+  "id": "wf-005",
+  "title": "Spreadsheet Operations Stack",
+  "summary": "Use Google Sheets as your operational database, Gmail for communication, and OpenAI for summarization — the lowest-friction stack for spreadsheet-driven SMBs.",
+  "apiCombination": [
+    "google-sheets-api",
+    "gmail-api",
+    "openai-api"
+  ],
+  "dataSources": [
+    "spreadsheets",
+    "emails",
+    "website-form-submissions",
+    "invoices"
+  ],
+  "possibleUseCases": [
+    "ai-admin-organizer",
+    "quote-request-assistant",
+    "weekly-owner-briefing"
+  ],
+  "exampleWorkflow": "Website form submissions append rows to a Quotes tracker sheet via Zapier. OpenAI reads new rows daily, drafts follow-up emails for quotes older than 3 days, and flags overdue items. Friday: OpenAI reads the full sheet and produces a weekly owner briefing with pipeline status, overdue follow-ups, and revenue forecast.",
+  "businessValue": "Turns a spreadsheet you already use into an active workflow engine without adopting new software. Weekly briefings replace manual status meetings.",
+  "implementationDifficulty": "Beginner",
+  "recommendedFor": [
+    "Contractors",
+    "Freelancers",
+    "Small agencies",
+    "Any business already running on Google Sheets"
+  ],
+  "risks": [
+    "Spreadsheet formulas can break if AI writes to wrong cells — use append-only patterns",
+    "Concurrent edits by humans and automation cause conflicts",
+    "Sheet access permissions must be scoped to service account only"
+  ],
+  "slug": "google-sheets-gmail-openai"
+}

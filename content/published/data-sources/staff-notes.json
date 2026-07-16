@@ -1,0 +1,36 @@
+{
+  "id": "ds-010",
+  "slug": "staff-notes",
+  "name": "Staff Notes",
+  "examples": [
+    "Shift handoff notes",
+    "Internal Slack messages about customers",
+    "Technician job site observations"
+  ],
+  "category": "Internal",
+  "summary": "Informal internal notes created by team members during daily operations.",
+  "whatItContains": "Free-text notes, author, timestamp, and optional links to customer or job records.",
+  "whatAiCanDoWithIt": [
+    "Convert messy notes into structured SOP updates",
+    "Surface recurring operational issues across shifts",
+    "Build training scenarios from real field notes",
+    "Summarize weekly team observations for owners"
+  ],
+  "relatedUseCases": [
+    "ai-sop-builder",
+    "staff-training-assistant"
+  ],
+  "relatedApis": [
+    "slack-api",
+    "notion-api",
+    "google-drive-api",
+    "openai-api"
+  ],
+  "privacyLevel": "Internal",
+  "accessMethod": "Slack export, Notion API, or shared document folder",
+  "tags": [
+    "internal",
+    "operations",
+    "knowledge"
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "id": "uc-004",
+  "slug": "ai-review-intelligence",
+  "title": "AI Review Intelligence",
+  "category": "Reputation",
+  "industries": [
+    "Restaurants",
+    "Salons",
+    "Home Services",
+    "Retail",
+    "Healthcare"
+  ],
+  "businessFunctions": [
+    "Marketing",
+    "Operations",
+    "Owner/Admin"
+  ],
+  "summary": "Analyze Google and Yelp reviews to surface recurring themes, sentiment trends, and competitor benchmarks.",
+  "businessProblem": "Business owners read reviews reactively but never systematically analyze patterns. Recurring complaints about wait times or staff go unnoticed until they show up in multiple 1-star reviews.",
+  "outcome": "Weekly report showing: top praise themes, top complaint themes, sentiment trend vs. last month, and how your ratings compare to 3 nearby competitors.",
+  "whoItsFor": "Local businesses with 20+ reviews across Google and Yelp who want operational insights from customer feedback, not just star ratings.",
+  "requiredDataSources": [
+    "customer-reviews"
+  ],
+  "aiInputs": [
+    "Your Google Business Profile reviews (last 90 days)",
+    "Your Yelp reviews (last 90 days)",
+    "Competitor review samples from Yelp Fusion API",
+    "Business context: services offered, price range, location"
+  ],
+  "aiOutputs": [
+    "Theme clusters for praise and complaints with example quotes",
+    "Month-over-month sentiment trend",
+    "Competitor rating comparison table",
+    "Top 3 operational recommendations based on review patterns"
+  ],
+  "requiredApis": [
+    "google-business-profile-api",
+    "yelp-fusion-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT with pasted review exports (manual weekly)",
+    "Birdeye or Podium built-in sentiment dashboards",
+    "Google Sheets + manual review paste + GPT formula"
+  ],
+  "lowCodeTools": [
+    "n8n weekly pull from Google + Yelp → OpenAI analysis → email report",
+    "Relevance AI review analysis agent"
+  ],
+  "customBuildStack": [
+    "Scheduled job pulling reviews via APIs",
+    "OpenAI for theme clustering and summarization",
+    "Report delivered via email or Notion page"
+  ],
+  "implementationSteps": [
+    "Connect Google Business Profile and Yelp Fusion APIs",
+    "Identify 3 local competitors for benchmarking",
+    "Pull 90 days of reviews for your business and competitors",
+    "Run OpenAI analysis with structured output template",
+    "Deliver weekly report every Monday morning",
+    "Share complaint themes with operations team for action items"
+  ],
+  "systemBehavior": [
+    "Runs weekly on a schedule",
+    "Read-only — does not post responses (see Review Response Assistant)",
+    "Aggregates across platforms into unified theme view",
+    "Includes verbatim quotes as evidence for each theme",
+    "Flags new complaint themes not seen in prior reports"
+  ],
+  "risks": [
+    "Small review volumes produce unreliable theme clusters",
+    "Competitor benchmarking may use businesses that aren't true competitors",
+    "Yelp API terms restrict how review text can be stored and displayed",
+    "AI may over-index on recent negative reviews vs. long-term trends"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Fully automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-review-response-assistant",
+    "local-seo-content-assistant",
+    "ai-content-calendar"
+  ],
+  "tags": [
+    "reviews",
+    "sentiment",
+    "local-seo",
+    "analytics"
+  ],
+  "featured": true
+}

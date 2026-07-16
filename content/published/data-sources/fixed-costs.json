@@ -1,0 +1,29 @@
+{
+  "id": "ds-023",
+  "slug": "fixed-costs",
+  "name": "Fixed Costs",
+  "examples": [
+    "Monthly rent and lease payments",
+    "Insurance premiums",
+    "Software subscriptions and loan payments"
+  ],
+  "category": "Finance",
+  "summary": "Recurring costs that do not vary directly with sales volume.",
+  "whatItContains": "Cost name, monthly amount, due date, vendor, contract end date, and whether cost is essential or discretionary.",
+  "whatAiCanDoWithIt": [
+    "Calculate monthly break-even revenue",
+    "Project cash outflows independent of sales",
+    "Model impact of cutting discretionary fixed costs",
+    "Separate fixed vs variable cost structure"
+  ],
+  "relatedUseCases": [
+    "ai-break-even-dashboard",
+    "ai-cash-flow-forecaster",
+    "ai-hiring-affordability-planner",
+    "ai-revenue-scenario-planner"
+  ],
+  "relatedApis": ["google-sheets-api", "quickbooks-api", "plaid-api"],
+  "privacyLevel": "Internal",
+  "accessMethod": "Spreadsheet, accounting chart of accounts, or manual config",
+  "tags": ["fixed-costs", "overhead", "planning"]
+}

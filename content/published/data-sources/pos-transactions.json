@@ -1,0 +1,36 @@
+{
+  "id": "ds-008",
+  "slug": "pos-transactions",
+  "name": "POS Transactions",
+  "examples": [
+    "Square register sales",
+    "Stripe checkout payments",
+    "In-store purchase receipts"
+  ],
+  "category": "Finance",
+  "summary": "Point-of-sale transaction records including items purchased, amounts, and customer linkage.",
+  "whatItContains": "Transaction ID, line items, total amount, payment method, timestamp, and linked customer ID if available.",
+  "whatAiCanDoWithIt": [
+    "Trigger post-purchase thank-you and review requests",
+    "Identify repeat vs. one-time buyers",
+    "Flag revenue drops by day or product category",
+    "Build winback lists from lapsed purchasers"
+  ],
+  "relatedUseCases": [
+    "inactive-customer-winback",
+    "ai-follow-up-engine"
+  ],
+  "relatedApis": [
+    "square-api",
+    "stripe-api",
+    "gmail-api",
+    "twilio-api"
+  ],
+  "privacyLevel": "Sensitive",
+  "accessMethod": "POS/payment platform API with merchant OAuth",
+  "tags": [
+    "sales",
+    "revenue",
+    "retail"
+  ]
+}

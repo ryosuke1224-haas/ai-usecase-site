@@ -1,0 +1,36 @@
+{
+  "id": "api-026",
+  "slug": "outscraper-api",
+  "name": "Outscraper API",
+  "provider": "Outscraper",
+  "category": "Lead Discovery",
+  "summary": "Scrape Google Maps, Yelp, and other directories at scale for lead lists.",
+  "whatItDoes": "Bulk-extracts business listings beyond standard API limits — useful for building local lead lists with emails, social links, and review data for outbound prospecting.",
+  "dataAvailable": [
+    "Google Maps business listings",
+    "Yelp business data",
+    "Emails and social profiles (where available)",
+    "Review text and ratings"
+  ],
+  "actionsSupported": [
+    "Run scraping tasks by query",
+    "Export results to CSV or webhook",
+    "Filter by rating, category, location",
+    "Enrich listings with contact data"
+  ],
+  "authenticationType": "API Key",
+  "commonUseCases": [
+    "ai-local-lead-finder",
+    "ai-account-research-assistant",
+    "ai-lead-scoring-engine"
+  ],
+  "relatedDataSources": [
+    "public-business-listings",
+    "industry-directories",
+    "customer-reviews"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Scraped data may include personal emails — verify CAN-SPAM and GDPR before outreach. Check Outscraper terms for data retention limits.",
+  "documentationUrlPlaceholder": "https://outscraper.com/api-docs",
+  "tags": ["scraping", "lead-discovery", "directories"]
+}

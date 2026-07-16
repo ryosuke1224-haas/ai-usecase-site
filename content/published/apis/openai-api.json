@@ -1,0 +1,39 @@
+{
+  "id": "api-015",
+  "slug": "openai-api",
+  "name": "OpenAI API",
+  "provider": "OpenAI",
+  "category": "AI / LLM",
+  "summary": "Generate text, summarize content, and power conversational AI features.",
+  "whatItDoes": "The core reasoning layer for most workflows — summarizes emails, drafts responses, extracts structured data, and generates content from your business data.",
+  "dataAvailable": [
+    "N/A — processing layer"
+  ],
+  "actionsSupported": [
+    "Chat completions",
+    "Text summarization",
+    "Structured JSON output",
+    "Embeddings for search"
+  ],
+  "authenticationType": "API Key",
+  "commonUseCases": [
+    "ai-daily-inbox-briefing",
+    "ai-customer-response-assistant",
+    "ai-review-intelligence",
+    "ai-sop-builder"
+  ],
+  "relatedDataSources": [
+    "emails",
+    "customer-reviews",
+    "documents-and-pdfs",
+    "call-transcripts"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Do not send customer PII without a data processing agreement. Use zero-retention options and avoid logging prompts with sensitive data.",
+  "documentationUrlPlaceholder": "https://platform.openai.com/docs",
+  "tags": [
+    "ai",
+    "llm",
+    "openai"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "ds-026",
+  "slug": "public-business-listings",
+  "name": "Public Business Listings",
+  "examples": [
+    "Google Maps business profiles",
+    "Yelp business pages",
+    "TripAdvisor listings",
+    "Chamber of commerce directories"
+  ],
+  "category": "Lead Discovery",
+  "summary": "Publicly available business directory entries with name, location, category, and contact signals.",
+  "whatItContains": "Business name, address, phone, website URL, category, hours, rating, review count, and listing claim status.",
+  "whatAiCanDoWithIt": [
+    "Build ICP-matched prospect lists by geography and category",
+    "Detect pain signals from low ratings or unanswered reviews",
+    "Score leads by fit and intent proxies",
+    "Feed personalized outreach with local context"
+  ],
+  "relatedUseCases": [
+    "ai-local-lead-finder",
+    "ai-lead-scoring-engine",
+    "ai-account-research-assistant"
+  ],
+  "relatedApis": [
+    "google-places-api",
+    "google-business-profile-api",
+    "yelp-fusion-api",
+    "outscraper-api",
+    "apify-api"
+  ],
+  "privacyLevel": "Public",
+  "accessMethod": "Places API, Yelp API, Outscraper/Apify scraping, or manual export",
+  "tags": ["listings", "local", "prospecting", "b2b"]
+}

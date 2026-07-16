@@ -1,0 +1,87 @@
+{
+  "id": "uc-028",
+  "slug": "ai-crm-deduplication-enrichment",
+  "title": "AI CRM Deduplication & Enrichment",
+  "tagline": "Clean, enrich, and route new leads before they enter your CRM.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Operations", "Marketing"],
+  "summary": "Checks new leads against existing CRM records, identifies duplicates, normalizes company information, enriches missing fields, and prepares clean records for CRM creation.",
+  "businessProblem": "Inbound leads from forms, imports, and list buys create duplicate CRM records, incomplete company data, and routing chaos — sales reps chase the same account twice or work leads with no firmographic context.",
+  "outcome": "Every new lead is matched against existing records, enriched with company size and industry, deduplicated or merged, and routed to the right owner before it hits the pipeline.",
+  "whoItsFor": "Teams using HubSpot or Salesforce who receive leads from multiple channels — web forms, trade shows, purchased lists, and Navigator exports.",
+  "requiredDataSources": [
+    "lead-forms",
+    "crm-records",
+    "customer-list",
+    "linkedin-profiles",
+    "public-business-listings"
+  ],
+  "aiInputs": [
+    "New lead record: name, email, company, phone, form source",
+    "Existing CRM contacts and companies (fuzzy match fields)",
+    "Enrichment API response (Clearbit, Apollo) for firmographics",
+    "Business rules: merge vs. create, owner assignment by territory"
+  ],
+  "aiOutputs": [
+    "Duplicate match report with confidence score and recommended action",
+    "Enriched lead record with normalized company name, industry, size",
+    "Routing recommendation (owner, pipeline, disqualify reason)",
+    "CRM create/update payload ready for API call",
+    "Audit log of merge decisions for review"
+  ],
+  "requiredApis": [
+    "hubspot-api",
+    "clearbit-api",
+    "apollo-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "HubSpot duplicate management + Clearbit enrichment (native)",
+    "Zapier: form submit → Clearbit → HubSpot create with duplicate check",
+    "Clay.com table with CRM lookup and enrichment columns"
+  ],
+  "lowCodeTools": [
+    "n8n: webhook on form → Apollo enrich → HubSpot search → merge or create",
+    "Make.com with OpenAI for fuzzy company name normalization",
+    "Google Sheets staging area with Apps Script dedup before CRM push"
+  ],
+  "customBuildStack": [
+    "Webhook receiver for form submissions",
+    "HubSpot/Salesforce search API with fuzzy matching logic",
+    "Clearbit or Apollo enrichment API",
+    "OpenAI for company name normalization and match confidence",
+    "Queue with human review for low-confidence merges"
+  ],
+  "implementationSteps": [
+    "Map CRM fields and define match keys: email, domain, company name + phone",
+    "Connect enrichment provider (Clearbit/Apollo) for missing firmographics",
+    "Build fuzzy match rules — exact email, domain match, phonetic company name",
+    "Set merge vs. create thresholds; route ambiguous matches to review queue",
+    "Define owner assignment rules by geography, industry, or round-robin",
+    "Run in shadow mode for 2 weeks — log decisions without writing to CRM"
+  ],
+  "systemBehavior": [
+    "Triggers on each new lead submission or batch import — near real-time",
+    "Never auto-merges records below confidence threshold without review",
+    "Read enrichment APIs; write only approved records to CRM",
+    "Preserves original form data in audit trail",
+    "Skips enrichment for known customers to save API credits"
+  ],
+  "risks": [
+    "False-positive merges combine two different people at similar companies",
+    "Enrichment APIs have coverage gaps for small local businesses",
+    "Overwriting CRM fields with enrichment data can destroy rep-entered context",
+    "PII handling requires scoped API tokens and audit logging"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-local-lead-finder",
+    "ai-lead-scoring-engine",
+    "ai-crm-hygiene-monitor"
+  ],
+  "tags": ["crm", "deduplication", "enrichment", "lead-routing", "data-quality"],
+  "featured": false
+}

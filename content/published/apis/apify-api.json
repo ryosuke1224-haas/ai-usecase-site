@@ -1,0 +1,36 @@
+{
+  "id": "api-027",
+  "slug": "apify-api",
+  "name": "Apify API",
+  "provider": "Apify",
+  "category": "Lead Discovery",
+  "summary": "Run web scraping actors to extract business listings, websites, and directory data.",
+  "whatItDoes": "Orchestrates pre-built scrapers (Actors) for Google Maps, Yelp, LinkedIn, and custom sites — feeds lead discovery and account research workflows with structured JSON output.",
+  "dataAvailable": [
+    "Scraped business listings",
+    "Website page content",
+    "Directory search results",
+    "Custom actor output schemas"
+  ],
+  "actionsSupported": [
+    "Run Actors on schedule or demand",
+    "Retrieve dataset results via API",
+    "Chain actors in workflows",
+    "Webhook on run completion"
+  ],
+  "authenticationType": "API Token",
+  "commonUseCases": [
+    "ai-local-lead-finder",
+    "ai-account-research-assistant",
+    "ai-personalized-outreach-writer"
+  ],
+  "relatedDataSources": [
+    "public-business-listings",
+    "business-websites",
+    "industry-directories"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Scraping third-party sites may violate their terms of service. Use only for publicly available data and respect robots.txt where applicable.",
+  "documentationUrlPlaceholder": "https://docs.apify.com/api/v2",
+  "tags": ["scraping", "automation", "lead-discovery"]
+}

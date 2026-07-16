@@ -1,0 +1,95 @@
+{
+  "id": "uc-006",
+  "slug": "ai-sop-builder",
+  "title": "AI SOP Builder",
+  "category": "Operations",
+  "industries": [
+    "Franchises",
+    "Home Services",
+    "Healthcare",
+    "Food Service",
+    "Any growing SMB"
+  ],
+  "businessFunctions": [
+    "Operations",
+    "HR",
+    "Training"
+  ],
+  "summary": "Convert existing documents, videos, and staff notes into structured standard operating procedures your team can follow.",
+  "businessProblem": "Critical processes live in the owner's head or scattered across old PDFs. New hires learn by shadowing, mistakes repeat, and nothing is documented until something goes wrong.",
+  "outcome": "Step-by-step SOPs with roles, tools, checkpoints, and common mistakes — published to your knowledge base from existing materials in hours, not weeks.",
+  "whoItsFor": "Business owners with 3+ employees who need to document processes before scaling, franchising, or reducing key-person dependency.",
+  "requiredDataSources": [
+    "documents-and-pdfs",
+    "staff-notes",
+    "call-transcripts"
+  ],
+  "aiInputs": [
+    "Existing process documents (PDFs, Word docs, checklists)",
+    "Video or call transcripts of owner explaining a process",
+    "Staff notes describing how they actually do the task",
+    "SOP template structure (steps, roles, tools, checkpoints)"
+  ],
+  "aiOutputs": [
+    "Structured SOP with numbered steps",
+    "Role assignments per step (who does what)",
+    "Tools and materials needed",
+    "Common mistakes section",
+    "Quality checkpoint criteria"
+  ],
+  "requiredApis": [
+    "google-drive-api",
+    "notion-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT or Claude with document upload (manual per SOP)",
+    "Scribe or Tango for process recording + AI formatting",
+    "Notion AI to convert pasted notes into SOP format"
+  ],
+  "lowCodeTools": [
+    "n8n: new Drive file in SOP folder → OpenAI → Notion page created",
+    "TrainGPT or custom GPT on your SOP template"
+  ],
+  "customBuildStack": [
+    "Google Drive API to watch SOP input folder",
+    "Document text extraction",
+    "Claude API for long-document SOP generation",
+    "Notion API to publish formatted SOP pages"
+  ],
+  "implementationSteps": [
+    "Define your SOP template: steps, roles, tools, checkpoints, common mistakes",
+    "Gather source materials for your first 3 processes",
+    "Upload to a dedicated Drive folder or paste into AI tool",
+    "Generate SOP drafts and review with the person who actually does the task",
+    "Publish approved SOPs to Notion or shared Drive",
+    "Set quarterly review reminder to flag outdated SOPs"
+  ],
+  "systemBehavior": [
+    "Triggered manually or when new file added to input folder",
+    "Generates draft SOP — never publishes without human review",
+    "Uses consistent template structure across all SOPs",
+    "Flags steps where source materials conflict or are ambiguous",
+    "Version-tracks SOPs when source documents update"
+  ],
+  "risks": [
+    "AI may omit safety-critical steps not mentioned in source materials",
+    "SOPs based on one person's method may not match how others work",
+    "Outdated SOPs are worse than none — review schedule is essential",
+    "Staff may follow incomplete SOPs without reporting gaps"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Manual trigger",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "staff-training-assistant",
+    "ai-admin-organizer"
+  ],
+  "tags": [
+    "sop",
+    "documentation",
+    "onboarding",
+    "process"
+  ],
+  "featured": true
+}

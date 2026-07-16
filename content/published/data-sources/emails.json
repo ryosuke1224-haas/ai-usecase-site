@@ -1,0 +1,37 @@
+{
+  "id": "ds-001",
+  "slug": "emails",
+  "name": "Emails",
+  "examples": [
+    "Customer inquiry threads",
+    "Vendor invoices attached to messages",
+    "Internal team updates"
+  ],
+  "category": "Communications",
+  "summary": "Inbound and outbound email messages from business inboxes, including threads, attachments, and metadata.",
+  "whatItContains": "Sender/recipient addresses, subject lines, body text, timestamps, labels/folders, and file attachments.",
+  "whatAiCanDoWithIt": [
+    "Summarize unread threads and flag urgent items",
+    "Draft replies in your business tone",
+    "Extract action items and due dates",
+    "Classify messages by intent (quote, complaint, booking)"
+  ],
+  "relatedUseCases": [
+    "ai-daily-inbox-briefing",
+    "ai-customer-response-assistant",
+    "ai-follow-up-engine",
+    "quote-request-assistant"
+  ],
+  "relatedApis": [
+    "gmail-api",
+    "microsoft-graph-outlook-api",
+    "openai-api"
+  ],
+  "privacyLevel": "PII",
+  "accessMethod": "OAuth via Gmail API or Microsoft Graph with read/send scopes",
+  "tags": [
+    "inbox",
+    "communication",
+    "customer-facing"
+  ]
+}

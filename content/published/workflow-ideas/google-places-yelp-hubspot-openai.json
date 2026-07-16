@@ -1,0 +1,38 @@
+{
+  "id": "wf-007",
+  "slug": "google-places-yelp-hubspot-openai",
+  "title": "Local Lead Discovery & CRM Stack",
+  "summary": "Combine Google Places and Yelp for local B2B prospecting, score and personalize with OpenAI, and sync clean leads into HubSpot — the core stack for outbound local sales teams.",
+  "apiCombination": [
+    "google-places-api",
+    "yelp-fusion-api",
+    "openai-api",
+    "hubspot-api"
+  ],
+  "dataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites",
+    "crm-records",
+    "lead-forms"
+  ],
+  "possibleUseCases": [
+    "ai-local-lead-finder",
+    "ai-lead-scoring-engine",
+    "ai-personalized-outreach-writer",
+    "ai-crm-deduplication-enrichment"
+  ],
+  "exampleWorkflow": "Weekly: search Google Places by ICP category and city radius. Cross-match with Yelp for reviews and ratings. OpenAI scores each business for fit and tags pain signals from review text. Deduplicate against HubSpot companies by domain and phone. Create new contacts with score, pain tags, and a draft outreach angle in a custom property. Rep reviews top-scored leads and sends personalized emails from Gmail drafts.",
+  "businessValue": "Replaces 5–10 hours of manual list building per week. Pain-signal tagging improves reply rates vs. generic cold email. CRM dedup prevents duplicate outreach to the same account.",
+  "implementationDifficulty": "Intermediate",
+  "recommendedFor": [
+    "B2B agencies selling to local businesses",
+    "SaaS with local SMB ICP",
+    "Professional services firms doing territorial prospecting"
+  ],
+  "risks": [
+    "Google Places and Yelp rate limits require batching for large territories",
+    "Cold outreach compliance varies by region — include opt-out and accurate sender info",
+    "Yelp data may not cover all B2B verticals — supplement with Outscraper for gaps"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "api-011",
+  "slug": "hubspot-api",
+  "name": "HubSpot API",
+  "provider": "HubSpot",
+  "category": "CRM",
+  "summary": "Manage contacts, deals, tickets, and marketing data in HubSpot.",
+  "whatItDoes": "Reads and writes CRM records — the central hub for lead tracking, deal pipeline updates, and customer interaction logging in AI sales workflows.",
+  "dataAvailable": [
+    "Contacts and companies",
+    "Deals and pipeline stages",
+    "Support tickets",
+    "Email engagement logs"
+  ],
+  "actionsSupported": [
+    "Create and update contacts",
+    "Move deals between stages",
+    "Log activities and notes",
+    "Create tickets"
+  ],
+  "authenticationType": "OAuth 2.0 or Private App token",
+  "commonUseCases": [
+    "ai-follow-up-engine",
+    "quote-request-assistant",
+    "inactive-customer-winback",
+    "ai-crm-deduplication-enrichment",
+    "ai-lead-scoring-engine",
+    "ai-sales-briefing",
+    "ai-pipeline-risk-detector",
+    "ai-proposal-follow-up-assistant"
+  ],
+  "relatedDataSources": [
+    "crm-records",
+    "customer-list",
+    "support-tickets",
+    "lead-forms",
+    "proposal-history",
+    "sales-activity-logs",
+    "call-notes"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "CRM holds full customer PII. Use private apps with scoped permissions and audit write operations.",
+  "documentationUrlPlaceholder": "https://developers.hubspot.com",
+  "tags": [
+    "crm",
+    "sales",
+    "hubspot"
+  ]
+}

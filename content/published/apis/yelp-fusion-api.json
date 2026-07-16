@@ -1,0 +1,35 @@
+{
+  "id": "api-007",
+  "slug": "yelp-fusion-api",
+  "name": "Yelp Fusion API",
+  "provider": "Yelp",
+  "category": "Reputation",
+  "summary": "Search businesses and access Yelp review and rating data.",
+  "whatItDoes": "Fetches your business reviews and enables competitor benchmarking by pulling review data for nearby businesses in the same category.",
+  "dataAvailable": [
+    "Business review text and ratings",
+    "Competitor business listings",
+    "Category and location data"
+  ],
+  "actionsSupported": [
+    "Search businesses",
+    "Fetch business reviews",
+    "Get business details"
+  ],
+  "authenticationType": "API Key",
+  "commonUseCases": [
+    "ai-review-intelligence",
+    "local-seo-content-assistant"
+  ],
+  "relatedDataSources": [
+    "customer-reviews"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Yelp API has rate limits and terms on data storage. Do not republish review content without attribution.",
+  "documentationUrlPlaceholder": "https://docs.developer.yelp.com",
+  "tags": [
+    "reviews",
+    "yelp",
+    "competitors"
+  ]
+}

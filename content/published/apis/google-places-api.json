@@ -1,0 +1,37 @@
+{
+  "id": "api-025",
+  "slug": "google-places-api",
+  "name": "Google Places API",
+  "provider": "Google",
+  "category": "Lead Discovery",
+  "summary": "Search and retrieve business listings, locations, and place details from Google Maps.",
+  "whatItDoes": "Powers local B2B lead discovery by searching businesses by category, location, and radius — returns names, addresses, ratings, review counts, websites, and phone numbers for ICP matching.",
+  "dataAvailable": [
+    "Business name and place ID",
+    "Address and coordinates",
+    "Rating and review count",
+    "Website and phone number",
+    "Business category and hours"
+  ],
+  "actionsSupported": [
+    "Text search for places",
+    "Nearby search by location",
+    "Place details lookup",
+    "Autocomplete for query building"
+  ],
+  "authenticationType": "API Key (Google Cloud)",
+  "commonUseCases": [
+    "ai-local-lead-finder",
+    "ai-lead-scoring-engine",
+    "ai-account-research-assistant"
+  ],
+  "relatedDataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Public listing data only. Respect Google Maps Platform terms — do not republish bulk listings without attribution and usage compliance.",
+  "documentationUrlPlaceholder": "https://developers.google.com/maps/documentation/places",
+  "tags": ["google", "places", "lead-discovery", "local"]
+}

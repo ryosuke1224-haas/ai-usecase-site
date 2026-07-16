@@ -1,0 +1,28 @@
+{
+  "id": "ds-021",
+  "slug": "bank-transactions",
+  "name": "Bank Transactions",
+  "examples": [
+    "Business checking account activity",
+    "Plaid-linked transaction feeds",
+    "Monthly bank statement CSV"
+  ],
+  "category": "Finance",
+  "summary": "Cash inflows and outflows from business bank accounts with dates, amounts, and descriptions.",
+  "whatItContains": "Transaction date, amount, running balance, merchant description, category, and transfer vs payment flags.",
+  "whatAiCanDoWithIt": [
+    "Build 30/60/90-day cash projections",
+    "Identify recurring fixed outflows",
+    "Reconcile expected vs actual cash position",
+    "Flag low-balance risk windows"
+  ],
+  "relatedUseCases": [
+    "ai-cash-flow-forecaster",
+    "ai-expense-watchdog",
+    "ai-break-even-dashboard"
+  ],
+  "relatedApis": ["plaid-api", "quickbooks-api", "xero-api"],
+  "privacyLevel": "Sensitive",
+  "accessMethod": "Plaid Link, bank feed via accounting software, or CSV import",
+  "tags": ["banking", "cash", "transactions"]
+}

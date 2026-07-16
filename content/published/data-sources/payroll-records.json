@@ -1,0 +1,29 @@
+{
+  "id": "ds-017",
+  "slug": "payroll-records",
+  "name": "Payroll Records",
+  "examples": [
+    "Gusto payroll run exports",
+    "ADP pay register summaries",
+    "Manual payroll spreadsheets"
+  ],
+  "category": "Finance",
+  "summary": "Historical and scheduled payroll data including wages, taxes, benefits, and employer costs.",
+  "whatItContains": "Pay period dates, gross and net pay by employee, employer taxes, benefits contributions, overtime hours, and pay frequency.",
+  "whatAiCanDoWithIt": [
+    "Forecast upcoming payroll cash needs",
+    "Calculate labor cost as percent of revenue",
+    "Model cost of a new hire",
+    "Flag payroll spikes vs historical average"
+  ],
+  "relatedUseCases": [
+    "ai-payroll-forecasting",
+    "ai-hiring-affordability-planner",
+    "ai-cash-flow-forecaster",
+    "ai-budget-variance-explainer"
+  ],
+  "relatedApis": ["gusto-api", "adp-api", "quickbooks-api", "google-sheets-api"],
+  "privacyLevel": "PII",
+  "accessMethod": "Payroll platform API, CSV export, or accounting system sync",
+  "tags": ["payroll", "labor", "finance"]
+}

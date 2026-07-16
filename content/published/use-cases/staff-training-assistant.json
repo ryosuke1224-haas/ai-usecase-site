@@ -1,0 +1,93 @@
+{
+  "id": "uc-015",
+  "slug": "staff-training-assistant",
+  "title": "Staff Training Assistant",
+  "category": "HR & Training",
+  "industries": [
+    "Food Service",
+    "Retail",
+    "Home Services",
+    "Healthcare",
+    "Franchises"
+  ],
+  "businessFunctions": [
+    "HR",
+    "Training",
+    "Operations"
+  ],
+  "summary": "Turn SOPs and handbooks into interactive training quizzes and Q&A assistants new hires can use on day one.",
+  "businessProblem": "New hires shadow experienced staff for weeks because training materials are outdated PDFs nobody reads. The owner repeats the same explanations, and consistency across locations suffers.",
+  "outcome": "New hires get an AI training assistant that answers questions from your actual SOPs, plus auto-generated quizzes to verify understanding before working independently.",
+  "whoItsFor": "Businesses hiring 2+ people per quarter who have SOPs or handbooks (even rough ones) and need consistent onboarding without the owner delivering every training session.",
+  "requiredDataSources": [
+    "documents-and-pdfs",
+    "staff-notes"
+  ],
+  "aiInputs": [
+    "SOP documents and employee handbook",
+    "Role-specific training requirements",
+    "Common questions new hires ask in first 30 days",
+    "Safety and compliance requirements for the role"
+  ],
+  "aiOutputs": [
+    "Q&A assistant grounded in company documents (answers with source citations)",
+    "Role-specific quiz (10–15 questions) generated from SOPs",
+    "Training checklist with completion tracking",
+    "Gap report: topics in SOPs that lack clear documentation"
+  ],
+  "requiredApis": [
+    "google-drive-api",
+    "notion-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT custom GPT uploaded with handbook/SOPs",
+    "Notion AI Q&A over training database",
+    "Trainual or Lessonly with AI content import"
+  ],
+  "lowCodeTools": [
+    "Custom GPT or Claude Project with document knowledge base",
+    "n8n: new hire added to sheet → training quiz generated → email sent"
+  ],
+  "customBuildStack": [
+    "Document ingestion pipeline (Drive/Notion → vector store)",
+    "RAG-based Q&A with source citations",
+    "OpenAI for quiz generation from SOP content",
+    "Simple web UI or Slack bot for trainee access"
+  ],
+  "implementationSteps": [
+    "Gather all training materials: SOPs, handbook, safety docs",
+    "Upload to knowledge base (custom GPT, Notion, or vector store)",
+    "Define role-specific training paths and quiz requirements",
+    "Generate initial quizzes from SOPs and review with department lead",
+    "Deploy Q&A assistant for new hires with 'ask anything' access",
+    "Collect questions the AI couldn't answer → identify documentation gaps"
+  ],
+  "systemBehavior": [
+    "Available on-demand for trainee questions (not scheduled)",
+    "Answers only from uploaded documents — says 'I don't know' when unsure",
+    "Cites source document and section for every answer",
+    "Quizzes generated per role, not one-size-fits-all",
+    "Does not replace hands-on supervised practice for physical tasks"
+  ],
+  "risks": [
+    "AI may answer confidently from outdated SOPs without flagging age",
+    "Safety-critical procedures must have human verification, not AI-only training",
+    "Staff may use AI as shortcut instead of reading actual SOPs",
+    "Knowledge base must be updated when procedures change"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Manual trigger",
+  "valuePotential": "Medium",
+  "relatedUseCases": [
+    "ai-sop-builder",
+    "ai-admin-organizer"
+  ],
+  "tags": [
+    "training",
+    "onboarding",
+    "hr",
+    "knowledge-base"
+  ],
+  "featured": false
+}

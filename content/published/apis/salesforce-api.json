@@ -1,0 +1,38 @@
+{
+  "id": "api-030",
+  "slug": "salesforce-api",
+  "name": "Salesforce API",
+  "provider": "Salesforce",
+  "category": "CRM",
+  "summary": "Access leads, accounts, opportunities, and activities in Salesforce CRM.",
+  "whatItDoes": "Enterprise CRM integration for pipeline management, lead scoring writeback, hygiene monitoring, and deal risk detection — the backbone for sales teams on Salesforce.",
+  "dataAvailable": [
+    "Leads, accounts, and contacts",
+    "Opportunities and pipeline stages",
+    "Tasks, events, and email activities",
+    "Custom fields and record types"
+  ],
+  "actionsSupported": [
+    "Query and search records (SOQL)",
+    "Create and update leads/deals",
+    "Log activities and tasks",
+    "Bulk API for large data sets"
+  ],
+  "authenticationType": "OAuth 2.0 (Connected App)",
+  "commonUseCases": [
+    "ai-crm-hygiene-monitor",
+    "ai-pipeline-risk-detector",
+    "ai-sales-briefing",
+    "ai-lead-scoring-engine"
+  ],
+  "relatedDataSources": [
+    "crm-records",
+    "sales-activity-logs",
+    "proposal-history",
+    "emails"
+  ],
+  "difficulty": "Advanced",
+  "privacyNotes": "Salesforce holds full customer PII. Use least-privilege connected apps. Sandbox for testing write operations.",
+  "documentationUrlPlaceholder": "https://developer.salesforce.com/docs/apis",
+  "tags": ["salesforce", "crm", "enterprise", "pipeline"]
+}

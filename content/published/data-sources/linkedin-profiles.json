@@ -1,0 +1,28 @@
+{
+  "id": "ds-032",
+  "slug": "linkedin-profiles",
+  "name": "LinkedIn Profiles",
+  "examples": [
+    "Decision-maker LinkedIn pages",
+    "Sales Navigator lead lists",
+    "Company LinkedIn about sections"
+  ],
+  "category": "Lead Discovery",
+  "summary": "Professional profile data for B2B contacts including role, company, and career history.",
+  "whatItContains": "Name, title, company, tenure, education, skills, and mutual connections. Typically accessed via manual Sales Navigator export — no official outreach API.",
+  "whatAiCanDoWithIt": [
+    "Personalize outreach with role-specific messaging",
+    "Identify decision-makers at target accounts",
+    "Enrich CRM contact records with title and seniority",
+    "Draft LinkedIn connection request notes"
+  ],
+  "relatedUseCases": [
+    "ai-personalized-outreach-writer",
+    "ai-account-research-assistant",
+    "ai-sales-briefing"
+  ],
+  "relatedApis": ["apollo-api", "clearbit-api", "openai-api"],
+  "privacyLevel": "PII",
+  "accessMethod": "LinkedIn Sales Navigator manual export, Apollo enrichment, or copy-paste into CRM",
+  "tags": ["linkedin", "b2b", "contacts", "manual-export"]
+}

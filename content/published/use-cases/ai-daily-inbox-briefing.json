@@ -1,0 +1,92 @@
+{
+  "id": "uc-001",
+  "slug": "ai-daily-inbox-briefing",
+  "title": "AI Daily Inbox Briefing",
+  "category": "Operations",
+  "industries": [
+    "Professional Services",
+    "Agencies",
+    "Consulting",
+    "Any SMB"
+  ],
+  "businessFunctions": [
+    "Operations",
+    "Owner/Admin"
+  ],
+  "summary": "Start each day with a prioritized summary of urgent emails, pending replies, and calendar conflicts — without reading every message.",
+  "businessProblem": "Owners and operators spend the first 30–60 minutes of each day scanning inboxes reactively, often missing urgent client messages buried under newsletters and internal noise.",
+  "outcome": "A concise morning briefing delivered by 7 AM listing: emails needing reply today, messages waiting 48+ hours, and today's meetings with one-line context from related threads.",
+  "whoItsFor": "Solo business owners, agency principals, and office managers who manage their own inbox and calendar without an executive assistant.",
+  "requiredDataSources": [
+    "emails",
+    "calendar-events"
+  ],
+  "aiInputs": [
+    "Unread and recent email threads (subject, sender, body, age)",
+    "Today's and tomorrow's calendar events",
+    "Custom priority rules (e.g., emails from VIP clients, invoices, booking confirmations)"
+  ],
+  "aiOutputs": [
+    "Prioritized email action list with suggested reply urgency",
+    "One-line context per calendar event from related email threads",
+    "Flagged scheduling conflicts or double-bookings",
+    "Draft replies for top 3 urgent messages (optional)"
+  ],
+  "requiredApis": [
+    "gmail-api",
+    "google-calendar-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "Zapier or Make.com for scheduled trigger",
+    "ChatGPT with Gmail/Calendar plugins (manual daily run)",
+    "Google Apps Script + OpenAI API (lightweight custom)"
+  ],
+  "lowCodeTools": [
+    "n8n workflow with Gmail + Calendar + OpenAI nodes",
+    "Pipedream scheduled workflow",
+    "Relevance AI agent with Gmail connector"
+  ],
+  "customBuildStack": [
+    "Node.js cron job",
+    "Gmail API + Google Calendar API",
+    "OpenAI API (gpt-4o-mini for cost efficiency)",
+    "Slack webhook or email delivery"
+  ],
+  "implementationSteps": [
+    "Connect Gmail and Google Calendar via OAuth with read scopes",
+    "Define priority rules: which senders, keywords, or labels escalate urgency",
+    "Build prompt template: inbox threads + calendar → structured briefing format",
+    "Schedule daily run at 6:30 AM local time",
+    "Deliver briefing via email draft, Slack message, or mobile notification",
+    "Review first 2 weeks of briefings and tune priority rules based on misses"
+  ],
+  "systemBehavior": [
+    "Runs on a fixed daily schedule (not real-time)",
+    "Reads inbox state at run time — does not monitor continuously",
+    "Never sends emails automatically without explicit opt-in to that feature",
+    "Skips newsletters, automated notifications, and marketing unless flagged",
+    "Preserves thread context — summarizes, does not replace reading critical emails"
+  ],
+  "risks": [
+    "AI may deprioritize genuinely urgent messages with unusual phrasing",
+    "OAuth tokens expire — unattended runs fail silently without monitoring",
+    "Briefing sent to wrong channel could expose client email content",
+    "Over-reliance reduces owner's direct inbox awareness over time"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-meeting-prep-assistant",
+    "ai-customer-response-assistant",
+    "weekly-owner-briefing"
+  ],
+  "tags": [
+    "inbox",
+    "morning-routine",
+    "email",
+    "calendar"
+  ],
+  "featured": true
+}

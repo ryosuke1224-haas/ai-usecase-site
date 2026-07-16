@@ -1,0 +1,90 @@
+{
+  "id": "uc-035",
+  "slug": "ai-pipeline-risk-detector",
+  "title": "AI Pipeline Risk Detector",
+  "tagline": "Spot stalled deals before they disappear.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Operations"],
+  "summary": "Detects deals at risk based on stage age, lack of activity, email response patterns, missing next steps, and forecast changes.",
+  "businessProblem": "Deals silently stall — reps assume 'no news is good news' until the quarter ends. Managers discover at-risk pipeline only when it's too late to recover.",
+  "outcome": "Daily or weekly risk-ranked deal list with specific risk factors, suggested recovery actions, and forecast impact — so reps intervene before deals go cold.",
+  "whoItsFor": "Sales managers and reps managing 10–50 active opportunities who need early warning on stall patterns without manual pipeline reviews.",
+  "requiredDataSources": [
+    "crm-records",
+    "sales-activity-logs",
+    "emails",
+    "call-notes",
+    "proposal-history"
+  ],
+  "aiInputs": [
+    "Deal stage, amount, close date, and days in current stage",
+    "Activity timeline: last email, call, meeting date",
+    "Email sentiment and response latency patterns",
+    "Presence of next step and scheduled follow-up in CRM",
+    "Proposal sent date and response status if applicable"
+  ],
+  "aiOutputs": [
+    "Risk score per deal (0–100) with factor breakdown",
+    "Risk tier: Critical / At Risk / Watch / Healthy",
+    "Specific stall signals cited with dates",
+    "Suggested recovery action per deal (call, exec sponsor, revised proposal)",
+    "Manager rollup: total pipeline at risk by rep and stage"
+  ],
+  "requiredApis": [
+    "hubspot-api",
+    "salesforce-api",
+    "gmail-api",
+    "microsoft-graph-outlook-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "HubSpot deal pipeline reports with custom risk properties",
+    "Salesforce Einstein deal insights (if licensed)",
+    "Zapier: stale deal trigger → GPT risk summary → Slack alert"
+  ],
+  "lowCodeTools": [
+    "n8n daily: CRM deals → activity check → OpenAI risk narrative → Slack",
+    "Google Sheets pipeline export + Apps Script risk scoring",
+    "Make.com: Salesforce opportunity update → risk recalc → email manager"
+  ],
+  "customBuildStack": [
+    "CRM deal sync with activity aggregation",
+    "Rule-based risk factors + AI qualitative email/thread analysis",
+    "Gmail/Outlook API for response pattern detection",
+    "Slack alerts for Critical tier deals",
+    "Manager dashboard with risk trend over time"
+  ],
+  "implementationSteps": [
+    "Define risk factors and weights: stage age, activity gap, no next step, ghosted emails",
+    "Connect CRM and email APIs for activity and thread analysis",
+    "Build baseline rule score; add AI layer for email tone and engagement signals",
+    "Deliver daily Slack digest to reps; weekly rollup to managers",
+    "Track recovery rate: deals flagged at risk that moved forward vs. lost",
+    "Tune thresholds quarterly based on your average sales cycle length"
+  ],
+  "systemBehavior": [
+    "Runs daily on full active pipeline — not per-email real-time",
+    "Read-only on email; writes risk score fields to CRM",
+    "Does not auto-change deal stages or close dates",
+    "Escalates Critical deals to manager channel after 48h no rep action",
+    "Logs risk score history to show improvement or deterioration"
+  ],
+  "risks": [
+    "False positives on slow enterprise deals create alert fatigue",
+    "Email sentiment analysis misreads short replies as disengagement",
+    "Risk scores without rep context blame wrong factors",
+    "Over-monitoring damages rep trust if used punitively"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-crm-hygiene-monitor",
+    "ai-proposal-follow-up-assistant",
+    "ai-sales-briefing",
+    "ai-follow-up-engine"
+  ],
+  "tags": ["pipeline", "risk", "forecast", "stall", "deal-recovery"],
+  "featured": false
+}

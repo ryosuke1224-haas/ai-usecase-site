@@ -1,0 +1,36 @@
+{
+  "id": "api-023",
+  "slug": "adp-api",
+  "name": "ADP API",
+  "provider": "ADP",
+  "category": "Payroll",
+  "summary": "Access enterprise and mid-market payroll, time, and labor data via ADP APIs.",
+  "whatItDoes": "Integrates with ADP Workforce Now and related products for payroll totals, time cards, and labor cost reporting — used by larger SMBs and multi-location operators.",
+  "dataAvailable": [
+    "Payroll register summaries",
+    "Time and attendance records",
+    "Employee roster and job codes",
+    "Labor cost by department"
+  ],
+  "actionsSupported": [
+    "Retrieve payroll summaries",
+    "Read time card data",
+    "List workers and roles",
+    "Export labor reports"
+  ],
+  "authenticationType": "OAuth 2.0 (ADP Marketplace app)",
+  "commonUseCases": [
+    "ai-payroll-forecasting",
+    "ai-staffing-optimizer",
+    "ai-budget-variance-explainer"
+  ],
+  "relatedDataSources": [
+    "payroll-records",
+    "time-tracking-data",
+    "staff-schedules"
+  ],
+  "difficulty": "Advanced",
+  "privacyNotes": "ADP integrations require marketplace certification. Payroll compliance rules vary by state — outputs are planning-only, not compliance filings.",
+  "documentationUrlPlaceholder": "https://developers.adp.com",
+  "tags": ["payroll", "adp", "enterprise"]
+}

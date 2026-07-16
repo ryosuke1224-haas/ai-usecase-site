@@ -1,0 +1,39 @@
+{
+  "id": "api-013",
+  "slug": "stripe-api",
+  "name": "Stripe API",
+  "provider": "Stripe",
+  "category": "Payments",
+  "summary": "Access payment, subscription, and customer billing data.",
+  "whatItDoes": "Reads payment events and customer records from Stripe — useful for SaaS, e-commerce, and service businesses billing online.",
+  "dataAvailable": [
+    "Payment intents and charges",
+    "Customer objects",
+    "Subscription status",
+    "Invoice records"
+  ],
+  "actionsSupported": [
+    "List payments and customers",
+    "Read subscription status",
+    "Retrieve invoices",
+    "Webhook on payment events"
+  ],
+  "authenticationType": "API Key (secret key for server-side)",
+  "commonUseCases": [
+    "inactive-customer-winback",
+    "weekly-owner-briefing"
+  ],
+  "relatedDataSources": [
+    "pos-transactions",
+    "invoices",
+    "customer-list"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Never expose secret keys client-side. Use webhooks with signature verification for payment events.",
+  "documentationUrlPlaceholder": "https://stripe.com/docs/api",
+  "tags": [
+    "payments",
+    "billing",
+    "subscriptions"
+  ]
+}

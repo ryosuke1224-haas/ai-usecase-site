@@ -1,0 +1,27 @@
+{
+  "id": "ds-031",
+  "slug": "industry-directories",
+  "name": "Industry Directories",
+  "examples": [
+    "Trade association member lists",
+    "Niche B2B directories (Clutch, G2 category pages)",
+    "Chamber of commerce business directories"
+  ],
+  "category": "Lead Discovery",
+  "summary": "Curated lists of businesses within a specific industry or trade association.",
+  "whatItContains": "Business name, industry category, location, membership tier, and sometimes contact info or certifications.",
+  "whatAiCanDoWithIt": [
+    "Expand lead lists beyond Google/Yelp for niche verticals",
+    "Validate ICP fit via association membership",
+    "Cross-reference with CRM to find net-new prospects",
+    "Segment outreach by directory category"
+  ],
+  "relatedUseCases": [
+    "ai-local-lead-finder",
+    "ai-account-research-assistant"
+  ],
+  "relatedApis": ["outscraper-api", "apify-api", "google-sheets-api"],
+  "privacyLevel": "Public",
+  "accessMethod": "Scraping, CSV purchase, or manual export from directory site",
+  "tags": ["directories", "industry", "prospecting"]
+}

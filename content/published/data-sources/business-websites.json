@@ -1,0 +1,29 @@
+{
+  "id": "ds-027",
+  "slug": "business-websites",
+  "name": "Business Websites",
+  "examples": [
+    "Prospect homepage and about page",
+    "Service and pricing pages",
+    "Team and careers pages"
+  ],
+  "category": "Lead Discovery",
+  "summary": "Public website content from target businesses used for research and personalization.",
+  "whatItContains": "Page text, service descriptions, team info, technology hints, contact forms, blog posts, and careers/job listings.",
+  "whatAiCanDoWithIt": [
+    "Infer business problems and service gaps",
+    "Draft personalized outreach referencing specific pages",
+    "Score website quality and professionalism as fit signal",
+    "Extract tech stack and growth signals from careers pages"
+  ],
+  "relatedUseCases": [
+    "ai-account-research-assistant",
+    "ai-personalized-outreach-writer",
+    "ai-sales-briefing",
+    "ai-lead-scoring-engine"
+  ],
+  "relatedApis": ["apify-api", "openai-api", "anthropic-claude-api", "clearbit-api"],
+  "privacyLevel": "Public",
+  "accessMethod": "HTTP fetch, Apify web scraper, or manual copy",
+  "tags": ["website", "research", "personalization"]
+}

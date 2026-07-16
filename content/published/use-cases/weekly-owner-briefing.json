@@ -1,0 +1,97 @@
+{
+  "id": "uc-011",
+  "slug": "weekly-owner-briefing",
+  "title": "Weekly Owner Briefing",
+  "category": "Operations",
+  "industries": [
+    "Any SMB",
+    "Retail",
+    "Restaurants",
+    "Services"
+  ],
+  "businessFunctions": [
+    "Owner/Admin",
+    "Finance",
+    "Operations"
+  ],
+  "summary": "A Friday summary of revenue, overdue invoices, pipeline status, and key metrics — narrated in plain English, not spreadsheet format.",
+  "businessProblem": "Owners don't review financial and operational data consistently because dashboards require interpretation. By the time they notice a revenue dip or overdue invoices, weeks have passed.",
+  "outcome": "Every Friday at 4 PM: a 1-page narrative briefing covering revenue vs. last week, top overdue invoices, quote pipeline status, and 2–3 recommended actions for next week.",
+  "whoItsFor": "Business owners who have the data in QuickBooks, Stripe, or spreadsheets but rarely look at it until tax season or something breaks.",
+  "requiredDataSources": [
+    "invoices",
+    "pos-transactions",
+    "spreadsheets",
+    "crm-records"
+  ],
+  "aiInputs": [
+    "Weekly revenue from POS/payment platform",
+    "Overdue invoices with amounts and ages",
+    "Quote pipeline from tracker spreadsheet or CRM",
+    "Key KPIs the owner cares about (customizable)",
+    "Prior week briefing for week-over-week comparison"
+  ],
+  "aiOutputs": [
+    "Narrative summary in plain English (not tables)",
+    "Week-over-week revenue comparison with context",
+    "Top 5 overdue invoices with recommended follow-up action",
+    "Quote pipeline status: new, pending, won, lost",
+    "2–3 prioritized action items for next week"
+  ],
+  "requiredApis": [
+    "quickbooks-api",
+    "google-sheets-api",
+    "gmail-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT with weekly data pasted (manual Friday ritual)",
+    "Google Sheets + GPT formula for narrative summary",
+    "Databox or Geckoboard with AI narrative layer"
+  ],
+  "lowCodeTools": [
+    "n8n: Friday trigger → QuickBooks + Sheets pull → OpenAI → email",
+    "Pipedream scheduled weekly workflow"
+  ],
+  "customBuildStack": [
+    "Friday cron job",
+    "QuickBooks API + Sheets API for data pull",
+    "OpenAI for narrative generation",
+    "Email delivery via Gmail API"
+  ],
+  "implementationSteps": [
+    "List the 5–7 metrics the owner actually cares about",
+    "Connect data sources: accounting, POS, quote tracker",
+    "Build prompt template for narrative briefing format",
+    "Schedule Friday 4 PM delivery",
+    "Review first 4 briefings with owner — tune metrics and tone",
+    "Add week-over-week comparison after baseline established"
+  ],
+  "systemBehavior": [
+    "Runs weekly on fixed schedule (Friday afternoon)",
+    "Read-only — does not modify any financial records",
+    "Compares to prior week automatically when history exists",
+    "Flags anomalies (revenue drop >15%, new large overdue invoice)",
+    "Keeps briefing to 1 page — links to source data for details"
+  ],
+  "risks": [
+    "AI narrative may misinterpret financial data if source numbers are wrong",
+    "QuickBooks API complexity makes this harder than it appears",
+    "Owners may ignore briefings if they become too long or generic",
+    "Sensitive financial data in email briefings needs encryption consideration"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Fully automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-admin-organizer",
+    "ai-daily-inbox-briefing"
+  ],
+  "tags": [
+    "briefing",
+    "finance",
+    "weekly",
+    "owner"
+  ],
+  "featured": true
+}

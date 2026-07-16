@@ -1,0 +1,39 @@
+{
+  "id": "api-010",
+  "slug": "calendly-api",
+  "name": "Calendly API",
+  "provider": "Calendly",
+  "category": "Scheduling",
+  "summary": "Access booking events, invitee data, and scheduling links.",
+  "whatItDoes": "Pulls new bookings, cancellations, and no-shows from Calendly — triggers AI briefings and follow-up workflows when appointments change.",
+  "dataAvailable": [
+    "Scheduled events and invitee info",
+    "Cancellation and no-show status",
+    "Event types and durations",
+    "Custom question responses"
+  ],
+  "actionsSupported": [
+    "List scheduled events",
+    "Get invitee details",
+    "List event types",
+    "Webhook on new bookings"
+  ],
+  "authenticationType": "Personal Access Token or OAuth 2.0",
+  "commonUseCases": [
+    "ai-booking-optimizer",
+    "no-show-recovery-assistant",
+    "ai-meeting-prep-assistant"
+  ],
+  "relatedDataSources": [
+    "booking-data",
+    "calendar-events"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Invitee data is PII. Use webhooks with signed payloads and delete data per your retention policy.",
+  "documentationUrlPlaceholder": "https://developer.calendly.com",
+  "tags": [
+    "booking",
+    "scheduling",
+    "calendly"
+  ]
+}

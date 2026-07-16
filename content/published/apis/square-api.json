@@ -1,0 +1,38 @@
+{
+  "id": "api-012",
+  "slug": "square-api",
+  "name": "Square API",
+  "provider": "Square",
+  "category": "Payments / POS",
+  "summary": "Access transaction, customer, and catalog data from Square POS.",
+  "whatItDoes": "Pulls purchase history and customer profiles from Square — powers winback campaigns and post-purchase follow-up workflows for retail and food businesses.",
+  "dataAvailable": [
+    "Transaction and payment records",
+    "Customer profiles linked to cards",
+    "Catalog items and categories",
+    "Loyalty data"
+  ],
+  "actionsSupported": [
+    "List payments and orders",
+    "Search customers",
+    "Read catalog",
+    "Create customer records"
+  ],
+  "authenticationType": "OAuth 2.0 (Square merchant account)",
+  "commonUseCases": [
+    "inactive-customer-winback",
+    "ai-follow-up-engine"
+  ],
+  "relatedDataSources": [
+    "pos-transactions",
+    "customer-list"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Payment data is highly sensitive. Never log full card numbers. Comply with PCI-DSS by using Square's tokenized customer IDs only.",
+  "documentationUrlPlaceholder": "https://developer.squareup.com",
+  "tags": [
+    "pos",
+    "payments",
+    "retail"
+  ]
+}

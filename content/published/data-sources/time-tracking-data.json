@@ -1,0 +1,28 @@
+{
+  "id": "ds-019",
+  "slug": "time-tracking-data",
+  "name": "Time Tracking Data",
+  "examples": [
+    "TSheets/QuickBooks Time entries",
+    "Clock-in/out logs",
+    "Billable hours by project"
+  ],
+  "category": "Operations",
+  "summary": "Actual hours worked versus scheduled hours, including overtime and job-level time.",
+  "whatItContains": "Clock-in/out timestamps, total hours per employee, overtime flags, job or department codes, and approval status.",
+  "whatAiCanDoWithIt": [
+    "Compare actual vs scheduled labor hours",
+    "Forecast overtime costs",
+    "Calculate true labor cost per service or location",
+    "Detect time theft or missing punches patterns"
+  ],
+  "relatedUseCases": [
+    "ai-staffing-optimizer",
+    "ai-payroll-forecasting",
+    "ai-break-even-dashboard"
+  ],
+  "relatedApis": ["gusto-api", "adp-api", "quickbooks-api"],
+  "privacyLevel": "PII",
+  "accessMethod": "Time tracking API or payroll system integration",
+  "tags": ["time-tracking", "labor", "hours"]
+}

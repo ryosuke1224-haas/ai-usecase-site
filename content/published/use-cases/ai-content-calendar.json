@@ -1,0 +1,93 @@
+{
+  "id": "uc-007",
+  "slug": "ai-content-calendar",
+  "title": "AI Content Calendar",
+  "category": "Marketing",
+  "industries": [
+    "Restaurants",
+    "Retail",
+    "Salons",
+    "Professional Services",
+    "Local Services"
+  ],
+  "businessFunctions": [
+    "Marketing",
+    "Social Media"
+  ],
+  "summary": "Generate a monthly content calendar with post ideas, captions, and hashtags based on your business, reviews, and seasonal events.",
+  "businessProblem": "Social media posting is inconsistent because content ideas run dry. Owners post reactively or go silent for weeks, hurting engagement and local visibility.",
+  "outcome": "A 4-week content calendar with 12–16 post ideas, draft captions in your brand voice, suggested posting days, and hashtag sets — ready for scheduling.",
+  "whoItsFor": "SMBs doing their own social media without a dedicated marketer — especially local businesses that need consistent Google and social presence.",
+  "requiredDataSources": [
+    "customer-reviews",
+    "social-media-comments",
+    "documents-and-pdfs"
+  ],
+  "aiInputs": [
+    "Business description, services, and target customer",
+    "Recent positive review quotes for social proof posts",
+    "Seasonal events and local holidays for the month",
+    "Brand voice guide and past top-performing posts",
+    "Competitor content themes (optional)"
+  ],
+  "aiOutputs": [
+    "4-week calendar grid with post type per day",
+    "Draft caption per post (short and long versions)",
+    "Hashtag suggestions per post",
+    "Content type mix: promotional, educational, social proof, behind-the-scenes"
+  ],
+  "requiredApis": [
+    "openai-api",
+    "google-gemini-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT or Claude monthly content planning session",
+    "Canva AI content planner",
+    "Buffer or Hootsuite AI caption tools"
+  ],
+  "lowCodeTools": [
+    "n8n: monthly trigger → pull reviews → OpenAI calendar → Google Sheet",
+    "Jasper or Copy.ai with brand voice profile"
+  ],
+  "customBuildStack": [
+    "Monthly scheduled job",
+    "Review data pull from Google Business Profile API",
+    "OpenAI for calendar generation",
+    "Output to Notion database or Airtable content calendar"
+  ],
+  "implementationSteps": [
+    "Document brand voice: tone, words to use/avoid, emoji policy",
+    "List services, promotions, and events for the upcoming month",
+    "Pull 10 recent positive reviews for social proof content",
+    "Generate calendar with AI using structured output template",
+    "Review and adjust — replace any generic or off-brand ideas",
+    "Schedule approved posts in Buffer, Later, or native platform schedulers"
+  ],
+  "systemBehavior": [
+    "Runs monthly (or on-demand for campaign planning)",
+    "Generates ideas and drafts — does not auto-post",
+    "Balances content types to avoid all-promotional calendars",
+    "Incorporates real customer language from reviews",
+    "Flags posts that need photos the business doesn't have yet"
+  ],
+  "risks": [
+    "Generic AI captions sound identical to competitors using the same tools",
+    "Seasonal references may be wrong if AI lacks current date context",
+    "Social proof posts using review quotes need customer permission on some platforms",
+    "Hashtag suggestions may include irrelevant or banned tags"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Manual trigger",
+  "valuePotential": "Medium",
+  "relatedUseCases": [
+    "local-seo-content-assistant",
+    "ai-review-intelligence"
+  ],
+  "tags": [
+    "content",
+    "social-media",
+    "marketing",
+    "calendar"
+  ],
+  "featured": false
+}

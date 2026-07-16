@@ -1,0 +1,91 @@
+{
+  "id": "uc-033",
+  "slug": "ai-account-research-assistant",
+  "title": "AI Account Research Assistant",
+  "tagline": "Research target accounts and identify business problems worth solving.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Business Development", "Marketing"],
+  "summary": "Reviews websites, public listings, reviews, news, job posts, and CRM records to create a structured account research brief.",
+  "businessProblem": "Enterprise and mid-market deals require deep account research, but reps default to skimming the homepage. Critical signals — hiring sprees, negative review patterns, leadership changes — get missed.",
+  "outcome": "A structured account dossier with company overview, org map hints, pain hypotheses, competitive landscape notes, and recommended entry points for outreach or discovery.",
+  "whoItsFor": "B2B sellers targeting named accounts — agencies pursuing specific brands, SaaS reps doing ABM, consultants building strategic account lists.",
+  "requiredDataSources": [
+    "business-websites",
+    "public-business-listings",
+    "customer-reviews",
+    "crm-records",
+    "linkedin-profiles",
+    "industry-directories",
+    "tripadvisor-listings"
+  ],
+  "aiInputs": [
+    "Target account name, domain, and known contacts",
+    "Website pages: about, services, careers, blog, leadership",
+    "Public reviews and listing data from Google/Yelp/TripAdvisor",
+    "CRM history if existing relationship or past opportunity",
+    "Job postings and news mentions if available via scrape or manual paste"
+  ],
+  "aiOutputs": [
+    "Account overview: what they do, size proxies, locations, key offerings",
+    "Pain hypothesis list with evidence links (reviews, careers, website gaps)",
+    "Likely decision-makers and influencer map from LinkedIn/public data",
+    "Competitive and market context paragraph",
+    "Recommended talk tracks and discovery angles"
+  ],
+  "requiredApis": [
+    "apify-api",
+    "outscraper-api",
+    "apollo-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT deep research with website URLs pasted in",
+    "Clay.com account research table with website + reviews + GPT columns",
+    "Perplexity or Gemini for news and company research summaries"
+  ],
+  "lowCodeTools": [
+    "n8n: account list → Apify website scrape → OpenAI dossier → Notion page",
+    "Google Sheets account list + Outscraper + Claude batch briefs",
+    "Make.com: CRM account trigger → enrichment → research doc in Drive"
+  ],
+  "customBuildStack": [
+    "Apify website crawler for multi-page account scrape",
+    "Outscraper for reviews and listing cross-check",
+    "Apollo for contact and firmographic enrichment",
+    "Claude/OpenAI long-context dossier generation",
+    "Notion or CRM account note auto-population"
+  ],
+  "implementationSteps": [
+    "Define account research template sections and quality bar",
+    "Build website scrape pipeline — homepage, about, services, careers minimum",
+    "Add review and listing enrichment for local/multi-location accounts",
+    "Generate dossier per account; store in CRM account notes or Notion",
+    "Rep validates pain hypotheses before using in outreach",
+    "Refresh dossiers quarterly or on trigger (new funding, leadership change)"
+  ],
+  "systemBehavior": [
+    "Runs on-demand per account or batch weekly for ABM target list",
+    "Cites source URLs for every claim in the dossier",
+    "Read-only on public sources and CRM — writes research to notes only",
+    "Flags low-confidence sections when scrape fails or data is thin",
+    "Does not contact the account or trigger any outreach automatically"
+  ],
+  "risks": [
+    "Scraped website content may miss login-gated or JavaScript-heavy pages",
+    "AI-inferred pain points without evidence lead to off-target messaging",
+    "Job posting interpretation can misread growth vs. turnover signals",
+    "Research volume must respect robots.txt and platform terms of service"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-sales-briefing",
+    "ai-local-lead-finder",
+    "ai-personalized-outreach-writer",
+    "ai-lead-scoring-engine"
+  ],
+  "tags": ["account-research", "abm", "dossier", "prospecting", "intelligence"],
+  "featured": false
+}

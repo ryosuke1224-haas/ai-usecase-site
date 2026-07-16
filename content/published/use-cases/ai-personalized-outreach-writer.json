@@ -1,0 +1,90 @@
+{
+  "id": "uc-030",
+  "slug": "ai-personalized-outreach-writer",
+  "title": "AI Personalized Outreach Writer",
+  "tagline": "Turn public business signals into relevant sales messages.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Business Development", "Marketing"],
+  "summary": "Uses business profile data, reviews, website content, and pain-point hypotheses to draft personalized cold emails, LinkedIn messages, and follow-ups.",
+  "businessProblem": "Generic cold emails get ignored. Reps either spend 15 minutes researching each prospect manually or blast templates that damage domain reputation and brand.",
+  "outcome": "Draft outreach messages that reference specific, verifiable business signals — a recent negative review theme, a missing service page, or a hiring post — ready for rep review and send.",
+  "whoItsFor": "B2B sellers doing outbound prospecting who need personalization at scale without sacrificing relevance or compliance.",
+  "requiredDataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites",
+    "linkedin-profiles",
+    "crm-records"
+  ],
+  "aiInputs": [
+    "Prospect business profile: name, industry, location, website",
+    "Review excerpts highlighting pain themes",
+    "Website page summaries (services, about, careers)",
+    "LinkedIn profile or title for contact-level personalization",
+    "Your value proposition and proof points (case study snippets)"
+  ],
+  "aiOutputs": [
+    "Cold email draft (subject + body) with specific signal references",
+    "LinkedIn connection note or InMail draft (under character limits)",
+    "Follow-up variant for non-responders after 5 days",
+    "Personalization evidence sheet — what signals were used and why",
+    "A/B subject line alternatives"
+  ],
+  "requiredApis": [
+    "openai-api",
+    "google-places-api",
+    "yelp-fusion-api",
+    "gmail-api",
+    "hubspot-api"
+  ],
+  "noCodeTools": [
+    "Clay.com personalized email columns from Places + reviews + GPT",
+    "ChatGPT custom GPT with your ICP and case studies pasted in",
+    "Lavender or Regie.ai for AI email drafting with CRM sync"
+  ],
+  "lowCodeTools": [
+    "n8n: lead row → enrich reviews → OpenAI draft → Gmail draft create",
+    "Google Sheets prospect list + Apps Script + Claude API batch drafts",
+    "Make.com: HubSpot list → enrichment → OpenAI → draft in Gmail"
+  ],
+  "customBuildStack": [
+    "Prospect enrichment pipeline (Places, Yelp, website scrape)",
+    "Prompt template library by industry and pain signal type",
+    "OpenAI/Claude with structured output for email + LinkedIn variants",
+    "Gmail API draft creation — never auto-send",
+    "HubSpot activity logging of generated drafts"
+  ],
+  "implementationSteps": [
+    "Document your ICP, offer, and 3–5 proof points reps actually use",
+    "Build signal extraction: pull top review themes and website gaps per prospect",
+    "Create prompt templates per outreach type (cold email, LinkedIn, follow-up)",
+    "Generate drafts in batch; deliver as Gmail drafts or CRM tasks",
+    "Rep reviews, edits, and sends — track reply rates by signal type",
+    "Iterate prompts monthly based on what gets replies"
+  ],
+  "systemBehavior": [
+    "Draft-only — never sends without human approval",
+    "Cites specific public signals so reps can verify before sending",
+    "Respects character limits for LinkedIn connection notes",
+    "Skips prospects on do-not-contact or recent outreach lists",
+    "Logs prompt version used for each draft for quality tracking"
+  ],
+  "risks": [
+    "AI hallucinating review content or business facts destroys credibility",
+    "Over-personalization from scraped data can feel creepy to recipients",
+    "CAN-SPAM requires accurate sender info and unsubscribe option",
+    "LinkedIn automation restrictions — use manual send for InMail and connections"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-local-lead-finder",
+    "ai-lead-scoring-engine",
+    "ai-nurture-sequence-builder",
+    "ai-follow-up-engine"
+  ],
+  "tags": ["outreach", "cold-email", "personalization", "linkedin", "copywriting"],
+  "featured": false
+}

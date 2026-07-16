@@ -1,0 +1,28 @@
+{
+  "id": "ds-028",
+  "slug": "proposal-history",
+  "name": "Proposal History",
+  "examples": [
+    "Sent quotes in CRM",
+    "Proposal tool exports (PandaDoc, Proposify)",
+    "Email threads with attached proposals"
+  ],
+  "category": "Sales",
+  "summary": "Records of quotes and proposals sent to prospects including status and follow-up history.",
+  "whatItContains": "Proposal date, amount, line items, recipient, open/view status, response status, and days since sent.",
+  "whatAiCanDoWithIt": [
+    "Identify stalled proposals needing follow-up",
+    "Draft context-aware follow-up messages",
+    "Flag deals at risk from proposal silence",
+    "Analyze win/loss patterns by proposal type"
+  ],
+  "relatedUseCases": [
+    "ai-proposal-follow-up-assistant",
+    "ai-pipeline-risk-detector",
+    "ai-sales-briefing"
+  ],
+  "relatedApis": ["hubspot-api", "salesforce-api", "gmail-api", "openai-api"],
+  "privacyLevel": "Sensitive",
+  "accessMethod": "CRM deal records, proposal platform API, or email search",
+  "tags": ["proposals", "quotes", "follow-up", "pipeline"]
+}

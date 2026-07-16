@@ -1,0 +1,93 @@
+{
+  "id": "uc-016",
+  "slug": "local-seo-content-assistant",
+  "title": "Local SEO Content Assistant",
+  "category": "Marketing",
+  "industries": [
+    "Home Services",
+    "Restaurants",
+    "Healthcare",
+    "Legal",
+    "Local Retail"
+  ],
+  "businessFunctions": [
+    "Marketing",
+    "SEO"
+  ],
+  "summary": "Generate location-specific blog posts, service pages, and FAQ content optimized for local search using your real customer language from reviews.",
+  "businessProblem": "Local businesses need location-specific content to rank in 'near me' searches, but owners don't know what to write about or how to incorporate the keywords customers actually use.",
+  "outcome": "Monthly batch of 2–4 local SEO content pieces: service area pages, FAQ posts, and blog articles using real customer language from reviews — ready for website publishing.",
+  "whoItsFor": "Local service businesses competing for Google Maps and organic search visibility in a specific city or region — plumbers, dentists, lawyers, restaurants.",
+  "requiredDataSources": [
+    "customer-reviews",
+    "documents-and-pdfs",
+    "social-media-comments"
+  ],
+  "aiInputs": [
+    "Target service areas and neighborhoods",
+    "Services offered with descriptions",
+    "Customer review language (how customers describe your services)",
+    "Competitor content gaps (topics they rank for that you don't)",
+    "Local events and seasonal search trends"
+  ],
+  "aiOutputs": [
+    "Service area page draft (e.g., 'Plumbing Services in [Neighborhood]')",
+    "FAQ page with 10–15 questions matching 'near me' search patterns",
+    "Blog post draft using customer review language as social proof",
+    "Meta title and description per page"
+  ],
+  "requiredApis": [
+    "google-business-profile-api",
+    "yelp-fusion-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT with business info and review exports",
+    "Jasper local SEO templates",
+    "Surfer SEO or Clearscope with AI writing"
+  ],
+  "lowCodeTools": [
+    "n8n: monthly review pull → OpenAI content batch → Google Doc",
+    "Claude with review analysis for content generation"
+  ],
+  "customBuildStack": [
+    "Review API pull for customer language extraction",
+    "OpenAI for content generation with local SEO prompt templates",
+    "Output to CMS via API or content doc for manual publish"
+  ],
+  "implementationSteps": [
+    "List target service areas and primary services for SEO",
+    "Pull 50+ reviews and extract common phrases customers use",
+    "Research 'near me' keyword patterns for your services + city",
+    "Generate content batch: 1 service area page, 1 FAQ, 1 blog post",
+    "Review for factual accuracy and local relevance before publishing",
+    "Track rankings monthly and adjust content topics based on movement"
+  ],
+  "systemBehavior": [
+    "Runs monthly or on-demand for content planning",
+    "Incorporates real review language — not generic AI phrasing",
+    "Generates drafts only — human reviews before publishing",
+    "Creates unique content per service area (no duplicate city pages)",
+    "Includes meta tags and suggested internal links"
+  ],
+  "risks": [
+    "AI-generated local pages can be thin content if not customized enough",
+    "Google may penalize mass-produced location pages without unique value",
+    "Incorrect local references (wrong neighborhoods, outdated business info)",
+    "Review quotes in content need permission on some platforms"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Manual trigger",
+  "valuePotential": "Medium",
+  "relatedUseCases": [
+    "ai-review-intelligence",
+    "ai-content-calendar"
+  ],
+  "tags": [
+    "seo",
+    "local",
+    "content",
+    "marketing"
+  ],
+  "featured": false
+}

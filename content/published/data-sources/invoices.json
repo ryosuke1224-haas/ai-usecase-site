@@ -1,0 +1,38 @@
+{
+  "id": "ds-009",
+  "slug": "invoices",
+  "name": "Invoices",
+  "examples": [
+    "QuickBooks invoices",
+    "Unpaid service bills",
+    "Recurring subscription charges"
+  ],
+  "category": "Finance",
+  "summary": "Billing documents tracking amounts owed, payment status, and customer billing details.",
+  "whatItContains": "Invoice number, line items, due date, payment status, customer name, and payment history.",
+  "whatAiCanDoWithIt": [
+    "Generate overdue follow-up email drafts",
+    "Summarize accounts receivable for weekly owner briefings",
+    "Flag invoices approaching due dates",
+    "Categorize expenses from vendor invoices"
+  ],
+  "relatedUseCases": [
+    "weekly-owner-briefing",
+    "ai-admin-organizer",
+    "ai-cash-flow-forecaster",
+    "ai-collections-assistant",
+    "ai-budget-variance-explainer"
+  ],
+  "relatedApis": [
+    "quickbooks-api",
+    "gmail-api",
+    "google-sheets-api"
+  ],
+  "privacyLevel": "Sensitive",
+  "accessMethod": "Accounting software API or CSV export",
+  "tags": [
+    "billing",
+    "accounts-receivable",
+    "finance"
+  ]
+}

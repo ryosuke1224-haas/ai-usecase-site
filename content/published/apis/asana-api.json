@@ -1,0 +1,37 @@
+{
+  "id": "api-020",
+  "slug": "asana-api",
+  "name": "Asana API",
+  "provider": "Asana",
+  "category": "Project Management",
+  "summary": "Create tasks, update projects, and track work in Asana.",
+  "whatItDoes": "Turns AI-extracted action items into assigned tasks — connects inbox and meeting workflows to your team's project management board.",
+  "dataAvailable": [
+    "Tasks and subtasks",
+    "Project and section structure",
+    "Assignee and due date info"
+  ],
+  "actionsSupported": [
+    "Create tasks",
+    "Update task status",
+    "List projects",
+    "Add comments"
+  ],
+  "authenticationType": "Personal Access Token or OAuth 2.0",
+  "commonUseCases": [
+    "ai-admin-organizer",
+    "ai-daily-inbox-briefing"
+  ],
+  "relatedDataSources": [
+    "staff-notes",
+    "emails"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Task descriptions may contain client info. Scope API access to specific projects.",
+  "documentationUrlPlaceholder": "https://developers.asana.com",
+  "tags": [
+    "tasks",
+    "project-management",
+    "asana"
+  ]
+}

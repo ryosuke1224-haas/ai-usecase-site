@@ -1,0 +1,91 @@
+{
+  "id": "uc-032",
+  "slug": "ai-sales-briefing",
+  "title": "AI Sales Briefing",
+  "tagline": "Prepare for every prospect conversation in minutes.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Business Development"],
+  "summary": "Summarizes company information, review insights, website signals, CRM history, past emails, likely pain points, and suggested discovery questions before a sales call.",
+  "businessProblem": "Reps join discovery calls underprepared — scrambling through LinkedIn, the company website, and CRM notes five minutes before the meeting, missing key context that could win the deal.",
+  "outcome": "A one-page briefing delivered before each scheduled call: who they are, what hurts, what was said before, competitive context, and 5 tailored discovery questions.",
+  "whoItsFor": "Account executives and founders who run multiple discovery calls per week and need consistent prep without a research analyst.",
+  "requiredDataSources": [
+    "crm-records",
+    "emails",
+    "call-notes",
+    "business-websites",
+    "customer-reviews",
+    "linkedin-profiles",
+    "sales-activity-logs"
+  ],
+  "aiInputs": [
+    "Upcoming calendar meeting with attendee names and company",
+    "CRM deal record, stage, and activity timeline",
+    "Last 3 email threads with the prospect",
+    "Prior call notes and meeting summaries",
+    "Public signals: website summary, review themes, news if available"
+  ],
+  "aiOutputs": [
+    "One-page briefing doc: company overview, key contacts, deal context",
+    "Likely pain points ranked by evidence strength",
+    "Summary of prior conversations and open items",
+    "5 suggested discovery questions tailored to their situation",
+    "Red flags or risks to probe (budget, timeline, competitor)"
+  ],
+  "requiredApis": [
+    "hubspot-api",
+    "gmail-api",
+    "google-calendar-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT with CRM export pasted before each call",
+    "Clay.com briefing column combining CRM + website + reviews",
+    "Zapier: Calendly booking → HubSpot pull → GPT → email briefing"
+  ],
+  "lowCodeTools": [
+    "n8n: morning cron → today's meetings → CRM + Gmail → Claude briefing → Slack",
+    "Google Calendar + Apps Script + OpenAI for daily prep doc",
+    "Make.com: Salesforce event trigger → enrichment → briefing to Outlook draft"
+  ],
+  "customBuildStack": [
+    "Calendar API poll for upcoming external meetings",
+    "CRM + Gmail aggregation per attendee domain",
+    "Website and review enrichment pass",
+    "Claude/OpenAI structured briefing template",
+    "Slack or email delivery 1 hour before meeting"
+  ],
+  "implementationSteps": [
+    "Connect calendar, CRM, and email APIs with read-only scopes",
+    "Build briefing template sections: company, contacts, history, pains, questions",
+    "Add public enrichment: website scrape and review themes for unknown accounts",
+    "Deliver via Slack DM or email 60 minutes before each external meeting",
+    "Rep adds post-call notes; feed back into next briefing for follow-ups",
+    "Track briefing usage and correlate with meeting-to-next-step conversion"
+  ],
+  "systemBehavior": [
+    "Runs on calendar trigger — typically 1 hour before external meetings",
+    "Read-only on all systems — never modifies CRM or sends to prospect",
+    "Skips internal meetings and recurring standups",
+    "Flags low-confidence sections when data is sparse",
+    "Does not include confidential pricing from other deals"
+  ],
+  "risks": [
+    "Stale CRM data produces briefings that contradict reality on the call",
+    "Including incorrect AI-inferred pain points can embarrass the rep",
+    "Briefings with PII must not be posted to shared channels insecurely",
+    "Over-reliance on briefings reduces genuine curiosity on calls"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-account-research-assistant",
+    "ai-meeting-prep-assistant",
+    "ai-pipeline-risk-detector",
+    "ai-personalized-outreach-writer"
+  ],
+  "tags": ["briefing", "discovery", "meeting-prep", "crm", "calls"],
+  "featured": true
+}

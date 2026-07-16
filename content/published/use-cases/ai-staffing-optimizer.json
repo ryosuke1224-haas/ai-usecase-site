@@ -1,0 +1,72 @@
+{
+  "id": "uc-025",
+  "slug": "ai-staffing-optimizer",
+  "title": "AI Staffing Optimizer",
+  "tagline": "Match labor hours to real demand.",
+  "category": "Finance & Planning",
+  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
+  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "summary": "Compares shifts, payroll hours, appointments, sales, and customer traffic to identify overstaffed and understaffed periods.",
+  "businessProblem": "Managers schedule from habit — same staffing every Tuesday — while actual demand varies, burning labor dollars in slow periods and losing revenue when understaffed during peaks.",
+  "outcome": "Weekly staffing recommendations: which shifts to add or cut, labor-hour alignment score by daypart, and projected payroll savings or revenue recovery.",
+  "whoItsFor": "Shift-based and appointment businesses with 5+ staff where labor is 25–40% of revenue and scheduling is still manual.",
+  "requiredDataSources": ["staff-schedules", "time-tracking-data", "booking-data", "pos-transactions", "sales-history"],
+  "aiInputs": [
+    "Scheduled hours by daypart for next 2 weeks",
+    "Actual sales or appointments by hour/day from prior 8 weeks",
+    "Historical no-show and walk-in patterns",
+    "Target labor cost % by day of week",
+    "Staff availability and skill constraints"
+  ],
+  "aiOutputs": [
+    "Overstaffed periods with excess labor hours identified",
+    "Understaffed peak windows with estimated lost revenue",
+    "Recommended schedule adjustments by shift",
+    "Projected payroll impact of recommendations",
+    "Week-over-week labor alignment score"
+  ],
+  "requiredApis": ["gusto-api", "square-api", "calendly-api", "google-sheets-api", "openai-api"],
+  "noCodeTools": [
+    "7shifts + Square reports pasted into ChatGPT weekly",
+    "Homebase schedule export + GPT recommendations",
+    "Google Sheets labor vs sales tracker + GPT"
+  ],
+  "lowCodeTools": [
+    "n8n weekly: schedule + POS pull → OpenAI staffing report",
+    "Airtable shift planner with GPT suggestions",
+    "Pipedream booking volume + schedule comparison"
+  ],
+  "customBuildStack": [
+    "Scheduling API + POS/booking API",
+    "Demand curve by hour/day from historical data",
+    "Optimization rules engine + OpenAI narrative",
+    "Manager notification with actionable shift edits"
+  ],
+  "implementationSteps": [
+    "Export 8 weeks of sales/appointments by hour",
+    "Export matching scheduled labor hours",
+    "Calculate labor % by daypart baseline",
+    "Identify top 3 over and understaffed patterns",
+    "Pilot recommended changes for 2 weeks",
+    "Measure labor % improvement and adjust rules"
+  ],
+  "systemBehavior": [
+    "Weekly recommendations — manager applies manually",
+    "Never auto-publishes schedule changes",
+    "Respects minimum staffing for safety/compliance",
+    "Uses same-day-of-week comparisons for seasonality",
+    "Advisory only — not wage, hour, or labor law compliance"
+  ],
+  "risks": [
+    "Cutting staff too aggressively hurts customer experience",
+    "Labor law minimums and break rules not modeled",
+    "Unexpected events (weather, local event) skew demand patterns",
+    "Staff morale impact from frequent schedule changes"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": ["ai-payroll-forecasting", "ai-booking-optimizer"],
+  "tags": ["staffing", "labor", "scheduling", "optimization"],
+  "featured": false
+}

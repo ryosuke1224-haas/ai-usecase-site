@@ -1,0 +1,46 @@
+{
+  "id": "api-014",
+  "slug": "quickbooks-api",
+  "name": "QuickBooks API",
+  "provider": "Intuit",
+  "category": "Accounting",
+  "summary": "Access invoices, expenses, and financial reports from QuickBooks.",
+  "whatItDoes": "Pulls accounts receivable, overdue invoices, and revenue summaries — feeds financial data into owner briefings and admin organizer workflows.",
+  "dataAvailable": [
+    "Invoices and payment status",
+    "Customer billing records",
+    "Expense transactions",
+    "Profit and loss summaries"
+  ],
+  "actionsSupported": [
+    "Query invoices",
+    "Read customer records",
+    "Fetch financial reports",
+    "Create invoice reminders"
+  ],
+  "authenticationType": "OAuth 2.0 (Intuit developer app)",
+  "commonUseCases": [
+    "weekly-owner-briefing",
+    "ai-admin-organizer",
+    "ai-cash-flow-forecaster",
+    "ai-collections-assistant",
+    "ai-budget-variance-explainer",
+    "ai-break-even-dashboard"
+  ],
+  "relatedDataSources": [
+    "invoices",
+    "spreadsheets",
+    "payroll-records",
+    "bank-transactions",
+    "budget-files",
+    "sales-history"
+  ],
+  "difficulty": "Advanced",
+  "privacyNotes": "Financial data is highly confidential. Use sandbox for testing and restrict production access to read-only scopes where possible.",
+  "documentationUrlPlaceholder": "https://developer.intuit.com",
+  "tags": [
+    "accounting",
+    "invoices",
+    "finance"
+  ]
+}

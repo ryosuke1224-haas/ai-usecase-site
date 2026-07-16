@@ -1,0 +1,89 @@
+{
+  "id": "uc-027",
+  "slug": "ai-local-lead-finder",
+  "title": "AI Local Lead Finder",
+  "tagline": "Find high-intent B2B leads from public business signals.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Local Services", "Marketing"],
+  "businessFunctions": ["Sales", "Business Development", "Marketing"],
+  "summary": "Searches public sources such as Google business listings, Yelp, TripAdvisor, reviews, websites, and directories to identify businesses that match a target ICP and show potential pain signals.",
+  "businessProblem": "B2B sellers waste hours manually searching Google Maps, Yelp, and directories to build prospect lists — and still miss businesses with visible pain signals like unanswered negative reviews or outdated websites.",
+  "outcome": "A scored prospect list filtered by geography, industry, and ICP criteria — each lead tagged with pain signals, contact info, and a one-line reason they're worth pursuing.",
+  "whoItsFor": "B2B agencies, SaaS companies, and local service providers selling to other businesses who need net-new prospect lists without expensive data subscriptions.",
+  "requiredDataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites",
+    "industry-directories",
+    "tripadvisor-listings"
+  ],
+  "aiInputs": [
+    "ICP definition: industry, geography, employee size proxy, revenue signals",
+    "Google Places / Yelp search parameters (category, radius, keyword)",
+    "Review text and ratings from listing pages",
+    "Website URL and basic page content if available",
+    "Exclusion list of existing customers or CRM accounts"
+  ],
+  "aiOutputs": [
+    "Filtered prospect list with business name, address, phone, website",
+    "Pain signal tags (low rating, no website, stale reviews, unanswered complaints)",
+    "ICP fit score (1–100) with reasoning",
+    "Suggested outreach angle per lead based on detected signals",
+    "CSV or CRM-ready import file"
+  ],
+  "requiredApis": [
+    "google-places-api",
+    "yelp-fusion-api",
+    "outscraper-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "Outscraper Google Maps export → ChatGPT scoring in a Google Sheet",
+    "Apify Google Maps scraper → Zapier → HubSpot import with GPT summary",
+    "Clay.com enrichment table with Places + Yelp + AI columns"
+  ],
+  "lowCodeTools": [
+    "n8n: Places API search → Yelp enrichment → OpenAI pain scoring → Sheets",
+    "Google Sheets + Apps Script + Places API + Claude for ICP filtering",
+    "Make.com: Outscraper webhook → OpenAI → HubSpot contact create"
+  ],
+  "customBuildStack": [
+    "Node.js service querying Google Places Text Search API",
+    "Yelp Fusion business match for cross-validation",
+    "Outscraper/Apify for bulk listing + review extraction",
+    "OpenAI structured output for ICP scoring and pain tagging",
+    "HubSpot or Salesforce bulk import endpoint"
+  ],
+  "implementationSteps": [
+    "Define ICP: target industries, cities, business size proxies, and disqualifiers",
+    "Set up Google Places API key and Yelp Fusion app with rate limit handling",
+    "Build search queries per geography — e.g., 'commercial cleaning' in Austin TX",
+    "Pull reviews and website URLs; flag pain signals with a scoring rubric",
+    "Run AI pass to score fit and draft one-line outreach angles",
+    "Deduplicate against CRM before import; review top 20% manually before outreach"
+  ],
+  "systemBehavior": [
+    "Runs on schedule (weekly) or on-demand per territory — not real-time",
+    "Read-only on public sources — never contacts businesses automatically",
+    "Respects API rate limits with batching and backoff",
+    "Excludes businesses already in CRM or on do-not-contact list",
+    "Logs search parameters and result counts for reproducibility"
+  ],
+  "risks": [
+    "Scraping TripAdvisor or directories may violate platform terms — prefer official APIs where available",
+    "Public listing data can be stale — verify phone and website before outreach",
+    "Cold outreach to scraped leads must comply with CAN-SPAM and local regulations",
+    "Over-broad ICP definitions produce low-quality lists that waste sales time"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-lead-scoring-engine",
+    "ai-personalized-outreach-writer",
+    "ai-account-research-assistant",
+    "ai-crm-deduplication-enrichment"
+  ],
+  "tags": ["prospecting", "local", "lead-discovery", "b2b", "listings"],
+  "featured": true
+}

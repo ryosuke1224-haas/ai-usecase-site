@@ -1,0 +1,36 @@
+{
+  "id": "ds-005",
+  "slug": "crm-records",
+  "name": "CRM Records",
+  "examples": [
+    "HubSpot contact and deal records",
+    "Pipeline stages for service quotes",
+    "Activity logs per lead"
+  ],
+  "category": "CRM",
+  "summary": "Structured customer relationship data including contacts, deals, and interaction history.",
+  "whatItContains": "Contact fields, deal stage, notes, tasks, email/call logs, and custom properties.",
+  "whatAiCanDoWithIt": [
+    "Prioritize leads based on engagement signals",
+    "Suggest next-best actions for stalled deals",
+    "Auto-log email and call outcomes",
+    "Generate follow-up sequences tied to deal stage"
+  ],
+  "relatedUseCases": [
+    "ai-follow-up-engine",
+    "quote-request-assistant",
+    "inactive-customer-winback"
+  ],
+  "relatedApis": [
+    "hubspot-api",
+    "gmail-api",
+    "openai-api"
+  ],
+  "privacyLevel": "PII",
+  "accessMethod": "CRM REST API with OAuth or private app token",
+  "tags": [
+    "crm",
+    "sales",
+    "pipeline"
+  ]
+}

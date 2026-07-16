@@ -1,0 +1,28 @@
+{
+  "id": "ds-035",
+  "slug": "linkedin-sales-navigator",
+  "name": "LinkedIn Sales Navigator",
+  "examples": [
+    "Saved lead lists exported as CSV",
+    "Account lists with decision-maker filters",
+    "InMail conversation exports (manual)"
+  ],
+  "category": "Lead Discovery",
+  "summary": "Manual lead source from LinkedIn Sales Navigator — no official API for automated outreach.",
+  "whatItContains": "Lead name, title, company, location, industry, and LinkedIn profile URL from Navigator searches and saved lists.",
+  "whatAiCanDoWithIt": [
+    "Import Navigator exports into scoring and enrichment workflows",
+    "Draft personalized InMail and connection notes",
+    "Cross-reference Navigator leads against CRM for deduplication",
+    "Build account maps from saved lead lists"
+  ],
+  "relatedUseCases": [
+    "ai-personalized-outreach-writer",
+    "ai-crm-deduplication-enrichment",
+    "ai-account-research-assistant"
+  ],
+  "relatedApis": ["apollo-api", "hubspot-api", "openai-api"],
+  "privacyLevel": "PII",
+  "accessMethod": "Manual CSV export from Sales Navigator — automate import only, not LinkedIn actions",
+  "tags": ["linkedin", "sales-navigator", "manual", "b2b"]
+}

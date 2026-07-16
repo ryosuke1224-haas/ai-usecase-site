@@ -1,0 +1,37 @@
+{
+  "id": "api-016",
+  "slug": "anthropic-claude-api",
+  "name": "Anthropic Claude API",
+  "provider": "Anthropic",
+  "category": "AI / LLM",
+  "summary": "Long-context AI for document analysis, SOP generation, and nuanced writing.",
+  "whatItDoes": "Strong at processing long documents and maintaining consistent tone — ideal for SOP building, training content, and detailed customer communications.",
+  "dataAvailable": [
+    "N/A — processing layer"
+  ],
+  "actionsSupported": [
+    "Message completions",
+    "Long document analysis",
+    "Structured output",
+    "Multi-turn conversations"
+  ],
+  "authenticationType": "API Key",
+  "commonUseCases": [
+    "ai-sop-builder",
+    "staff-training-assistant",
+    "ai-content-calendar"
+  ],
+  "relatedDataSources": [
+    "documents-and-pdfs",
+    "staff-notes",
+    "customer-reviews"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Review Anthropic's data usage policy. Avoid sending unredacted customer data in prompts.",
+  "documentationUrlPlaceholder": "https://docs.anthropic.com",
+  "tags": [
+    "ai",
+    "llm",
+    "anthropic"
+  ]
+}

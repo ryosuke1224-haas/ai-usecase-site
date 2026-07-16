@@ -1,0 +1,34 @@
+{
+  "id": "ds-013",
+  "slug": "social-media-comments",
+  "name": "Social Media Comments",
+  "examples": [
+    "Instagram post comments",
+    "Facebook page messages",
+    "LinkedIn post engagement"
+  ],
+  "category": "Marketing",
+  "summary": "Public comments and direct messages on business social media profiles.",
+  "whatItContains": "Comment text, author, post reference, timestamp, and platform.",
+  "whatAiCanDoWithIt": [
+    "Flag comments needing a response",
+    "Draft replies matching brand voice",
+    "Mine customer language for content ideas",
+    "Detect complaints early before they escalate"
+  ],
+  "relatedUseCases": [
+    "ai-content-calendar",
+    "local-seo-content-assistant"
+  ],
+  "relatedApis": [
+    "openai-api",
+    "google-gemini-api"
+  ],
+  "privacyLevel": "Public",
+  "accessMethod": "Platform API or manual export; many SMBs use scheduled CSV pulls",
+  "tags": [
+    "social",
+    "marketing",
+    "engagement"
+  ]
+}

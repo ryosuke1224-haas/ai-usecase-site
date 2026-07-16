@@ -1,0 +1,37 @@
+{
+  "id": "ds-007",
+  "slug": "booking-data",
+  "name": "Booking Data",
+  "examples": [
+    "Calendly appointment records",
+    "Online booking system entries",
+    "Class or session reservations"
+  ],
+  "category": "Operations",
+  "summary": "Appointment and reservation records including status, attendee info, and service type.",
+  "whatItContains": "Booking time, service type, customer contact, status (confirmed/cancelled/no-show), and notes.",
+  "whatAiCanDoWithIt": [
+    "Send pre-appointment prep briefs to staff",
+    "Trigger no-show recovery sequences",
+    "Optimize slot availability based on fill rates",
+    "Notify team in Slack when high-value bookings arrive"
+  ],
+  "relatedUseCases": [
+    "ai-booking-optimizer",
+    "no-show-recovery-assistant",
+    "ai-meeting-prep-assistant"
+  ],
+  "relatedApis": [
+    "calendly-api",
+    "google-calendar-api",
+    "slack-api",
+    "twilio-api"
+  ],
+  "privacyLevel": "PII",
+  "accessMethod": "Booking platform API webhook or calendar sync",
+  "tags": [
+    "appointments",
+    "scheduling",
+    "operations"
+  ]
+}

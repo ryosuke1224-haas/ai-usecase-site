@@ -1,0 +1,34 @@
+{
+  "id": "wf-001",
+  "title": "Email + Calendar Intelligence Stack",
+  "summary": "Connect Gmail, Google Calendar, and OpenAI to automate inbox triage, meeting prep, and follow-up reminders — the most common starting stack for service businesses.",
+  "apiCombination": [
+    "gmail-api",
+    "google-calendar-api",
+    "openai-api"
+  ],
+  "dataSources": [
+    "emails",
+    "calendar-events"
+  ],
+  "possibleUseCases": [
+    "ai-daily-inbox-briefing",
+    "ai-meeting-prep-assistant",
+    "ai-follow-up-engine"
+  ],
+  "exampleWorkflow": "Every morning at 7 AM, fetch unread Gmail messages and today's calendar events. Send both to OpenAI with a prompt to produce a prioritized briefing: urgent emails first, then meeting prep notes with context from related threads. Deliver the briefing as a Gmail draft or Slack message.",
+  "businessValue": "Saves 30–45 minutes of morning admin daily. Owners start the day knowing exactly what needs attention instead of scanning inboxes reactively.",
+  "implementationDifficulty": "Beginner",
+  "recommendedFor": [
+    "Consultants",
+    "Agencies",
+    "Professional services",
+    "Solo operators"
+  ],
+  "risks": [
+    "AI may miss subtle urgency cues — always review before acting",
+    "OAuth token refresh must be handled for unattended runs",
+    "Calendar + email data contains client PII"
+  ],
+  "slug": "gmail-calendar-openai"
+}

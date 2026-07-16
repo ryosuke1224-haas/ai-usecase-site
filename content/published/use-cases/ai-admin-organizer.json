@@ -1,0 +1,93 @@
+{
+  "id": "uc-008",
+  "slug": "ai-admin-organizer",
+  "title": "AI Admin Organizer",
+  "category": "Operations",
+  "industries": [
+    "Any SMB",
+    "Contractors",
+    "Agencies",
+    "Freelancers"
+  ],
+  "businessFunctions": [
+    "Operations",
+    "Owner/Admin",
+    "Finance"
+  ],
+  "summary": "Keep operational trackers current by extracting action items from emails and updating spreadsheet rows automatically.",
+  "businessProblem": "Quote trackers, invoice follow-up lists, and task spreadsheets fall behind because updating them requires manual data entry from emails and conversations nobody has time for.",
+  "outcome": "Spreadsheet trackers stay current: new quote requests added, overdue items flagged, and status columns updated from email content — without manual entry.",
+  "whoItsFor": "Operators who run their business on Google Sheets or Airtable and spend hours each week copying information from emails into trackers.",
+  "requiredDataSources": [
+    "emails",
+    "spreadsheets",
+    "invoices",
+    "website-form-submissions"
+  ],
+  "aiInputs": [
+    "Incoming emails matching tracker criteria (quotes, invoices, orders)",
+    "Current spreadsheet rows and column schema",
+    "Rules for what constitutes a new row vs. update to existing row"
+  ],
+  "aiOutputs": [
+    "New rows appended to tracker with extracted fields",
+    "Status updates on existing rows (e.g., 'Quote sent' → 'Awaiting reply')",
+    "Overdue item flags based on date columns",
+    "Daily summary of changes made to the tracker"
+  ],
+  "requiredApis": [
+    "gmail-api",
+    "google-sheets-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "Zapier: new email with label → ChatGPT extract → Sheets append row",
+    "Google Apps Script + OpenAI for custom sheet automation",
+    "Airtable AI field for email parsing"
+  ],
+  "lowCodeTools": [
+    "n8n: Gmail trigger → OpenAI structured extraction → Sheets update",
+    "Make.com with email parser modules"
+  ],
+  "customBuildStack": [
+    "Gmail API polling for labeled emails",
+    "OpenAI structured output (JSON) for field extraction",
+    "Google Sheets API for row append/update",
+    "Conflict detection for duplicate entries"
+  ],
+  "implementationSteps": [
+    "Define tracker schema: columns, valid status values, date fields",
+    "Set email rules: which messages trigger tracker updates",
+    "Map email fields to sheet columns with AI extraction prompt",
+    "Run in log-only mode first — AI reports what it would change without writing",
+    "Enable writes after 1 week of accurate log-only runs",
+    "Review daily change summary for extraction errors"
+  ],
+  "systemBehavior": [
+    "Runs on email arrival or daily batch scan",
+    "Appends new rows — never deletes existing data",
+    "Updates status columns only when extraction confidence is high",
+    "Flags ambiguous extractions for human review instead of guessing",
+    "Sends daily summary of all changes made"
+  ],
+  "risks": [
+    "AI may misparse email and create duplicate or incorrect rows",
+    "Concurrent human edits and automation cause data conflicts",
+    "Wrong status updates on invoice tracker could cause missed collections",
+    "Email extraction errors are hard to spot without daily review habit"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "quote-request-assistant",
+    "weekly-owner-briefing"
+  ],
+  "tags": [
+    "spreadsheet",
+    "admin",
+    "tracking",
+    "automation"
+  ],
+  "featured": false
+}

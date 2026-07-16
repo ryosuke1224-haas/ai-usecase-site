@@ -1,0 +1,29 @@
+{
+  "id": "ds-020",
+  "slug": "sales-history",
+  "name": "Sales History",
+  "examples": [
+    "Monthly revenue by location",
+    "Daily POS sales trends",
+    "Stripe subscription MRR history"
+  ],
+  "category": "Finance",
+  "summary": "Historical revenue data over time, segmented by day, week, product, or location.",
+  "whatItContains": "Transaction dates, revenue amounts, units sold, discounts, refunds, payment method mix, and seasonality patterns.",
+  "whatAiCanDoWithIt": [
+    "Project forward revenue for cash flow models",
+    "Detect seasonality and growth trends",
+    "Calculate revenue per labor hour",
+    "Feed scenario planning with baseline assumptions"
+  ],
+  "relatedUseCases": [
+    "ai-cash-flow-forecaster",
+    "ai-revenue-scenario-planner",
+    "ai-pricing-impact-simulator",
+    "ai-break-even-dashboard"
+  ],
+  "relatedApis": ["square-api", "stripe-api", "quickbooks-api", "xero-api"],
+  "privacyLevel": "Sensitive",
+  "accessMethod": "POS API, payment platform reports, or accounting export",
+  "tags": ["revenue", "sales", "forecasting"]
+}

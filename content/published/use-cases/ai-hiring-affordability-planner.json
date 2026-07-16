@@ -1,0 +1,72 @@
+{
+  "id": "uc-020",
+  "slug": "ai-hiring-affordability-planner",
+  "title": "AI Hiring Affordability Planner",
+  "tagline": "Know when you can afford your next hire.",
+  "category": "Finance & Planning",
+  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
+  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "summary": "Helps owners estimate whether they can afford a new employee by modeling added labor cost, required incremental revenue, break-even customers, and downside risk.",
+  "businessProblem": "Owners hire reactively when overwhelmed, then discover 90 days later that payroll pushed them into negative cash flow — or they delay hiring too long and lose revenue.",
+  "outcome": "A hiring affordability report: fully loaded cost of the role, incremental revenue needed to break even, months to payback, and go/wait/no-go recommendation with downside scenario.",
+  "whoItsFor": "Growing SMBs considering their next front-desk, technician, stylist, or manager hire without a finance team to model the impact.",
+  "requiredDataSources": ["payroll-records", "sales-history", "fixed-costs", "customer-records", "budget-files"],
+  "aiInputs": [
+    "Proposed role: title, hourly rate or salary, hours, start date",
+    "Employer tax and benefits load factor (e.g., 1.25× wage)",
+    "Current monthly revenue and profit margin",
+    "Average revenue per customer or transaction",
+    "Cash reserve available to fund ramp period"
+  ],
+  "aiOutputs": [
+    "Fully loaded monthly cost of new hire",
+    "Incremental monthly revenue required to break even",
+    "Break-even customer count or transactions",
+    "Payback period estimate under base and downside cases",
+    "Go / wait / no-go recommendation with reasoning"
+  ],
+  "requiredApis": ["gusto-api", "quickbooks-api", "google-sheets-api", "openai-api"],
+  "noCodeTools": [
+    "Hiring affordability Google Sheets template + ChatGPT",
+    "Gusto salary calculator + manual GPT scenario",
+    "Claude with uploaded P&L and role spec"
+  ],
+  "lowCodeTools": [
+    "n8n form trigger → Sheets model → OpenAI report email",
+    "Airtable hiring pipeline with GPT affordability check",
+    "Notion hiring decision doc auto-filled by GPT"
+  ],
+  "customBuildStack": [
+    "Parameterized hiring model in spreadsheet or code",
+    "QuickBooks/Gusto API for current labor and revenue baseline",
+    "OpenAI structured output for recommendation report",
+    "Optional: link to cash flow forecaster for timing"
+  ],
+  "implementationSteps": [
+    "Document role details: compensation, hours, start date, ramp time",
+    "Pull current labor cost % and profit margin from books",
+    "Calculate fully loaded cost including taxes and benefits",
+    "Model revenue ramp: how long until new hire contributes net positive",
+    "Run downside case (hire contributes 50% of expected uplift)",
+    "Review with advisor or bookkeeper before extending offer"
+  ],
+  "systemBehavior": [
+    "On-demand when evaluating a specific role",
+    "Does not post job listings or run background checks",
+    "Assumes owner provides honest revenue ramp estimates",
+    "Includes cash reserve runway in wait/no-go logic",
+    "Planning tool only — not employment law or HR compliance advice"
+  ],
+  "risks": [
+    "Revenue attribution to a new hire is inherently uncertain",
+    "Benefits and tax loads vary significantly by state",
+    "Hiring too early vs too late both have costs the model cannot fully capture",
+    "Does not replace consultation with accountant on affordability"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Manual trigger",
+  "valuePotential": "High",
+  "relatedUseCases": ["ai-payroll-forecasting", "ai-break-even-dashboard", "ai-cash-flow-forecaster"],
+  "tags": ["hiring", "affordability", "labor", "growth"],
+  "featured": false
+}

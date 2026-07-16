@@ -1,0 +1,72 @@
+{
+  "id": "uc-018",
+  "slug": "ai-payroll-forecasting",
+  "title": "AI Payroll Forecasting",
+  "tagline": "Predict labor cost before it becomes a cash problem.",
+  "category": "Finance & Planning",
+  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
+  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "summary": "Uses payroll history, staff schedules, sales forecasts, and booking volume to estimate upcoming labor cost and labor cost as a percentage of revenue.",
+  "businessProblem": "Labor is the largest variable cost for most SMBs, but owners only see the true payroll hit after the pay run — too late to adjust schedules or pricing.",
+  "outcome": "Before each pay period: projected gross payroll, employer taxes, labor-as-% of projected revenue, and flags when labor ratio exceeds your target threshold.",
+  "whoItsFor": "Appointment-based and shift-based businesses with 3+ employees where labor cost should stay within a defined percentage of revenue.",
+  "requiredDataSources": ["payroll-records", "staff-schedules", "sales-history", "booking-data", "time-tracking-data"],
+  "aiInputs": [
+    "Last 6–12 payroll run totals",
+    "Current and next-week staff schedules",
+    "Sales or booking forecast for the pay period",
+    "Target labor cost percentage by business type",
+    "Overtime rules and average hourly rates by role"
+  ],
+  "aiOutputs": [
+    "Projected payroll cost for upcoming pay period",
+    "Labor cost as % of projected revenue",
+    "Variance vs target labor ratio",
+    "Role-level hour and cost breakdown",
+    "Schedule adjustment suggestions to hit target ratio"
+  ],
+  "requiredApis": ["gusto-api", "square-api", "google-sheets-api", "openai-api"],
+  "noCodeTools": [
+    "Gusto payroll reports + Google Sheets model + ChatGPT",
+    "7shifts labor report paste into GPT analysis",
+    "Zapier: schedule export → Sheets → weekly GPT summary"
+  ],
+  "lowCodeTools": [
+    "n8n: Gusto + Square weekly pull → OpenAI labor report",
+    "Airtable schedule + payroll tracker with GPT formula",
+    "Pipedream pay-period trigger workflow"
+  ],
+  "customBuildStack": [
+    "Gusto/ADP API + POS sales API",
+    "Schedule ingestion from scheduling tool",
+    "OpenAI for narrative + anomaly flags",
+    "Slack/email delivery before payroll cutoff"
+  ],
+  "implementationSteps": [
+    "Define target labor cost % for your business (e.g., 30% for restaurant)",
+    "Connect payroll provider and POS/booking data sources",
+    "Pull 6 months payroll history to establish baseline",
+    "Build pay-period forecast template with schedule hours × rates",
+    "Run forecast 3 days before payroll cutoff each cycle",
+    "Review accuracy monthly and tune overtime assumptions"
+  ],
+  "systemBehavior": [
+    "Runs 2–5 days before each scheduled payroll",
+    "Does not modify schedules or submit payroll automatically",
+    "Compares scheduled hours to historical actuals for sanity check",
+    "Alerts only when ratio exceeds threshold — avoids alert fatigue",
+    "Planning output only — not payroll tax or compliance filing"
+  ],
+  "risks": [
+    "Overtime and last-minute schedule changes can invalidate forecasts",
+    "Not a substitute for payroll provider calculations or tax compliance",
+    "Salaried vs hourly mix requires separate modeling logic",
+    "Multi-location businesses need per-location labor targets"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": ["ai-staffing-optimizer", "ai-cash-flow-forecaster", "ai-break-even-dashboard"],
+  "tags": ["payroll", "labor", "forecasting", "scheduling"],
+  "featured": true
+}

@@ -1,0 +1,35 @@
+{
+  "id": "ds-011",
+  "slug": "support-tickets",
+  "name": "Support Tickets",
+  "examples": [
+    "Help desk requests",
+    "Warranty claim submissions",
+    "Service complaint logs"
+  ],
+  "category": "Customer Service",
+  "summary": "Structured support requests with status, priority, and resolution history.",
+  "whatItContains": "Ticket ID, customer info, issue description, status, assignee, and resolution notes.",
+  "whatAiCanDoWithIt": [
+    "Suggest responses based on similar resolved tickets",
+    "Identify trending issues for SOP updates",
+    "Prioritize tickets by urgency and customer value",
+    "Auto-categorize incoming requests"
+  ],
+  "relatedUseCases": [
+    "ai-customer-response-assistant",
+    "ai-sop-builder"
+  ],
+  "relatedApis": [
+    "hubspot-api",
+    "openai-api",
+    "slack-api"
+  ],
+  "privacyLevel": "PII",
+  "accessMethod": "Help desk API or email-to-ticket integration",
+  "tags": [
+    "support",
+    "customer-service",
+    "tickets"
+  ]
+}

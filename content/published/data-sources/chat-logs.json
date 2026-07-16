@@ -1,0 +1,35 @@
+{
+  "id": "ds-012",
+  "slug": "chat-logs",
+  "name": "Chat Logs",
+  "examples": [
+    "Website live chat transcripts",
+    "SMS conversation threads",
+    "WhatsApp business messages"
+  ],
+  "category": "Communications",
+  "summary": "Real-time or asynchronous chat conversation records with customers.",
+  "whatItContains": "Message text, timestamps, participant IDs, and conversation metadata.",
+  "whatAiCanDoWithIt": [
+    "Draft suggested replies for agents",
+    "Extract FAQs from repeated questions",
+    "Score conversation sentiment before escalation",
+    "Generate chat summaries for CRM records"
+  ],
+  "relatedUseCases": [
+    "ai-customer-response-assistant",
+    "ai-follow-up-engine"
+  ],
+  "relatedApis": [
+    "twilio-api",
+    "hubspot-api",
+    "openai-api"
+  ],
+  "privacyLevel": "PII",
+  "accessMethod": "Chat platform API or Twilio message logs",
+  "tags": [
+    "chat",
+    "messaging",
+    "real-time"
+  ]
+}

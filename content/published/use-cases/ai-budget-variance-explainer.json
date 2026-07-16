@@ -1,0 +1,72 @@
+{
+  "id": "uc-026",
+  "slug": "ai-budget-variance-explainer",
+  "title": "AI Budget Variance Explainer",
+  "tagline": "Understand why the numbers moved.",
+  "category": "Finance & Planning",
+  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
+  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "summary": "Compares budget vs actual performance and explains revenue, payroll, expense, and margin variances in plain English.",
+  "businessProblem": "Owners get P&L reports showing variances but no explanation — they see payroll is over budget without understanding if it was overtime, a new hire, or revenue shortfall.",
+  "outcome": "Monthly variance narrative: what beat or missed budget, why in plain English, which variances are one-time vs structural, and recommended owner actions.",
+  "whoItsFor": "SMBs with an annual budget in a spreadsheet who review actuals monthly but lack time to write the analysis themselves.",
+  "requiredDataSources": ["budget-files", "sales-history", "payroll-records", "invoices", "spreadsheets"],
+  "aiInputs": [
+    "Monthly budget by line item",
+    "Monthly actuals from accounting system",
+    "Variance $ and % per category",
+    "Known one-time events (equipment purchase, refund spike)",
+    "Prior month variance narrative for continuity"
+  ],
+  "aiOutputs": [
+    "Plain-English variance summary (1 page)",
+    "Top 3 favorable and unfavorable variances explained",
+    "One-time vs recurring variance classification",
+    "Recommended actions per major variance",
+    "Updated full-year forecast suggestion"
+  ],
+  "requiredApis": ["quickbooks-api", "xero-api", "google-sheets-api", "anthropic-claude-api"],
+  "noCodeTools": [
+    "Budget vs actual Google Sheet + ChatGPT monthly narrative",
+    "QuickBooks classes report + Claude long-doc analysis",
+    "Excel budget template + GPT variance column"
+  ],
+  "lowCodeTools": [
+    "n8n month-end: QBO actuals → Sheets compare → Claude narrative",
+    "Airtable budget tracker + GPT explainer field",
+    "Make.com accounting close workflow"
+  ],
+  "customBuildStack": [
+    "Accounting API month-end pull",
+    "Budget file sync from Sheets",
+    "Claude for long variance narrative with line-item context",
+    "Email PDF report to owner and bookkeeper"
+  ],
+  "implementationSteps": [
+    "Structure annual budget in spreadsheet with monthly columns",
+    "Connect accounting for automated actuals pull",
+    "Define materiality threshold (e.g., flag variances >5% or $500)",
+    "Run first month with owner annotating known one-time items",
+    "Review AI narrative accuracy — tune prompt for your chart of accounts",
+    "Share with bookkeeper monthly as discussion starter"
+  ],
+  "systemBehavior": [
+    "Runs after monthly books close",
+    "Read-only on accounting — never posts adjusting entries",
+    "Asks owner to confirm one-time items before final narrative",
+    "Compares to prior month trend, not just budget",
+    "Explanatory only — not audit or tax reporting"
+  ],
+  "risks": [
+    "AI may invent causes for variances without sufficient context from owner",
+    "Misclassified chart of accounts produces wrong explanations",
+    "Budget assumptions from 10 months ago may be obsolete",
+    "Does not replace bookkeeper or CPA review of financials"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "Medium",
+  "relatedUseCases": ["weekly-owner-briefing", "ai-expense-watchdog", "ai-break-even-dashboard"],
+  "tags": ["budget", "variance", "reporting", "monthly-close"],
+  "featured": false
+}

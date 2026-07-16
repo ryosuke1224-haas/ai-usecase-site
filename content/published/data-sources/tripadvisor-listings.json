@@ -1,0 +1,28 @@
+{
+  "id": "ds-034",
+  "slug": "tripadvisor-listings",
+  "name": "TripAdvisor Listings",
+  "examples": [
+    "Restaurant and hospitality TripAdvisor pages",
+    "Attraction and tour operator listings",
+    "Review feeds for travel/hospitality B2B targets"
+  ],
+  "category": "Lead Discovery",
+  "summary": "Public TripAdvisor business profiles and reviews for hospitality and travel-adjacent B2B prospecting.",
+  "whatItContains": "Business name, location, rating, review text, ranking, and response rate to reviews.",
+  "whatAiCanDoWithIt": [
+    "Find hospitality businesses with reputation pain signals",
+    "Extract review themes for outreach personalization",
+    "Score operational stress from negative review patterns",
+    "Complement Google/Yelp data for local lead lists"
+  ],
+  "relatedUseCases": [
+    "ai-local-lead-finder",
+    "ai-account-research-assistant",
+    "ai-personalized-outreach-writer"
+  ],
+  "relatedApis": ["outscraper-api", "apify-api", "openai-api"],
+  "privacyLevel": "Public",
+  "accessMethod": "Outscraper/Apify TripAdvisor scraper or manual export — no official public API for all use cases",
+  "tags": ["tripadvisor", "hospitality", "reviews", "local"]
+}

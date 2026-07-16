@@ -1,0 +1,33 @@
+{
+  "id": "wf-006",
+  "title": "Knowledge Base Builder Stack",
+  "summary": "Feed existing documents from Google Drive into OpenAI, then publish structured SOPs and training content to Notion — turns tribal knowledge into onboarding assets.",
+  "apiCombination": [
+    "google-drive-api",
+    "notion-api",
+    "openai-api"
+  ],
+  "dataSources": [
+    "documents-and-pdfs",
+    "staff-notes"
+  ],
+  "possibleUseCases": [
+    "ai-sop-builder",
+    "staff-training-assistant"
+  ],
+  "exampleWorkflow": "Owner uploads a recorded process video transcript and existing checklist PDF to a Drive folder. OpenAI converts both into a step-by-step SOP with roles, tools needed, and common mistakes. The SOP publishes to a Notion database. Staff receive a Slack link to the new page. Quarterly: OpenAI diffs updated Drive docs against Notion pages and flags outdated SOPs.",
+  "businessValue": "New hires onboard in days instead of weeks. SOPs stay current without the owner rewriting docs manually. Reduces repeated training questions by 40–60%.",
+  "implementationDifficulty": "Intermediate",
+  "recommendedFor": [
+    "Franchises",
+    "Multi-location service businesses",
+    "Teams with high turnover",
+    "Growing companies formalizing processes"
+  ],
+  "risks": [
+    "AI-generated SOPs may miss safety-critical steps — require expert review",
+    "Drive folder permissions must exclude personal files",
+    "Notion page structure changes can break automated publishing"
+  ],
+  "slug": "google-drive-notion-openai"
+}

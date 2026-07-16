@@ -1,0 +1,94 @@
+{
+  "id": "uc-009",
+  "slug": "ai-booking-optimizer",
+  "title": "AI Booking Optimizer",
+  "category": "Operations",
+  "industries": [
+    "Salons",
+    "Fitness",
+    "Healthcare",
+    "Consulting",
+    "Home Services"
+  ],
+  "businessFunctions": [
+    "Operations",
+    "Scheduling"
+  ],
+  "summary": "Analyze booking patterns to recommend better slot availability, reduce gaps, and send staff prep briefs for upcoming appointments.",
+  "businessProblem": "Calendar has inefficient gaps, popular time slots fill weeks out while mid-week slots sit empty, and staff walk into appointments without context on the client.",
+  "outcome": "Weekly recommendations for calendar adjustments, automated staff briefs 2 hours before each appointment, and alerts when high-value slots are still open 48 hours out.",
+  "whoItsFor": "Appointment-based businesses using Calendly or Google Calendar with 20+ bookings per week and staff who need client context before each session.",
+  "requiredDataSources": [
+    "booking-data",
+    "calendar-events",
+    "crm-records"
+  ],
+  "aiInputs": [
+    "Booking history: fill rates by day/time over last 90 days",
+    "Upcoming appointments with client names and service types",
+    "CRM notes and past visit history per client",
+    "Current calendar availability settings"
+  ],
+  "aiOutputs": [
+    "Fill rate analysis by day and time slot",
+    "Recommendations to open/close specific time blocks",
+    "Staff prep brief per upcoming appointment (client history, preferences, notes)",
+    "Alert when premium slots are unfilled 48 hours before"
+  ],
+  "requiredApis": [
+    "calendly-api",
+    "google-calendar-api",
+    "slack-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "Calendly analytics dashboard (manual review)",
+    "ChatGPT with booking data pasted for analysis",
+    "Acuity built-in reporting"
+  ],
+  "lowCodeTools": [
+    "n8n: Calendly webhook → CRM lookup → OpenAI brief → Slack",
+    "Zapier: new booking → OpenAI prep note → Slack DM to staff"
+  ],
+  "customBuildStack": [
+    "Calendly API for booking events and history",
+    "CRM API for client context",
+    "OpenAI for brief generation and pattern analysis",
+    "Slack API for staff notifications"
+  ],
+  "implementationSteps": [
+    "Connect Calendly and CRM via API",
+    "Pull 90 days of booking data for fill rate analysis",
+    "Build staff brief template: client name, service, history, special notes",
+    "Set up webhook: new booking → generate brief → Slack 2 hours before",
+    "Weekly: run slot optimization analysis and email recommendations to owner",
+    "Adjust calendar availability based on data after 4 weeks"
+  ],
+  "systemBehavior": [
+    "Staff briefs sent 2 hours before each appointment",
+    "Slot optimization runs weekly, not real-time",
+    "Briefs pull CRM data at generation time — always current",
+    "Does not modify calendar availability automatically",
+    "Alerts owner only for high-value unfilled slots, not every gap"
+  ],
+  "risks": [
+    "Staff briefs containing client PII in Slack need private channels",
+    "Fill rate recommendations may not account for seasonal patterns with only 90 days data",
+    "Over-notification fatigues staff — limit to essential briefs",
+    "CRM data gaps produce empty or misleading prep briefs"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "Medium",
+  "relatedUseCases": [
+    "no-show-recovery-assistant",
+    "ai-meeting-prep-assistant"
+  ],
+  "tags": [
+    "booking",
+    "scheduling",
+    "optimization",
+    "staff-prep"
+  ],
+  "featured": false
+}

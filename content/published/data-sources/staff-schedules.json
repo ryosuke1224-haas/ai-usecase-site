@@ -1,0 +1,28 @@
+{
+  "id": "ds-018",
+  "slug": "staff-schedules",
+  "name": "Staff Schedules",
+  "examples": [
+    "7shifts weekly schedules",
+    "Homebase shift assignments",
+    "Google Calendar staff blocks"
+  ],
+  "category": "Operations",
+  "summary": "Planned shift assignments showing who is scheduled, when, and in what role.",
+  "whatItContains": "Employee name, shift start/end, role, location, scheduled hours per week, and time-off blocks.",
+  "whatAiCanDoWithIt": [
+    "Estimate scheduled labor hours vs demand",
+    "Identify overstaffed and understaffed periods",
+    "Convert schedules into projected payroll cost",
+    "Recommend shift adjustments before payroll runs"
+  ],
+  "relatedUseCases": [
+    "ai-staffing-optimizer",
+    "ai-payroll-forecasting",
+    "ai-staffing-optimizer"
+  ],
+  "relatedApis": ["gusto-api", "google-calendar-api", "google-sheets-api"],
+  "privacyLevel": "Internal",
+  "accessMethod": "Scheduling app export, API, or spreadsheet sync",
+  "tags": ["scheduling", "staff", "labor"]
+}

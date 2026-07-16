@@ -1,0 +1,97 @@
+{
+  "id": "uc-012",
+  "slug": "ai-meeting-prep-assistant",
+  "title": "AI Meeting Prep Assistant",
+  "category": "Operations",
+  "industries": [
+    "Consulting",
+    "Agencies",
+    "B2B Sales",
+    "Professional Services"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Operations",
+    "Owner/Admin"
+  ],
+  "summary": "Before each client meeting, generate a one-page brief with relationship history, open items, and suggested talking points.",
+  "businessProblem": "Owners and salespeople walk into meetings without refreshing context. They forget prior commitments, repeat questions the client already answered, and miss upsell opportunities visible in past interactions.",
+  "outcome": "30 minutes before each meeting, receive a brief: who you're meeting, last 3 interactions summary, open quotes/invoices, and 3 suggested discussion topics.",
+  "whoItsFor": "Consultants, agency owners, and B2B salespeople with 3–8 client meetings per week who prepare inconsistently.",
+  "requiredDataSources": [
+    "calendar-events",
+    "emails",
+    "crm-records",
+    "call-transcripts"
+  ],
+  "aiInputs": [
+    "Upcoming calendar event with attendee names and companies",
+    "Last 5 email threads with each attendee",
+    "CRM deal stage, notes, and open tasks",
+    "Recent call transcripts or meeting notes if available"
+  ],
+  "aiOutputs": [
+    "One-page meeting brief per attendee",
+    "Relationship timeline: last contact, deal status, open items",
+    "Suggested talking points based on deal stage and history",
+    "Warning flags: overdue deliverables, unresolved complaints"
+  ],
+  "requiredApis": [
+    "google-calendar-api",
+    "gmail-api",
+    "hubspot-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "ChatGPT with calendar and email context (manual per meeting)",
+    "Clay.com pre-meeting research briefs",
+    "HubSpot meeting prep sidebar"
+  ],
+  "lowCodeTools": [
+    "n8n: calendar event 30 min before → Gmail + CRM pull → OpenAI → email brief",
+    "Zapier scheduled workflow per calendar event"
+  ],
+  "customBuildStack": [
+    "Google Calendar API polling for upcoming events",
+    "Gmail API for thread search by attendee email",
+    "HubSpot API for CRM context",
+    "OpenAI for brief synthesis",
+    "Delivery via email or Slack DM"
+  ],
+  "implementationSteps": [
+    "Connect calendar, email, and CRM APIs",
+    "Define brief template: attendee info, history, open items, talking points",
+    "Set trigger: 30 minutes before each external meeting",
+    "Filter: only meetings with external attendees (skip internal standups)",
+    "Review first 10 briefs for accuracy and tune data sources",
+    "Add call transcript integration if available"
+  ],
+  "systemBehavior": [
+    "Triggered 30 minutes before each qualifying calendar event",
+    "Skips internal meetings and events without external attendees",
+    "Pulls freshest CRM and email data at generation time",
+    "Brief delivered to meeting owner's email or Slack",
+    "Does not share brief with meeting attendees automatically"
+  ],
+  "risks": [
+    "Email search may pull wrong threads if attendee has common name",
+    "CRM data staleness produces outdated briefs that mislead",
+    "Briefs containing deal values or complaints sent to insecure channels",
+    "Over-reliance on briefs reduces genuine relationship memory"
+  ],
+  "difficulty": "Intermediate",
+  "automationLevel": "Fully automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-daily-inbox-briefing",
+    "ai-follow-up-engine",
+    "ai-booking-optimizer"
+  ],
+  "tags": [
+    "meetings",
+    "prep",
+    "crm",
+    "sales"
+  ],
+  "featured": false
+}

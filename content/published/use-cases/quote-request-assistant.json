@@ -1,0 +1,96 @@
+{
+  "id": "uc-013",
+  "slug": "quote-request-assistant",
+  "title": "Quote Request Assistant",
+  "category": "Sales",
+  "industries": [
+    "Contractors",
+    "Home Services",
+    "Agencies",
+    "Manufacturing",
+    "B2B Services"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Operations"
+  ],
+  "summary": "Capture quote requests from forms and emails, extract requirements, and draft initial quote responses or scope documents.",
+  "businessProblem": "Quote requests arrive via website forms, email, and phone messages in inconsistent formats. Staff spend 20–30 minutes per request just organizing requirements before they can price anything.",
+  "outcome": "Each quote request is automatically logged, requirements extracted into a structured format, and a draft scope/acknowledgment email sent within 1 hour of receipt.",
+  "whoItsFor": "Businesses receiving 5–30 quote requests per week where each quote requires understanding scope before pricing — contractors, agencies, custom manufacturers.",
+  "requiredDataSources": [
+    "website-form-submissions",
+    "emails",
+    "spreadsheets",
+    "crm-records"
+  ],
+  "aiInputs": [
+    "Raw quote request (form fields or email body)",
+    "Service catalog with pricing guidelines",
+    "Past quote examples for similar requests",
+    "Qualification criteria (minimum project size, service area, etc.)"
+  ],
+  "aiOutputs": [
+    "Structured requirements summary: scope, timeline, budget signals, location",
+    "Qualification score: fit vs. not-fit with reasons",
+    "Draft acknowledgment email with clarifying questions",
+    "New row in quote tracker spreadsheet/CRM"
+  ],
+  "requiredApis": [
+    "gmail-api",
+    "google-sheets-api",
+    "hubspot-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "Zapier: form submit → ChatGPT extract → Sheets row + Gmail draft",
+    "Typeform + OpenAI integration",
+    "HubSpot form + AI enrichment"
+  ],
+  "lowCodeTools": [
+    "n8n: form webhook → OpenAI structured extraction → CRM + email",
+    "Make.com with form parser and GPT modules"
+  ],
+  "customBuildStack": [
+    "Webhook for form submissions + Gmail label trigger for email quotes",
+    "OpenAI structured JSON output for requirement extraction",
+    "Sheets/CRM API for tracker update",
+    "Gmail API for acknowledgment draft"
+  ],
+  "implementationSteps": [
+    "Define quote tracker columns and qualification criteria",
+    "Connect form and email intake channels",
+    "Build extraction prompt with 5–10 past quote examples",
+    "Set up auto-acknowledgment draft with clarifying questions",
+    "Run in review mode: AI extracts and logs, human reviews before sending",
+    "Track quote-to-close rate and refine qualification criteria quarterly"
+  ],
+  "systemBehavior": [
+    "Triggered on each new form submission or labeled email",
+    "Extracts and structures requirements — does not generate final pricing",
+    "Flags unqualified requests with reason (out of area, too small, etc.)",
+    "Creates tracker row and acknowledgment draft within 1 hour",
+    "Escalates complex or high-value requests to owner immediately"
+  ],
+  "risks": [
+    "AI may miss critical requirements leading to under-quoted projects",
+    "Auto-acknowledgment with wrong clarifying questions looks unprofessional",
+    "Qualification AI may reject good leads with non-standard requests",
+    "Pricing guidelines in prompts could leak through draft emails"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-admin-organizer",
+    "ai-customer-response-assistant",
+    "ai-follow-up-engine"
+  ],
+  "tags": [
+    "quotes",
+    "sales",
+    "intake",
+    "scope"
+  ],
+  "featured": false
+}

@@ -1,0 +1,40 @@
+{
+  "id": "api-009",
+  "slug": "twilio-api",
+  "name": "Twilio API",
+  "provider": "Twilio",
+  "category": "Messaging",
+  "summary": "Send SMS, make calls, and access message logs programmatically.",
+  "whatItDoes": "Enables text-based customer outreach for winback campaigns, appointment reminders, and no-show recovery — with delivery tracking.",
+  "dataAvailable": [
+    "SMS message logs",
+    "Delivery status",
+    "Call records",
+    "Phone number metadata"
+  ],
+  "actionsSupported": [
+    "Send SMS messages",
+    "Make outbound calls",
+    "Receive inbound messages via webhook",
+    "Log conversation history"
+  ],
+  "authenticationType": "API Key + Account SID",
+  "commonUseCases": [
+    "no-show-recovery-assistant",
+    "inactive-customer-winback",
+    "ai-follow-up-engine"
+  ],
+  "relatedDataSources": [
+    "customer-list",
+    "chat-logs",
+    "booking-data"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "SMS requires opt-in compliance (TCPA). Store consent records and honor opt-out requests immediately.",
+  "documentationUrlPlaceholder": "https://www.twilio.com/docs",
+  "tags": [
+    "sms",
+    "messaging",
+    "outreach"
+  ]
+}

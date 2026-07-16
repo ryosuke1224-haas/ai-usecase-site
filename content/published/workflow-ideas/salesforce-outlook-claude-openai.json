@@ -1,0 +1,40 @@
+{
+  "id": "wf-010",
+  "slug": "salesforce-outlook-claude-openai",
+  "title": "Salesforce Enterprise Pipeline Stack",
+  "summary": "Salesforce for CRM and pipeline management, Microsoft Outlook for email context, and Claude/OpenAI for hygiene monitoring, risk detection, briefings, and lead scoring — built for Microsoft-centric sales orgs.",
+  "apiCombination": [
+    "salesforce-api",
+    "microsoft-graph-outlook-api",
+    "openai-api",
+    "anthropic-claude-api",
+    "slack-api"
+  ],
+  "dataSources": [
+    "crm-records",
+    "emails",
+    "sales-activity-logs",
+    "call-notes",
+    "proposal-history",
+    "lead-forms"
+  ],
+  "possibleUseCases": [
+    "ai-crm-hygiene-monitor",
+    "ai-pipeline-risk-detector",
+    "ai-sales-briefing",
+    "ai-lead-scoring-engine"
+  ],
+  "exampleWorkflow": "Weekly: Salesforce API exports full pipeline. Rule engine flags duplicates, stale stages, and missing next steps. Claude generates a rep-by-rep hygiene digest posted to Slack. Daily: active opportunities scanned for risk — stage age, Outlook email response gaps, missing tasks. OpenAI writes risk narrative and recovery suggestions. Before external meetings: pull Salesforce account + Outlook thread history → Claude briefing to rep's inbox. New inbound leads scored via enrichment + AI and written to Salesforce lead score field.",
+  "businessValue": "Brings AI intelligence to Salesforce without Einstein licensing. Hygiene and risk detection improve forecast accuracy. Outlook integration matches how enterprise reps actually work.",
+  "implementationDifficulty": "Advanced",
+  "recommendedFor": [
+    "Salesforce-centric B2B teams",
+    "Microsoft 365 organizations",
+    "RevOps teams managing 50+ opportunity pipelines"
+  ],
+  "risks": [
+    "Salesforce API limits and complex object models require careful integration design",
+    "Microsoft Graph permissions need IT admin approval in enterprise environments",
+    "Automated CRM writes must respect validation rules and trigger side effects"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "wf-008",
+  "slug": "outscraper-sheets-claude-openai",
+  "title": "Scrape-to-Sheet Research Stack",
+  "summary": "Use Outscraper or Apify to bulk-extract business listings and reviews into Google Sheets, then run Claude or OpenAI for lead scoring, account research, and review-based pain signal detection.",
+  "apiCombination": [
+    "outscraper-api",
+    "apify-api",
+    "google-sheets-api",
+    "openai-api",
+    "anthropic-claude-api"
+  ],
+  "dataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites",
+    "tripadvisor-listings",
+    "industry-directories"
+  ],
+  "possibleUseCases": [
+    "ai-local-lead-finder",
+    "ai-account-research-assistant",
+    "ai-lead-scoring-engine",
+    "ai-personalized-outreach-writer"
+  ],
+  "exampleWorkflow": "On demand: Outscraper pulls 500 Google Maps businesses matching 'property management' in Dallas with reviews. Apify scrapes each business website homepage for service keywords. Data lands in Google Sheets. Claude batch-processes review text to extract pain themes (slow response, billing complaints, staffing). OpenAI scores ICP fit and writes a one-paragraph account summary per row. Rep filters top 50 and imports to CRM or outreach tool.",
+  "businessValue": "Low-code path to bulk prospecting without building a custom scraper. Sheets becomes the review layer before CRM commit. Review pain themes directly fuel personalized outreach.",
+  "implementationDifficulty": "Beginner",
+  "recommendedFor": [
+    "Small sales teams without engineering resources",
+    "Agencies building vertical-specific prospect lists",
+    "Marketers doing ABM list research before campaigns"
+  ],
+  "risks": [
+    "Scraping volume costs add up — budget per territory before bulk runs",
+    "Sheet-based workflows don't scale past ~5,000 rows without performance issues",
+    "Scraped data freshness degrades — re-run quarterly for active territories"
+  ]
+}

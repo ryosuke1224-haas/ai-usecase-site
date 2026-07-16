@@ -1,0 +1,90 @@
+{
+  "id": "uc-005",
+  "slug": "ai-review-response-assistant",
+  "title": "AI Review Response Assistant",
+  "category": "Reputation",
+  "industries": [
+    "Restaurants",
+    "Salons",
+    "Home Services",
+    "Retail",
+    "Hospitality"
+  ],
+  "businessFunctions": [
+    "Marketing",
+    "Customer Service",
+    "Owner/Admin"
+  ],
+  "summary": "Draft on-brand responses to new Google and Yelp reviews for owner approval before publishing.",
+  "businessProblem": "Responding to reviews improves local SEO and customer trust, but owners don't have time to craft thoughtful replies — especially to negative reviews that need careful handling.",
+  "outcome": "Draft responses for each new review within 24 hours, tailored to the rating and content, ready for one-click approval and publishing.",
+  "whoItsFor": "Local business owners who know they should respond to reviews but currently respond to fewer than 30% of them.",
+  "requiredDataSources": [
+    "customer-reviews"
+  ],
+  "aiInputs": [
+    "New review text, star rating, reviewer name, platform",
+    "Business response guidelines (tone, apology policy, offer limits)",
+    "3–5 examples of past approved responses"
+  ],
+  "aiOutputs": [
+    "Draft response appropriate to rating (grateful for 5-star, empathetic for 1–2 star)",
+    "Flag for owner review if review mentions safety, legal, or health issues",
+    "Character count within platform limits"
+  ],
+  "requiredApis": [
+    "google-business-profile-api",
+    "yelp-fusion-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "Google Business Profile built-in AI reply suggestions",
+    "Birdeye or Podium review response AI",
+    "ChatGPT with review pasted in (manual per review)"
+  ],
+  "lowCodeTools": [
+    "n8n: new review webhook → OpenAI draft → approval email to owner",
+    "Zapier: new Google review → GPT → Gmail draft for owner"
+  ],
+  "customBuildStack": [
+    "Webhook or polling for new reviews",
+    "OpenAI with rating-specific prompt templates",
+    "Approval UI (simple web form or email reply-to-approve)",
+    "Google Business Profile API to publish approved responses"
+  ],
+  "implementationSteps": [
+    "Write response guidelines: tone, what to offer unhappy customers, what never to say",
+    "Collect 5 examples of your best past review responses",
+    "Connect review platform APIs",
+    "Build rating-specific prompts (5-star thank you vs. 1-star recovery)",
+    "Run in approval-only mode — owner reviews every draft before publish",
+    "Track response rate and average time-to-respond monthly"
+  ],
+  "systemBehavior": [
+    "Triggered when new review is detected (daily poll or webhook)",
+    "Never auto-publishes — always requires owner approval",
+    "Escalates reviews mentioning legal, safety, or discrimination to owner alert",
+    "Keeps responses under platform character limits",
+    "Logs all published responses for consistency review"
+  ],
+  "risks": [
+    "Auto-published generic responses damage reputation worse than no response",
+    "Offering discounts in negative review replies can be exploited",
+    "AI may accidentally confirm a complaint that wasn't factually accurate",
+    "Yelp discourages incentivized review responses — keep replies authentic"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-review-intelligence",
+    "local-seo-content-assistant"
+  ],
+  "tags": [
+    "reviews",
+    "reputation",
+    "response",
+    "local-seo"
+  ],
+  "featured": false
+}

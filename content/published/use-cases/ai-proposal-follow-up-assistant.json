@@ -1,0 +1,88 @@
+{
+  "id": "uc-036",
+  "slug": "ai-proposal-follow-up-assistant",
+  "title": "AI Proposal Follow-up Assistant",
+  "tagline": "Recover stalled proposals with timely, relevant follow-ups.",
+  "category": "Sales & Lead Generation",
+  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
+  "businessFunctions": ["Sales", "Business Development"],
+  "summary": "Identifies quotes and proposals that have not received a response and drafts follow-up messages based on proposal details and customer context.",
+  "businessProblem": "Proposals go out and get forgotten — reps move to new opportunities while sent quotes sit unopened. Studies show most deals need 3+ follow-ups after proposal, but most reps stop after one.",
+  "outcome": "Automated detection of silent proposals with tiered follow-up drafts referencing specific proposal content, prior conversations, and appropriate urgency — ready for rep send.",
+  "whoItsFor": "B2B sellers who send formal quotes or proposals via email or CRM and lose deals to silence rather than explicit rejection.",
+  "requiredDataSources": [
+    "proposal-history",
+    "crm-records",
+    "emails",
+    "call-notes",
+    "sales-activity-logs"
+  ],
+  "aiInputs": [
+    "Proposal sent date, amount, line items, and recipient",
+    "Days since send with no response or open signal",
+    "Prior email thread context and objections raised",
+    "Call notes from discovery and proposal walkthrough",
+    "Follow-up cadence rules (day 3, 7, 14 after send)"
+  ],
+  "aiOutputs": [
+    "List of stalled proposals ranked by deal value and silence duration",
+    "Follow-up email draft referencing specific proposal sections",
+    "Alternative angles: value recap, objection address, deadline, break-up email",
+    "CRM task creation payload for rep review",
+    "Suggested call script if email unresponsive after 2 touches"
+  ],
+  "requiredApis": [
+    "hubspot-api",
+    "gmail-api",
+    "openai-api"
+  ],
+  "noCodeTools": [
+    "HubSpot deal stages + task reminders with ChatGPT draft paste",
+    "Zapier: deal in 'Proposal Sent' 5+ days → GPT follow-up → Gmail draft",
+    "PandaDoc/Proposify notifications + manual GPT follow-up"
+  ],
+  "lowCodeTools": [
+    "n8n daily: CRM proposal stage deals → silence check → Claude draft → Gmail",
+    "Google Sheets proposal tracker + Apps Script + OpenAI",
+    "Make.com: proposal tool webhook → follow-up schedule → email draft"
+  ],
+  "customBuildStack": [
+    "CRM query for deals in proposal-sent stage beyond threshold",
+    "Gmail thread search for proposal attachment and reply detection",
+    "OpenAI/Claude with proposal context and objection-aware prompts",
+    "Gmail draft API — human sends",
+    "Recovery metrics: proposal-to-close rate before and after automation"
+  ],
+  "implementationSteps": [
+    "Define proposal-sent stage in CRM and required fields (amount, sent date)",
+    "Set follow-up cadence rules: 3, 7, 14 days with different message angles",
+    "Connect Gmail to detect replies — exclude deals with recent responses",
+    "Build prompts that reference proposal line items and prior objections",
+    "Deliver as morning Gmail drafts or CRM tasks for rep approval",
+    "Track recovery rate and adjust cadence based on industry sales cycle"
+  ],
+  "systemBehavior": [
+    "Runs daily scan of proposal-stage deals — not instant on send",
+    "Draft-only — rep reviews and sends every follow-up",
+    "Stops cadence on reply, meeting booked, or explicit opt-out",
+    "Escalates high-value silent proposals to manager after 14 days",
+    "Never discounts or changes proposal terms without rep input"
+  ],
+  "risks": [
+    "Aggressive follow-up on proposals annoys buyers and damages relationships",
+    "Misdetecting replies in CC'd threads creates duplicate follow-ups",
+    "Break-up emails can prematurely kill deals still in internal review",
+    "Proposal content in AI prompts may include confidential pricing"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-pipeline-risk-detector",
+    "ai-nurture-sequence-builder",
+    "ai-follow-up-engine",
+    "quote-request-assistant"
+  ],
+  "tags": ["proposals", "follow-up", "quotes", "recovery", "closing"],
+  "featured": false
+}

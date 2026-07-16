@@ -1,0 +1,37 @@
+{
+  "id": "ds-004",
+  "slug": "customer-list",
+  "name": "Customer List",
+  "examples": [
+    "Email marketing subscribers",
+    "Loyalty program members",
+    "Past purchasers from POS"
+  ],
+  "category": "CRM",
+  "summary": "A structured list of customers with contact info and basic engagement history.",
+  "whatItContains": "Name, email, phone, last visit/purchase date, tags/segments, and opt-in status.",
+  "whatAiCanDoWithIt": [
+    "Identify inactive customers for winback campaigns",
+    "Segment by purchase frequency or service type",
+    "Personalize outreach based on past interactions",
+    "Flag VIP customers needing white-glove follow-up"
+  ],
+  "relatedUseCases": [
+    "inactive-customer-winback",
+    "ai-follow-up-engine",
+    "no-show-recovery-assistant"
+  ],
+  "relatedApis": [
+    "square-api",
+    "hubspot-api",
+    "google-sheets-api",
+    "twilio-api"
+  ],
+  "privacyLevel": "PII",
+  "accessMethod": "CRM export, POS API, or spreadsheet sync",
+  "tags": [
+    "customers",
+    "segmentation",
+    "marketing"
+  ]
+}

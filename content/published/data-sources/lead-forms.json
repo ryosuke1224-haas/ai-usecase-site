@@ -1,0 +1,28 @@
+{
+  "id": "ds-033",
+  "slug": "lead-forms",
+  "name": "Lead Forms",
+  "examples": [
+    "Website contact form submissions",
+    "HubSpot embedded forms",
+    "Trade show badge scan uploads"
+  ],
+  "category": "Lead Generation",
+  "summary": "Inbound lead capture records from forms before or during CRM entry.",
+  "whatItContains": "Submitter name, email, company, form fields, source URL, UTM parameters, and submission timestamp.",
+  "whatAiCanDoWithIt": [
+    "Deduplicate against existing CRM before create",
+    "Enrich missing company fields automatically",
+    "Score inbound leads for routing priority",
+    "Trigger nurture sequences by form type"
+  ],
+  "relatedUseCases": [
+    "ai-crm-deduplication-enrichment",
+    "ai-lead-scoring-engine",
+    "ai-nurture-sequence-builder"
+  ],
+  "relatedApis": ["hubspot-api", "clearbit-api", "google-sheets-api", "openai-api"],
+  "privacyLevel": "PII",
+  "accessMethod": "Form tool webhook, CRM form API, or Zapier",
+  "tags": ["inbound", "forms", "leads", "routing"]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "api-006",
+  "slug": "google-business-profile-api",
+  "name": "Google Business Profile API",
+  "provider": "Google",
+  "category": "Reputation",
+  "summary": "Access and respond to Google Business Profile reviews and posts.",
+  "whatItDoes": "Pulls review data from your Google listing and can publish owner responses — core API for local reputation management workflows.",
+  "dataAvailable": [
+    "Review text and star ratings",
+    "Reviewer display name",
+    "Review timestamps",
+    "Business listing info"
+  ],
+  "actionsSupported": [
+    "List reviews",
+    "Reply to reviews",
+    "Read business insights",
+    "Manage posts"
+  ],
+  "authenticationType": "OAuth 2.0 (Google Business account)",
+  "commonUseCases": [
+    "ai-review-intelligence",
+    "ai-review-response-assistant",
+    "local-seo-content-assistant"
+  ],
+  "relatedDataSources": [
+    "customer-reviews"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Review responses are public. Always require human approval before auto-publishing replies.",
+  "documentationUrlPlaceholder": "https://developers.google.com/my-business",
+  "tags": [
+    "reviews",
+    "google",
+    "local-seo"
+  ]
+}

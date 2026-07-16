@@ -1,0 +1,36 @@
+{
+  "id": "ds-006",
+  "slug": "website-form-submissions",
+  "name": "Website Form Submissions",
+  "examples": [
+    "Contact us forms",
+    "Quote request forms",
+    "Newsletter signups"
+  ],
+  "category": "Lead Generation",
+  "summary": "Structured data captured when visitors submit forms on your website.",
+  "whatItContains": "Form fields (name, email, service needed, message), submission timestamp, and source page URL.",
+  "whatAiCanDoWithIt": [
+    "Classify inquiry urgency and route to the right person",
+    "Draft immediate acknowledgment emails",
+    "Score leads based on form responses",
+    "Add structured entries to a tracking spreadsheet or CRM"
+  ],
+  "relatedUseCases": [
+    "quote-request-assistant",
+    "ai-customer-response-assistant"
+  ],
+  "relatedApis": [
+    "google-sheets-api",
+    "hubspot-api",
+    "gmail-api",
+    "openai-api"
+  ],
+  "privacyLevel": "PII",
+  "accessMethod": "Form tool webhook, Zapier, or direct API to Sheets/CRM",
+  "tags": [
+    "leads",
+    "website",
+    "inbound"
+  ]
+}

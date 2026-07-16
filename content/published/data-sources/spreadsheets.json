@@ -1,0 +1,36 @@
+{
+  "id": "ds-016",
+  "slug": "spreadsheets",
+  "name": "Spreadsheets",
+  "examples": [
+    "Quote tracking sheet",
+    "Weekly KPI dashboard",
+    "Inventory counts"
+  ],
+  "category": "Operations",
+  "summary": "Tabular business data maintained in spreadsheets, often the operational backbone of SMBs.",
+  "whatItContains": "Rows and columns of structured data, formulas, multiple tabs, and change history.",
+  "whatAiCanDoWithIt": [
+    "Auto-populate rows from form submissions or emails",
+    "Generate weekly summary narratives from KPI tabs",
+    "Flag overdue items in tracker sheets",
+    "Clean and normalize messy manual entries"
+  ],
+  "relatedUseCases": [
+    "ai-admin-organizer",
+    "quote-request-assistant",
+    "weekly-owner-briefing"
+  ],
+  "relatedApis": [
+    "google-sheets-api",
+    "airtable-api",
+    "openai-api"
+  ],
+  "privacyLevel": "Internal",
+  "accessMethod": "Google Sheets API, Airtable API, or CSV import",
+  "tags": [
+    "spreadsheet",
+    "tracking",
+    "operations"
+  ]
+}

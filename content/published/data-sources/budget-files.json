@@ -1,0 +1,28 @@
+{
+  "id": "ds-024",
+  "slug": "budget-files",
+  "name": "Budget Files",
+  "examples": [
+    "Annual operating budget spreadsheet",
+    "Monthly budget vs actual tracker",
+    "Department-level budget tabs"
+  ],
+  "category": "Finance",
+  "summary": "Planned financial targets for revenue, expenses, payroll, and profit by period.",
+  "whatItContains": "Budget line items, monthly targets, category groupings, assumptions notes, and prior-year comparisons.",
+  "whatAiCanDoWithIt": [
+    "Compare budget vs actual and explain variances",
+    "Generate plain-English variance narratives",
+    "Highlight categories exceeding budget thresholds",
+    "Update forecast based on YTD performance"
+  ],
+  "relatedUseCases": [
+    "ai-budget-variance-explainer",
+    "ai-revenue-scenario-planner",
+    "ai-break-even-dashboard"
+  ],
+  "relatedApis": ["google-sheets-api", "quickbooks-api", "xero-api"],
+  "privacyLevel": "Internal",
+  "accessMethod": "Google Sheets, Excel export, or accounting budget module",
+  "tags": ["budget", "planning", "variance"]
+}

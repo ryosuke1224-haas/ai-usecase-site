@@ -1,0 +1,39 @@
+{
+  "id": "api-002",
+  "slug": "microsoft-graph-outlook-api",
+  "name": "Microsoft Graph / Outlook API",
+  "provider": "Microsoft",
+  "category": "Email",
+  "summary": "Access Outlook mail, calendar, and contacts via Microsoft Graph.",
+  "whatItDoes": "Unified API for Microsoft 365 environments — read/send Outlook emails, manage calendar events, and access contacts for businesses on the Microsoft stack.",
+  "dataAvailable": [
+    "Outlook email messages",
+    "Calendar events and availability",
+    "Contact records",
+    "Mailbox folders"
+  ],
+  "actionsSupported": [
+    "Read and send mail",
+    "Create calendar events",
+    "Search messages",
+    "Manage contacts"
+  ],
+  "authenticationType": "OAuth 2.0 (Microsoft Entra ID / Azure AD)",
+  "commonUseCases": [
+    "ai-daily-inbox-briefing",
+    "ai-meeting-prep-assistant",
+    "ai-customer-response-assistant"
+  ],
+  "relatedDataSources": [
+    "emails",
+    "calendar-events"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Enterprise tenants may require admin consent. Apply least-privilege scopes and audit API access.",
+  "documentationUrlPlaceholder": "https://learn.microsoft.com/graph/api/overview",
+  "tags": [
+    "email",
+    "microsoft",
+    "calendar"
+  ]
+}

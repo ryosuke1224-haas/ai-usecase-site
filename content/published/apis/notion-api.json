@@ -1,0 +1,37 @@
+{
+  "id": "api-018",
+  "slug": "notion-api",
+  "name": "Notion API",
+  "provider": "Notion",
+  "category": "Knowledge Base",
+  "summary": "Read and write pages, databases, and blocks in Notion workspaces.",
+  "whatItDoes": "Stores AI-generated SOPs, training materials, and knowledge base articles directly in Notion — where many SMB teams already manage internal docs.",
+  "dataAvailable": [
+    "Page content and blocks",
+    "Database rows and properties",
+    "Workspace structure"
+  ],
+  "actionsSupported": [
+    "Create and update pages",
+    "Query databases",
+    "Append blocks",
+    "Search workspace"
+  ],
+  "authenticationType": "Internal Integration Token",
+  "commonUseCases": [
+    "ai-sop-builder",
+    "staff-training-assistant"
+  ],
+  "relatedDataSources": [
+    "documents-and-pdfs",
+    "staff-notes"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Integration tokens access only shared pages. Audit which pages the integration can read and write.",
+  "documentationUrlPlaceholder": "https://developers.notion.com",
+  "tags": [
+    "notion",
+    "knowledge-base",
+    "docs"
+  ]
+}

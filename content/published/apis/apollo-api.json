@@ -1,0 +1,36 @@
+{
+  "id": "api-028",
+  "slug": "apollo-api",
+  "name": "Apollo API",
+  "provider": "Apollo.io",
+  "category": "Sales Intelligence",
+  "summary": "Search B2B contacts and companies with enrichment and email verification.",
+  "whatItDoes": "Provides company and contact search, email finding, and firmographic data — complements local listing discovery with decision-maker contacts for outbound sales.",
+  "dataAvailable": [
+    "Company firmographics",
+    "Contact names and titles",
+    "Verified email addresses",
+    "Technographics and intent signals"
+  ],
+  "actionsSupported": [
+    "Search organizations and people",
+    "Enrich company and contact records",
+    "Verify email deliverability",
+    "Export to CRM integrations"
+  ],
+  "authenticationType": "API Key",
+  "commonUseCases": [
+    "ai-crm-deduplication-enrichment",
+    "ai-lead-scoring-engine",
+    "ai-personalized-outreach-writer"
+  ],
+  "relatedDataSources": [
+    "crm-records",
+    "linkedin-profiles",
+    "public-business-listings"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Contact data is regulated under GDPR/CCPA. Apollo credits and usage limits apply. Verify opt-in requirements before cold outreach.",
+  "documentationUrlPlaceholder": "https://apolloio.github.io/apollo-api-docs",
+  "tags": ["apollo", "enrichment", "b2b", "contacts"]
+}

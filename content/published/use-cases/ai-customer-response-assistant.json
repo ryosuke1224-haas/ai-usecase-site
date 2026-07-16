@@ -1,0 +1,94 @@
+{
+  "id": "uc-002",
+  "slug": "ai-customer-response-assistant",
+  "title": "AI Customer Response Assistant",
+  "category": "Customer Service",
+  "industries": [
+    "Retail",
+    "Home Services",
+    "Hospitality",
+    "E-commerce"
+  ],
+  "businessFunctions": [
+    "Customer Service",
+    "Sales"
+  ],
+  "summary": "Draft on-brand replies to customer emails, form submissions, and chat messages for human review before sending.",
+  "businessProblem": "Customer inquiries pile up during busy periods. Staff write inconsistent replies, slow response times hurt reviews, and the owner becomes the bottleneck for every customer message.",
+  "outcome": "Draft responses appear within minutes of each inquiry, matching your business tone, answering the specific question, and flagging cases that need owner escalation.",
+  "whoItsFor": "Small teams without a dedicated customer service rep — especially businesses getting 10–50 inbound messages per day across email, forms, and chat.",
+  "requiredDataSources": [
+    "emails",
+    "website-form-submissions",
+    "chat-logs",
+    "support-tickets"
+  ],
+  "aiInputs": [
+    "Incoming message text and sender metadata",
+    "Business tone guide (formal/casual, key phrases to use/avoid)",
+    "FAQ document or past approved replies as examples",
+    "Product/service catalog with pricing and availability"
+  ],
+  "aiOutputs": [
+    "Draft reply ready for human review",
+    "Escalation flag if message involves complaint, refund, or legal issue",
+    "Suggested internal note for CRM logging",
+    "Confidence score on whether FAQ fully answers the question"
+  ],
+  "requiredApis": [
+    "gmail-api",
+    "openai-api",
+    "hubspot-api"
+  ],
+  "noCodeTools": [
+    "Help Scout AI Draft or similar built-in AI reply tools",
+    "Zapier: form submission → OpenAI → Gmail draft",
+    "ChatGPT custom GPT trained on your FAQ doc"
+  ],
+  "lowCodeTools": [
+    "n8n: webhook on new form/email → OpenAI → draft creation",
+    "Front or Missive with AI compose integration"
+  ],
+  "customBuildStack": [
+    "Webhook receiver for form/chat events",
+    "RAG pipeline over FAQ and past replies (vector store)",
+    "OpenAI API with system prompt for tone and escalation rules",
+    "Gmail API draft creation or help desk API"
+  ],
+  "implementationSteps": [
+    "Document 20–30 example replies that represent your ideal tone",
+    "Build FAQ covering top 15 customer questions",
+    "Connect inbound channels (email, forms) to trigger workflow",
+    "Configure escalation rules: refunds, complaints, legal → notify owner, no auto-draft",
+    "Run in draft-only mode for 2 weeks — staff approve/edit every reply",
+    "Track edit rate; refine prompt when AI drafts need heavy editing"
+  ],
+  "systemBehavior": [
+    "Triggered on each new inbound message (near real-time)",
+    "Always creates drafts — never auto-sends without explicit approval setting",
+    "Escalation rules bypass AI and notify owner directly",
+    "Logs every draft and final sent version for quality review",
+    "Degrades gracefully if FAQ doesn't cover the question — flags gap instead of guessing"
+  ],
+  "risks": [
+    "AI may confidently state incorrect pricing or policy — verify all factual claims",
+    "Tone mismatch on sensitive complaints can escalate situations",
+    "Customer PII in prompts requires data handling policy",
+    "Staff may stop reading inquiries and blindly approve drafts"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Semi-automated",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-follow-up-engine",
+    "quote-request-assistant",
+    "ai-review-response-assistant"
+  ],
+  "tags": [
+    "customer-service",
+    "email",
+    "drafts",
+    "response"
+  ],
+  "featured": true
+}

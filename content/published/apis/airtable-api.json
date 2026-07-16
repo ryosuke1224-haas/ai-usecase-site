@@ -1,0 +1,37 @@
+{
+  "id": "api-019",
+  "slug": "airtable-api",
+  "name": "Airtable API",
+  "provider": "Airtable",
+  "category": "Data Storage",
+  "summary": "Read and write records in Airtable bases programmatically.",
+  "whatItDoes": "Structured database alternative to spreadsheets — read and update tracker records, trigger workflows on new rows, and sync data with other tools.",
+  "dataAvailable": [
+    "Table records and field values",
+    "Base schema",
+    "Attachment metadata"
+  ],
+  "actionsSupported": [
+    "List and filter records",
+    "Create and update records",
+    "Upload attachments",
+    "Webhook on record changes"
+  ],
+  "authenticationType": "Personal Access Token",
+  "commonUseCases": [
+    "ai-admin-organizer",
+    "quote-request-assistant"
+  ],
+  "relatedDataSources": [
+    "spreadsheets",
+    "crm-records"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Personal access tokens inherit your full base access. Create dedicated bases for automated workflows.",
+  "documentationUrlPlaceholder": "https://airtable.com/developers/web/api",
+  "tags": [
+    "airtable",
+    "database",
+    "tracking"
+  ]
+}

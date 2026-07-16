@@ -1,0 +1,28 @@
+{
+  "id": "ds-030",
+  "slug": "call-notes",
+  "name": "Call Notes",
+  "examples": [
+    "Discovery call summaries in CRM",
+    "Sales rep meeting notes",
+    "Gong/Chorus call highlights pasted into CRM"
+  ],
+  "category": "Sales",
+  "summary": "Rep-authored notes from sales calls capturing prospect context and next steps.",
+  "whatItContains": "Call date, attendees, pain points discussed, objections, budget signals, and agreed next steps.",
+  "whatAiCanDoWithIt": [
+    "Prepare sales briefings from prior call context",
+    "Detect missing next steps in pipeline records",
+    "Feed nurture sequences with discussed pain points",
+    "Flag deals where notes contradict CRM stage"
+  ],
+  "relatedUseCases": [
+    "ai-sales-briefing",
+    "ai-pipeline-risk-detector",
+    "ai-nurture-sequence-builder"
+  ],
+  "relatedApis": ["hubspot-api", "salesforce-api", "openai-api"],
+  "privacyLevel": "PII",
+  "accessMethod": "CRM note fields, manual entry, or call recording tool export",
+  "tags": ["calls", "notes", "discovery", "crm"]
+}

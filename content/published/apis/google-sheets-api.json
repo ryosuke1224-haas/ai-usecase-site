@@ -1,0 +1,39 @@
+{
+  "id": "api-004",
+  "slug": "google-sheets-api",
+  "name": "Google Sheets API",
+  "provider": "Google",
+  "category": "Data Storage",
+  "summary": "Read and write spreadsheet data programmatically.",
+  "whatItDoes": "The most common SMB data layer — read tracker rows, append new entries, and update statuses in Google Sheets that teams already use daily.",
+  "dataAvailable": [
+    "Cell values across tabs",
+    "Row and column structure",
+    "Sheet metadata"
+  ],
+  "actionsSupported": [
+    "Read ranges",
+    "Append rows",
+    "Update cells",
+    "Create new sheets"
+  ],
+  "authenticationType": "OAuth 2.0 or Service Account",
+  "commonUseCases": [
+    "ai-admin-organizer",
+    "quote-request-assistant",
+    "weekly-owner-briefing"
+  ],
+  "relatedDataSources": [
+    "spreadsheets",
+    "website-form-submissions",
+    "invoices"
+  ],
+  "difficulty": "Beginner",
+  "privacyNotes": "Spreadsheets often hold customer PII. Use service accounts with shared-folder access instead of broad Drive permissions.",
+  "documentationUrlPlaceholder": "https://developers.google.com/sheets/api",
+  "tags": [
+    "spreadsheet",
+    "google",
+    "tracking"
+  ]
+}

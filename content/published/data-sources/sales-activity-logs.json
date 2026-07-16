@@ -1,0 +1,28 @@
+{
+  "id": "ds-029",
+  "slug": "sales-activity-logs",
+  "name": "Sales Activity Logs",
+  "examples": [
+    "CRM logged calls and emails",
+    "HubSpot engagement timeline",
+    "Salesforce task and event history"
+  ],
+  "category": "Sales",
+  "summary": "Chronological record of sales touchpoints per lead or deal.",
+  "whatItContains": "Activity type (call, email, meeting), timestamp, owner, outcome, and linked record ID.",
+  "whatAiCanDoWithIt": [
+    "Detect stale leads with no recent activity",
+    "Identify deals at risk from activity gaps",
+    "Prioritize follow-ups by last touch date",
+    "Score engagement level for lead ranking"
+  ],
+  "relatedUseCases": [
+    "ai-crm-hygiene-monitor",
+    "ai-pipeline-risk-detector",
+    "ai-lead-scoring-engine"
+  ],
+  "relatedApis": ["hubspot-api", "salesforce-api", "slack-api"],
+  "privacyLevel": "PII",
+  "accessMethod": "CRM API activity endpoints",
+  "tags": ["crm", "activity", "pipeline", "engagement"]
+}
