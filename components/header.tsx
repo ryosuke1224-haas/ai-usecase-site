@@ -18,7 +18,7 @@ export function Header() {
           <span className="flex h-7 w-7 items-center justify-center rounded bg-accent text-xs font-bold text-accent-foreground">
             AI
           </span>
-          <span className="hidden font-semibold sm:inline">Use Case Hub</span>
+          <span className="hidden font-semibold sm:inline">Use Case Atlas</span>
         </Link>
 
         <GlobalSearch className="hidden flex-1 md:block md:max-w-sm lg:max-w-md" />

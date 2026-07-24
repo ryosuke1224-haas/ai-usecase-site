@@ -30,8 +30,20 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const uc = getUseCaseBySlug(slug);
-  if (!uc) return { title: "Not Found" };
-  return { title: uc.title, description: uc.summary };
+  if (!uc) return { title: "Not Found", robots: { index: false, follow: false } };
+  return {
+    title: uc.title,
+    description: uc.summary,
+    alternates: {
+      canonical: `/use-cases/${slug}`,
+    },
+    openGraph: {
+      title: uc.title,
+      description: uc.summary,
+      url: `/use-cases/${slug}`,
+      type: "article",
+    },
+  };
 }
 
 export default async function UseCaseDetailPage({ params }: PageProps) {

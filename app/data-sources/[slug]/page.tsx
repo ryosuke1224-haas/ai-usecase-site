@@ -23,8 +23,20 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const ds = getDataSourceBySlug(slug);
-  if (!ds) return { title: "Not Found" };
-  return { title: ds.name, description: ds.summary };
+  if (!ds) return { title: "Not Found", robots: { index: false, follow: false } };
+  return {
+    title: ds.name,
+    description: ds.summary,
+    alternates: {
+      canonical: `/data-sources/${slug}`,
+    },
+    openGraph: {
+      title: ds.name,
+      description: ds.summary,
+      url: `/data-sources/${slug}`,
+      type: "article",
+    },
+  };
 }
 
 const privacyVariant = {

@@ -1,12 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { UseCaseCatalog } from "@/components/use-case-catalog";
 import { loadPublishedContent } from "@/src/content/load-published";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Use Case Library",
   description:
-    "Filterable library of SMB AI workflow blueprints with data sources, APIs, and implementation paths.",
+    "Browse a filterable library of practical AI use cases for business, mapped to data sources, APIs, tools, and implementation paths.",
+  alternates: {
+    canonical: "/use-cases",
+  },
+  openGraph: {
+    title: "Use Case Library",
+    description:
+      "Browse practical AI use cases for business with data sources, APIs, and implementation workflows.",
+    url: "/use-cases",
+  },
 };
 
 function CatalogFallback() {

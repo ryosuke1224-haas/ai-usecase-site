@@ -1,11 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { DataSourceCatalog } from "@/components/data-source-catalog";
 import { loadPublishedContent } from "@/src/content/load-published";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Data Source Library",
-  description: "Data sources for SMB AI workflows.",
+  description:
+    "Browse business data sources for AI workflows — what each contains, privacy considerations, access methods, and related use cases.",
+  alternates: {
+    canonical: "/data-sources",
+  },
+  openGraph: {
+    title: "Data Source Library",
+    description:
+      "Data sources for AI workflows, including contents, privacy levels, and related APIs.",
+    url: "/data-sources",
+  },
 };
 
 export default function DataSourcesPage() {

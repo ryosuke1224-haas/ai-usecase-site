@@ -1,4 +1,4 @@
-# AI Use Case Hub
+# AI Use Case Atlas
 
 A structured SMB AI workflow knowledge base built with [Next.js](https://nextjs.org). Public pages read validated JSON from `content/published/` only.
 

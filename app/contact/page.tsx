@@ -1,6 +1,19 @@
-export const metadata = {
+import type { Metadata } from "next";
+import { CONTACT_EMAIL } from "@/src/lib/site";
+
+export const metadata: Metadata = {
   title: "Contact",
-  description: "Get in touch about AI workflow blueprints for your business.",
+  description:
+    "Contact AI Use Case Atlas about suggesting use cases, reporting issues, or building AI workflow blueprints for your business.",
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: "Contact",
+    description:
+      "Get in touch with AI Use Case Atlas about AI workflow blueprints, suggestions, and corrections.",
+    url: "/contact",
+  },
 };
 
 export default function ContactPage() {
@@ -34,10 +47,12 @@ export default function ContactPage() {
         </div>
         <div className="rounded-xl bg-surface p-4">
           <p className="text-sm font-medium text-foreground">Email</p>
-          <p className="mt-1 text-sm text-muted">hello@aiusecasehub.example</p>
-          <p className="mt-3 text-xs text-muted">
-            Placeholder contact — replace with your actual support email.
-          </p>
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="mt-1 block text-sm text-accent hover:underline"
+          >
+            {CONTACT_EMAIL}
+          </a>
         </div>
       </div>
     </div>

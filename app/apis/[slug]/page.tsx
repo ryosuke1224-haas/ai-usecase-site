@@ -23,8 +23,20 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const api = getApiBySlug(slug);
-  if (!api) return { title: "Not Found" };
-  return { title: api.name, description: api.summary };
+  if (!api) return { title: "Not Found", robots: { index: false, follow: false } };
+  return {
+    title: api.name,
+    description: api.summary,
+    alternates: {
+      canonical: `/apis/${slug}`,
+    },
+    openGraph: {
+      title: api.name,
+      description: api.summary,
+      url: `/apis/${slug}`,
+      type: "article",
+    },
+  };
 }
 
 export default async function ApiDetailPage({ params }: PageProps) {

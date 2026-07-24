@@ -10,7 +10,7 @@ export function Footer() {
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-bold text-accent-foreground">
                 AI
               </span>
-              <span className="text-lg font-semibold">Use Case Hub</span>
+              <span className="text-lg font-semibold">Use Case Atlas</span>
             </div>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
               A structured workflow database for small business owners and
@@ -76,7 +76,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 border-t border-border/60 pt-6 text-center text-sm text-muted">
-          AI Use Case Hub — Practical workflows for SMB operators
+          AI Use Case Atlas — Practical workflows for SMB operators
         </div>
       </div>
     </footer>

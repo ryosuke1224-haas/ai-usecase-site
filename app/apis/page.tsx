@@ -1,11 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ApiCatalog } from "@/components/api-catalog";
 import { loadPublishedContent } from "@/src/content/load-published";
 
-export const metadata = {
-  title: "API Library",
-  description: "APIs and tools for building SMB AI workflows.",
+export const metadata: Metadata = {
+  title: "API & Tools Library",
+  description:
+    "Explore APIs and tools used in AI workflows — what each connects to, how authentication works, and which business use cases rely on them.",
+  alternates: {
+    canonical: "/apis",
+  },
+  openGraph: {
+    title: "API & Tools Library",
+    description:
+      "APIs and tools for building practical AI workflows, with auth notes and related use cases.",
+    url: "/apis",
+  },
 };
 
 export default function ApisPage() {

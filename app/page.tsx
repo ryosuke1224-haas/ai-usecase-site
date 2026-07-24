@@ -1,7 +1,24 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DiscoveryPrompts } from "@/components/discovery/discovery-prompts";
 import { HomeDiscovery } from "@/components/discovery/home-discovery";
 import { LibraryIndex } from "@/components/library-index";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/site";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: SITE_NAME,
+  },
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+  },
+};
 
 export default function Home() {
   return (
@@ -9,7 +26,7 @@ export default function Home() {
       <header className="border-b border-border/60 pb-6">
         <p className="font-mono text-xs text-muted">SMB AI Workflow Reference</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
-          AI Use Case Hub
+          AI Use Case Atlas
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted">
           Look up what to connect, what data to feed the AI, and which build path

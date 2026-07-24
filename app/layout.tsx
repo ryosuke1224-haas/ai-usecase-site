@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { ContentProvider } from "@/src/content/content-context";
 import { loadPublishedContent } from "@/src/content/load-published";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,12 +18,32 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "AI Use Case Hub",
-    template: "%s | AI Use Case Hub",
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "A structured workflow database for SMB operators — practical AI use cases mapped to data sources, APIs, and implementation paths.",
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

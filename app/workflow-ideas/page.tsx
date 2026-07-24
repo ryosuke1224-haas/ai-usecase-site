@@ -1,9 +1,20 @@
+import type { Metadata } from "next";
 import { WorkflowIdeaCard } from "@/components/workflow-idea-card";
 import { loadPublishedContent } from "@/src/content/load-published";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Workflow Ideas",
-  description: "API combination ideas for SMB AI workflows.",
+  description:
+    "Discover API combination stacks and workflow ideas that unlock multiple AI use cases for business operations.",
+  alternates: {
+    canonical: "/workflow-ideas",
+  },
+  openGraph: {
+    title: "Workflow Ideas",
+    description:
+      "API combination stacks and workflow ideas for practical business AI implementations.",
+    url: "/workflow-ideas",
+  },
 };
 
 export default function WorkflowIdeasPage() {
