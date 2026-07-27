@@ -31,7 +31,7 @@ export default function ApisPage() {
           What each API accesses, how to authenticate, and which workflows use it.
         </p>
         <p className="mt-2 text-xs text-muted">
-          <Link href="/" className="text-accent hover:underline">
+          <Link href="/find-workflows" className="text-accent hover:underline">
             Use the tool matcher
           </Link>{" "}
           to select APIs you have and see matching workflows.

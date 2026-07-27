@@ -9,6 +9,7 @@ import { SITE_URL } from "@/src/lib/site";
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     "",
+    "/find-workflows",
     "/use-cases",
     "/apis",
     "/data-sources",
@@ -18,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
     changeFrequency: path === "" ? "weekly" : "weekly",
-    priority: path === "" ? 1 : 0.8,
+    priority: path === "" ? 1 : path === "/find-workflows" ? 0.9 : 0.8,
   }));
 
   const useCaseRoutes: MetadataRoute.Sitemap = getAllUseCaseSlugs().map(

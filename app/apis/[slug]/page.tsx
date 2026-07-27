@@ -63,7 +63,7 @@ export default async function ApiDetailPage({ params }: PageProps) {
         <p className="mt-2 text-muted">{api.summary}</p>
         <TagList items={api.tags} />
         <Link
-          href={`/?apis=${api.slug}`}
+          href={`/find-workflows?apis=${api.slug}`}
           className="mt-4 inline-block text-sm font-medium text-accent hover:underline"
         >
           Find all workflows I can build with {api.name} →

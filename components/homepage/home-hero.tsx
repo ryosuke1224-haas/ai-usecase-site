@@ -19,12 +19,12 @@ export function HomeHero() {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <a
-              href="#workflow-finder"
+            <Link
+              href="/find-workflows"
               className="inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
             >
               Find my workflows
-            </a>
+            </Link>
             <Link
               href="/use-cases"
               className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-surface px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-accent/40 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"

@@ -3,12 +3,12 @@ import Link from "next/link";
 const questions = [
   {
     label: "Build with Gmail + Calendar",
-    href: "/?apis=gmail-api,google-calendar-api",
+    href: "/find-workflows?apis=gmail-api,google-calendar-api",
     hint: "Opens tool matcher with preset",
   },
   {
     label: "Explore workflows for fitness studios",
-    href: "/?industry=fitness-studio",
+    href: "/find-workflows?industry=fitness-studio",
     hint: "Shows your data and starter workflows",
   },
   {

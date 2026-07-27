@@ -3,6 +3,7 @@ import { GlobalSearch } from "@/components/discovery/global-search";
 
 const navLinks = [
   { href: "/", label: "Home" },
+  { href: "/find-workflows", label: "Find Workflows" },
   { href: "/use-cases", label: "Use Cases" },
   { href: "/apis", label: "APIs" },
   { href: "/data-sources", label: "Data Sources" },

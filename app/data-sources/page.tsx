@@ -31,7 +31,7 @@ export default function DataSourcesPage() {
           What each data type contains, privacy level, and what AI can do with it.
         </p>
         <p className="mt-2 text-xs text-muted">
-          <Link href="/?industry=fitness-studio" className="text-accent hover:underline">
+          <Link href="/find-workflows?industry=fitness-studio" className="text-accent hover:underline">
             Pick your business type
           </Link>{" "}
           to see which of these you likely already have.

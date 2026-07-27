@@ -13,7 +13,6 @@ import {
 } from "@/src/lib/discovery";
 import type { UseCase } from "@/src/content/schemas";
 import { Badge } from "@/components/ui/detail";
-import { DiscoveryPrompts } from "@/components/discovery/discovery-prompts";
 
 const POPULAR_TOOLS: { slug: string; label: string }[] = [
   { slug: "gmail-api", label: "Gmail" },
@@ -298,22 +297,12 @@ export function GuidedWorkflowFinder({
       id="workflow-finder"
       className="scroll-mt-24 rounded-xl border border-border/60 bg-card"
     >
-      <div className="border-b border-border/60 px-5 py-5">
-        <h2 className="text-lg font-semibold sm:text-xl">
-          Find workflows that fit your business
-        </h2>
-        <p className="mt-1.5 max-w-3xl text-sm text-muted">
-          Choose your business type and the tools you already use. We&apos;ll
-          show matching workflows, data you likely already have, and what you
-          may still need.
-        </p>
-        <div className="mt-5">
-          <GuidedProgress
-            hasBusiness={hasBusiness}
-            hasTools={hasTools}
-            hasResults={hasResults}
-          />
-        </div>
+      <div className="border-b border-border/60 px-5 py-4">
+        <GuidedProgress
+          hasBusiness={hasBusiness}
+          hasTools={hasTools}
+          hasResults={hasResults}
+        />
       </div>
 
       <div className="space-y-6 px-5 py-5">
@@ -625,13 +614,6 @@ export function GuidedWorkflowFinder({
               )}
             </>
           )}
-        </div>
-
-        <div className="border-t border-border/60 pt-4">
-          <p className="text-xs font-medium text-muted">Quick examples</p>
-          <div className="mt-2">
-            <DiscoveryPrompts />
-          </div>
         </div>
       </div>
     </section>
