@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DiscoveryPrompts } from "@/components/discovery/discovery-prompts";
 import { HomeDiscovery } from "@/components/discovery/home-discovery";
+import { HomeHero } from "@/components/homepage/home-hero";
+import { HowItWorks } from "@/components/homepage/how-it-works";
+import { HomeSection } from "@/components/homepage/home-section";
+import { WhatYouCanBuild } from "@/components/homepage/what-you-can-build";
 import { LibraryIndex } from "@/components/library-index";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/site";
 
@@ -20,29 +24,40 @@ export const metadata: Metadata = {
   },
 };
 
+function DiscoveryFallback() {
+  return <div className="h-64 animate-pulse rounded-xl bg-surface" />;
+}
+
 export default function Home() {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <header className="border-b border-border/60 pb-6">
-        <p className="font-mono text-xs text-muted">SMB AI Workflow Reference</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
-          AI Use Case Atlas
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
-          Look up what to connect, what data to feed the AI, and which build path
-          fits your tools. Start with a question below.
-        </p>
-        <div className="mt-4">
-          <DiscoveryPrompts />
-        </div>
-      </header>
+    <div className="mx-auto max-w-6xl px-6 py-8 sm:py-10">
+      <HomeHero />
+      <HowItWorks />
+      <WhatYouCanBuild />
 
-      <div className="mt-8 space-y-8">
-        <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-surface" />}>
+      <HomeSection
+        id="workflow-finder"
+        title="Start with what you already have"
+        description="Choose your tools, business type, or goal. We’ll show you matching AI workflows and what you may still need to add."
+      >
+        <Suspense fallback={<DiscoveryFallback />}>
           <HomeDiscovery />
         </Suspense>
+      </HomeSection>
+
+      <HomeSection
+        title="Not sure where to start?"
+        description="Try one of these examples to see how the workflow finder works."
+      >
+        <DiscoveryPrompts />
+      </HomeSection>
+
+      <HomeSection
+        title="Explore the building blocks"
+        description="Browse use cases, APIs, data sources, and workflow stacks individually."
+      >
         <LibraryIndex />
-      </div>
+      </HomeSection>
     </div>
   );
 }
