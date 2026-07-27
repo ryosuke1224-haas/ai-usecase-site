@@ -1,8 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { IndustryExplorer } from "./industry-explorer";
-import { WorkflowFinder } from "./workflow-finder";
+import { GuidedWorkflowFinder } from "./guided-workflow-finder";
 
 export function HomeDiscovery() {
   const searchParams = useSearchParams();
@@ -15,9 +14,9 @@ export function HomeDiscovery() {
   const initialIndustry = industryParam ?? undefined;
 
   return (
-    <>
-      <WorkflowFinder initialSelected={initialApis} />
-      <IndustryExplorer initialIndustry={initialIndustry} />
-    </>
+    <GuidedWorkflowFinder
+      initialSelected={initialApis}
+      initialIndustry={initialIndustry}
+    />
   );
 }

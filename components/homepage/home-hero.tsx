@@ -8,7 +8,7 @@ const benefits = [
 
 export function HomeHero() {
   return (
-    <header className="rounded-2xl border border-border/60 bg-card px-6 py-8 sm:px-8 sm:py-10">
+    <header className="rounded-2xl border border-border/60 bg-card px-6 py-6 sm:px-8 sm:py-8">
       <p className="font-mono text-xs font-medium uppercase tracking-wider text-accent">
         Practical AI Blueprints for SMBs
       </p>

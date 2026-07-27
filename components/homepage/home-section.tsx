@@ -16,7 +16,7 @@ export function HomeSection({
   return (
     <section
       id={id}
-      className={`scroll-mt-24 py-10 sm:py-12 ${className}`}
+      className={`scroll-mt-24 ${className}`}
     >
       <header className="mb-6">
         <h2 className="text-xl font-bold tracking-tight sm:text-2xl">{title}</h2>
