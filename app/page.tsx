@@ -32,25 +32,28 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-10">
       <HomeHero />
-      <HowItWorks />
-      <WhatYouCanBuild />
 
       <HomeSection
         id="workflow-finder"
-        title="Start with what you already have"
-        description="Choose your tools, business type, or goal. We’ll show you matching AI workflows and what you may still need to add."
+        title="Find workflows that fit your business"
+        description="Select the tools you already use and your type of business. We’ll show you relevant workflows, the data you likely already have, and anything else you may need."
       >
         <Suspense fallback={<DiscoveryFallback />}>
           <HomeDiscovery />
         </Suspense>
+        <div className="mt-8">
+          <h3 className="text-sm font-semibold">Not sure where to start?</h3>
+          <p className="mt-1 text-sm text-muted">
+            Try one of these examples to see how the workflow finder works.
+          </p>
+          <div className="mt-3">
+            <DiscoveryPrompts />
+          </div>
+        </div>
       </HomeSection>
 
-      <HomeSection
-        title="Not sure where to start?"
-        description="Try one of these examples to see how the workflow finder works."
-      >
-        <DiscoveryPrompts />
-      </HomeSection>
+      <HowItWorks />
+      <WhatYouCanBuild />
 
       <HomeSection
         title="Explore the building blocks"

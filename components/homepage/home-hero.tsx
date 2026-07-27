@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-const valuePoints = [
-  "Discover relevant AI use cases",
-  "Understand required APIs and data",
-  "Start manually or build an automated tool",
+const benefits = [
+  "Relevant AI workflow ideas",
+  "Required tools, APIs, and data",
+  "Manual and automated build options",
 ];
 
 export function HomeHero() {
@@ -16,10 +16,9 @@ export function HomeHero() {
         Find AI workflows you can actually build
       </h1>
       <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
-        Tell us what business you run, which tools and data you already have, or
-        what problem you want to solve. AI Use Case Atlas will show you relevant
-        use cases, the APIs and data required, and practical ways to test or build
-        each workflow.
+        Select the tools you already use and your type of business. AI Use Case
+        Atlas shows relevant use cases, the APIs and data required, and practical
+        ways to test or build each workflow.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
@@ -37,22 +36,20 @@ export function HomeHero() {
         </Link>
       </div>
 
-      <ul className="mt-8 grid gap-3 sm:grid-cols-3">
-        {valuePoints.map((point) => (
-          <li
-            key={point}
-            className="flex items-start gap-2 rounded-lg border border-border/60 bg-surface px-4 py-3 text-sm"
-          >
-            <span
-              className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent"
-              aria-hidden="true"
-            >
-              ✓
-            </span>
-            <span>{point}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-8 border-t border-border/60 pt-6">
+        <h2 className="text-sm font-semibold text-foreground">What you’ll get</h2>
+        <ul className="mt-3 space-y-2">
+          {benefits.map((item) => (
+            <li key={item} className="flex items-start gap-2.5 text-sm text-muted">
+              <span
+                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
+                aria-hidden="true"
+              />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </header>
   );
 }
