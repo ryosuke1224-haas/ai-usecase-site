@@ -2,6 +2,8 @@
  * Decorative conceptual diagram for the homepage hero.
  * Intentionally non-interactive — explanatory only.
  */
+import { Fragment, type ComponentType } from "react";
+
 export function HomeHeroVisual() {
   const stages = [
     {
@@ -38,84 +40,86 @@ export function HomeHeroVisual() {
       className="rounded-2xl border border-border/60 bg-surface/50 p-4 sm:p-5"
       aria-hidden="true"
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-2">
+      <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-stretch sm:gap-0">
         {stages.map((stage, index) => (
-          <div key={stage.title} className="flex flex-col sm:flex-1 sm:min-w-0">
-            <div className="flex items-center gap-2 sm:hidden">
-              {index > 0 && <StageArrow direction="vertical" />}
-            </div>
-
-            <div
-              className={`rounded-xl border p-3 sm:p-3.5 ${
-                stage.highlight
-                  ? "border-accent/35 bg-accent/5"
-                  : "border-border/60 bg-card"
-              }`}
-            >
-              <p className="text-xs font-semibold text-foreground">{stage.title}</p>
-              <ul className="mt-2.5 space-y-2">
-                {stage.items.map((item) => (
-                  <li key={item.label} className="flex items-center gap-2">
-                    <span
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${
-                        stage.highlight
-                          ? "bg-accent/15 text-accent"
-                          : "bg-surface text-muted"
-                      }`}
-                    >
-                      <item.icon />
-                    </span>
-                    <span className="text-[11px] leading-snug text-muted sm:text-xs">
-                      {item.label}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {index < stages.length - 1 && (
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-center sm:px-1">
-                <StageArrow direction="horizontal" />
-              </div>
-            )}
-          </div>
+          <Fragment key={stage.title}>
+            <StageCard stage={stage} />
+            {index < stages.length - 1 && <StageArrow />}
+          </Fragment>
         ))}
       </div>
     </div>
   );
 }
 
-function StageArrow({
-  direction,
+function StageCard({
+  stage,
 }: {
-  direction: "horizontal" | "vertical";
+  stage: {
+    title: string;
+    items: { label: string; icon: ComponentType }[];
+    highlight: boolean;
+  };
 }) {
-  if (direction === "vertical") {
-    return (
-      <div className="flex flex-col items-center py-1" aria-hidden="true">
+  return (
+    <div
+      className={`w-full rounded-xl border p-3.5 sm:flex-1 sm:min-w-0 ${
+        stage.highlight
+          ? "border-accent/35 bg-accent/5"
+          : "border-border/60 bg-card"
+      }`}
+    >
+      <p className="text-xs font-semibold text-foreground">{stage.title}</p>
+      <ul className="mt-2.5 space-y-2">
+        {stage.items.map((item) => (
+          <li key={item.label} className="flex items-center gap-2">
+            <span
+              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${
+                stage.highlight
+                  ? "bg-accent/15 text-accent"
+                  : "bg-surface text-muted"
+              }`}
+            >
+              <item.icon />
+            </span>
+            <span className="text-[11px] leading-snug text-muted sm:text-xs">
+              {item.label}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function StageArrow() {
+  return (
+  <>
+      <div className="flex flex-col items-center sm:hidden" aria-hidden="true">
         <span className="block h-3 w-px bg-border" />
         <span className="block h-0 w-0 border-x-[5px] border-t-[6px] border-x-transparent border-t-border" />
       </div>
-    );
-  }
-
-  return (
-    <svg
-      width="20"
-      height="12"
-      viewBox="0 0 20 12"
-      fill="none"
-      className="text-border"
-      aria-hidden="true"
-    >
-      <path
-        d="M0 6h14M14 6l-4-4M14 6l-4 4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      <div
+        className="hidden shrink-0 items-center justify-center px-2 sm:flex"
+        aria-hidden="true"
+      >
+        <svg
+          width="20"
+          height="12"
+          viewBox="0 0 20 12"
+          fill="none"
+          className="text-border"
+        >
+          <path
+            d="M0 6h14M14 6l-4-4M14 6l-4 4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </>
   );
 }
 
