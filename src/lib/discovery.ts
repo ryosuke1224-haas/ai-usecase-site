@@ -9,12 +9,17 @@ import {
   getIndustryProfile,
   industryProfiles,
 } from "@/src/data/industryProfiles";
+import { isLlmSlug, hasAnyLlm } from "@/src/lib/llm";
 
 export type ApiMatchResult = {
   useCase: UseCase;
   matchType: "ready" | "partial";
   matchedApis: string[];
   missingApis: string[];
+  /** Whether this use case requires an LLM capability (any provider). */
+  requiresLlm: boolean;
+  /** Whether the user has selected at least one LLM provider. */
+  hasLlm: boolean;
 };
 
 export type WorkflowMatchResult = {
@@ -39,8 +44,6 @@ export type SearchResult = {
   href: string;
 };
 
-const LLM_SLUGS = ["openai-api", "anthropic-claude-api", "google-gemini-api"];
-
 export function findUseCasesByApis(
   selectedSlugs: string[],
   useCases: UseCase[],
@@ -48,29 +51,39 @@ export function findUseCasesByApis(
   if (selectedSlugs.length === 0) return [];
 
   const selected = new Set(selectedSlugs);
+  const userHasLlm = hasAnyLlm(selected);
 
   return useCases
     .map((useCase) => {
       const required = useCase.requiredApis;
-      const nonLlmRequired = required.filter((a) => !LLM_SLUGS.includes(a));
-      const missingAll = required.filter((a) => !selected.has(a));
-      const matched = required.filter((a) => selected.has(a));
-      const hasLlm = required.some((a) => LLM_SLUGS.includes(a));
-      const hasSelectedLlm = LLM_SLUGS.some((a) => selected.has(a));
+
+      const nonLlmRequired = required.filter((a) => !isLlmSlug(a));
+      const requiresLlm = required.some(isLlmSlug);
+
+      // Non-LLM matches
+      const matchedNonLlm = nonLlmRequired.filter((a) => selected.has(a));
+      const missingNonLlm = nonLlmRequired.filter((a) => !selected.has(a));
+
+      // LLM match: user has any LLM provider → LLM requirement is satisfied
+      const llmSatisfied = !requiresLlm || userHasLlm;
 
       const ready =
-        nonLlmRequired.every((a) => selected.has(a)) &&
-        (!hasLlm || hasSelectedLlm) &&
-        matched.length > 0;
-      const partial = !ready && matched.length > 0;
+        missingNonLlm.length === 0 && llmSatisfied && matchedNonLlm.length > 0;
+      const partial =
+        !ready &&
+        (matchedNonLlm.length > 0 || (requiresLlm && userHasLlm));
 
       if (!ready && !partial) return null;
 
+      // For missingApis, only include non-LLM tools.
+      // LLM requirement is shown separately in the UI.
       return {
         useCase,
         matchType: ready ? ("ready" as const) : ("partial" as const),
-        matchedApis: matched,
-        missingApis: missingAll,
+        matchedApis: matchedNonLlm,
+        missingApis: missingNonLlm,
+        requiresLlm,
+        hasLlm: userHasLlm,
       };
     })
     .filter((r): r is ApiMatchResult => r !== null)
@@ -87,22 +100,28 @@ export function findWorkflowsByApis(
   if (selectedSlugs.length === 0) return [];
 
   const selected = new Set(selectedSlugs);
+  const userHasLlm = hasAnyLlm(selected);
 
   return workflowIdeas
     .map((workflow) => {
       const required = workflow.apiCombination;
-      const missing = required.filter((a) => !selected.has(a));
-      const matched = required.filter((a) => selected.has(a));
-      const ready = missing.length === 0;
-      const partial = !ready && matched.length >= 2;
+      const requiresLlm = required.some(isLlmSlug);
+      const nonLlm = required.filter((a) => !isLlmSlug(a));
+
+      const missingNonLlm = nonLlm.filter((a) => !selected.has(a));
+      const matchedNonLlm = nonLlm.filter((a) => selected.has(a));
+      const llmSatisfied = !requiresLlm || userHasLlm;
+
+      const ready = missingNonLlm.length === 0 && llmSatisfied;
+      const partial = !ready && (matchedNonLlm.length >= 2 || (matchedNonLlm.length >= 1 && llmSatisfied));
 
       if (!ready && !partial) return null;
 
       return {
         workflow,
         matchType: ready ? ("ready" as const) : ("partial" as const),
-        matchedApis: matched,
-        missingApis: missing,
+        matchedApis: matchedNonLlm,
+        missingApis: missingNonLlm,
       };
     })
     .filter((r): r is WorkflowMatchResult => r !== null)
@@ -237,7 +256,7 @@ export function getApiPresets() {
       slugs: ["gmail-api", "google-calendar-api"],
     },
     {
-      label: "Gmail + Sheets + OpenAI",
+      label: "Gmail + Sheets + AI model",
       slugs: ["gmail-api", "google-sheets-api", "openai-api"],
     },
     {
@@ -245,11 +264,11 @@ export function getApiPresets() {
       slugs: ["square-api", "gmail-api", "twilio-api"],
     },
     {
-      label: "Calendly + Slack + OpenAI",
+      label: "Calendly + Slack + AI model",
       slugs: ["calendly-api", "slack-api", "openai-api"],
     },
     {
-      label: "Google Reviews + OpenAI",
+      label: "Google Reviews + AI model",
       slugs: ["google-business-profile-api", "openai-api"],
     },
   ];

@@ -11,6 +11,12 @@ import {
   findUseCasesByApis,
   industryProfiles,
 } from "@/src/lib/discovery";
+import {
+  isLlmSlug,
+  hasAnyLlm,
+  LLM_CAPABILITY_LABEL,
+  LLM_COMPATIBLE_SUMMARY,
+} from "@/src/lib/llm";
 import type { UseCase } from "@/src/content/schemas";
 import { Badge } from "@/components/ui/detail";
 
@@ -25,12 +31,6 @@ const POPULAR_TOOLS: { slug: string; label: string }[] = [
   { slug: "hubspot-api", label: "HubSpot" },
 ];
 
-const LLM_SLUGS = new Set([
-  "openai-api",
-  "anthropic-claude-api",
-  "google-gemini-api",
-]);
-
 type GuidedMatch = {
   useCase: UseCase;
   matchType: "ready" | "partial" | "explore";
@@ -38,6 +38,8 @@ type GuidedMatch = {
   needsTools: string[];
   hasData: string[];
   needsData: string[];
+  requiresLlm: boolean;
+  hasLlm: boolean;
 };
 
 function toolLabel(name: string) {
@@ -169,6 +171,7 @@ export function GuidedWorkflowFinder({
     const selectedSet = selected;
     const likelyData = new Set(industryResult?.profile?.dataYouLikelyHave ?? []);
     const likelyApis = new Set(industryResult?.profile?.apisYouLikelyUse ?? []);
+    const userHasLlm = hasAnyLlm(selectedSet) || hasAnyLlm(likelyApis);
 
     const annotate = (
       useCase: UseCase,
@@ -178,20 +181,23 @@ export function GuidedWorkflowFinder({
     ): GuidedMatch => {
       const requiredApis = useCase.requiredApis;
       const requiredData = useCase.requiredDataSources;
+      const requiresLlm = requiredApis.some(isLlmSlug);
+
+      const nonLlmRequired = requiredApis.filter((a) => !isLlmSlug(a));
 
       let hasTools: string[];
       let needsTools: string[];
 
       if (selectedSet.size > 0) {
-        hasTools =
-          matchedFromApis ??
-          requiredApis.filter((a) => selectedSet.has(a));
-        needsTools =
-          missingFromApis ??
-          requiredApis.filter((a) => !selectedSet.has(a));
+        const matchedNonLlm = matchedFromApis?.filter((a) => !isLlmSlug(a))
+          ?? nonLlmRequired.filter((a) => selectedSet.has(a));
+        const missingNonLlm = missingFromApis?.filter((a) => !isLlmSlug(a))
+          ?? nonLlmRequired.filter((a) => !selectedSet.has(a));
+        hasTools = matchedNonLlm;
+        needsTools = missingNonLlm;
       } else {
-        hasTools = requiredApis.filter((a) => likelyApis.has(a));
-        needsTools = requiredApis.filter((a) => !likelyApis.has(a));
+        hasTools = nonLlmRequired.filter((a) => likelyApis.has(a));
+        needsTools = nonLlmRequired.filter((a) => !likelyApis.has(a));
       }
 
       const hasData = requiredData.filter((d) => likelyData.has(d));
@@ -204,6 +210,8 @@ export function GuidedWorkflowFinder({
         needsTools,
         hasData,
         needsData,
+        requiresLlm,
+        hasLlm: userHasLlm,
       };
     };
 
@@ -227,15 +235,19 @@ export function GuidedWorkflowFinder({
             ),
           );
         } else {
-          const matched = uc.requiredApis.filter((a) => selectedSet.has(a));
-          const missing = uc.requiredApis.filter((a) => !selectedSet.has(a));
-          const nonLlmMissing = missing.filter((a) => !LLM_SLUGS.has(a));
+          const nonLlm = uc.requiredApis.filter((a) => !isLlmSlug(a));
+          const matched = nonLlm.filter((a) => selectedSet.has(a));
+          const missing = nonLlm.filter((a) => !selectedSet.has(a));
+          const reqLlm = uc.requiredApis.some(isLlmSlug);
+          const llmOk = !reqLlm || userHasLlm;
           const type =
-            matched.length === 0
+            matched.length === 0 && !llmOk
               ? "explore"
-              : nonLlmMissing.length === 0
+              : missing.length === 0 && llmOk
                 ? "ready"
-                : "partial";
+                : matched.length === 0 && llmOk
+                  ? "explore"
+                  : "partial";
           combined.push(annotate(uc, type, matched, missing));
         }
       }
@@ -435,7 +447,7 @@ export function GuidedWorkflowFinder({
               })}
               {filteredApis.length === 0 && (
                 <p className="text-sm text-muted sm:col-span-2 lg:col-span-3">
-                  No tools match “{toolQuery}”.
+                  No tools match &quot;{toolQuery}&quot;.
                 </p>
               )}
             </div>
@@ -509,94 +521,12 @@ export function GuidedWorkflowFinder({
             <>
               <ul className="mt-3 space-y-3">
                 {previewMatches.map((match) => (
-                  <li
+                  <MatchCard
                     key={match.useCase.slug}
-                    className="rounded-lg border border-border/60 px-4 py-3"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <Link
-                          href={`/use-cases/${match.useCase.slug}`}
-                          className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                        >
-                          {match.useCase.title}
-                        </Link>
-                        <p className="mt-1 text-sm text-muted line-clamp-2">
-                          {match.useCase.outcome}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        <Badge
-                          variant={
-                            match.matchType === "ready"
-                              ? "success"
-                              : match.matchType === "partial"
-                                ? "warning"
-                                : "default"
-                          }
-                        >
-                          {match.matchType === "ready"
-                            ? "Ready"
-                            : match.matchType === "partial"
-                              ? "Partial"
-                              : "Explore"}
-                        </Badge>
-                        <Badge>{match.useCase.difficulty}</Badge>
-                      </div>
-                    </div>
-
-                    <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
-                      <div>
-                        <dt className="font-semibold text-muted">
-                          Tools &amp; data used
-                        </dt>
-                        <dd className="mt-0.5 text-foreground">
-                          {[
-                            ...match.useCase.requiredApis
-                              .slice(0, 3)
-                              .map((s) => toolLabel(resolveApiName(s))),
-                            ...match.useCase.requiredDataSources
-                              .slice(0, 2)
-                              .map(resolveDataSourceName),
-                          ].join(" · ")}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="font-semibold text-muted">You already have</dt>
-                        <dd className="mt-0.5 text-foreground">
-                          {[
-                            ...match.hasTools
-                              .slice(0, 3)
-                              .map((s) => toolLabel(resolveApiName(s))),
-                            ...match.hasData
-                              .slice(0, 2)
-                              .map(resolveDataSourceName),
-                          ].join(" · ") || "—"}
-                        </dd>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <dt className="font-semibold text-muted">Still needed</dt>
-                        <dd className="mt-0.5 text-foreground">
-                          {[
-                            ...match.needsTools
-                              .filter((s) => !LLM_SLUGS.has(s))
-                              .slice(0, 4)
-                              .map((s) => toolLabel(resolveApiName(s))),
-                            ...match.needsData
-                              .slice(0, 2)
-                              .map(resolveDataSourceName),
-                          ].join(" · ") || "Nothing major — you can start now"}
-                        </dd>
-                      </div>
-                    </dl>
-
-                    <Link
-                      href={`/use-cases/${match.useCase.slug}`}
-                      className="mt-3 inline-block text-xs font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                    >
-                      View blueprint →
-                    </Link>
-                  </li>
+                    match={match}
+                    resolveApiName={resolveApiName}
+                    resolveDataSourceName={resolveDataSourceName}
+                  />
                 ))}
               </ul>
 
@@ -617,5 +547,126 @@ export function GuidedWorkflowFinder({
         </div>
       </div>
     </section>
+  );
+}
+
+function MatchCard({
+  match,
+  resolveApiName,
+  resolveDataSourceName,
+}: {
+  match: GuidedMatch;
+  resolveApiName: (slug: string) => string;
+  resolveDataSourceName: (slug: string) => string;
+}) {
+  const hasToolsDisplay = match.hasTools
+    .slice(0, 4)
+    .map((s) => toolLabel(resolveApiName(s)));
+
+  const needsToolsDisplay = match.needsTools
+    .slice(0, 4)
+    .map((s) => toolLabel(resolveApiName(s)));
+
+  const hasDataDisplay = match.hasData
+    .slice(0, 3)
+    .map(resolveDataSourceName);
+
+  const needsDataDisplay = match.needsData
+    .slice(0, 3)
+    .map(resolveDataSourceName);
+
+  return (
+    <li className="rounded-lg border border-border/60 px-4 py-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <Link
+            href={`/use-cases/${match.useCase.slug}`}
+            className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          >
+            {match.useCase.title}
+          </Link>
+          <p className="mt-1 text-sm text-muted line-clamp-2">
+            {match.useCase.outcome}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <Badge
+            variant={
+              match.matchType === "ready"
+                ? "success"
+                : match.matchType === "partial"
+                  ? "warning"
+                  : "default"
+            }
+          >
+            {match.matchType === "ready"
+              ? "Ready"
+              : match.matchType === "partial"
+                ? "Partial"
+                : "Explore"}
+          </Badge>
+          <Badge>{match.useCase.difficulty}</Badge>
+        </div>
+      </div>
+
+      <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+        {/* Tools you already have */}
+        <div>
+          <dt className="font-semibold text-muted">Tools you already have</dt>
+          <dd className="mt-0.5 text-foreground">
+            {hasToolsDisplay.length > 0
+              ? hasToolsDisplay.join(" · ")
+              : "—"}
+          </dd>
+        </div>
+
+        {/* LLM: choose one compatible provider */}
+        {match.requiresLlm && (
+          <div>
+            <dt className="font-semibold text-muted">
+              {LLM_CAPABILITY_LABEL}
+            </dt>
+            <dd className="mt-0.5">
+              {match.hasLlm ? (
+                <span className="text-emerald-700 dark:text-emerald-400">
+                  ✓ You have a compatible model
+                </span>
+              ) : (
+                <span className="text-foreground">
+                  {LLM_COMPATIBLE_SUMMARY}
+                </span>
+              )}
+            </dd>
+          </div>
+        )}
+
+        {/* Other tools still needed */}
+        {needsToolsDisplay.length > 0 && (
+          <div>
+            <dt className="font-semibold text-muted">Other tools still needed</dt>
+            <dd className="mt-0.5 text-amber-700 dark:text-amber-400">
+              {needsToolsDisplay.join(" · ")}
+            </dd>
+          </div>
+        )}
+
+        {/* Data required */}
+        {(hasDataDisplay.length > 0 || needsDataDisplay.length > 0) && (
+          <div>
+            <dt className="font-semibold text-muted">Data required</dt>
+            <dd className="mt-0.5 text-foreground">
+              {[...hasDataDisplay, ...needsDataDisplay].join(" · ")}
+            </dd>
+          </div>
+        )}
+      </dl>
+
+      <Link
+        href={`/use-cases/${match.useCase.slug}`}
+        className="mt-3 inline-block text-xs font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      >
+        View blueprint →
+      </Link>
+    </li>
   );
 }
