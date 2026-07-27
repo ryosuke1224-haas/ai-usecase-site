@@ -2,15 +2,40 @@
   "id": "uc-029",
   "slug": "ai-lead-scoring-engine",
   "title": "AI Lead Scoring Engine",
-  "tagline": "Prioritize prospects based on fit, pain signals, and buying intent.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Marketing", "Business Development"],
+  "tagline": "Prioritize prospects based on fit, pain signals, and buying intent.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Marketing",
+    "Business Development"
+  ],
   "summary": "Scores leads based on industry fit, location, business size, review signals, website quality, CRM history, engagement, and likely need.",
   "businessProblem": "Sales teams treat every lead equally — reps spend time on poor-fit prospects while high-intent accounts sit in the queue because there's no consistent scoring model beyond gut feel.",
+  "businessProblems": [
+    "get-more-leads",
+    "increase-sales-conversion"
+  ],
   "outcome": "Every lead and account carries a transparent score (0–100) with factor breakdown — reps work the highest-scored untouched leads first and marketing sees which segments convert.",
+  "expectedOutcomes": [
+    "Every lead and account carries a transparent score (0–100) with factor breakdown — reps work the highest-scored untouched leads first and marketing sees which segments convert."
+  ],
   "whoItsFor": "B2B teams with 50+ leads per month where prioritization matters — agencies, SaaS, and professional services with defined ICPs.",
   "requiredDataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites",
+    "crm-records",
+    "sales-activity-logs",
+    "lead-forms"
+  ],
+  "requiredData": [
     "public-business-listings",
     "customer-reviews",
     "business-websites",
@@ -37,6 +62,9 @@
     "google-places-api",
     "yelp-fusion-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "HubSpot lead scoring rules + ChatGPT enrichment columns in Sheets",
@@ -85,6 +113,12 @@
     "ai-personalized-outreach-writer",
     "ai-pipeline-risk-detector"
   ],
-  "tags": ["scoring", "prioritization", "icp", "pipeline", "fit"],
+  "tags": [
+    "scoring",
+    "prioritization",
+    "icp",
+    "pipeline",
+    "fit"
+  ],
   "featured": false
 }

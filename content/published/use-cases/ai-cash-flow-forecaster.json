@@ -2,15 +2,49 @@
   "id": "uc-017",
   "slug": "ai-cash-flow-forecaster",
   "title": "AI Cash Flow Forecaster",
-  "tagline": "See cash gaps before they happen.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "See cash gaps before they happen.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Helps small business owners forecast 30/60/90-day cash flow using sales history, invoices, payroll, fixed costs, payment schedules, and upcoming revenue.",
   "businessProblem": "Owners discover cash shortfalls when checks bounce or payroll is due — not weeks earlier when they could adjust spending, chase collections, or delay hires.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "A rolling 30/60/90-day cash projection updated weekly showing expected inflows, committed outflows, projected balance, and flagged low-cash weeks with suggested actions.",
+  "expectedOutcomes": [
+    "A rolling 30/60/90-day cash projection updated weekly showing expected inflows, committed outflows, projected balance, and flagged low-cash weeks with suggested actions."
+  ],
   "whoItsFor": "SMB owners managing cash manually in spreadsheets or checking accounts without a dedicated CFO — especially businesses with payroll, rent, and uneven revenue.",
-  "requiredDataSources": ["sales-history", "invoices", "payroll-records", "fixed-costs", "bank-transactions", "pos-transactions"],
+  "requiredDataSources": [
+    "sales-history",
+    "invoices",
+    "payroll-records",
+    "fixed-costs",
+    "bank-transactions",
+    "pos-transactions"
+  ],
+  "requiredData": [
+    "sales-history",
+    "invoices",
+    "payroll-records",
+    "fixed-costs",
+    "bank-transactions",
+    "pos-transactions"
+  ],
   "aiInputs": [
     "Historical sales by week (90+ days)",
     "Outstanding AR with due dates and payment history",
@@ -25,7 +59,15 @@
     "Narrative explanation of biggest cash drivers",
     "Suggested actions (delay expense, accelerate collections, draw reserve)"
   ],
-  "requiredApis": ["plaid-api", "quickbooks-api", "square-api", "openai-api"],
+  "requiredApis": [
+    "plaid-api",
+    "quickbooks-api",
+    "square-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "Google Sheets cash model + ChatGPT monthly refresh",
     "Float or Pulse app with manual AI summary paste",
@@ -66,7 +108,16 @@
   "difficulty": "Intermediate",
   "automationLevel": "Semi-automated",
   "valuePotential": "High",
-  "relatedUseCases": ["ai-payroll-forecasting", "ai-collections-assistant", "ai-break-even-dashboard"],
-  "tags": ["cash-flow", "forecasting", "liquidity", "planning"],
+  "relatedUseCases": [
+    "ai-payroll-forecasting",
+    "ai-collections-assistant",
+    "ai-break-even-dashboard"
+  ],
+  "tags": [
+    "cash-flow",
+    "forecasting",
+    "liquidity",
+    "planning"
+  ],
   "featured": true
 }

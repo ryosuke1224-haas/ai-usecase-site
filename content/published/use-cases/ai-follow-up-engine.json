@@ -15,9 +15,22 @@
   ],
   "summary": "Automatically identify conversations and deals that need follow-up, then draft context-aware messages referencing the last interaction.",
   "businessProblem": "Deals stall and leads go cold because follow-ups depend on someone remembering to check CRM or inbox. 60–80% of sales require 5+ touchpoints, but most SMBs stop after one.",
+  "businessProblems": [
+    "increase-sales-conversion",
+    "improve-customer-retention"
+  ],
   "outcome": "Daily list of contacts needing follow-up with draft messages that reference the last email, call, or meeting — ready to send or schedule.",
+  "expectedOutcomes": [
+    "Daily list of contacts needing follow-up with draft messages that reference the last email, call, or meeting — ready to send or schedule."
+  ],
   "whoItsFor": "Sales-driven SMBs with 20–200 active leads in pipeline, especially service businesses where the owner is the primary salesperson.",
   "requiredDataSources": [
+    "emails",
+    "crm-records",
+    "call-transcripts",
+    "calendar-events"
+  ],
+  "requiredData": [
     "emails",
     "crm-records",
     "call-transcripts",
@@ -39,6 +52,9 @@
     "gmail-api",
     "hubspot-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "HubSpot sequences with AI-generated content",

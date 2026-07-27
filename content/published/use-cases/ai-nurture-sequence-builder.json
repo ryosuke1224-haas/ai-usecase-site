@@ -2,15 +2,38 @@
   "id": "uc-031",
   "slug": "ai-nurture-sequence-builder",
   "title": "AI Nurture Sequence Builder",
-  "tagline": "Create follow-up sequences matched to each prospect's pain points.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Marketing"],
+  "tagline": "Create follow-up sequences matched to each prospect's pain points.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Marketing"
+  ],
   "summary": "Builds multi-step email or message sequences based on lead segment, problem type, industry, and prior engagement.",
   "businessProblem": "One-size-fits-all drip campaigns produce unsubscribes. Marketing builds generic 5-email sequences while sales knows each segment needs different pain points, proof, and timing.",
+  "businessProblems": [
+    "improve-marketing-performance",
+    "increase-sales-conversion"
+  ],
   "outcome": "Segment-specific nurture sequences (3–7 touches) with personalized opening hooks, relevant case studies, and CTAs — ready to load into HubSpot sequences or CRM cadences.",
+  "expectedOutcomes": [
+    "Segment-specific nurture sequences (3–7 touches) with personalized opening hooks, relevant case studies, and CTAs — ready to load into HubSpot sequences or CRM cadences."
+  ],
   "whoItsFor": "B2B teams nurturing inbound leads and cold prospects who aren't ready to buy — especially agencies and SaaS with multiple buyer personas.",
   "requiredDataSources": [
+    "crm-records",
+    "lead-forms",
+    "emails",
+    "customer-reviews",
+    "business-websites"
+  ],
+  "requiredData": [
     "crm-records",
     "lead-forms",
     "emails",
@@ -34,6 +57,9 @@
     "hubspot-api",
     "gmail-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "HubSpot sequences with ChatGPT-generated email templates per segment",
@@ -82,6 +108,12 @@
     "ai-proposal-follow-up-assistant",
     "ai-follow-up-engine"
   ],
-  "tags": ["nurture", "sequences", "drip", "email-marketing", "segments"],
+  "tags": [
+    "nurture",
+    "sequences",
+    "drip",
+    "email-marketing",
+    "segments"
+  ],
   "featured": false
 }

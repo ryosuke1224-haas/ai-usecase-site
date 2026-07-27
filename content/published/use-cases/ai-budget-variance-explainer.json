@@ -2,15 +2,47 @@
   "id": "uc-026",
   "slug": "ai-budget-variance-explainer",
   "title": "AI Budget Variance Explainer",
-  "tagline": "Understand why the numbers moved.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Understand why the numbers moved.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Compares budget vs actual performance and explains revenue, payroll, expense, and margin variances in plain English.",
   "businessProblem": "Owners get P&L reports showing variances but no explanation — they see payroll is over budget without understanding if it was overtime, a new hire, or revenue shortfall.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "Monthly variance narrative: what beat or missed budget, why in plain English, which variances are one-time vs structural, and recommended owner actions.",
+  "expectedOutcomes": [
+    "Monthly variance narrative: what beat or missed budget, why in plain English, which variances are one-time vs structural, and recommended owner actions."
+  ],
   "whoItsFor": "SMBs with an annual budget in a spreadsheet who review actuals monthly but lack time to write the analysis themselves.",
-  "requiredDataSources": ["budget-files", "sales-history", "payroll-records", "invoices", "spreadsheets"],
+  "requiredDataSources": [
+    "budget-files",
+    "sales-history",
+    "payroll-records",
+    "invoices",
+    "spreadsheets"
+  ],
+  "requiredData": [
+    "budget-files",
+    "sales-history",
+    "payroll-records",
+    "invoices",
+    "spreadsheets"
+  ],
   "aiInputs": [
     "Monthly budget by line item",
     "Monthly actuals from accounting system",
@@ -25,7 +57,15 @@
     "Recommended actions per major variance",
     "Updated full-year forecast suggestion"
   ],
-  "requiredApis": ["quickbooks-api", "xero-api", "google-sheets-api", "anthropic-claude-api"],
+  "requiredApis": [
+    "quickbooks-api",
+    "xero-api",
+    "google-sheets-api",
+    "anthropic-claude-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "Budget vs actual Google Sheet + ChatGPT monthly narrative",
     "QuickBooks classes report + Claude long-doc analysis",
@@ -66,7 +106,16 @@
   "difficulty": "Beginner",
   "automationLevel": "Semi-automated",
   "valuePotential": "Medium",
-  "relatedUseCases": ["weekly-owner-briefing", "ai-expense-watchdog", "ai-break-even-dashboard"],
-  "tags": ["budget", "variance", "reporting", "monthly-close"],
+  "relatedUseCases": [
+    "weekly-owner-briefing",
+    "ai-expense-watchdog",
+    "ai-break-even-dashboard"
+  ],
+  "tags": [
+    "budget",
+    "variance",
+    "reporting",
+    "monthly-close"
+  ],
   "featured": false
 }

@@ -17,9 +17,21 @@
   ],
   "summary": "Convert existing documents, videos, and staff notes into structured standard operating procedures your team can follow.",
   "businessProblem": "Critical processes live in the owner's head or scattered across old PDFs. New hires learn by shadowing, mistakes repeat, and nothing is documented until something goes wrong.",
+  "businessProblems": [
+    "reduce-repetitive-admin-work",
+    "improve-scheduling-and-operations"
+  ],
   "outcome": "Step-by-step SOPs with roles, tools, checkpoints, and common mistakes — published to your knowledge base from existing materials in hours, not weeks.",
+  "expectedOutcomes": [
+    "Step-by-step SOPs with roles, tools, checkpoints, and common mistakes — published to your knowledge base from existing materials in hours, not weeks."
+  ],
   "whoItsFor": "Business owners with 3+ employees who need to document processes before scaling, franchising, or reducing key-person dependency.",
   "requiredDataSources": [
+    "documents-and-pdfs",
+    "staff-notes",
+    "call-transcripts"
+  ],
+  "requiredData": [
     "documents-and-pdfs",
     "staff-notes",
     "call-transcripts"
@@ -41,6 +53,9 @@
     "google-drive-api",
     "notion-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT or Claude with document upload (manual per SOP)",

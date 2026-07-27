@@ -17,9 +17,20 @@
   ],
   "summary": "Identify customers who haven't purchased or visited in 60+ days and send personalized winback offers via email or SMS.",
   "businessProblem": "Acquiring a new customer costs 5–7x more than retaining an existing one, but most SMBs have no system to re-engage lapsed customers. They simply disappear from revenue without anyone noticing.",
+  "businessProblems": [
+    "improve-customer-retention"
+  ],
   "outcome": "Monthly campaign targeting lapsed customers with personalized messages referencing their last purchase/visit, recovering 5–15% back to active status.",
+  "expectedOutcomes": [
+    "Monthly campaign targeting lapsed customers with personalized messages referencing their last purchase/visit, recovering 5–15% back to active status."
+  ],
   "whoItsFor": "Businesses with repeat customers tracked in POS or CRM — retail, food, fitness, salons — where reactivation is more profitable than new acquisition.",
   "requiredDataSources": [
+    "customer-list",
+    "pos-transactions",
+    "emails"
+  ],
+  "requiredData": [
     "customer-list",
     "pos-transactions",
     "emails"
@@ -41,6 +52,9 @@
     "gmail-api",
     "twilio-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "Square Marketing campaigns with customer segments",

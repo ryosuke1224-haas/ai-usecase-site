@@ -17,9 +17,19 @@
   ],
   "summary": "Analyze Google and Yelp reviews to surface recurring themes, sentiment trends, and competitor benchmarks.",
   "businessProblem": "Business owners read reviews reactively but never systematically analyze patterns. Recurring complaints about wait times or staff go unnoticed until they show up in multiple 1-star reviews.",
+  "businessProblems": [
+    "understand-customer-feedback",
+    "improve-marketing-performance"
+  ],
   "outcome": "Weekly report showing: top praise themes, top complaint themes, sentiment trend vs. last month, and how your ratings compare to 3 nearby competitors.",
+  "expectedOutcomes": [
+    "Weekly report showing: top praise themes, top complaint themes, sentiment trend vs. last month, and how your ratings compare to 3 nearby competitors."
+  ],
   "whoItsFor": "Local businesses with 20+ reviews across Google and Yelp who want operational insights from customer feedback, not just star ratings.",
   "requiredDataSources": [
+    "customer-reviews"
+  ],
+  "requiredData": [
     "customer-reviews"
   ],
   "aiInputs": [
@@ -38,6 +48,9 @@
     "google-business-profile-api",
     "yelp-fusion-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT with pasted review exports (manual weekly)",

@@ -2,15 +2,40 @@
   "id": "uc-027",
   "slug": "ai-local-lead-finder",
   "title": "AI Local Lead Finder",
-  "tagline": "Find high-intent B2B leads from public business signals.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Local Services", "Marketing"],
-  "businessFunctions": ["Sales", "Business Development", "Marketing"],
+  "tagline": "Find high-intent B2B leads from public business signals.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Local Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Business Development",
+    "Marketing"
+  ],
   "summary": "Searches public sources such as Google business listings, Yelp, TripAdvisor, reviews, websites, and directories to identify businesses that match a target ICP and show potential pain signals.",
   "businessProblem": "B2B sellers waste hours manually searching Google Maps, Yelp, and directories to build prospect lists — and still miss businesses with visible pain signals like unanswered negative reviews or outdated websites.",
+  "businessProblems": [
+    "get-more-leads",
+    "improve-marketing-performance"
+  ],
   "outcome": "A scored prospect list filtered by geography, industry, and ICP criteria — each lead tagged with pain signals, contact info, and a one-line reason they're worth pursuing.",
+  "expectedOutcomes": [
+    "A scored prospect list filtered by geography, industry, and ICP criteria — each lead tagged with pain signals, contact info, and a one-line reason they're worth pursuing."
+  ],
   "whoItsFor": "B2B agencies, SaaS companies, and local service providers selling to other businesses who need net-new prospect lists without expensive data subscriptions.",
   "requiredDataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites",
+    "industry-directories",
+    "tripadvisor-listings"
+  ],
+  "requiredData": [
     "public-business-listings",
     "customer-reviews",
     "business-websites",
@@ -36,6 +61,9 @@
     "yelp-fusion-api",
     "outscraper-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "Outscraper Google Maps export → ChatGPT scoring in a Google Sheet",
@@ -84,6 +112,12 @@
     "ai-account-research-assistant",
     "ai-crm-deduplication-enrichment"
   ],
-  "tags": ["prospecting", "local", "lead-discovery", "b2b", "listings"],
+  "tags": [
+    "prospecting",
+    "local",
+    "lead-discovery",
+    "b2b",
+    "listings"
+  ],
   "featured": true
 }

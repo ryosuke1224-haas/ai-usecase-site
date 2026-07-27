@@ -16,9 +16,21 @@
   ],
   "summary": "Analyze booking patterns to recommend better slot availability, reduce gaps, and send staff prep briefs for upcoming appointments.",
   "businessProblem": "Calendar has inefficient gaps, popular time slots fill weeks out while mid-week slots sit empty, and staff walk into appointments without context on the client.",
+  "businessProblems": [
+    "improve-scheduling-and-operations",
+    "improve-customer-retention"
+  ],
   "outcome": "Weekly recommendations for calendar adjustments, automated staff briefs 2 hours before each appointment, and alerts when high-value slots are still open 48 hours out.",
+  "expectedOutcomes": [
+    "Weekly recommendations for calendar adjustments, automated staff briefs 2 hours before each appointment, and alerts when high-value slots are still open 48 hours out."
+  ],
   "whoItsFor": "Appointment-based businesses using Calendly or Google Calendar with 20+ bookings per week and staff who need client context before each session.",
   "requiredDataSources": [
+    "booking-data",
+    "calendar-events",
+    "crm-records"
+  ],
+  "requiredData": [
     "booking-data",
     "calendar-events",
     "crm-records"
@@ -40,6 +52,9 @@
     "google-calendar-api",
     "slack-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "Calendly analytics dashboard (manual review)",

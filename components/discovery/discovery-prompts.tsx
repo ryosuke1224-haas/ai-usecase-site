@@ -2,14 +2,19 @@ import Link from "next/link";
 
 const questions = [
   {
-    label: "Build with Gmail + Calendar",
-    href: "/find-workflows?apis=gmail-api,google-calendar-api",
-    hint: "Opens tool matcher with preset",
+    label: "Find ways to get more leads",
+    href: "/find-workflows?problem=get-more-leads",
+    hint: "Starts in business-problem mode",
   },
   {
-    label: "Explore workflows for fitness studios",
-    href: "/find-workflows?industry=fitness-studio",
-    hint: "Shows your data and starter workflows",
+    label: "Improve scheduling for a fitness studio",
+    href: "/find-workflows?problem=improve-scheduling-and-operations&industry=fitness-studio",
+    hint: "Business problem + business type",
+  },
+  {
+    label: "Build with Gmail + Calendar",
+    href: "/find-workflows?mode=tools&apis=gmail-api,google-calendar-api",
+    hint: "Opens the tools-based matcher",
   },
   {
     label: "Find no-code AI workflows",

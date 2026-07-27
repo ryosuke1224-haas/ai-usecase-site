@@ -2,15 +2,47 @@
   "id": "uc-024",
   "slug": "ai-break-even-dashboard",
   "title": "AI Break-even Dashboard",
-  "tagline": "Know exactly what it takes to stay profitable.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Know exactly what it takes to stay profitable.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Calculates monthly break-even revenue, margin by service, fixed cost coverage, and how much additional revenue is needed to hit profit targets.",
   "businessProblem": "Owners know revenue totals but not the minimum revenue needed to cover fixed costs and labor — or which services actually contribute margin.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "A living break-even dashboard: monthly BE revenue, margin by service line, fixed cost load, gap to profit target, and updated when books close each month.",
+  "expectedOutcomes": [
+    "A living break-even dashboard: monthly BE revenue, margin by service line, fixed cost load, gap to profit target, and updated when books close each month."
+  ],
   "whoItsFor": "SMBs with mixed service lines or product categories who need clarity on profitability drivers without hiring a CFO.",
-  "requiredDataSources": ["sales-history", "fixed-costs", "payroll-records", "pos-transactions", "budget-files"],
+  "requiredDataSources": [
+    "sales-history",
+    "fixed-costs",
+    "payroll-records",
+    "pos-transactions",
+    "budget-files"
+  ],
+  "requiredData": [
+    "sales-history",
+    "fixed-costs",
+    "payroll-records",
+    "pos-transactions",
+    "budget-files"
+  ],
   "aiInputs": [
     "Trailing 3-month revenue by service or product category",
     "Variable cost % or COGS by category",
@@ -25,7 +57,15 @@
     "Additional revenue needed to hit profit target",
     "Narrative explanation of biggest margin drivers"
   ],
-  "requiredApis": ["quickbooks-api", "square-api", "google-sheets-api", "openai-api"],
+  "requiredApis": [
+    "quickbooks-api",
+    "square-api",
+    "google-sheets-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "Break-even Google Sheets template + monthly ChatGPT refresh",
     "QuickBooks P&L export + GPT margin analysis",
@@ -66,7 +106,16 @@
   "difficulty": "Beginner",
   "automationLevel": "Semi-automated",
   "valuePotential": "High",
-  "relatedUseCases": ["ai-hiring-affordability-planner", "ai-revenue-scenario-planner", "ai-payroll-forecasting"],
-  "tags": ["break-even", "margin", "profitability", "dashboard"],
+  "relatedUseCases": [
+    "ai-hiring-affordability-planner",
+    "ai-revenue-scenario-planner",
+    "ai-payroll-forecasting"
+  ],
+  "tags": [
+    "break-even",
+    "margin",
+    "profitability",
+    "dashboard"
+  ],
   "featured": false
 }

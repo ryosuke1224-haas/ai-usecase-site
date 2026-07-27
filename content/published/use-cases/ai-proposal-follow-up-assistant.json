@@ -2,15 +2,37 @@
   "id": "uc-036",
   "slug": "ai-proposal-follow-up-assistant",
   "title": "AI Proposal Follow-up Assistant",
-  "tagline": "Recover stalled proposals with timely, relevant follow-ups.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Business Development"],
+  "tagline": "Recover stalled proposals with timely, relevant follow-ups.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Business Development"
+  ],
   "summary": "Identifies quotes and proposals that have not received a response and drafts follow-up messages based on proposal details and customer context.",
   "businessProblem": "Proposals go out and get forgotten — reps move to new opportunities while sent quotes sit unopened. Studies show most deals need 3+ follow-ups after proposal, but most reps stop after one.",
+  "businessProblems": [
+    "increase-sales-conversion"
+  ],
   "outcome": "Automated detection of silent proposals with tiered follow-up drafts referencing specific proposal content, prior conversations, and appropriate urgency — ready for rep send.",
+  "expectedOutcomes": [
+    "Automated detection of silent proposals with tiered follow-up drafts referencing specific proposal content, prior conversations, and appropriate urgency — ready for rep send."
+  ],
   "whoItsFor": "B2B sellers who send formal quotes or proposals via email or CRM and lose deals to silence rather than explicit rejection.",
   "requiredDataSources": [
+    "proposal-history",
+    "crm-records",
+    "emails",
+    "call-notes",
+    "sales-activity-logs"
+  ],
+  "requiredData": [
     "proposal-history",
     "crm-records",
     "emails",
@@ -35,6 +57,9 @@
     "hubspot-api",
     "gmail-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "HubSpot deal stages + task reminders with ChatGPT draft paste",
@@ -83,6 +108,12 @@
     "ai-follow-up-engine",
     "quote-request-assistant"
   ],
-  "tags": ["proposals", "follow-up", "quotes", "recovery", "closing"],
+  "tags": [
+    "proposals",
+    "follow-up",
+    "quotes",
+    "recovery",
+    "closing"
+  ],
   "featured": false
 }

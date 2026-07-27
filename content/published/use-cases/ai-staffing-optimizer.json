@@ -2,15 +2,48 @@
   "id": "uc-025",
   "slug": "ai-staffing-optimizer",
   "title": "AI Staffing Optimizer",
-  "tagline": "Match labor hours to real demand.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Match labor hours to real demand.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Compares shifts, payroll hours, appointments, sales, and customer traffic to identify overstaffed and understaffed periods.",
   "businessProblem": "Managers schedule from habit — same staffing every Tuesday — while actual demand varies, burning labor dollars in slow periods and losing revenue when understaffed during peaks.",
+  "businessProblems": [
+    "improve-scheduling-and-operations",
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "Weekly staffing recommendations: which shifts to add or cut, labor-hour alignment score by daypart, and projected payroll savings or revenue recovery.",
+  "expectedOutcomes": [
+    "Weekly staffing recommendations: which shifts to add or cut, labor-hour alignment score by daypart, and projected payroll savings or revenue recovery."
+  ],
   "whoItsFor": "Shift-based and appointment businesses with 5+ staff where labor is 25–40% of revenue and scheduling is still manual.",
-  "requiredDataSources": ["staff-schedules", "time-tracking-data", "booking-data", "pos-transactions", "sales-history"],
+  "requiredDataSources": [
+    "staff-schedules",
+    "time-tracking-data",
+    "booking-data",
+    "pos-transactions",
+    "sales-history"
+  ],
+  "requiredData": [
+    "staff-schedules",
+    "time-tracking-data",
+    "booking-data",
+    "pos-transactions",
+    "sales-history"
+  ],
   "aiInputs": [
     "Scheduled hours by daypart for next 2 weeks",
     "Actual sales or appointments by hour/day from prior 8 weeks",
@@ -25,7 +58,16 @@
     "Projected payroll impact of recommendations",
     "Week-over-week labor alignment score"
   ],
-  "requiredApis": ["gusto-api", "square-api", "calendly-api", "google-sheets-api", "openai-api"],
+  "requiredApis": [
+    "gusto-api",
+    "square-api",
+    "calendly-api",
+    "google-sheets-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "7shifts + Square reports pasted into ChatGPT weekly",
     "Homebase schedule export + GPT recommendations",
@@ -66,7 +108,15 @@
   "difficulty": "Intermediate",
   "automationLevel": "Semi-automated",
   "valuePotential": "High",
-  "relatedUseCases": ["ai-payroll-forecasting", "ai-booking-optimizer"],
-  "tags": ["staffing", "labor", "scheduling", "optimization"],
+  "relatedUseCases": [
+    "ai-payroll-forecasting",
+    "ai-booking-optimizer"
+  ],
+  "tags": [
+    "staffing",
+    "labor",
+    "scheduling",
+    "optimization"
+  ],
   "featured": false
 }

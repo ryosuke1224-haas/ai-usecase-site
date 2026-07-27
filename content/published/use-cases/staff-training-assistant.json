@@ -17,9 +17,20 @@
   ],
   "summary": "Turn SOPs and handbooks into interactive training quizzes and Q&A assistants new hires can use on day one.",
   "businessProblem": "New hires shadow experienced staff for weeks because training materials are outdated PDFs nobody reads. The owner repeats the same explanations, and consistency across locations suffers.",
+  "businessProblems": [
+    "improve-scheduling-and-operations",
+    "reduce-repetitive-admin-work"
+  ],
   "outcome": "New hires get an AI training assistant that answers questions from your actual SOPs, plus auto-generated quizzes to verify understanding before working independently.",
+  "expectedOutcomes": [
+    "New hires get an AI training assistant that answers questions from your actual SOPs, plus auto-generated quizzes to verify understanding before working independently."
+  ],
   "whoItsFor": "Businesses hiring 2+ people per quarter who have SOPs or handbooks (even rough ones) and need consistent onboarding without the owner delivering every training session.",
   "requiredDataSources": [
+    "documents-and-pdfs",
+    "staff-notes"
+  ],
+  "requiredData": [
     "documents-and-pdfs",
     "staff-notes"
   ],
@@ -39,6 +50,9 @@
     "google-drive-api",
     "notion-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT custom GPT uploaded with handbook/SOPs",

@@ -16,9 +16,22 @@
   ],
   "summary": "Capture quote requests from forms and emails, extract requirements, and draft initial quote responses or scope documents.",
   "businessProblem": "Quote requests arrive via website forms, email, and phone messages in inconsistent formats. Staff spend 20–30 minutes per request just organizing requirements before they can price anything.",
+  "businessProblems": [
+    "increase-sales-conversion",
+    "reduce-repetitive-admin-work"
+  ],
   "outcome": "Each quote request is automatically logged, requirements extracted into a structured format, and a draft scope/acknowledgment email sent within 1 hour of receipt.",
+  "expectedOutcomes": [
+    "Each quote request is automatically logged, requirements extracted into a structured format, and a draft scope/acknowledgment email sent within 1 hour of receipt."
+  ],
   "whoItsFor": "Businesses receiving 5–30 quote requests per week where each quote requires understanding scope before pricing — contractors, agencies, custom manufacturers.",
   "requiredDataSources": [
+    "website-form-submissions",
+    "emails",
+    "spreadsheets",
+    "crm-records"
+  ],
+  "requiredData": [
     "website-form-submissions",
     "emails",
     "spreadsheets",
@@ -41,6 +54,9 @@
     "google-sheets-api",
     "hubspot-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "Zapier: form submit → ChatGPT extract → Sheets row + Gmail draft",

@@ -2,15 +2,47 @@
   "id": "uc-020",
   "slug": "ai-hiring-affordability-planner",
   "title": "AI Hiring Affordability Planner",
-  "tagline": "Know when you can afford your next hire.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Know when you can afford your next hire.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Helps owners estimate whether they can afford a new employee by modeling added labor cost, required incremental revenue, break-even customers, and downside risk.",
   "businessProblem": "Owners hire reactively when overwhelmed, then discover 90 days later that payroll pushed them into negative cash flow — or they delay hiring too long and lose revenue.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "A hiring affordability report: fully loaded cost of the role, incremental revenue needed to break even, months to payback, and go/wait/no-go recommendation with downside scenario.",
+  "expectedOutcomes": [
+    "A hiring affordability report: fully loaded cost of the role, incremental revenue needed to break even, months to payback, and go/wait/no-go recommendation with downside scenario."
+  ],
   "whoItsFor": "Growing SMBs considering their next front-desk, technician, stylist, or manager hire without a finance team to model the impact.",
-  "requiredDataSources": ["payroll-records", "sales-history", "fixed-costs", "customer-records", "budget-files"],
+  "requiredDataSources": [
+    "payroll-records",
+    "sales-history",
+    "fixed-costs",
+    "customer-records",
+    "budget-files"
+  ],
+  "requiredData": [
+    "payroll-records",
+    "sales-history",
+    "fixed-costs",
+    "customer-records",
+    "budget-files"
+  ],
   "aiInputs": [
     "Proposed role: title, hourly rate or salary, hours, start date",
     "Employer tax and benefits load factor (e.g., 1.25× wage)",
@@ -25,7 +57,15 @@
     "Payback period estimate under base and downside cases",
     "Go / wait / no-go recommendation with reasoning"
   ],
-  "requiredApis": ["gusto-api", "quickbooks-api", "google-sheets-api", "openai-api"],
+  "requiredApis": [
+    "gusto-api",
+    "quickbooks-api",
+    "google-sheets-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "Hiring affordability Google Sheets template + ChatGPT",
     "Gusto salary calculator + manual GPT scenario",
@@ -66,7 +106,16 @@
   "difficulty": "Beginner",
   "automationLevel": "Manual trigger",
   "valuePotential": "High",
-  "relatedUseCases": ["ai-payroll-forecasting", "ai-break-even-dashboard", "ai-cash-flow-forecaster"],
-  "tags": ["hiring", "affordability", "labor", "growth"],
+  "relatedUseCases": [
+    "ai-payroll-forecasting",
+    "ai-break-even-dashboard",
+    "ai-cash-flow-forecaster"
+  ],
+  "tags": [
+    "hiring",
+    "affordability",
+    "labor",
+    "growth"
+  ],
   "featured": false
 }

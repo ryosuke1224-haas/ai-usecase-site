@@ -16,9 +16,21 @@
   ],
   "summary": "Generate location-specific blog posts, service pages, and FAQ content optimized for local search using your real customer language from reviews.",
   "businessProblem": "Local businesses need location-specific content to rank in 'near me' searches, but owners don't know what to write about or how to incorporate the keywords customers actually use.",
+  "businessProblems": [
+    "improve-marketing-performance",
+    "get-more-leads"
+  ],
   "outcome": "Monthly batch of 2–4 local SEO content pieces: service area pages, FAQ posts, and blog articles using real customer language from reviews — ready for website publishing.",
+  "expectedOutcomes": [
+    "Monthly batch of 2–4 local SEO content pieces: service area pages, FAQ posts, and blog articles using real customer language from reviews — ready for website publishing."
+  ],
   "whoItsFor": "Local service businesses competing for Google Maps and organic search visibility in a specific city or region — plumbers, dentists, lawyers, restaurants.",
   "requiredDataSources": [
+    "customer-reviews",
+    "documents-and-pdfs",
+    "social-media-comments"
+  ],
+  "requiredData": [
     "customer-reviews",
     "documents-and-pdfs",
     "social-media-comments"
@@ -40,6 +52,9 @@
     "google-business-profile-api",
     "yelp-fusion-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT with business info and review exports",

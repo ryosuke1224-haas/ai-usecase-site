@@ -2,15 +2,45 @@
   "id": "uc-021",
   "slug": "ai-pricing-impact-simulator",
   "title": "AI Pricing Impact Simulator",
-  "tagline": "Model price changes before you announce them.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Model price changes before you announce them.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Simulates the revenue and profit impact of price increases, churn sensitivity, segment-level pricing, and customer communication strategy.",
   "businessProblem": "Owners fear raising prices will lose customers, so they underprice for years — without quantifying how much churn they can absorb and still come out ahead.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "A pricing impact model showing revenue and profit at 0%, 5%, 10%, 15% price increases across assumed churn rates, plus recommended rollout and messaging approach.",
+  "expectedOutcomes": [
+    "A pricing impact model showing revenue and profit at 0%, 5%, 10%, 15% price increases across assumed churn rates, plus recommended rollout and messaging approach."
+  ],
   "whoItsFor": "Service businesses with stable customer bases considering their first price increase in 1–3 years.",
-  "requiredDataSources": ["sales-history", "customer-records", "pos-transactions", "fixed-costs"],
+  "requiredDataSources": [
+    "sales-history",
+    "customer-records",
+    "pos-transactions",
+    "fixed-costs"
+  ],
+  "requiredData": [
+    "sales-history",
+    "customer-records",
+    "pos-transactions",
+    "fixed-costs"
+  ],
   "aiInputs": [
     "Current average price by service or product tier",
     "Customer count and monthly transaction volume",
@@ -25,7 +55,15 @@
     "Draft customer communication talking points",
     "Rollout timeline suggestion (grandfathering, phased increases)"
   ],
-  "requiredApis": ["square-api", "stripe-api", "google-sheets-api", "openai-api"],
+  "requiredApis": [
+    "square-api",
+    "stripe-api",
+    "google-sheets-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "Pricing impact spreadsheet + ChatGPT sensitivity table",
     "Claude analysis with POS export pasted in",
@@ -66,7 +104,15 @@
   "difficulty": "Beginner",
   "automationLevel": "Manual trigger",
   "valuePotential": "Medium",
-  "relatedUseCases": ["ai-revenue-scenario-planner", "ai-break-even-dashboard"],
-  "tags": ["pricing", "churn", "simulation", "revenue"],
+  "relatedUseCases": [
+    "ai-revenue-scenario-planner",
+    "ai-break-even-dashboard"
+  ],
+  "tags": [
+    "pricing",
+    "churn",
+    "simulation",
+    "revenue"
+  ],
   "featured": false
 }

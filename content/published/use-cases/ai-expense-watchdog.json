@@ -2,15 +2,47 @@
   "id": "uc-023",
   "slug": "ai-expense-watchdog",
   "title": "AI Expense Watchdog",
-  "tagline": "Find cost leaks hiding in your business.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Find cost leaks hiding in your business.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Scans expenses, subscriptions, vendor payments, and credit card transactions to flag unusual increases, duplicate tools, and potential savings.",
   "businessProblem": "SMBs accumulate SaaS subscriptions, vendor creep, and duplicate tools over years — nobody audits spending until margins compress unexpectedly.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "Monthly expense audit report flagging: new recurring charges, price increases >10%, duplicate software, unused subscriptions, and estimated monthly savings if addressed.",
+  "expectedOutcomes": [
+    "Monthly expense audit report flagging: new recurring charges, price increases >10%, duplicate software, unused subscriptions, and estimated monthly savings if addressed."
+  ],
   "whoItsFor": "Owners who haven't reviewed expenses line-by-line in 6+ months and suspect they're paying for tools nobody uses.",
-  "requiredDataSources": ["credit-card-transactions", "bank-transactions", "invoices", "fixed-costs", "spreadsheets"],
+  "requiredDataSources": [
+    "credit-card-transactions",
+    "bank-transactions",
+    "invoices",
+    "fixed-costs",
+    "spreadsheets"
+  ],
+  "requiredData": [
+    "credit-card-transactions",
+    "bank-transactions",
+    "invoices",
+    "fixed-costs",
+    "spreadsheets"
+  ],
   "aiInputs": [
     "90 days credit card and bank transactions",
     "Recurring charge detection list",
@@ -25,7 +57,15 @@
     "Estimated monthly savings per recommendation",
     "Prioritized action list with cancellation difficulty rating"
   ],
-  "requiredApis": ["plaid-api", "quickbooks-api", "google-sheets-api", "openai-api"],
+  "requiredApis": [
+    "plaid-api",
+    "quickbooks-api",
+    "google-sheets-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "Mint/QuickBooks expense export + ChatGPT audit",
     "Ramp or Brex spend report + GPT analysis",
@@ -66,7 +106,15 @@
   "difficulty": "Beginner",
   "automationLevel": "Fully automated",
   "valuePotential": "Medium",
-  "relatedUseCases": ["ai-budget-variance-explainer", "ai-cash-flow-forecaster"],
-  "tags": ["expenses", "subscriptions", "cost-cutting", "audit"],
+  "relatedUseCases": [
+    "ai-budget-variance-explainer",
+    "ai-cash-flow-forecaster"
+  ],
+  "tags": [
+    "expenses",
+    "subscriptions",
+    "cost-cutting",
+    "audit"
+  ],
   "featured": false
 }

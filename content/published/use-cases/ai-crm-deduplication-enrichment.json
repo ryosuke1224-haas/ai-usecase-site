@@ -2,15 +2,39 @@
   "id": "uc-028",
   "slug": "ai-crm-deduplication-enrichment",
   "title": "AI CRM Deduplication & Enrichment",
-  "tagline": "Clean, enrich, and route new leads before they enter your CRM.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Operations", "Marketing"],
+  "tagline": "Clean, enrich, and route new leads before they enter your CRM.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Operations",
+    "Marketing"
+  ],
   "summary": "Checks new leads against existing CRM records, identifies duplicates, normalizes company information, enriches missing fields, and prepares clean records for CRM creation.",
   "businessProblem": "Inbound leads from forms, imports, and list buys create duplicate CRM records, incomplete company data, and routing chaos — sales reps chase the same account twice or work leads with no firmographic context.",
+  "businessProblems": [
+    "get-more-leads",
+    "increase-sales-conversion"
+  ],
   "outcome": "Every new lead is matched against existing records, enriched with company size and industry, deduplicated or merged, and routed to the right owner before it hits the pipeline.",
+  "expectedOutcomes": [
+    "Every new lead is matched against existing records, enriched with company size and industry, deduplicated or merged, and routed to the right owner before it hits the pipeline."
+  ],
   "whoItsFor": "Teams using HubSpot or Salesforce who receive leads from multiple channels — web forms, trade shows, purchased lists, and Navigator exports.",
   "requiredDataSources": [
+    "lead-forms",
+    "crm-records",
+    "customer-list",
+    "linkedin-profiles",
+    "public-business-listings"
+  ],
+  "requiredData": [
     "lead-forms",
     "crm-records",
     "customer-list",
@@ -35,6 +59,9 @@
     "clearbit-api",
     "apollo-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "HubSpot duplicate management + Clearbit enrichment (native)",
@@ -82,6 +109,12 @@
     "ai-lead-scoring-engine",
     "ai-crm-hygiene-monitor"
   ],
-  "tags": ["crm", "deduplication", "enrichment", "lead-routing", "data-quality"],
+  "tags": [
+    "crm",
+    "deduplication",
+    "enrichment",
+    "lead-routing",
+    "data-quality"
+  ],
   "featured": false
 }

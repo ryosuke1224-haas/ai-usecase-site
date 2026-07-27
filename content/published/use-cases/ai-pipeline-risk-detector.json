@@ -2,15 +2,37 @@
   "id": "uc-035",
   "slug": "ai-pipeline-risk-detector",
   "title": "AI Pipeline Risk Detector",
-  "tagline": "Spot stalled deals before they disappear.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Operations"],
+  "tagline": "Spot stalled deals before they disappear.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Operations"
+  ],
   "summary": "Detects deals at risk based on stage age, lack of activity, email response patterns, missing next steps, and forecast changes.",
   "businessProblem": "Deals silently stall — reps assume 'no news is good news' until the quarter ends. Managers discover at-risk pipeline only when it's too late to recover.",
+  "businessProblems": [
+    "increase-sales-conversion"
+  ],
   "outcome": "Daily or weekly risk-ranked deal list with specific risk factors, suggested recovery actions, and forecast impact — so reps intervene before deals go cold.",
+  "expectedOutcomes": [
+    "Daily or weekly risk-ranked deal list with specific risk factors, suggested recovery actions, and forecast impact — so reps intervene before deals go cold."
+  ],
   "whoItsFor": "Sales managers and reps managing 10–50 active opportunities who need early warning on stall patterns without manual pipeline reviews.",
   "requiredDataSources": [
+    "crm-records",
+    "sales-activity-logs",
+    "emails",
+    "call-notes",
+    "proposal-history"
+  ],
+  "requiredData": [
     "crm-records",
     "sales-activity-logs",
     "emails",
@@ -37,6 +59,9 @@
     "gmail-api",
     "microsoft-graph-outlook-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "HubSpot deal pipeline reports with custom risk properties",
@@ -85,6 +110,12 @@
     "ai-sales-briefing",
     "ai-follow-up-engine"
   ],
-  "tags": ["pipeline", "risk", "forecast", "stall", "deal-recovery"],
+  "tags": [
+    "pipeline",
+    "risk",
+    "forecast",
+    "stall",
+    "deal-recovery"
+  ],
   "featured": false
 }

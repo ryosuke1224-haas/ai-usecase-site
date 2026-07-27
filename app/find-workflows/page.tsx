@@ -6,14 +6,14 @@ import { HomeDiscovery } from "@/components/discovery/home-discovery";
 export const metadata: Metadata = {
   title: "Find AI Workflows",
   description:
-    "Select your business type and the tools you already use to discover matching AI workflows, available data, required APIs, and missing pieces.",
+    "Start with the business problem you want to solve, then optionally add your business type, tools, and data to discover matching AI workflows.",
   alternates: {
     canonical: "/find-workflows",
   },
   openGraph: {
     title: "Find AI Workflows",
     description:
-      "Select your business type and the tools you already use to discover matching AI workflows, available data, required APIs, and missing pieces.",
+      "Start with the business problem you want to solve, then optionally add your business type, tools, and data to discover matching AI workflows.",
     url: "/find-workflows",
   },
 };
@@ -30,9 +30,10 @@ export default function FindWorkflowsPage() {
           Find workflows that fit your business
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
-          Choose your business type and the tools you already use. We’ll show
-          matching workflows, data you likely already have, and what you may
-          still need.
+          Start with the business problem you want to improve. Then choose your
+          business type and optionally add the tools and data you already have.
+          We&apos;ll recommend practical AI workflows, show what you can build
+          now, and explain what is still missing.
         </p>
       </header>
 

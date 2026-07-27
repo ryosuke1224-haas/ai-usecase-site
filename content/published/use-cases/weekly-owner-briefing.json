@@ -16,9 +16,22 @@
   ],
   "summary": "A Friday summary of revenue, overdue invoices, pipeline status, and key metrics — narrated in plain English, not spreadsheet format.",
   "businessProblem": "Owners don't review financial and operational data consistently because dashboards require interpretation. By the time they notice a revenue dip or overdue invoices, weeks have passed.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning",
+    "reduce-repetitive-admin-work"
+  ],
   "outcome": "Every Friday at 4 PM: a 1-page narrative briefing covering revenue vs. last week, top overdue invoices, quote pipeline status, and 2–3 recommended actions for next week.",
+  "expectedOutcomes": [
+    "Every Friday at 4 PM: a 1-page narrative briefing covering revenue vs. last week, top overdue invoices, quote pipeline status, and 2–3 recommended actions for next week."
+  ],
   "whoItsFor": "Business owners who have the data in QuickBooks, Stripe, or spreadsheets but rarely look at it until tax season or something breaks.",
   "requiredDataSources": [
+    "invoices",
+    "pos-transactions",
+    "spreadsheets",
+    "crm-records"
+  ],
+  "requiredData": [
     "invoices",
     "pos-transactions",
     "spreadsheets",
@@ -43,6 +56,9 @@
     "google-sheets-api",
     "gmail-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT with weekly data pasted (manual Friday ritual)",

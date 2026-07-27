@@ -16,9 +16,22 @@
   ],
   "summary": "Keep operational trackers current by extracting action items from emails and updating spreadsheet rows automatically.",
   "businessProblem": "Quote trackers, invoice follow-up lists, and task spreadsheets fall behind because updating them requires manual data entry from emails and conversations nobody has time for.",
+  "businessProblems": [
+    "reduce-repetitive-admin-work",
+    "improve-scheduling-and-operations"
+  ],
   "outcome": "Spreadsheet trackers stay current: new quote requests added, overdue items flagged, and status columns updated from email content — without manual entry.",
+  "expectedOutcomes": [
+    "Spreadsheet trackers stay current: new quote requests added, overdue items flagged, and status columns updated from email content — without manual entry."
+  ],
   "whoItsFor": "Operators who run their business on Google Sheets or Airtable and spend hours each week copying information from emails into trackers.",
   "requiredDataSources": [
+    "emails",
+    "spreadsheets",
+    "invoices",
+    "website-form-submissions"
+  ],
+  "requiredData": [
     "emails",
     "spreadsheets",
     "invoices",
@@ -39,6 +52,9 @@
     "gmail-api",
     "google-sheets-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "Zapier: new email with label → ChatGPT extract → Sheets append row",

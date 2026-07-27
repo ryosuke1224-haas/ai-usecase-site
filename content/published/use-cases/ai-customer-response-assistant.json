@@ -15,9 +15,22 @@
   ],
   "summary": "Draft on-brand replies to customer emails, form submissions, and chat messages for human review before sending.",
   "businessProblem": "Customer inquiries pile up during busy periods. Staff write inconsistent replies, slow response times hurt reviews, and the owner becomes the bottleneck for every customer message.",
+  "businessProblems": [
+    "improve-customer-retention",
+    "reduce-repetitive-admin-work"
+  ],
   "outcome": "Draft responses appear within minutes of each inquiry, matching your business tone, answering the specific question, and flagging cases that need owner escalation.",
+  "expectedOutcomes": [
+    "Draft responses appear within minutes of each inquiry, matching your business tone, answering the specific question, and flagging cases that need owner escalation."
+  ],
   "whoItsFor": "Small teams without a dedicated customer service rep — especially businesses getting 10–50 inbound messages per day across email, forms, and chat.",
   "requiredDataSources": [
+    "emails",
+    "website-form-submissions",
+    "chat-logs",
+    "support-tickets"
+  ],
+  "requiredData": [
     "emails",
     "website-form-submissions",
     "chat-logs",
@@ -39,6 +52,9 @@
     "gmail-api",
     "openai-api",
     "hubspot-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "Help Scout AI Draft or similar built-in AI reply tools",

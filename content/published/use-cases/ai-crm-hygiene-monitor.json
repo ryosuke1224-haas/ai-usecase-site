@@ -2,15 +2,37 @@
   "id": "uc-034",
   "slug": "ai-crm-hygiene-monitor",
   "title": "AI CRM Hygiene Monitor",
-  "tagline": "Keep your pipeline clean and actionable.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Operations"],
+  "tagline": "Keep your pipeline clean and actionable.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Operations"
+  ],
   "summary": "Finds stale leads, duplicate records, missing fields, old statuses, no-next-step opportunities, and records that need cleanup.",
   "businessProblem": "CRM data decays fast — duplicate contacts, deals stuck in wrong stages, leads with no owner, and missing next steps make forecasting unreliable and reps waste time on dead records.",
+  "businessProblems": [
+    "increase-sales-conversion",
+    "reduce-repetitive-admin-work"
+  ],
   "outcome": "Weekly hygiene report with prioritized cleanup tasks: merge duplicates, update stale stages, fill required fields, and assign owners — with one-click or bulk-fix recommendations.",
+  "expectedOutcomes": [
+    "Weekly hygiene report with prioritized cleanup tasks: merge duplicates, update stale stages, fill required fields, and assign owners — with one-click or bulk-fix recommendations."
+  ],
   "whoItsFor": "Sales ops, RevOps, or owner-led teams using HubSpot or Salesforce who lack dedicated data stewardship.",
   "requiredDataSources": [
+    "crm-records",
+    "sales-activity-logs",
+    "emails",
+    "customer-list"
+  ],
+  "requiredData": [
     "crm-records",
     "sales-activity-logs",
     "emails",
@@ -34,6 +56,9 @@
     "salesforce-api",
     "openai-api",
     "slack-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "HubSpot data quality tools + manual GPT cleanup suggestions",
@@ -81,6 +106,12 @@
     "ai-pipeline-risk-detector",
     "ai-lead-scoring-engine"
   ],
-  "tags": ["crm", "hygiene", "data-quality", "duplicates", "pipeline"],
+  "tags": [
+    "crm",
+    "hygiene",
+    "data-quality",
+    "duplicates",
+    "pipeline"
+  ],
   "featured": false
 }

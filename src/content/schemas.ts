@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BUSINESS_PROBLEMS } from "@/src/lib/business-problems";
 
 export const difficultySchema = z.enum([
   "Beginner",
@@ -21,6 +22,8 @@ export const privacyLevelSchema = z.enum([
   "PII",
 ]);
 
+export const businessProblemSchema = z.enum(BUSINESS_PROBLEMS);
+
 export const useCaseSchema = z
   .object({
     id: z.string().min(1),
@@ -32,12 +35,16 @@ export const useCaseSchema = z
     businessFunctions: z.array(z.string()).min(1),
     summary: z.string().min(1),
     businessProblem: z.string().min(1),
+    businessProblems: z.array(businessProblemSchema).min(1),
     outcome: z.string().min(1),
+    expectedOutcomes: z.array(z.string()).min(1),
     whoItsFor: z.string().min(1),
     requiredDataSources: z.array(z.string()),
+    requiredData: z.array(z.string()),
     aiInputs: z.array(z.string()).min(1),
     aiOutputs: z.array(z.string()).min(1),
     requiredApis: z.array(z.string()).min(1),
+    requiredCapabilities: z.array(z.string()),
     noCodeTools: z.array(z.string()).min(1),
     lowCodeTools: z.array(z.string()).min(1),
     customBuildStack: z.array(z.string()).min(1),
@@ -135,6 +142,7 @@ export type Difficulty = z.infer<typeof difficultySchema>;
 export type AutomationLevel = z.infer<typeof automationLevelSchema>;
 export type ValuePotential = z.infer<typeof valuePotentialSchema>;
 export type PrivacyLevel = z.infer<typeof privacyLevelSchema>;
+export type BusinessProblem = z.infer<typeof businessProblemSchema>;
 export type SourceType = z.infer<typeof sourceTypeSchema>;
 
 export type UseCase = z.infer<typeof useCaseSchema>;

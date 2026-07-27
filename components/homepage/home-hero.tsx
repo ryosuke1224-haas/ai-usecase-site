@@ -13,9 +13,9 @@ export function HomeHero() {
             Turn the tools and data you already have into practical AI workflows
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted sm:text-[15px]">
-            Choose your business type and the tools you use. AI Use Case Atlas
-            shows what you can build, the data and APIs required, what is still
-            missing, and the simplest path to get started.
+            Start with the business problem you want to improve. AI Use Case
+            Atlas shows what you can build, the tools and data required, what
+            you may already have, and the simplest path to get started.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">

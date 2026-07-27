@@ -2,15 +2,47 @@
   "id": "uc-019",
   "slug": "ai-revenue-scenario-planner",
   "title": "AI Revenue Scenario Planner",
-  "tagline": "Test pricing, staffing, and growth decisions before you commit.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Test pricing, staffing, and growth decisions before you commit.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Lets owners model how changes in pricing, customer count, churn, staffing, utilization, or marketing spend affect revenue, profit, and cash.",
   "businessProblem": "Owners make growth decisions — new location, price increase, extra marketing — based on gut feel without modeling downstream impact on profit and cash.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "Side-by-side scenarios (base, optimistic, pessimistic) showing projected revenue, gross margin, labor cost, net profit, and cash impact over 6–12 months.",
+  "expectedOutcomes": [
+    "Side-by-side scenarios (base, optimistic, pessimistic) showing projected revenue, gross margin, labor cost, net profit, and cash impact over 6–12 months."
+  ],
   "whoItsFor": "Owners considering strategic changes who currently lack a financial model but need better than back-of-napkin math.",
-  "requiredDataSources": ["sales-history", "fixed-costs", "payroll-records", "customer-records", "budget-files"],
+  "requiredDataSources": [
+    "sales-history",
+    "fixed-costs",
+    "payroll-records",
+    "customer-records",
+    "budget-files"
+  ],
+  "requiredData": [
+    "sales-history",
+    "fixed-costs",
+    "payroll-records",
+    "customer-records",
+    "budget-files"
+  ],
   "aiInputs": [
     "Baseline revenue and cost structure from last 12 months",
     "Scenario variables: price change %, customer count change, churn rate",
@@ -25,7 +57,14 @@
     "Sensitivity notes on which variables matter most",
     "Plain-English recommendation with caveats"
   ],
-  "requiredApis": ["google-sheets-api", "quickbooks-api", "openai-api"],
+  "requiredApis": [
+    "google-sheets-api",
+    "quickbooks-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "Google Sheets scenario template + ChatGPT what-if analysis",
     "Causal.app or Finmark scenario modeling",
@@ -66,7 +105,16 @@
   "difficulty": "Intermediate",
   "automationLevel": "Manual trigger",
   "valuePotential": "High",
-  "relatedUseCases": ["ai-pricing-impact-simulator", "ai-hiring-affordability-planner", "ai-break-even-dashboard"],
-  "tags": ["scenario-planning", "revenue", "strategy", "what-if"],
+  "relatedUseCases": [
+    "ai-pricing-impact-simulator",
+    "ai-hiring-affordability-planner",
+    "ai-break-even-dashboard"
+  ],
+  "tags": [
+    "scenario-planning",
+    "revenue",
+    "strategy",
+    "what-if"
+  ],
   "featured": false
 }

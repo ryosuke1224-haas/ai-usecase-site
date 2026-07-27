@@ -16,9 +16,20 @@
   ],
   "summary": "Generate a monthly content calendar with post ideas, captions, and hashtags based on your business, reviews, and seasonal events.",
   "businessProblem": "Social media posting is inconsistent because content ideas run dry. Owners post reactively or go silent for weeks, hurting engagement and local visibility.",
+  "businessProblems": [
+    "improve-marketing-performance"
+  ],
   "outcome": "A 4-week content calendar with 12–16 post ideas, draft captions in your brand voice, suggested posting days, and hashtag sets — ready for scheduling.",
+  "expectedOutcomes": [
+    "A 4-week content calendar with 12–16 post ideas, draft captions in your brand voice, suggested posting days, and hashtag sets — ready for scheduling."
+  ],
   "whoItsFor": "SMBs doing their own social media without a dedicated marketer — especially local businesses that need consistent Google and social presence.",
   "requiredDataSources": [
+    "customer-reviews",
+    "social-media-comments",
+    "documents-and-pdfs"
+  ],
+  "requiredData": [
     "customer-reviews",
     "social-media-comments",
     "documents-and-pdfs"
@@ -39,6 +50,9 @@
   "requiredApis": [
     "openai-api",
     "google-gemini-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT or Claude monthly content planning session",

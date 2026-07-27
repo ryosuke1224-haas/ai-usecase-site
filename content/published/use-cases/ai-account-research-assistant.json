@@ -2,15 +2,41 @@
   "id": "uc-033",
   "slug": "ai-account-research-assistant",
   "title": "AI Account Research Assistant",
-  "tagline": "Research target accounts and identify business problems worth solving.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Business Development", "Marketing"],
+  "tagline": "Research target accounts and identify business problems worth solving.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Business Development",
+    "Marketing"
+  ],
   "summary": "Reviews websites, public listings, reviews, news, job posts, and CRM records to create a structured account research brief.",
   "businessProblem": "Enterprise and mid-market deals require deep account research, but reps default to skimming the homepage. Critical signals — hiring sprees, negative review patterns, leadership changes — get missed.",
+  "businessProblems": [
+    "get-more-leads",
+    "increase-sales-conversion"
+  ],
   "outcome": "A structured account dossier with company overview, org map hints, pain hypotheses, competitive landscape notes, and recommended entry points for outreach or discovery.",
+  "expectedOutcomes": [
+    "A structured account dossier with company overview, org map hints, pain hypotheses, competitive landscape notes, and recommended entry points for outreach or discovery."
+  ],
   "whoItsFor": "B2B sellers targeting named accounts — agencies pursuing specific brands, SaaS reps doing ABM, consultants building strategic account lists.",
   "requiredDataSources": [
+    "business-websites",
+    "public-business-listings",
+    "customer-reviews",
+    "crm-records",
+    "linkedin-profiles",
+    "industry-directories",
+    "tripadvisor-listings"
+  ],
+  "requiredData": [
     "business-websites",
     "public-business-listings",
     "customer-reviews",
@@ -38,6 +64,9 @@
     "outscraper-api",
     "apollo-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT deep research with website URLs pasted in",
@@ -86,6 +115,12 @@
     "ai-personalized-outreach-writer",
     "ai-lead-scoring-engine"
   ],
-  "tags": ["account-research", "abm", "dossier", "prospecting", "intelligence"],
+  "tags": [
+    "account-research",
+    "abm",
+    "dossier",
+    "prospecting",
+    "intelligence"
+  ],
   "featured": false
 }

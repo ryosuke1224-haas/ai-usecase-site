@@ -17,9 +17,19 @@
   ],
   "summary": "Draft on-brand responses to new Google and Yelp reviews for owner approval before publishing.",
   "businessProblem": "Responding to reviews improves local SEO and customer trust, but owners don't have time to craft thoughtful replies — especially to negative reviews that need careful handling.",
+  "businessProblems": [
+    "understand-customer-feedback",
+    "improve-customer-retention"
+  ],
   "outcome": "Draft responses for each new review within 24 hours, tailored to the rating and content, ready for one-click approval and publishing.",
+  "expectedOutcomes": [
+    "Draft responses for each new review within 24 hours, tailored to the rating and content, ready for one-click approval and publishing."
+  ],
   "whoItsFor": "Local business owners who know they should respond to reviews but currently respond to fewer than 30% of them.",
   "requiredDataSources": [
+    "customer-reviews"
+  ],
+  "requiredData": [
     "customer-reviews"
   ],
   "aiInputs": [
@@ -36,6 +46,9 @@
     "google-business-profile-api",
     "yelp-fusion-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "Google Business Profile built-in AI reply suggestions",

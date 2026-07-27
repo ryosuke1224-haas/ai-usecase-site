@@ -1,5 +1,6 @@
 import type {
   ApiTool,
+  BusinessProblem,
   DataSource,
   UseCase,
   WorkflowIdea,
@@ -43,6 +44,239 @@ export type SearchResult = {
   summary: string;
   href: string;
 };
+
+export type DiscoveryMode = "problem" | "tools";
+
+export type UseCaseRecommendation = {
+  useCase: UseCase;
+  score: number;
+  matchedApis: string[];
+  missingApis: string[];
+  matchedData: string[];
+  missingData: string[];
+  inferredApis: string[];
+  inferredData: string[];
+  requiresLlm: boolean;
+  hasLlm: boolean;
+  matchedCapabilities: string[];
+  missingCapabilities: string[];
+  industryMatched: boolean;
+  problemMatched: boolean;
+  readiness: "ready" | "almost-ready" | "needs-setup";
+  totalMissingCount: number;
+};
+
+export type UseCaseRecommendationGroups = {
+  bestMatches: UseCaseRecommendation[];
+  canBuildNow: UseCaseRecommendation[];
+  needsOneOrTwoAdditions: UseCaseRecommendation[];
+  longerTermOpportunities: UseCaseRecommendation[];
+};
+
+export type RecommendationParams = {
+  mode: DiscoveryMode;
+  problem?: BusinessProblem;
+  industry?: string;
+  selectedApis: string[];
+  selectedData: string[];
+};
+
+function difficultyWeight(difficulty: UseCase["difficulty"]) {
+  if (difficulty === "Beginner") return 6;
+  if (difficulty === "Intermediate") return 3;
+  return 0;
+}
+
+function useCaseMatchesIndustry(useCase: UseCase, industrySlug: string) {
+  const profile = getIndustryProfile(industrySlug);
+  if (!profile) return false;
+
+  return (
+    profile.starterWorkflows.includes(useCase.slug) ||
+    useCase.industries.some(
+      (industry) =>
+        industry.toLowerCase().includes(profile.name.split(" ")[0].toLowerCase()) ||
+        industry === profile.name ||
+        (profile.slug === "fitness-studio" && industry === "Fitness") ||
+        (profile.slug === "restaurant" && industry === "Restaurants") ||
+        (profile.slug === "home-services" && industry === "Home Services") ||
+        (profile.slug === "salon-spa" && industry === "Salons") ||
+        (profile.slug === "consulting-agency" &&
+          ["Consulting", "Agencies", "Professional Services"].includes(industry)) ||
+        (profile.slug === "retail-shop" && industry === "Retail"),
+    )
+  );
+}
+
+function getRequiredCapabilities(useCase: UseCase) {
+  const capabilities = new Set(useCase.requiredCapabilities);
+  if (useCase.requiredApis.some(isLlmSlug)) {
+    capabilities.add("llm");
+  }
+  return [...capabilities];
+}
+
+function buildRecommendation(
+  useCase: UseCase,
+  params: RecommendationParams,
+): UseCaseRecommendation {
+  const selectedApis = new Set(params.selectedApis);
+  const selectedData = new Set(params.selectedData);
+  const profile = params.industry ? getIndustryProfile(params.industry) : undefined;
+  const likelyApis = new Set(profile?.apisYouLikelyUse ?? []);
+  const likelyData = new Set(profile?.dataYouLikelyHave ?? []);
+
+  const requiredCapabilities = getRequiredCapabilities(useCase);
+  const requiredNonLlmApis = useCase.requiredApis.filter((slug) => !isLlmSlug(slug));
+  const matchedApis = requiredNonLlmApis.filter((slug) => selectedApis.has(slug));
+  const missingApis = requiredNonLlmApis.filter((slug) => !selectedApis.has(slug));
+  const inferredApis = missingApis.filter((slug) => likelyApis.has(slug));
+
+  const matchedData = useCase.requiredData.filter((slug) => selectedData.has(slug));
+  const missingData = useCase.requiredData.filter((slug) => !selectedData.has(slug));
+  const inferredData = missingData.filter((slug) => likelyData.has(slug));
+
+  const requiresLlm = requiredCapabilities.includes("llm");
+  const hasLlm = hasAnyLlm(selectedApis);
+  const matchedCapabilities = requiresLlm && hasLlm ? ["llm"] : [];
+  const missingCapabilities = requiresLlm && !hasLlm ? ["llm"] : [];
+
+  const problemMatched = params.problem
+    ? useCase.businessProblems.includes(params.problem)
+    : false;
+  const industryMatched = params.industry
+    ? useCaseMatchesIndustry(useCase, params.industry)
+    : false;
+
+  const totalMissingCount =
+    missingApis.length + missingData.length + missingCapabilities.length;
+
+  const readiness =
+    totalMissingCount === 0
+      ? ("ready" as const)
+      : totalMissingCount <= 2
+        ? ("almost-ready" as const)
+        : ("needs-setup" as const);
+
+  let score = 0;
+  if (params.mode === "problem") {
+    score += problemMatched ? 1000 : 0;
+    score += industryMatched ? 180 : 0;
+  } else {
+    score += matchedApis.length * 40;
+    score += matchedData.length * 24;
+    score += matchedCapabilities.length * 45;
+    score += industryMatched ? 90 : 0;
+  }
+
+  score += matchedApis.length * 18;
+  score += matchedData.length * 10;
+  score += matchedCapabilities.length * 25;
+  score += inferredApis.length * 4;
+  score += inferredData.length * 3;
+  score += difficultyWeight(useCase.difficulty);
+  score -= totalMissingCount * 7;
+
+  return {
+    useCase,
+    score,
+    matchedApis,
+    missingApis,
+    matchedData,
+    missingData,
+    inferredApis,
+    inferredData,
+    requiresLlm,
+    hasLlm,
+    matchedCapabilities,
+    missingCapabilities,
+    industryMatched,
+    problemMatched,
+    readiness,
+    totalMissingCount,
+  };
+}
+
+export function recommendUseCases(
+  params: RecommendationParams,
+  useCases: UseCase[],
+): UseCaseRecommendation[] {
+  const hasSignals =
+    Boolean(params.problem) ||
+    Boolean(params.industry) ||
+    params.selectedApis.length > 0 ||
+    params.selectedData.length > 0;
+
+  if (!hasSignals) return [];
+
+  return useCases
+    .filter((useCase) => {
+      if (params.mode === "problem") {
+        return params.problem
+          ? useCase.businessProblems.includes(params.problem)
+          : true;
+      }
+
+      const selected = new Set(params.selectedApis);
+      const selectedData = new Set(params.selectedData);
+      const hasToolMatch = useCase.requiredApis.some(
+        (slug) => !isLlmSlug(slug) && selected.has(slug),
+      );
+      const hasDataMatch = useCase.requiredData.some((slug) =>
+        selectedData.has(slug),
+      );
+      const hasIndustryMatch = params.industry
+        ? useCaseMatchesIndustry(useCase, params.industry)
+        : false;
+
+      return (
+        hasToolMatch ||
+        hasDataMatch ||
+        hasIndustryMatch ||
+        (useCase.requiredApis.some(isLlmSlug) && hasAnyLlm(selected))
+      );
+    })
+    .map((useCase) => buildRecommendation(useCase, params))
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.totalMissingCount !== b.totalMissingCount) {
+        return a.totalMissingCount - b.totalMissingCount;
+      }
+      return a.useCase.title.localeCompare(b.useCase.title);
+    });
+}
+
+export function groupUseCaseRecommendations(
+  matches: UseCaseRecommendation[],
+): UseCaseRecommendationGroups {
+  const bestMatches = matches.slice(0, 3);
+  const bestSlugs = new Set(bestMatches.map((match) => match.useCase.slug));
+
+  const remaining = matches.filter((match) => !bestSlugs.has(match.useCase.slug));
+
+  const canBuildNow = remaining.filter((match) => match.readiness === "ready");
+  const canBuildSlugs = new Set(canBuildNow.map((match) => match.useCase.slug));
+
+  const additions = remaining.filter(
+    (match) =>
+      !canBuildSlugs.has(match.useCase.slug) &&
+      match.readiness === "almost-ready",
+  );
+  const additionSlugs = new Set(additions.map((match) => match.useCase.slug));
+
+  const longerTermOpportunities = remaining.filter(
+    (match) =>
+      !canBuildSlugs.has(match.useCase.slug) &&
+      !additionSlugs.has(match.useCase.slug),
+  );
+
+  return {
+    bestMatches,
+    canBuildNow,
+    needsOneOrTwoAdditions: additions,
+    longerTermOpportunities,
+  };
+}
 
 export function findUseCasesByApis(
   selectedSlugs: string[],

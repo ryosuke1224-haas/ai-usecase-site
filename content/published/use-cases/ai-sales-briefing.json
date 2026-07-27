@@ -2,15 +2,39 @@
   "id": "uc-032",
   "slug": "ai-sales-briefing",
   "title": "AI Sales Briefing",
-  "tagline": "Prepare for every prospect conversation in minutes.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Business Development"],
+  "tagline": "Prepare for every prospect conversation in minutes.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Business Development"
+  ],
   "summary": "Summarizes company information, review insights, website signals, CRM history, past emails, likely pain points, and suggested discovery questions before a sales call.",
   "businessProblem": "Reps join discovery calls underprepared — scrambling through LinkedIn, the company website, and CRM notes five minutes before the meeting, missing key context that could win the deal.",
+  "businessProblems": [
+    "increase-sales-conversion"
+  ],
   "outcome": "A one-page briefing delivered before each scheduled call: who they are, what hurts, what was said before, competitive context, and 5 tailored discovery questions.",
+  "expectedOutcomes": [
+    "A one-page briefing delivered before each scheduled call: who they are, what hurts, what was said before, competitive context, and 5 tailored discovery questions."
+  ],
   "whoItsFor": "Account executives and founders who run multiple discovery calls per week and need consistent prep without a research analyst.",
   "requiredDataSources": [
+    "crm-records",
+    "emails",
+    "call-notes",
+    "business-websites",
+    "customer-reviews",
+    "linkedin-profiles",
+    "sales-activity-logs"
+  ],
+  "requiredData": [
     "crm-records",
     "emails",
     "call-notes",
@@ -38,6 +62,9 @@
     "gmail-api",
     "google-calendar-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT with CRM export pasted before each call",
@@ -86,6 +113,12 @@
     "ai-pipeline-risk-detector",
     "ai-personalized-outreach-writer"
   ],
-  "tags": ["briefing", "discovery", "meeting-prep", "crm", "calls"],
+  "tags": [
+    "briefing",
+    "discovery",
+    "meeting-prep",
+    "crm",
+    "calls"
+  ],
   "featured": true
 }

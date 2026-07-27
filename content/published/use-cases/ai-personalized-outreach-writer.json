@@ -2,15 +2,39 @@
   "id": "uc-030",
   "slug": "ai-personalized-outreach-writer",
   "title": "AI Personalized Outreach Writer",
-  "tagline": "Turn public business signals into relevant sales messages.",
   "category": "Sales & Lead Generation",
-  "industries": ["B2B Services", "Agencies", "SaaS", "Professional Services", "Marketing"],
-  "businessFunctions": ["Sales", "Business Development", "Marketing"],
+  "tagline": "Turn public business signals into relevant sales messages.",
+  "industries": [
+    "B2B Services",
+    "Agencies",
+    "SaaS",
+    "Professional Services",
+    "Marketing"
+  ],
+  "businessFunctions": [
+    "Sales",
+    "Business Development",
+    "Marketing"
+  ],
   "summary": "Uses business profile data, reviews, website content, and pain-point hypotheses to draft personalized cold emails, LinkedIn messages, and follow-ups.",
   "businessProblem": "Generic cold emails get ignored. Reps either spend 15 minutes researching each prospect manually or blast templates that damage domain reputation and brand.",
+  "businessProblems": [
+    "get-more-leads",
+    "increase-sales-conversion"
+  ],
   "outcome": "Draft outreach messages that reference specific, verifiable business signals — a recent negative review theme, a missing service page, or a hiring post — ready for rep review and send.",
+  "expectedOutcomes": [
+    "Draft outreach messages that reference specific, verifiable business signals — a recent negative review theme, a missing service page, or a hiring post — ready for rep review and send."
+  ],
   "whoItsFor": "B2B sellers doing outbound prospecting who need personalization at scale without sacrificing relevance or compliance.",
   "requiredDataSources": [
+    "public-business-listings",
+    "customer-reviews",
+    "business-websites",
+    "linkedin-profiles",
+    "crm-records"
+  ],
+  "requiredData": [
     "public-business-listings",
     "customer-reviews",
     "business-websites",
@@ -37,6 +61,9 @@
     "yelp-fusion-api",
     "gmail-api",
     "hubspot-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "Clay.com personalized email columns from Places + reviews + GPT",
@@ -85,6 +112,12 @@
     "ai-nurture-sequence-builder",
     "ai-follow-up-engine"
   ],
-  "tags": ["outreach", "cold-email", "personalization", "linkedin", "copywriting"],
+  "tags": [
+    "outreach",
+    "cold-email",
+    "personalization",
+    "linkedin",
+    "copywriting"
+  ],
   "featured": false
 }

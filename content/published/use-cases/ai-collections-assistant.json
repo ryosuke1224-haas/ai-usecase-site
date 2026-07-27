@@ -2,15 +2,45 @@
   "id": "uc-022",
   "slug": "ai-collections-assistant",
   "title": "AI Collections Assistant",
-  "tagline": "Prioritize overdue invoices and draft follow-ups.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Prioritize overdue invoices and draft follow-ups.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Reviews outstanding invoices, due dates, customer history, and payment patterns to prioritize collections and draft follow-up messages.",
   "businessProblem": "Outstanding invoices pile up because owners avoid awkward collection conversations — cash sits in AR while they focus on delivery work.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "Weekly prioritized collections list with suggested follow-up emails ranked by amount, age, and customer payment history — drafts ready for owner approval.",
+  "expectedOutcomes": [
+    "Weekly prioritized collections list with suggested follow-up emails ranked by amount, age, and customer payment history — drafts ready for owner approval."
+  ],
   "whoItsFor": "B2B service businesses and clinics with net-30 invoicing and $10K+ in outstanding AR at any time.",
-  "requiredDataSources": ["invoices", "customer-records", "emails", "sales-history"],
+  "requiredDataSources": [
+    "invoices",
+    "customer-records",
+    "emails",
+    "sales-history"
+  ],
+  "requiredData": [
+    "invoices",
+    "customer-records",
+    "emails",
+    "sales-history"
+  ],
   "aiInputs": [
     "All open invoices with amount, age, and due date",
     "Customer payment history (average days to pay)",
@@ -25,7 +55,15 @@
     "Flag for disputes or credits needed before contacting",
     "Suggested call vs email channel per customer"
   ],
-  "requiredApis": ["quickbooks-api", "xero-api", "gmail-api", "openai-api"],
+  "requiredApis": [
+    "quickbooks-api",
+    "xero-api",
+    "gmail-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "QuickBooks overdue report + ChatGPT draft emails",
     "Zapier: QBO overdue trigger → GPT → Gmail draft",
@@ -66,7 +104,15 @@
   "difficulty": "Beginner",
   "automationLevel": "Semi-automated",
   "valuePotential": "High",
-  "relatedUseCases": ["ai-cash-flow-forecaster", "weekly-owner-briefing"],
-  "tags": ["collections", "accounts-receivable", "invoices", "cash"],
+  "relatedUseCases": [
+    "ai-cash-flow-forecaster",
+    "weekly-owner-briefing"
+  ],
+  "tags": [
+    "collections",
+    "accounts-receivable",
+    "invoices",
+    "cash"
+  ],
   "featured": false
 }

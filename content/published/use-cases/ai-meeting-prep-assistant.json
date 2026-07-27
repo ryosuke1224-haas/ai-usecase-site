@@ -16,9 +16,22 @@
   ],
   "summary": "Before each client meeting, generate a one-page brief with relationship history, open items, and suggested talking points.",
   "businessProblem": "Owners and salespeople walk into meetings without refreshing context. They forget prior commitments, repeat questions the client already answered, and miss upsell opportunities visible in past interactions.",
+  "businessProblems": [
+    "increase-sales-conversion",
+    "improve-scheduling-and-operations"
+  ],
   "outcome": "30 minutes before each meeting, receive a brief: who you're meeting, last 3 interactions summary, open quotes/invoices, and 3 suggested discussion topics.",
+  "expectedOutcomes": [
+    "30 minutes before each meeting, receive a brief: who you're meeting, last 3 interactions summary, open quotes/invoices, and 3 suggested discussion topics."
+  ],
   "whoItsFor": "Consultants, agency owners, and B2B salespeople with 3–8 client meetings per week who prepare inconsistently.",
   "requiredDataSources": [
+    "calendar-events",
+    "emails",
+    "crm-records",
+    "call-transcripts"
+  ],
+  "requiredData": [
     "calendar-events",
     "emails",
     "crm-records",
@@ -41,6 +54,9 @@
     "gmail-api",
     "hubspot-api",
     "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
   ],
   "noCodeTools": [
     "ChatGPT with calendar and email context (manual per meeting)",

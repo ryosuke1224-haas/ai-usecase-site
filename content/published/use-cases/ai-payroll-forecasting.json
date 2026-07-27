@@ -2,15 +2,47 @@
   "id": "uc-018",
   "slug": "ai-payroll-forecasting",
   "title": "AI Payroll Forecasting",
-  "tagline": "Predict labor cost before it becomes a cash problem.",
   "category": "Finance & Planning",
-  "industries": ["Fitness", "Salon", "Restaurant", "Local Services", "Professional Services", "Clinic", "Retail"],
-  "businessFunctions": ["Finance", "Payroll", "Operations", "Planning"],
+  "tagline": "Predict labor cost before it becomes a cash problem.",
+  "industries": [
+    "Fitness",
+    "Salon",
+    "Restaurant",
+    "Local Services",
+    "Professional Services",
+    "Clinic",
+    "Retail"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Payroll",
+    "Operations",
+    "Planning"
+  ],
   "summary": "Uses payroll history, staff schedules, sales forecasts, and booking volume to estimate upcoming labor cost and labor cost as a percentage of revenue.",
   "businessProblem": "Labor is the largest variable cost for most SMBs, but owners only see the true payroll hit after the pay run — too late to adjust schedules or pricing.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning"
+  ],
   "outcome": "Before each pay period: projected gross payroll, employer taxes, labor-as-% of projected revenue, and flags when labor ratio exceeds your target threshold.",
+  "expectedOutcomes": [
+    "Before each pay period: projected gross payroll, employer taxes, labor-as-% of projected revenue, and flags when labor ratio exceeds your target threshold."
+  ],
   "whoItsFor": "Appointment-based and shift-based businesses with 3+ employees where labor cost should stay within a defined percentage of revenue.",
-  "requiredDataSources": ["payroll-records", "staff-schedules", "sales-history", "booking-data", "time-tracking-data"],
+  "requiredDataSources": [
+    "payroll-records",
+    "staff-schedules",
+    "sales-history",
+    "booking-data",
+    "time-tracking-data"
+  ],
+  "requiredData": [
+    "payroll-records",
+    "staff-schedules",
+    "sales-history",
+    "booking-data",
+    "time-tracking-data"
+  ],
   "aiInputs": [
     "Last 6–12 payroll run totals",
     "Current and next-week staff schedules",
@@ -25,7 +57,15 @@
     "Role-level hour and cost breakdown",
     "Schedule adjustment suggestions to hit target ratio"
   ],
-  "requiredApis": ["gusto-api", "square-api", "google-sheets-api", "openai-api"],
+  "requiredApis": [
+    "gusto-api",
+    "square-api",
+    "google-sheets-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
   "noCodeTools": [
     "Gusto payroll reports + Google Sheets model + ChatGPT",
     "7shifts labor report paste into GPT analysis",
@@ -66,7 +106,16 @@
   "difficulty": "Intermediate",
   "automationLevel": "Semi-automated",
   "valuePotential": "High",
-  "relatedUseCases": ["ai-staffing-optimizer", "ai-cash-flow-forecaster", "ai-break-even-dashboard"],
-  "tags": ["payroll", "labor", "forecasting", "scheduling"],
+  "relatedUseCases": [
+    "ai-staffing-optimizer",
+    "ai-cash-flow-forecaster",
+    "ai-break-even-dashboard"
+  ],
+  "tags": [
+    "payroll",
+    "labor",
+    "forecasting",
+    "scheduling"
+  ],
   "featured": true
 }
