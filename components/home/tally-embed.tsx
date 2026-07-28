@@ -61,7 +61,7 @@ export function TallyEmbed({ formUrl }: { formUrl: string }) {
         data-tally-src={embedSrc}
         loading="lazy"
         width="100%"
-        height={2049}
+        height={1048}
         frameBorder={0}
         marginHeight={0}
         marginWidth={0}
