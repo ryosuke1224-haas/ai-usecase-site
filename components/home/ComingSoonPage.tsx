@@ -1,3 +1,4 @@
+import { TallyEmbed } from "@/components/home/tally-embed";
 import { CONTACT_EMAIL } from "@/src/lib/site";
 
 const businessAreas = [
@@ -54,8 +55,19 @@ const steps = [
   },
 ] as const;
 
+function getConfiguredTallyFormUrl() {
+  const raw = process.env.NEXT_PUBLIC_TALLY_FORM_URL?.trim();
+  if (!raw) return undefined;
+
+  try {
+    return new URL(raw).toString();
+  } catch {
+    return undefined;
+  }
+}
+
 export function ComingSoonPage() {
-  const tallyFormUrl = process.env.NEXT_PUBLIC_TALLY_FORM_URL?.trim();
+  const tallyFormUrl = getConfiguredTallyFormUrl();
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10 sm:py-14">
@@ -155,16 +167,7 @@ export function ComingSoonPage() {
           </p>
 
           {tallyFormUrl ? (
-            <div className="mt-8 overflow-hidden rounded-xl border border-border/60 bg-background">
-              <iframe
-                src={tallyFormUrl}
-                title="Submit a workflow automation request"
-                loading="lazy"
-                className="block w-full border-0"
-                style={{ minHeight: "780px", height: "min(90vh, 980px)" }}
-                allow="clipboard-write"
-              />
-            </div>
+            <TallyEmbed formUrl={tallyFormUrl} />
           ) : (
             <div className="mt-8 rounded-xl border border-border/60 bg-surface px-5 py-6 sm:px-6">
               <p className="text-sm font-medium text-foreground sm:text-base">
