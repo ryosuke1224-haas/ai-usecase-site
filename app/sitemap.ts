@@ -4,9 +4,27 @@ import {
   getAllDataSourceSlugs,
   getAllUseCaseSlugs,
 } from "@/src/content/load-published";
+import { isComingSoonMode } from "@/src/lib/site-mode";
 import { SITE_URL } from "@/src/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  if (isComingSoonMode()) {
+    return [
+      {
+        url: SITE_URL,
+        lastModified: new Date(),
+        changeFrequency: "weekly",
+        priority: 1,
+      },
+      {
+        url: `${SITE_URL}/contact`,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.5,
+      },
+    ];
+  }
+
   const staticRoutes: MetadataRoute.Sitemap = [
     "",
     "/find-workflows",

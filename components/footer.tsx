@@ -1,6 +1,29 @@
 import Link from "next/link";
+import { CONTACT_EMAIL } from "@/src/lib/site";
+import { isComingSoonMode } from "@/src/lib/site-mode";
 
-export function Footer() {
+function ComingSoonFooter() {
+  return (
+    <footer className="mt-auto border-t border-border/60 bg-surface">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-bold text-accent-foreground">
+            AI
+          </span>
+          <span className="text-base font-semibold">AI Use Case Atlas</span>
+        </div>
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        >
+          {CONTACT_EMAIL}
+        </a>
+      </div>
+    </footer>
+  );
+}
+
+function LiveFooter() {
   return (
     <footer className="mt-auto border-t border-border/60 bg-surface">
       <div className="mx-auto max-w-6xl px-6 py-12">
@@ -33,7 +56,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted transition-colors hover:text-foreground"
+                    className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                   >
                     {link.label}
                   </Link>
@@ -50,7 +73,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/use-cases?difficulty=Beginner"
-                  className="text-sm text-muted transition-colors hover:text-foreground"
+                  className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                 >
                   Beginner use cases
                 </Link>
@@ -58,7 +81,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/workflow-ideas"
-                  className="text-sm text-muted transition-colors hover:text-foreground"
+                  className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                 >
                   API combination ideas
                 </Link>
@@ -66,7 +89,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-sm text-muted transition-colors hover:text-foreground"
+                  className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                 >
                   Contact
                 </Link>
@@ -81,4 +104,12 @@ export function Footer() {
       </div>
     </footer>
   );
+}
+
+export function Footer() {
+  if (isComingSoonMode()) {
+    return <ComingSoonFooter />;
+  }
+
+  return <LiveFooter />;
 }
