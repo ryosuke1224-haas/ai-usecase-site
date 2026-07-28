@@ -3,6 +3,8 @@
 import Script from "next/script";
 import { useEffect } from "react";
 
+const TALLY_EMBED_SCRIPT = "https://tally.so/widgets/embed.js";
+
 const TALLY_EMBED_PARAMS: Record<string, string> = {
   alignLeft: "1",
   hideTitle: "1",
@@ -10,13 +12,11 @@ const TALLY_EMBED_PARAMS: Record<string, string> = {
   dynamicHeight: "1",
 };
 
-declare global {
-  interface Window {
-    Tally?: {
-      loadEmbeds: () => void;
-    };
-  }
-}
+type TallyWindow = Window & {
+  Tally?: {
+    loadEmbeds: () => void;
+  };
+};
 
 /**
  * Builds a Tally embed URL from NEXT_PUBLIC_TALLY_FORM_URL while preserving
@@ -32,31 +32,30 @@ export function buildTallyEmbedSrc(baseUrl: string): string {
   return url.toString();
 }
 
+/**
+ * Only initialize through Tally.loadEmbeds().
+ * Manually assigning iframe.src before Tally is ready loads the form without
+ * the parent-side resize listeners, which leaves an internal scrollbar.
+ */
 function loadTallyEmbeds() {
   if (typeof window === "undefined") return;
 
-  if (typeof window.Tally !== "undefined") {
-    window.Tally.loadEmbeds();
-    return;
+  const tally = (window as TallyWindow).Tally;
+  if (typeof tally?.loadEmbeds === "function") {
+    tally.loadEmbeds();
   }
-
-  document
-    .querySelectorAll<HTMLIFrameElement>("iframe[data-tally-src]:not([src])")
-    .forEach((iframe) => {
-      const src = iframe.dataset.tallySrc;
-      if (src) iframe.src = src;
-    });
 }
 
 export function TallyEmbed({ formUrl }: { formUrl: string }) {
   const embedSrc = buildTallyEmbedSrc(formUrl);
 
   useEffect(() => {
+    // Iframe has mounted. If the script already loaded first, initialize now.
     loadTallyEmbeds();
   }, [embedSrc]);
 
   return (
-    <div className="mt-8 w-full rounded-xl border border-border/60 bg-background px-1 py-1 sm:px-2 sm:py-2">
+    <div className="mt-8 w-full">
       <iframe
         data-tally-src={embedSrc}
         loading="lazy"
@@ -69,10 +68,10 @@ export function TallyEmbed({ formUrl }: { formUrl: string }) {
         className="block w-full border-0"
       />
       <Script
-        src="https://tally.so/widgets/embed.js"
-        strategy="lazyOnload"
+        src={TALLY_EMBED_SCRIPT}
+        strategy="afterInteractive"
         onLoad={loadTallyEmbeds}
-        onError={loadTallyEmbeds}
+        onReady={loadTallyEmbeds}
       />
     </div>
   );
