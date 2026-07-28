@@ -35,7 +35,7 @@ function ComingSoonHeader() {
           href="/#workflow-request"
           className="inline-flex items-center justify-center rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:text-sm"
         >
-          Share your idea
+          Share your workflow
         </a>
       </div>
     </header>

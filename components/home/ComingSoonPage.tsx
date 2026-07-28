@@ -32,26 +32,30 @@ const businessAreas = [
     description:
       "Hiring, onboarding, timesheets, payroll preparation, and employee support",
   },
+  {
+    title: "Administration",
+    description:
+      "Email handling, data entry, document processing, meeting follow-ups, and spreadsheet updates",
+  },
 ] as const;
 
 const steps = [
   {
     number: "1",
     title: "Tell us what is taking too much time",
-    description:
-      "Share a repetitive task, manual process, or everyday bottleneck in your business.",
+    description: "Share a repetitive task or manual process in your business.",
   },
   {
     number: "2",
     title: "We identify where AI could help",
     description:
-      "We look for practical opportunities that fit how small businesses actually work.",
+      "We look for practical opportunities that fit how your business works.",
   },
   {
     number: "3",
-    title: "Start with a manual playbook, a local tool, or implementation support",
+    title: "Choose how you want to get started",
     description:
-      "Begin with something practical you can use now — not a complex technical project.",
+      "Try it yourself with a practical guide, use a simple local tool, or get help implementing it.",
   },
 ] as const;
 
@@ -153,15 +157,15 @@ export function ComingSoonPage() {
 
       {/* Request form */}
       <section id="workflow-request" className="mt-16 scroll-mt-24 sm:mt-20">
-        <div className="rounded-2xl border border-border/60 bg-card px-6 py-8 sm:px-10 sm:py-10">
+        <div className="mx-auto w-full max-w-[820px] rounded-2xl border border-border/60 bg-card px-6 py-8 sm:px-10 sm:py-10">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
             What would you like to automate?
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
+          <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
             Tell us about a repetitive task, manual process, or business problem
             you would like to improve.
           </p>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
+          <p className="mt-2 text-sm leading-relaxed text-muted sm:text-base">
             Your request may help shape a future AI blueprint, local tool, or
             pilot project.
           </p>
@@ -263,6 +267,14 @@ function AreaIcon({ title }: { title: string }) {
           <circle cx="17" cy="9" r="2.5" />
           <path d="M3 19c0-3 2.5-5 6-5s6 2 6 5" />
           <path d="M15 19c0-2 1.5-3.5 4-3.5" />
+        </svg>
+      );
+    case "Administration":
+      return (
+        <svg viewBox="0 0 24 24" {...common}>
+          <path d="M8 4h8a2 2 0 0 1 2 2v14l-6-3-6 3V6a2 2 0 0 1 2-2z" />
+          <path d="M10 9h4" />
+          <path d="M10 13h4" />
         </svg>
       );
     default:
