@@ -19,6 +19,13 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "operations",
+  "businessProcesses": [
+    "Staffing & Capacity"
+  ],
+  "businessOutcomes": [
+    "Staffing matches demand more closely week to week."
+  ],
   "summary": "Compares shifts, payroll hours, appointments, sales, and customer traffic to identify overstaffed and understaffed periods.",
   "businessProblem": "Managers schedule from habit — same staffing every Tuesday — while actual demand varies, burning labor dollars in slow periods and losing revenue when understaffed during peaks.",
   "businessProblems": [

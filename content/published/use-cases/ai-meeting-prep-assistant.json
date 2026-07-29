@@ -14,6 +14,13 @@
     "Operations",
     "Owner/Admin"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Follow-Up & Outreach"
+  ],
+  "businessOutcomes": [
+    "Fewer repeated questions and missed commitments in meetings."
+  ],
   "summary": "Before each client meeting, generate a one-page brief with relationship history, open items, and suggested talking points.",
   "businessProblem": "Owners and salespeople walk into meetings without refreshing context. They forget prior commitments, repeat questions the client already answered, and miss upsell opportunities visible in past interactions.",
   "businessProblems": [

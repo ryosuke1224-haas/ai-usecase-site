@@ -19,6 +19,13 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "finance-accounting",
+  "businessProcesses": [
+    "Cash-Flow Planning"
+  ],
+  "businessOutcomes": [
+    "You see cash shortfalls weeks earlier."
+  ],
   "summary": "Helps small business owners forecast 30/60/90-day cash flow using sales history, invoices, payroll, fixed costs, payment schedules, and upcoming revenue.",
   "businessProblem": "Owners discover cash shortfalls when checks bounce or payroll is due — not weeks earlier when they could adjust spending, chase collections, or delay hires.",
   "businessProblems": [

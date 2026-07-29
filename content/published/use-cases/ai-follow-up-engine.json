@@ -13,6 +13,13 @@
     "Sales",
     "Customer Success"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Follow-Up & Outreach"
+  ],
+  "businessOutcomes": [
+    "Fewer leads forgotten because nobody followed up."
+  ],
   "summary": "Automatically identify conversations and deals that need follow-up, then draft context-aware messages referencing the last interaction.",
   "businessProblem": "Deals stall and leads go cold because follow-ups depend on someone remembering to check CRM or inbox. 60–80% of sales require 5+ touchpoints, but most SMBs stop after one.",
   "businessProblems": [

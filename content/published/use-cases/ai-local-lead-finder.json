@@ -17,6 +17,13 @@
     "Business Development",
     "Marketing"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Lead Capture & Qualification"
+  ],
+  "businessOutcomes": [
+    "A steady list of new local prospects without manual searching."
+  ],
   "summary": "Searches public sources such as Google business listings, Yelp, TripAdvisor, reviews, websites, and directories to identify businesses that match a target ICP and show potential pain signals.",
   "businessProblem": "B2B sellers waste hours manually searching Google Maps, Yelp, and directories to build prospect lists — and still miss businesses with visible pain signals like unanswered negative reviews or outdated websites.",
   "businessProblems": [

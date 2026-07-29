@@ -13,6 +13,13 @@
     "Operations",
     "Owner/Admin"
   ],
+  "businessArea": "administration",
+  "businessProcesses": [
+    "Email & Inbox Management"
+  ],
+  "businessOutcomes": [
+    "You start the day knowing what actually needs attention."
+  ],
   "summary": "Start each day with a prioritized summary of urgent emails, pending replies, and calendar conflicts — without reading every message.",
   "businessProblem": "Owners and operators spend the first 30–60 minutes of each day scanning inboxes reactively, often missing urgent client messages buried under newsletters and internal noise.",
   "businessProblems": [

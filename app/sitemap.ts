@@ -4,6 +4,7 @@ import {
   getAllDataSourceSlugs,
   getAllUseCaseSlugs,
 } from "@/src/content/load-published";
+import { BUSINESS_AREAS } from "@/src/lib/business-areas";
 import { isComingSoonMode } from "@/src/lib/site-mode";
 import { SITE_URL } from "@/src/lib/site";
 
@@ -27,8 +28,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticRoutes: MetadataRoute.Sitemap = [
     "",
-    "/find-workflows",
+    "/business-areas",
     "/use-cases",
+    "/find-workflows",
     "/apis",
     "/data-sources",
     "/workflow-ideas",
@@ -36,9 +38,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ].map((path) => ({
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
-    changeFrequency: path === "" ? "weekly" : "weekly",
-    priority: path === "" ? 1 : path === "/find-workflows" ? 0.9 : 0.8,
+    changeFrequency: "weekly",
+    priority: path === "" ? 1 : path === "/business-areas" ? 0.9 : 0.8,
   }));
+
+  const businessAreaRoutes: MetadataRoute.Sitemap = BUSINESS_AREAS.map(
+    (slug) => ({
+      url: `${SITE_URL}/business-areas/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }),
+  );
 
   const useCaseRoutes: MetadataRoute.Sitemap = getAllUseCaseSlugs().map(
     (slug) => ({
@@ -67,6 +78,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...staticRoutes,
+    ...businessAreaRoutes,
     ...useCaseRoutes,
     ...apiRoutes,
     ...dataSourceRoutes,

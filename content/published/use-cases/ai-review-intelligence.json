@@ -15,6 +15,14 @@
     "Operations",
     "Owner/Admin"
   ],
+  "businessArea": "marketing",
+  "businessProcesses": [
+    "Reviews & Reputation",
+    "Customer Insights"
+  ],
+  "businessOutcomes": [
+    "You see recurring complaints and praise instead of guessing."
+  ],
   "summary": "Analyze Google and Yelp reviews to surface recurring themes, sentiment trends, and competitor benchmarks.",
   "businessProblem": "Business owners read reviews reactively but never systematically analyze patterns. Recurring complaints about wait times or staff go unnoticed until they show up in multiple 1-star reviews.",
   "businessProblems": [

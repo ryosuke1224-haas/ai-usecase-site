@@ -15,6 +15,13 @@
     "Revenue",
     "Customer Success"
   ],
+  "businessArea": "marketing",
+  "businessProcesses": [
+    "Customer Insights"
+  ],
+  "businessOutcomes": [
+    "Some lapsed customers return without new ad spend."
+  ],
   "summary": "Identify customers who haven't purchased or visited in 60+ days and send personalized winback offers via email or SMS.",
   "businessProblem": "Acquiring a new customer costs 5–7x more than retaining an existing one, but most SMBs have no system to re-engage lapsed customers. They simply disappear from revenue without anyone noticing.",
   "businessProblems": [

@@ -16,6 +16,14 @@
     "Operations",
     "Marketing"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "CRM & Pipeline Management",
+    "Lead Capture & Qualification"
+  ],
+  "businessOutcomes": [
+    "Cleaner customer records and fewer duplicate contacts."
+  ],
   "summary": "Checks new leads against existing CRM records, identifies duplicates, normalizes company information, enriches missing fields, and prepares clean records for CRM creation.",
   "businessProblem": "Inbound leads from forms, imports, and list buys create duplicate CRM records, incomplete company data, and routing chaos — sales reps chase the same account twice or work leads with no firmographic context.",
   "businessProblems": [

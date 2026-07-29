@@ -15,6 +15,13 @@
     "Customer Service",
     "Owner/Admin"
   ],
+  "businessArea": "marketing",
+  "businessProcesses": [
+    "Reviews & Reputation"
+  ],
+  "businessOutcomes": [
+    "Reviews get timely replies without daily monitoring."
+  ],
   "summary": "Draft on-brand responses to new Google and Yelp reviews for owner approval before publishing.",
   "businessProblem": "Responding to reviews improves local SEO and customer trust, but owners don't have time to craft thoughtful replies — especially to negative reviews that need careful handling.",
   "businessProblems": [

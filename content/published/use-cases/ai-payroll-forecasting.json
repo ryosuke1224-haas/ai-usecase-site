@@ -19,6 +19,13 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "people-hr",
+  "businessProcesses": [
+    "Payroll Preparation"
+  ],
+  "businessOutcomes": [
+    "Payroll costs are known before the pay run, not after."
+  ],
   "summary": "Uses payroll history, staff schedules, sales forecasts, and booking volume to estimate upcoming labor cost and labor cost as a percentage of revenue.",
   "businessProblem": "Labor is the largest variable cost for most SMBs, but owners only see the true payroll hit after the pay run — too late to adjust schedules or pricing.",
   "businessProblems": [

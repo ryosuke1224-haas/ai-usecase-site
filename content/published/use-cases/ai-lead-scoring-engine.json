@@ -16,6 +16,14 @@
     "Marketing",
     "Business Development"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Lead Capture & Qualification",
+    "CRM & Pipeline Management"
+  ],
+  "businessOutcomes": [
+    "Your team works the most promising leads first."
+  ],
   "summary": "Scores leads based on industry fit, location, business size, review signals, website quality, CRM history, engagement, and likely need.",
   "businessProblem": "Sales teams treat every lead equally — reps spend time on poor-fit prospects while high-intent accounts sit in the queue because there's no consistent scoring model beyond gut feel.",
   "businessProblems": [

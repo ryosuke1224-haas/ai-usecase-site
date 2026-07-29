@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BUSINESS_AREAS } from "@/src/lib/business-areas";
 import { BUSINESS_PROBLEMS } from "@/src/lib/business-problems";
 
 export const difficultySchema = z.enum([
@@ -24,6 +25,8 @@ export const privacyLevelSchema = z.enum([
 
 export const businessProblemSchema = z.enum(BUSINESS_PROBLEMS);
 
+export const businessAreaSchema = z.enum(BUSINESS_AREAS);
+
 export const useCaseSchema = z
   .object({
     id: z.string().min(1),
@@ -33,6 +36,14 @@ export const useCaseSchema = z
     tagline: z.string().optional(),
     industries: z.array(z.string()).min(1),
     businessFunctions: z.array(z.string()).min(1),
+    /**
+     * Business-first classification used by /business-areas browsing.
+     * Optional so a use case can stay published without being forced into
+     * an area it does not clearly belong to.
+     */
+    businessArea: businessAreaSchema.optional(),
+    businessProcesses: z.array(z.string()).optional(),
+    businessOutcomes: z.array(z.string()).optional(),
     summary: z.string().min(1),
     businessProblem: z.string().min(1),
     businessProblems: z.array(businessProblemSchema).min(1),
@@ -143,6 +154,7 @@ export type AutomationLevel = z.infer<typeof automationLevelSchema>;
 export type ValuePotential = z.infer<typeof valuePotentialSchema>;
 export type PrivacyLevel = z.infer<typeof privacyLevelSchema>;
 export type BusinessProblem = z.infer<typeof businessProblemSchema>;
+export type UseCaseBusinessArea = z.infer<typeof businessAreaSchema>;
 export type SourceType = z.infer<typeof sourceTypeSchema>;
 
 export type UseCase = z.infer<typeof useCaseSchema>;

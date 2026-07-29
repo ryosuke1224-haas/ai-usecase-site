@@ -14,6 +14,13 @@
     "Marketing",
     "Social Media"
   ],
+  "businessArea": "marketing",
+  "businessProcesses": [
+    "Content Planning & Creation"
+  ],
+  "businessOutcomes": [
+    "Consistent posting without running out of ideas."
+  ],
   "summary": "Generate a monthly content calendar with post ideas, captions, and hashtags based on your business, reviews, and seasonal events.",
   "businessProblem": "Social media posting is inconsistent because content ideas run dry. Owners post reactively or go silent for weeks, hurting engagement and local visibility.",
   "businessProblems": [

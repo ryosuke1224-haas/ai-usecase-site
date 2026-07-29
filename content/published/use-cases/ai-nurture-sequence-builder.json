@@ -15,6 +15,13 @@
     "Sales",
     "Marketing"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Follow-Up & Outreach"
+  ],
+  "businessOutcomes": [
+    "Ready-to-use follow-up sequences for different customer types."
+  ],
   "summary": "Builds multi-step email or message sequences based on lead segment, problem type, industry, and prior engagement.",
   "businessProblem": "One-size-fits-all drip campaigns produce unsubscribes. Marketing builds generic 5-email sequences while sales knows each segment needs different pain points, proof, and timing.",
   "businessProblems": [

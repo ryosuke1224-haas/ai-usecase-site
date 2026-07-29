@@ -19,6 +19,13 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "finance-accounting",
+  "businessProcesses": [
+    "Invoicing & Accounts Receivable"
+  ],
+  "businessOutcomes": [
+    "Overdue invoices get chased consistently."
+  ],
   "summary": "Reviews outstanding invoices, due dates, customer history, and payment patterns to prioritize collections and draft follow-up messages.",
   "businessProblem": "Outstanding invoices pile up because owners avoid awkward collection conversations — cash sits in AR while they focus on delivery work.",
   "businessProblems": [

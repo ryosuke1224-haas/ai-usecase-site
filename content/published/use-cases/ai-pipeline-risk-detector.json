@@ -15,6 +15,14 @@
     "Sales",
     "Operations"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "CRM & Pipeline Management",
+    "Sales Forecasting"
+  ],
+  "businessOutcomes": [
+    "Stalled deals get attention before they go cold."
+  ],
   "summary": "Detects deals at risk based on stage age, lack of activity, email response patterns, missing next steps, and forecast changes.",
   "businessProblem": "Deals silently stall — reps assume 'no news is good news' until the quarter ends. Managers discover at-risk pipeline only when it's too late to recover.",
   "businessProblems": [

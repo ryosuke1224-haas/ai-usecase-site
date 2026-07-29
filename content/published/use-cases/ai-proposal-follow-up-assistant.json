@@ -15,6 +15,14 @@
     "Sales",
     "Business Development"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Quotes & Proposals",
+    "Follow-Up & Outreach"
+  ],
+  "businessOutcomes": [
+    "More sent proposals get a reply instead of going quiet."
+  ],
   "summary": "Identifies quotes and proposals that have not received a response and drafts follow-up messages based on proposal details and customer context.",
   "businessProblem": "Proposals go out and get forgotten — reps move to new opportunities while sent quotes sit unopened. Studies show most deals need 3+ follow-ups after proposal, but most reps stop after one.",
   "businessProblems": [

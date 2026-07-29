@@ -18,6 +18,7 @@ import {
   loadPublishedContent,
 } from "@/src/content/load-published";
 import { FINANCE_PLANNING_CATEGORY } from "@/src/content/finance";
+import { getBusinessArea } from "@/src/lib/business-areas";
 import { createContentResolver } from "@/src/lib/resolve";
 import { FinancePlanningDisclaimer } from "@/components/use-case/finance-disclaimer";
 
@@ -52,6 +53,9 @@ export default async function UseCaseDetailPage({ params }: PageProps) {
   if (!uc) notFound();
 
   const { useCases } = loadPublishedContent();
+  const businessArea = uc.businessArea
+    ? getBusinessArea(uc.businessArea)
+    : undefined;
   const { resolveApiName, resolveDataSourceName } =
     createContentResolver(loadPublishedContent());
   const related = useCases.filter((u) => uc.relatedUseCases.includes(u.slug));
@@ -80,6 +84,20 @@ export default async function UseCaseDetailPage({ params }: PageProps) {
               <p className="mt-1 text-sm font-medium text-accent">{uc.tagline}</p>
             )}
             <p className="mt-2 text-muted">{uc.summary}</p>
+            {businessArea && (
+              <p className="mt-3 text-sm text-muted">
+                Business area:{" "}
+                <Link
+                  href={`/business-areas/${businessArea.slug}`}
+                  className="font-medium text-accent hover:underline"
+                >
+                  {businessArea.title}
+                </Link>
+                {uc.businessProcesses && uc.businessProcesses.length > 0 && (
+                  <> &middot; {uc.businessProcesses.join(", ")}</>
+                )}
+              </p>
+            )}
             <TagList items={uc.tags} />
           </header>
 

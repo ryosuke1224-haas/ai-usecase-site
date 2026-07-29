@@ -19,6 +19,13 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "finance-accounting",
+  "businessProcesses": [
+    "Budgeting"
+  ],
+  "businessOutcomes": [
+    "Price changes can be tested before you announce them."
+  ],
   "summary": "Simulates the revenue and profit impact of price increases, churn sensitivity, segment-level pricing, and customer communication strategy.",
   "businessProblem": "Owners fear raising prices will lose customers, so they underprice for years — without quantifying how much churn they can absorb and still come out ahead.",
   "businessProblems": [

@@ -15,6 +15,13 @@
     "Sales",
     "Operations"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "CRM & Pipeline Management"
+  ],
+  "businessOutcomes": [
+    "More reliable pipeline information to make decisions from."
+  ],
   "summary": "Finds stale leads, duplicate records, missing fields, old statuses, no-next-step opportunities, and records that need cleanup.",
   "businessProblem": "CRM data decays fast — duplicate contacts, deals stuck in wrong stages, leads with no owner, and missing next steps make forecasting unreliable and reps waste time on dead records.",
   "businessProblems": [

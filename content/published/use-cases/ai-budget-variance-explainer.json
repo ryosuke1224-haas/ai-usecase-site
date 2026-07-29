@@ -19,6 +19,14 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "finance-accounting",
+  "businessProcesses": [
+    "Budgeting",
+    "Financial Reporting"
+  ],
+  "businessOutcomes": [
+    "You understand why the numbers missed, in plain English."
+  ],
   "summary": "Compares budget vs actual performance and explains revenue, payroll, expense, and margin variances in plain English.",
   "businessProblem": "Owners get P&L reports showing variances but no explanation — they see payroll is over budget without understanding if it was overtime, a new hire, or revenue shortfall.",
   "businessProblems": [

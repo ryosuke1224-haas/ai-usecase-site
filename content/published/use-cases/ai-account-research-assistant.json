@@ -16,6 +16,14 @@
     "Business Development",
     "Marketing"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Lead Capture & Qualification",
+    "Follow-Up & Outreach"
+  ],
+  "businessOutcomes": [
+    "Less time researching accounts before you reach out."
+  ],
   "summary": "Reviews websites, public listings, reviews, news, job posts, and CRM records to create a structured account research brief.",
   "businessProblem": "Enterprise and mid-market deals require deep account research, but reps default to skimming the homepage. Critical signals — hiring sprees, negative review patterns, leadership changes — get missed.",
   "businessProblems": [

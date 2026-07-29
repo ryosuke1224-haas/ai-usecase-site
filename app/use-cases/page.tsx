@@ -43,12 +43,12 @@ export default function UseCasesPage() {
         </p>
         <p className="mt-2 text-xs text-muted">
           Not sure where to start?{" "}
-          <Link href="/find-workflows?apis=gmail-api,google-calendar-api" className="text-accent hover:underline">
-            Try the tool matcher
+          <Link href="/business-areas" className="text-accent hover:underline">
+            Browse by business area
           </Link>{" "}
           or{" "}
-          <Link href="/find-workflows?industry=fitness-studio" className="text-accent hover:underline">
-            pick your business type
+          <Link href="/find-workflows" className="text-accent hover:underline">
+            find workflows by tools
           </Link>
           .
         </p>

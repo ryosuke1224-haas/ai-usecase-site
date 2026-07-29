@@ -13,6 +13,15 @@
     "Customer Service",
     "Sales"
   ],
+  "businessArea": "customer-service",
+  "businessProcesses": [
+    "Inbox & Ticket Triage",
+    "Response Drafting",
+    "Escalation Management"
+  ],
+  "businessOutcomes": [
+    "Faster, more consistent replies to customer questions."
+  ],
   "summary": "Draft on-brand replies to customer emails, form submissions, and chat messages for human review before sending.",
   "businessProblem": "Customer inquiries pile up during busy periods. Staff write inconsistent replies, slow response times hurt reviews, and the owner becomes the bottleneck for every customer message.",
   "businessProblems": [

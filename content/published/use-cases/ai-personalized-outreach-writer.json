@@ -16,6 +16,13 @@
     "Business Development",
     "Marketing"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Follow-Up & Outreach"
+  ],
+  "businessOutcomes": [
+    "Outreach that feels specific without hours of writing."
+  ],
   "summary": "Uses business profile data, reviews, website content, and pain-point hypotheses to draft personalized cold emails, LinkedIn messages, and follow-ups.",
   "businessProblem": "Generic cold emails get ignored. Reps either spend 15 minutes researching each prospect manually or blast templates that damage domain reputation and brand.",
   "businessProblems": [

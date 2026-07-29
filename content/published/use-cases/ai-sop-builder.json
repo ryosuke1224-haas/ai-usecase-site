@@ -15,6 +15,14 @@
     "HR",
     "Training"
   ],
+  "businessArea": "people-hr",
+  "businessProcesses": [
+    "Employee Onboarding",
+    "Training & Performance"
+  ],
+  "businessOutcomes": [
+    "Written procedures new hires can actually follow."
+  ],
   "summary": "Convert existing documents, videos, and staff notes into structured standard operating procedures your team can follow.",
   "businessProblem": "Critical processes live in the owner's head or scattered across old PDFs. New hires learn by shadowing, mistakes repeat, and nothing is documented until something goes wrong.",
   "businessProblems": [

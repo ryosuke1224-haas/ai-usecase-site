@@ -19,6 +19,13 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "finance-accounting",
+  "businessProcesses": [
+    "Budgeting"
+  ],
+  "businessOutcomes": [
+    "You can compare plans before committing to one."
+  ],
   "summary": "Lets owners model how changes in pricing, customer count, churn, staffing, utilization, or marketing spend affect revenue, profit, and cash.",
   "businessProblem": "Owners make growth decisions — new location, price increase, extra marketing — based on gut feel without modeling downstream impact on profit and cash.",
   "businessProblems": [

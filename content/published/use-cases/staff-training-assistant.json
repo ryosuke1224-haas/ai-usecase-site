@@ -15,6 +15,14 @@
     "Training",
     "Operations"
   ],
+  "businessArea": "people-hr",
+  "businessProcesses": [
+    "Training & Performance",
+    "Employee Support"
+  ],
+  "businessOutcomes": [
+    "New staff get answers without interrupting the owner."
+  ],
   "summary": "Turn SOPs and handbooks into interactive training quizzes and Q&A assistants new hires can use on day one.",
   "businessProblem": "New hires shadow experienced staff for weeks because training materials are outdated PDFs nobody reads. The owner repeats the same explanations, and consistency across locations suffers.",
   "businessProblems": [

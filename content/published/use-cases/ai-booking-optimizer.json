@@ -14,6 +14,13 @@
     "Operations",
     "Scheduling"
   ],
+  "businessArea": "operations",
+  "businessProcesses": [
+    "Scheduling"
+  ],
+  "businessOutcomes": [
+    "Fewer empty slots and better-prepared staff."
+  ],
   "summary": "Analyze booking patterns to recommend better slot availability, reduce gaps, and send staff prep briefs for upcoming appointments.",
   "businessProblem": "Calendar has inefficient gaps, popular time slots fill weeks out while mid-week slots sit empty, and staff walk into appointments without context on the client.",
   "businessProblems": [

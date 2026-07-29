@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { businessAreaDefinitions } from "@/src/lib/business-areas";
 import { CONTACT_EMAIL } from "@/src/lib/site";
 import { isComingSoonMode } from "@/src/lib/site-mode";
 
@@ -36,22 +37,23 @@ function LiveFooter() {
               <span className="text-lg font-semibold">Use Case Atlas</span>
             </div>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
-              A structured workflow database for small business owners and
-              consultants — mapping business problems to data sources, APIs, and
-              implementation paths.
+              Practical AI workflows for small businesses — organised by
+              business area and process, with what each workflow does, what you
+              need, and how to get started.
             </p>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted">
-              Libraries
+              Explore
             </h3>
             <ul className="mt-4 space-y-2">
               {[
-                { href: "/use-cases", label: "Use Cases" },
-                { href: "/apis", label: "APIs & Tools" },
-                { href: "/data-sources", label: "Data Sources" },
-                { href: "/workflow-ideas", label: "Workflow Ideas" },
+                { href: "/business-areas", label: "Business Areas" },
+                { href: "/use-cases", label: "AI Blueprints" },
+                { href: "/#how-it-works", label: "How it works" },
+                { href: "/use-cases?difficulty=Beginner", label: "Beginner blueprints" },
+                { href: "/contact", label: "Contact" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -67,36 +69,48 @@ function LiveFooter() {
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted">
-              Get Started
+              Resources
             </h3>
             <ul className="mt-4 space-y-2">
-              <li>
-                <Link
-                  href="/use-cases?difficulty=Beginner"
-                  className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                >
-                  Beginner use cases
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/workflow-ideas"
-                  className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                >
-                  API combination ideas
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                >
-                  Contact
-                </Link>
-              </li>
+              {[
+                { href: "/find-workflows", label: "Find workflows by tools" },
+                { href: "/apis", label: "APIs & Tools" },
+                { href: "/data-sources", label: "Data Sources" },
+                { href: "/workflow-ideas", label: "Workflow Ideas" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
+
+        <nav
+          aria-label="Business areas"
+          className="mt-10 border-t border-border/60 pt-6"
+        >
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted">
+            Business areas
+          </h3>
+          <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+            {businessAreaDefinitions.map((area) => (
+              <li key={area.slug}>
+                <Link
+                  href={`/business-areas/${area.slug}`}
+                  className="text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                >
+                  {area.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
         <div className="mt-10 border-t border-border/60 pt-6 text-center text-sm text-muted">
           AI Use Case Atlas — Practical workflows for SMB operators

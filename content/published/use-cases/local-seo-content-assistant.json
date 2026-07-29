@@ -14,6 +14,14 @@
     "Marketing",
     "SEO"
   ],
+  "businessArea": "marketing",
+  "businessProcesses": [
+    "SEO & Local Search",
+    "Content Planning & Creation"
+  ],
+  "businessOutcomes": [
+    "Better chances of being found in local searches."
+  ],
   "summary": "Generate location-specific blog posts, service pages, and FAQ content optimized for local search using your real customer language from reviews.",
   "businessProblem": "Local businesses need location-specific content to rank in 'near me' searches, but owners don't know what to write about or how to incorporate the keywords customers actually use.",
   "businessProblems": [

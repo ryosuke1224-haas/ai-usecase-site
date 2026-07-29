@@ -19,6 +19,14 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "finance-accounting",
+  "businessProcesses": [
+    "Financial Reporting",
+    "Budgeting"
+  ],
+  "businessOutcomes": [
+    "You know what you need to earn to cover costs."
+  ],
   "summary": "Calculates monthly break-even revenue, margin by service, fixed cost coverage, and how much additional revenue is needed to hit profit targets.",
   "businessProblem": "Owners know revenue totals but not the minimum revenue needed to cover fixed costs and labor — or which services actually contribute margin.",
   "businessProblems": [

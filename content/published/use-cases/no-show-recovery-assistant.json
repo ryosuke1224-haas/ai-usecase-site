@@ -15,6 +15,13 @@
     "Customer Success",
     "Revenue"
   ],
+  "businessArea": "operations",
+  "businessProcesses": [
+    "Scheduling"
+  ],
+  "businessOutcomes": [
+    "More missed appointments get rebooked."
+  ],
   "summary": "Automatically detect appointment no-shows and send personalized recovery messages to rebook within 24 hours.",
   "businessProblem": "No-shows cost appointment businesses $150–$500 per missed slot in lost revenue. Staff are too busy to follow up manually, and generic 'we missed you' texts get ignored.",
   "businessProblems": [

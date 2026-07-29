@@ -14,6 +14,15 @@
     "Owner/Admin",
     "Finance"
   ],
+  "businessArea": "administration",
+  "businessProcesses": [
+    "Data Entry",
+    "Spreadsheet Maintenance",
+    "Email & Inbox Management"
+  ],
+  "businessOutcomes": [
+    "Trackers stay current without manual retyping."
+  ],
   "summary": "Keep operational trackers current by extracting action items from emails and updating spreadsheet rows automatically.",
   "businessProblem": "Quote trackers, invoice follow-up lists, and task spreadsheets fall behind because updating them requires manual data entry from emails and conversations nobody has time for.",
   "businessProblems": [

@@ -14,6 +14,13 @@
     "Finance",
     "Operations"
   ],
+  "businessArea": "operations",
+  "businessProcesses": [
+    "Operational Reporting"
+  ],
+  "businessOutcomes": [
+    "A clear weekly picture of the business without building reports."
+  ],
   "summary": "A Friday summary of revenue, overdue invoices, pipeline status, and key metrics — narrated in plain English, not spreadsheet format.",
   "businessProblem": "Owners don't review financial and operational data consistently because dashboards require interpretation. By the time they notice a revenue dip or overdue invoices, weeks have passed.",
   "businessProblems": [

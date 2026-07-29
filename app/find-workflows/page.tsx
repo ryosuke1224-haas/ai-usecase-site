@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { DiscoveryPrompts } from "@/components/discovery/discovery-prompts";
 import { HomeDiscovery } from "@/components/discovery/home-discovery";
 
+const TITLE = "Find Workflows by Tools";
+const DESCRIPTION =
+  "Already know which tools and data you use? Match them against the AI workflow library to see what you can build now and what is still missing.";
+
 export const metadata: Metadata = {
-  title: "Find AI Workflows",
-  description:
-    "Start with the business problem you want to solve, then optionally add your business type, tools, and data to discover matching AI workflows.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: {
     canonical: "/find-workflows",
   },
   openGraph: {
-    title: "Find AI Workflows",
-    description:
-      "Start with the business problem you want to solve, then optionally add your business type, tools, and data to discover matching AI workflows.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: "/find-workflows",
   },
 };
@@ -26,14 +29,26 @@ export default function FindWorkflowsPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-10">
       <header className="mb-6 border-b border-border/60 pb-5">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          Find workflows that fit your business
+        <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted sm:text-xs">
+          Resource
+        </p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+          Find workflows by tools
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
-          Start with the business problem you want to improve. Then choose your
-          business type and optionally add the tools and data you already have.
-          We&apos;ll recommend practical AI workflows, show what you can build
-          now, and explain what is still missing.
+          For people who already know which tools and data they use. Pick the
+          problem you want to improve, add your tools, and see which workflows
+          you can build now and what is still missing.
+        </p>
+        <p className="mt-3 text-sm text-muted">
+          Not sure where to start?{" "}
+          <Link
+            href="/business-areas"
+            className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          >
+            Browse by business area
+          </Link>{" "}
+          instead.
         </p>
       </header>
 

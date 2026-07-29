@@ -14,6 +14,13 @@
     "Sales",
     "Operations"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Quotes & Proposals"
+  ],
+  "businessOutcomes": [
+    "Quote requests are answered faster and nothing gets lost."
+  ],
   "summary": "Capture quote requests from forms and emails, extract requirements, and draft initial quote responses or scope documents.",
   "businessProblem": "Quote requests arrive via website forms, email, and phone messages in inconsistent formats. Staff spend 20–30 minutes per request just organizing requirements before they can price anything.",
   "businessProblems": [

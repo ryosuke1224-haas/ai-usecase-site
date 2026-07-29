@@ -15,6 +15,13 @@
     "Sales",
     "Business Development"
   ],
+  "businessArea": "sales",
+  "businessProcesses": [
+    "Follow-Up & Outreach"
+  ],
+  "businessOutcomes": [
+    "You walk into calls prepared instead of scrambling beforehand."
+  ],
   "summary": "Summarizes company information, review insights, website signals, CRM history, past emails, likely pain points, and suggested discovery questions before a sales call.",
   "businessProblem": "Reps join discovery calls underprepared — scrambling through LinkedIn, the company website, and CRM notes five minutes before the meeting, missing key context that could win the deal.",
   "businessProblems": [

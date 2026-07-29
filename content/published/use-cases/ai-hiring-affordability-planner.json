@@ -19,6 +19,14 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "finance-accounting",
+  "businessProcesses": [
+    "Cash-Flow Planning",
+    "Budgeting"
+  ],
+  "businessOutcomes": [
+    "Hiring decisions are based on numbers, not guesswork."
+  ],
   "summary": "Helps owners estimate whether they can afford a new employee by modeling added labor cost, required incremental revenue, break-even customers, and downside risk.",
   "businessProblem": "Owners hire reactively when overwhelmed, then discover 90 days later that payroll pushed them into negative cash flow — or they delay hiring too long and lose revenue.",
   "businessProblems": [

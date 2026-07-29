@@ -19,6 +19,13 @@
     "Operations",
     "Planning"
   ],
+  "businessArea": "finance-accounting",
+  "businessProcesses": [
+    "Expense Management"
+  ],
+  "businessOutcomes": [
+    "Unnecessary recurring costs get noticed and cut."
+  ],
   "summary": "Scans expenses, subscriptions, vendor payments, and credit card transactions to flag unusual increases, duplicate tools, and potential savings.",
   "businessProblem": "SMBs accumulate SaaS subscriptions, vendor creep, and duplicate tools over years — nobody audits spending until margins compress unexpectedly.",
   "businessProblems": [
