@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "status": "draft",
+    "reviewRequired": true,
+    "publish": false,
+    "createdAt": "2026-07-30",
+    "source": "manual positioning draft (no LLM generation)",
+    "publishTarget": "content/published/use-cases/google-ads-performance-coach.json",
+    "notes": [
+      "Positioning only. This file is intentionally incomplete and is NOT valid against useCaseSchema yet.",
+      "Nothing in content/suggestions/ is loaded, validated, or rendered by the app — only content/published/* is. This draft therefore cannot appear on the live catalog, the Marketing business-area page, search, or the sitemap.",
+      "Do not copy to content/published/ until every entry in _fieldsToComplete is written from researched, verifiable information and the file passes `npm run validate:content`.",
+      "No performance claims, savings estimates, metrics, or implementation details have been written, because none are currently supported by researched content."
+    ]
+  },
+  "suggestion": {
+    "id": "uc-draft-google-ads-performance-coach",
+    "slug": "google-ads-performance-coach",
+    "title": "Google Ads Performance Coach",
+    "category": "Marketing",
+    "summary": "Analyzes Google Ads and website performance data to identify wasted spend, tracking issues, underperforming campaigns, and the highest-priority improvements.",
+    "businessArea": "marketing",
+    "primaryBusinessProcess": "Advertising",
+    "relatedBusinessProcesses": ["Campaign Reporting"],
+    "businessProcesses": ["Advertising", "Campaign Reporting"],
+    "businessOutcomes": [
+      "Make better advertising decisions and reduce wasted ad spend."
+    ]
+  },
+  "_fieldsToComplete": {
+    "required_by_schema": {
+      "industries": "Which business types this is genuinely useful for. Must be non-empty.",
+      "businessFunctions": "Existing function labels, e.g. Marketing. Must be non-empty.",
+      "businessProblem": "The concrete problem in the owner's words. Candidate existing tag: improve-marketing-performance (confirm before asserting).",
+      "businessProblems": "One or more slugs from src/lib/business-problems.ts. Must be non-empty.",
+      "outcome": "Full outcome statement. Must not include invented savings percentages or metrics.",
+      "expectedOutcomes": "List form of the above. Must be non-empty.",
+      "whoItsFor": "Who should run this and who should not.",
+      "requiredDataSources": "Data-source slugs. No advertising or web-analytics data source exists in content/published/data-sources yet (see blocking_dependencies).",
+      "requiredData": "The specific fields the workflow reads.",
+      "aiInputs": "What is sent to the model. Must be non-empty.",
+      "aiOutputs": "What the model returns. Must be non-empty.",
+      "requiredApis": "API slugs, must resolve to content/published/apis. No google-ads-api entry exists yet (see blocking_dependencies). Must be non-empty.",
+      "requiredCapabilities": "Provider-neutral capability ids.",
+      "noCodeTools": "Must be non-empty.",
+      "lowCodeTools": "Must be non-empty.",
+      "customBuildStack": "Must be non-empty.",
+      "implementationSteps": "Ordered setup steps. Must be non-empty and verified against current provider documentation.",
+      "systemBehavior": "What the system does on each run, including human review points. Must be non-empty.",
+      "risks": "Real limitations, including the risk of acting on incomplete conversion tracking. Must be non-empty.",
+      "difficulty": "Beginner | Intermediate | Advanced",
+      "automationLevel": "Manual trigger | Semi-automated | Fully automated",
+      "valuePotential": "High | Medium | Emerging",
+      "relatedUseCases": "Slugs of existing use cases, e.g. local-seo-content-assistant if genuinely related.",
+      "tags": "Short keyword tags.",
+      "featured": "Boolean."
+    },
+    "optional": {
+      "tagline": "One-line hook, only if it adds information."
+    },
+    "blocking_dependencies": [
+      "content/published/apis/google-ads-api.json does not exist. requiredApis slugs must resolve to a published API entry, so the Google Ads API needs an entry (auth type, data available, actions supported, privacy notes) before this workflow can publish.",
+      "No advertising or website-analytics data source exists in content/published/data-sources. At least one is needed to describe where campaign and conversion data comes from."
+    ],
+    "on_publish_checklist": [
+      "Move this file's `suggestion` object (fully completed) to content/published/use-cases/google-ads-performance-coach.json with the slug matching the filename.",
+      "Add the same area/process classification to the classifications map in scripts/backfill-business-areas.ts so the migration record stays accurate.",
+      "Confirm it renders once on /business-areas/marketing under Advertising with a Campaign Reporting label, and that Advertising leaves the 'More processes we're exploring' list.",
+      "Delete this draft file."
+    ]
+  }
+}
