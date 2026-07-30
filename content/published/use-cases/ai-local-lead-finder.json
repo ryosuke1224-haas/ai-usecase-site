@@ -18,6 +18,7 @@
     "Marketing"
   ],
   "businessArea": "sales",
+  "primaryBusinessProcess": "Lead Capture & Qualification",
   "businessProcesses": [
     "Lead Capture & Qualification"
   ],

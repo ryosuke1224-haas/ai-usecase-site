@@ -20,6 +20,7 @@
     "Planning"
   ],
   "businessArea": "finance-accounting",
+  "primaryBusinessProcess": "Invoicing & Accounts Receivable",
   "businessProcesses": [
     "Invoicing & Accounts Receivable"
   ],

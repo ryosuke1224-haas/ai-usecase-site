@@ -16,6 +16,10 @@
     "Operations"
   ],
   "businessArea": "sales",
+  "primaryBusinessProcess": "CRM & Pipeline Management",
+  "relatedBusinessProcesses": [
+    "Sales Forecasting"
+  ],
   "businessProcesses": [
     "CRM & Pipeline Management",
     "Sales Forecasting"

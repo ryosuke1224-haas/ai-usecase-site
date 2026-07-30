@@ -42,6 +42,14 @@ export const useCaseSchema = z
      * an area it does not clearly belong to.
      */
     businessArea: businessAreaSchema.optional(),
+    /**
+     * The process a workflow belongs to first. Business-area pages render the
+     * full workflow card only here, so a workflow never appears twice on one page.
+     */
+    primaryBusinessProcess: z.string().optional(),
+    /** Other processes in the same area, surfaced as labels on the card. */
+    relatedBusinessProcesses: z.array(z.string()).optional(),
+    /** Primary + related, kept for backward compatibility and filtering. */
     businessProcesses: z.array(z.string()).optional(),
     businessOutcomes: z.array(z.string()).optional(),
     summary: z.string().min(1),

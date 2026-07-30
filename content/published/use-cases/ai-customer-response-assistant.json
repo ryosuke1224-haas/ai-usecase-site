@@ -14,9 +14,14 @@
     "Sales"
   ],
   "businessArea": "customer-service",
-  "businessProcesses": [
+  "primaryBusinessProcess": "Response Drafting",
+  "relatedBusinessProcesses": [
     "Inbox & Ticket Triage",
+    "Escalation Management"
+  ],
+  "businessProcesses": [
     "Response Drafting",
+    "Inbox & Ticket Triage",
     "Escalation Management"
   ],
   "businessOutcomes": [

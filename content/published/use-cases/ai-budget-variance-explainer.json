@@ -20,6 +20,10 @@
     "Planning"
   ],
   "businessArea": "finance-accounting",
+  "primaryBusinessProcess": "Budgeting",
+  "relatedBusinessProcesses": [
+    "Financial Reporting"
+  ],
   "businessProcesses": [
     "Budgeting",
     "Financial Reporting"

@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { BusinessAreaIcon } from "@/components/business-areas/business-area-icon";
 import { WorkflowCard } from "@/components/business-areas/workflow-card";
 import {
-  getBusinessProcessGroups,
+  getBusinessAreaProcessSections,
+  getRelatedProcesses,
   getUnmappedAreaUseCases,
   getUseCasesForBusinessArea,
 } from "@/src/lib/business-area-content";
@@ -50,9 +51,11 @@ export default async function BusinessAreaPage({ params }: PageProps) {
   const area = getBusinessArea(slug);
   if (!area) notFound();
 
-  const processGroups = getBusinessProcessGroups(area);
+  const { covered, partiallyCovered, empty } =
+    getBusinessAreaProcessSections(area);
   const unmapped = getUnmappedAreaUseCases(area);
   const workflowCount = getUseCasesForBusinessArea(area.slug).length;
+  const areaProcesses = new Set(area.processes);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-10">
@@ -78,35 +81,28 @@ export default async function BusinessAreaPage({ params }: PageProps) {
         </p>
         <p className="mt-4 text-xs text-muted">
           {workflowCount > 0
-            ? `${workflowCount} published ${workflowCount === 1 ? "blueprint" : "blueprints"} across ${area.processes.length} common processes`
+            ? `${workflowCount} published ${workflowCount === 1 ? "blueprint" : "blueprints"} across ${covered.length} of ${area.processes.length} common processes`
             : `${area.processes.length} common processes`}
         </p>
       </header>
 
       <div className="mt-10 space-y-12">
-        {processGroups.map((group) => (
+        {covered.map((group) => (
           <section key={group.name} className="scroll-mt-24">
             <h2 className="text-lg font-semibold tracking-tight">
               {group.name}
             </h2>
-
-            {group.useCases.length > 0 ? (
-              <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {group.useCases.map((useCase) => (
-                  <WorkflowCard key={useCase.slug} useCase={useCase} />
-                ))}
-              </div>
-            ) : (
-              <div className="mt-4 rounded-xl border border-dashed border-border/60 px-5 py-5">
-                <p className="text-sm text-muted">Blueprints coming soon</p>
-                <Link
-                  href="/contact"
-                  className="mt-2 inline-flex text-sm font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                >
-                  Share a workflow you want us to explore
-                </Link>
-              </div>
-            )}
+            <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {group.useCases.map((useCase) => (
+                <WorkflowCard
+                  key={useCase.slug}
+                  useCase={useCase}
+                  alsoRelevantTo={getRelatedProcesses(useCase).filter(
+                    (process) => areaProcesses.has(process),
+                  )}
+                />
+              ))}
+            </div>
           </section>
         ))}
 
@@ -120,6 +116,66 @@ export default async function BusinessAreaPage({ params }: PageProps) {
                 <WorkflowCard key={useCase.slug} useCase={useCase} />
               ))}
             </div>
+          </section>
+        )}
+
+        {partiallyCovered.length > 0 && (
+          <section>
+            <h2 className="text-lg font-semibold tracking-tight">
+              Covered in part by workflows above
+            </h2>
+            <ul className="mt-4 divide-y divide-border/40 rounded-xl border border-border/60">
+              {partiallyCovered.map((group) => (
+                <li
+                  key={group.name}
+                  className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-5 py-3.5 text-sm"
+                >
+                  <span className="font-medium text-foreground">
+                    {group.name}
+                  </span>
+                  <span className="text-muted">
+                    {group.relatedUseCases.map((useCase, index) => (
+                      <span key={useCase.slug}>
+                        {index > 0 && ", "}
+                        <Link
+                          href={`/use-cases/${useCase.slug}`}
+                          className="text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                        >
+                          {useCase.title}
+                        </Link>
+                      </span>
+                    ))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {empty.length > 0 && (
+          <section>
+            <h2 className="text-lg font-semibold tracking-tight">
+              More processes we&rsquo;re exploring
+            </h2>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {empty.map((process) => (
+                <li
+                  key={process}
+                  className="rounded-lg border border-dashed border-border/60 px-3 py-1.5 text-sm text-muted"
+                >
+                  {process}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-sm text-muted">
+              Blueprints coming soon.{" "}
+              <Link
+                href="/contact"
+                className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+              >
+                Share a workflow you want us to explore
+              </Link>
+            </p>
           </section>
         )}
       </div>

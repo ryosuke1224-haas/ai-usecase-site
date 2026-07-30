@@ -15,9 +15,14 @@
     "Finance"
   ],
   "businessArea": "administration",
-  "businessProcesses": [
+  "primaryBusinessProcess": "Spreadsheet Maintenance",
+  "relatedBusinessProcesses": [
     "Data Entry",
+    "Email & Inbox Management"
+  ],
+  "businessProcesses": [
     "Spreadsheet Maintenance",
+    "Data Entry",
     "Email & Inbox Management"
   ],
   "businessOutcomes": [

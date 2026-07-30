@@ -16,6 +16,10 @@
     "Operations"
   ],
   "businessArea": "people-hr",
+  "primaryBusinessProcess": "Training & Performance",
+  "relatedBusinessProcesses": [
+    "Employee Support"
+  ],
   "businessProcesses": [
     "Training & Performance",
     "Employee Support"

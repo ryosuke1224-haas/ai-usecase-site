@@ -20,6 +20,7 @@
     "Planning"
   ],
   "businessArea": "finance-accounting",
+  "primaryBusinessProcess": "Cash-Flow Planning",
   "businessProcesses": [
     "Cash-Flow Planning"
   ],

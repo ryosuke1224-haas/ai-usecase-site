@@ -15,6 +15,10 @@
     "SEO"
   ],
   "businessArea": "marketing",
+  "primaryBusinessProcess": "SEO & Local Search",
+  "relatedBusinessProcesses": [
+    "Content Planning & Creation"
+  ],
   "businessProcesses": [
     "SEO & Local Search",
     "Content Planning & Creation"

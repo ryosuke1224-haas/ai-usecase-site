@@ -13,7 +13,14 @@ const difficultyStyles = {
  * Deliberately shows no APIs, providers, or integration requirements —
  * those belong on the blueprint page.
  */
-export function WorkflowCard({ useCase }: { useCase: UseCase }) {
+export function WorkflowCard({
+  useCase,
+  alsoRelevantTo = [],
+}: {
+  useCase: UseCase;
+  /** Other processes in the same area this workflow supports. */
+  alsoRelevantTo?: string[];
+}) {
   const outcome = useCase.businessOutcomes?.[0];
 
   return (
@@ -44,6 +51,24 @@ export function WorkflowCard({ useCase }: { useCase: UseCase }) {
           </div>
         )}
       </div>
+
+      {alsoRelevantTo.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted">
+            Also relevant to
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {alsoRelevantTo.map((process) => (
+              <span
+                key={process}
+                className="rounded bg-surface px-2 py-0.5 text-xs text-muted"
+              >
+                {process}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-5">
         <span className="inline-flex items-center gap-2 text-xs text-muted">

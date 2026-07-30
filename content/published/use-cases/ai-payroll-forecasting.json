@@ -20,6 +20,7 @@
     "Planning"
   ],
   "businessArea": "people-hr",
+  "primaryBusinessProcess": "Payroll Preparation",
   "businessProcesses": [
     "Payroll Preparation"
   ],

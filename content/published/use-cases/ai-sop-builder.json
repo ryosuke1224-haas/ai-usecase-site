@@ -16,6 +16,10 @@
     "Training"
   ],
   "businessArea": "people-hr",
+  "primaryBusinessProcess": "Employee Onboarding",
+  "relatedBusinessProcesses": [
+    "Training & Performance"
+  ],
   "businessProcesses": [
     "Employee Onboarding",
     "Training & Performance"

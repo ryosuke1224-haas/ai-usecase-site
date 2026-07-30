@@ -17,6 +17,10 @@
     "Business Development"
   ],
   "businessArea": "sales",
+  "primaryBusinessProcess": "Lead Capture & Qualification",
+  "relatedBusinessProcesses": [
+    "CRM & Pipeline Management"
+  ],
   "businessProcesses": [
     "Lead Capture & Qualification",
     "CRM & Pipeline Management"

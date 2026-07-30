@@ -17,6 +17,10 @@
     "Marketing"
   ],
   "businessArea": "sales",
+  "primaryBusinessProcess": "Lead Capture & Qualification",
+  "relatedBusinessProcesses": [
+    "Follow-Up & Outreach"
+  ],
   "businessProcesses": [
     "Lead Capture & Qualification",
     "Follow-Up & Outreach"

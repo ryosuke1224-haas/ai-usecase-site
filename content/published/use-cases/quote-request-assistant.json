@@ -15,6 +15,7 @@
     "Operations"
   ],
   "businessArea": "sales",
+  "primaryBusinessProcess": "Quotes & Proposals",
   "businessProcesses": [
     "Quotes & Proposals"
   ],

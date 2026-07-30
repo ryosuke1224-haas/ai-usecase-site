@@ -15,6 +15,7 @@
     "Operations"
   ],
   "businessArea": "operations",
+  "primaryBusinessProcess": "Operational Reporting",
   "businessProcesses": [
     "Operational Reporting"
   ],

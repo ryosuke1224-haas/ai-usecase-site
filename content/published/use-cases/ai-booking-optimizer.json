@@ -15,6 +15,7 @@
     "Scheduling"
   ],
   "businessArea": "operations",
+  "primaryBusinessProcess": "Scheduling",
   "businessProcesses": [
     "Scheduling"
   ],

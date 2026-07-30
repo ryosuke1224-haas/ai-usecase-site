@@ -16,6 +16,10 @@
     "Owner/Admin"
   ],
   "businessArea": "marketing",
+  "primaryBusinessProcess": "Reviews & Reputation",
+  "relatedBusinessProcesses": [
+    "Customer Insights"
+  ],
   "businessProcesses": [
     "Reviews & Reputation",
     "Customer Insights"

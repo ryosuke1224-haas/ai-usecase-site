@@ -16,6 +16,10 @@
     "Business Development"
   ],
   "businessArea": "sales",
+  "primaryBusinessProcess": "Quotes & Proposals",
+  "relatedBusinessProcesses": [
+    "Follow-Up & Outreach"
+  ],
   "businessProcesses": [
     "Quotes & Proposals",
     "Follow-Up & Outreach"

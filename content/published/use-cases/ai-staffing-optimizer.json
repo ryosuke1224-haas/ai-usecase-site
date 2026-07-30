@@ -20,6 +20,7 @@
     "Planning"
   ],
   "businessArea": "operations",
+  "primaryBusinessProcess": "Staffing & Capacity",
   "businessProcesses": [
     "Staffing & Capacity"
   ],
