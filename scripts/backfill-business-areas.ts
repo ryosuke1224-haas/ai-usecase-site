@@ -20,7 +20,7 @@ type Classification = {
   area: BusinessArea;
   primary: string;
   related?: string[];
-  outcome: string;
+  outcome: string | string[];
 };
 
 const classifications: Record<string, Classification> = {
@@ -97,6 +97,17 @@ const classifications: Record<string, Classification> = {
   },
 
   // ------------------------------------------------------------ Marketing
+  "google-ads-performance-coach": {
+    area: "marketing",
+    primary: "Advertising",
+    related: ["Campaign Reporting"],
+    outcome: [
+      "Reduce wasted advertising spend",
+      "Identify tracking and reporting problems",
+      "Prioritize campaign improvements",
+      "Make advertising performance easier to understand",
+    ],
+  },
   "ai-content-calendar": {
     area: "marketing",
     primary: "Content Planning & Creation",
@@ -304,7 +315,9 @@ function main() {
         next.primaryBusinessProcess = entry.primary;
         if (related.length > 0) next.relatedBusinessProcesses = related;
         next.businessProcesses = [entry.primary, ...related];
-        next.businessOutcomes = [entry.outcome];
+        next.businessOutcomes = Array.isArray(entry.outcome)
+          ? entry.outcome
+          : [entry.outcome];
       }
     }
 

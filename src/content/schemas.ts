@@ -27,6 +27,94 @@ export const businessProblemSchema = z.enum(BUSINESS_PROBLEMS);
 
 export const businessAreaSchema = z.enum(BUSINESS_AREAS);
 
+/**
+ * Optional plain-language guide shown above the technical sections of a
+ * blueprint page. Written for a non-technical owner: no APIs, providers, or
+ * integration details.
+ */
+const blueprintFindingSchema = z
+  .object({
+    label: z.string().min(1),
+    finding: z.string().min(1),
+    whyItMatters: z.string().min(1),
+    nextAction: z.string().min(1),
+  })
+  .strict();
+
+const blueprintStartOptionSchema = z
+  .object({
+    title: z.string().min(1),
+    description: z.string().min(1),
+    ctaLabel: z.string().min(1),
+    /** Omitted when the option is not available yet. */
+    href: z.string().min(1).optional(),
+  })
+  .strict();
+
+export const blueprintGuideSchema = z
+  .object({
+    businessProblem: z
+      .object({
+        summary: z.string().min(1),
+        goodFitHeading: z.string().min(1),
+        goodFitIf: z.array(z.string()).min(1),
+      })
+      .strict(),
+    whatItDoes: z
+      .object({
+        summary: z.string().min(1),
+        capabilities: z.array(z.string()).min(1),
+        confidenceNote: z.string().min(1),
+        confidenceLevels: z
+          .array(
+            z
+              .object({
+                label: z.string().min(1),
+                description: z.string().min(1),
+              })
+              .strict(),
+          )
+          .min(1),
+      })
+      .strict(),
+    howItWorks: z
+      .object({
+        inputs: z.array(z.string()).min(1),
+        stages: z.array(z.string()).min(1),
+        note: z.string().min(1),
+      })
+      .strict(),
+    whatYouNeed: z
+      .object({
+        items: z.array(z.string()).min(1),
+        note: z.string().min(1).optional(),
+      })
+      .strict(),
+    exampleOutput: z
+      .object({
+        disclaimer: z.string().min(1),
+        findings: z.array(blueprintFindingSchema).min(1),
+      })
+      .strict(),
+    manualApproach: z
+      .object({
+        effort: z.string().min(1),
+        steps: z.array(z.string()).min(1),
+        note: z.string().min(1),
+      })
+      .strict(),
+    automatedApproach: z
+      .object({
+        effort: z.string().min(1),
+        summary: z.string().min(1),
+        capabilities: z.array(z.string()).min(1),
+        note: z.string().min(1),
+      })
+      .strict(),
+    gettingStarted: z.array(blueprintStartOptionSchema).min(1),
+  })
+  .strict();
+
 export const useCaseSchema = z
   .object({
     id: z.string().min(1),
@@ -52,6 +140,8 @@ export const useCaseSchema = z
     /** Primary + related, kept for backward compatibility and filtering. */
     businessProcesses: z.array(z.string()).optional(),
     businessOutcomes: z.array(z.string()).optional(),
+    /** Non-technical walkthrough rendered above the technical sections. */
+    blueprintGuide: blueprintGuideSchema.optional(),
     summary: z.string().min(1),
     businessProblem: z.string().min(1),
     businessProblems: z.array(businessProblemSchema).min(1),
@@ -163,6 +253,7 @@ export type ValuePotential = z.infer<typeof valuePotentialSchema>;
 export type PrivacyLevel = z.infer<typeof privacyLevelSchema>;
 export type BusinessProblem = z.infer<typeof businessProblemSchema>;
 export type UseCaseBusinessArea = z.infer<typeof businessAreaSchema>;
+export type BlueprintGuide = z.infer<typeof blueprintGuideSchema>;
 export type SourceType = z.infer<typeof sourceTypeSchema>;
 
 export type UseCase = z.infer<typeof useCaseSchema>;

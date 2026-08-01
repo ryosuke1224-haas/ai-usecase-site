@@ -3,7 +3,6 @@
 import Link from "next/link";
 import type { UseCase } from "@/src/types";
 import { Badge } from "./ui/detail";
-import { useContentResolver } from "@/src/content/content-context";
 
 const valueStyles = {
   High: "success" as const,
@@ -18,7 +17,7 @@ const difficultyStyles = {
 };
 
 export function UseCaseCard({ useCase }: { useCase: UseCase }) {
-  const { resolveApiName, resolveDataSourceName } = useContentResolver();
+  const outcome = useCase.businessOutcomes?.[0];
 
   return (
     <Link
@@ -47,32 +46,14 @@ export function UseCaseCard({ useCase }: { useCase: UseCase }) {
         {useCase.summary}
       </p>
 
-      <div className="mt-4 space-y-2 border-t border-border/40 pt-4">
-        <div>
+      {outcome && (
+        <div className="mt-4 border-t border-border/40 pt-4">
           <p className="text-xs font-medium uppercase tracking-wider text-muted">
-            Data sources
+            Business outcome
           </p>
-          <p className="mt-1 text-xs text-foreground">
-            {useCase.requiredDataSources
-              .slice(0, 3)
-              .map(resolveDataSourceName)
-              .join(", ")}
-            {useCase.requiredDataSources.length > 3 && " +more"}
-          </p>
+          <p className="mt-1 text-xs text-foreground">{outcome}</p>
         </div>
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted">
-            APIs
-          </p>
-          <p className="mt-1 text-xs text-foreground">
-            {useCase.requiredApis
-              .slice(0, 3)
-              .map(resolveApiName)
-              .join(", ")}
-            {useCase.requiredApis.length > 3 && " +more"}
-          </p>
-        </div>
-      </div>
+      )}
 
       <div className="mt-4 flex flex-wrap gap-1.5">
         {useCase.tags.slice(0, 3).map((tag) => (

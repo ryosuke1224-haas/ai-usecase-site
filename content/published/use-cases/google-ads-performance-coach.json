@@ -1,0 +1,257 @@
+{
+  "id": "uc-037",
+  "slug": "google-ads-performance-coach",
+  "title": "Google Ads Performance Coach",
+  "category": "Marketing",
+  "tagline": "Understand what your ad spend is actually doing.",
+  "industries": [
+    "Local Services",
+    "Professional Services",
+    "Retail",
+    "Clinic",
+    "Fitness"
+  ],
+  "businessFunctions": [
+    "Marketing",
+    "Owner/Admin"
+  ],
+  "businessArea": "marketing",
+  "primaryBusinessProcess": "Advertising",
+  "relatedBusinessProcesses": [
+    "Campaign Reporting"
+  ],
+  "businessProcesses": [
+    "Advertising",
+    "Campaign Reporting"
+  ],
+  "businessOutcomes": [
+    "Reduce wasted advertising spend",
+    "Identify tracking and reporting problems",
+    "Prioritize campaign improvements",
+    "Make advertising performance easier to understand"
+  ],
+  "blueprintGuide": {
+    "businessProblem": {
+      "summary": "Small businesses usually have access to advertising reports but not the time or expertise to work out what is working, what is wasting money, and what should be changed first. The reports show numbers; they do not say which number matters this month, or whether the number can be trusted at all.",
+      "goodFitHeading": "This is likely useful if you",
+      "goodFitIf": [
+        "Already run Google Ads",
+        "Spend time manually reviewing campaign reports",
+        "Are unsure whether conversion tracking is reliable",
+        "Receive reports but do not know which actions to prioritize",
+        "Want to better understand advertising performance before making changes"
+      ]
+    },
+    "whatItDoes": {
+      "summary": "The workflow reads your exported advertising and website reports, does the arithmetic and the routine checks for you, and then explains what it found in plain language.",
+      "capabilities": [
+        "Organize advertising cost, clicks, conversions, and related metrics",
+        "Compare campaign performance",
+        "Highlight possible wasted spend",
+        "Identify campaigns or keywords that require investigation",
+        "Check for possible conversion-tracking inconsistencies",
+        "Compare advertising results with GA4 website behavior",
+        "Produce a prioritized list of recommended next actions"
+      ],
+      "confidenceNote": "Every finding is labelled so you can tell the difference between what the data shows and what the AI is guessing. Nothing here is a guaranteed outcome.",
+      "confidenceLevels": [
+        {
+          "label": "Confirmed finding",
+          "description": "Supported directly by the numbers in the reports you uploaded."
+        },
+        {
+          "label": "Possible explanation",
+          "description": "A plausible reason for what the data shows, which still needs to be investigated before you act on it."
+        },
+        {
+          "label": "Recommendation",
+          "description": "A suggested next step. Review it yourself before changing any campaign."
+        }
+      ]
+    },
+    "howItWorks": {
+      "inputs": [
+        "Google Ads report",
+        "GA4 website report"
+      ],
+      "stages": [
+        "Metric calculations and checks",
+        "AI explanation and diagnosis",
+        "Prioritized improvement actions"
+      ],
+      "note": "The order matters. The totals, ratios, and rule-based checks are calculated first, so the numbers are the same every time you run it. The AI model only explains and prioritizes what those calculations already found — it is not asked to do the arithmetic. Any capable AI assistant can play that role; the workflow does not depend on one provider."
+    },
+    "whatYouNeed": {
+      "items": [
+        "An active Google Ads account",
+        "A website with analytics installed",
+        "A GA4 property",
+        "Meaningful conversion events",
+        "Google Ads campaign reports",
+        "GA4 website-performance reports",
+        "Access to an AI assistant"
+      ],
+      "note": "No integration or developer work is needed to try this. The reports are ordinary exports, and any AI assistant you already use is enough to run the manual version."
+    },
+    "exampleOutput": {
+      "disclaimer": "Illustrative sample only. The numbers below are made up to show the format of the output. They are not from a real business and are not a benchmark.",
+      "findings": [
+        {
+          "label": "Confirmed finding",
+          "finding": "Campaign A spent $840 during the selected period but recorded no tracked conversions.",
+          "whyItMatters": "This campaign represents 18% of total spend. Before reducing the budget, confirm that conversion tracking is working correctly.",
+          "nextAction": "Review the campaign's search terms and landing page, then test the conversion event before changing bids or budget."
+        },
+        {
+          "label": "Possible explanation",
+          "finding": "Google Ads reports 32 conversions for the period while GA4 reports 19 key events from the same campaigns.",
+          "whyItMatters": "The two systems count conversions differently, so a gap is normal — but a gap this size can also mean duplicate tags, a missing event, or a mismatched date range. Until it is explained, neither number should drive a budget decision.",
+          "nextAction": "Compare the date ranges and attribution settings first, then check whether each conversion action has a matching GA4 key event."
+        },
+        {
+          "label": "Confirmed finding",
+          "finding": "The /offers landing page received 61% of ad traffic but has the lowest engagement rate of the pages in the report.",
+          "whyItMatters": "Most of the paid traffic is arriving on a page visitors leave quickly, which limits what any bidding change can achieve.",
+          "nextAction": "Check that the page matches what the ads promise, and confirm it loads correctly on a phone before spending more on the campaigns pointing to it."
+        }
+      ]
+    },
+    "manualApproach": {
+      "effort": "Beginner — no tools to set up",
+      "steps": [
+        "Export the relevant Google Ads report",
+        "Export the corresponding GA4 report",
+        "Upload both reports to an AI assistant",
+        "Ask it to separate confirmed findings from assumptions",
+        "Review the recommended actions before changing campaigns"
+      ],
+      "note": "A complete playbook with export instructions, prompts, templates, and checklists is in development."
+    },
+    "automatedApproach": {
+      "effort": "Intermediate — requires setting up a small local tool",
+      "summary": "Once the manual version is producing useful answers, the same steps can be handled by a simple tool that runs on your own computer.",
+      "capabilities": [
+        "Accept Google Ads and GA4 report uploads",
+        "Calculate key metrics",
+        "Run repeatable quality and performance checks",
+        "Generate a structured AI analysis",
+        "Save or export a report"
+      ],
+      "note": "The first automated version works from uploaded CSV files, so no Google Ads API access or developer integration is required. This tool is not built yet."
+    },
+    "gettingStarted": [
+      {
+        "title": "Try it yourself",
+        "description": "Use a complete playbook with prompts, templates, export instructions, and checklists.",
+        "ctaLabel": "Playbook coming soon"
+      },
+      {
+        "title": "Run it locally",
+        "description": "Upload your reports and generate a structured analysis using a simple local tool configured for your workflow.",
+        "ctaLabel": "Join the pilot",
+        "href": "/contact"
+      },
+      {
+        "title": "Get implementation help",
+        "description": "Get help reviewing measurement, configuring the workflow, and training your team.",
+        "ctaLabel": "Request a consultation",
+        "href": "/contact"
+      }
+    ]
+  },
+  "summary": "Analyze your Google Ads and website performance data to identify wasted spend, tracking problems, underperforming campaigns, and the highest-priority improvements.",
+  "businessProblem": "Small businesses often have access to advertising reports but lack the time or expertise to determine what is working, what is wasting money, and what should be changed first. Reports arrive regularly, get skimmed, and rarely turn into a decision.",
+  "businessProblems": [
+    "improve-marketing-performance"
+  ],
+  "outcome": "A prioritized list of advertising findings that separates what the reports confirm from what still needs to be checked, so the owner can decide what to look at first instead of reading the whole report.",
+  "expectedOutcomes": [
+    "A prioritized list of findings and suggested next actions from the uploaded reports",
+    "Clear separation between confirmed findings, possible explanations, and recommendations",
+    "Visibility of campaigns with spend but no recorded conversions",
+    "Visibility of differences between Google Ads and GA4 conversion reporting that need investigation"
+  ],
+  "whoItsFor": "Owners and marketers who already spend on Google Ads, do not have an agency reviewing the account weekly, and want to understand the reports before changing budgets. It is not a replacement for a specialist on complex or high-spend accounts.",
+  "requiredDataSources": [
+    "google-ads-reports",
+    "ga4-website-reports"
+  ],
+  "requiredData": [
+    "google-ads-reports",
+    "ga4-website-reports"
+  ],
+  "aiInputs": [
+    "Exported Google Ads campaign performance rows for the selected period",
+    "Exported GA4 traffic, landing page, and key event rows for the same period",
+    "The calculated metrics and rule-based check results",
+    "Business context: what counts as a lead or sale, and the date range being reviewed"
+  ],
+  "aiOutputs": [
+    "Findings labelled as confirmed, possible explanation, or recommendation",
+    "A short explanation of why each finding matters",
+    "A suggested next action for each finding",
+    "A prioritized order for reviewing the findings"
+  ],
+  "requiredApis": [
+    "openai-api",
+    "anthropic-claude-api",
+    "google-gemini-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
+  "noCodeTools": [
+    "Any AI assistant that accepts file uploads",
+    "Google Ads and GA4 report exports",
+    "A spreadsheet for the metric calculations"
+  ],
+  "lowCodeTools": [
+    "Spreadsheet formulas or a saved template for the repeatable checks",
+    "n8n or Make to move exports into a review folder on a schedule"
+  ],
+  "customBuildStack": [
+    "Local script that parses the exported CSV files",
+    "Deterministic metric and check layer before any model call",
+    "Model call for explanation and prioritization only",
+    "Report saved to file or spreadsheet"
+  ],
+  "implementationSteps": [
+    "Decide the period to review and confirm the same date range is used in both exports",
+    "Export the Google Ads campaign performance report for that period",
+    "Export the matching GA4 traffic, landing page, and key event reports",
+    "Calculate the totals and ratios first, so the numbers do not depend on the model",
+    "Run the rule-based checks, such as spend with no recorded conversions",
+    "Ask the AI assistant to explain the results and label each finding by confidence",
+    "Review every recommendation yourself before changing bids, budgets, or pages"
+  ],
+  "systemBehavior": [
+    "Runs on demand from uploaded reports — it does not connect to or change the ad account",
+    "Calculates metrics and runs checks before any model call",
+    "Labels each finding as a confirmed finding, a possible explanation, or a recommendation",
+    "Never pauses campaigns, changes budgets, or edits bids",
+    "States when the data is insufficient rather than filling the gap with a guess"
+  ],
+  "risks": [
+    "If conversion tracking is broken or incomplete, the reports are wrong and so is any analysis based on them — check tracking before acting on a finding",
+    "Google Ads and GA4 count conversions differently, so a gap between them is not automatically an error",
+    "Short periods and low-volume campaigns produce numbers that look meaningful but are not",
+    "AI explanations can sound confident while being wrong; the confidence labels are a prompt for review, not a guarantee",
+    "Exported reports may contain customer or location detail that you do not want to paste into a public AI tool",
+    "Acting on a single finding without checking the account can make performance worse"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Manual trigger",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "local-seo-content-assistant",
+    "ai-content-calendar"
+  ],
+  "tags": [
+    "google-ads",
+    "advertising",
+    "campaign-analysis",
+    "ga4",
+    "reporting"
+  ],
+  "featured": true
+}

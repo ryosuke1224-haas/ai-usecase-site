@@ -1,0 +1,31 @@
+{
+  "id": "ds-036",
+  "slug": "google-ads-reports",
+  "name": "Google Ads Reports",
+  "examples": [
+    "Campaign performance report export",
+    "Search terms report export",
+    "Conversion actions report export"
+  ],
+  "category": "Marketing",
+  "summary": "Exported Google Ads performance reports covering spend, clicks, impressions, and recorded conversions per campaign.",
+  "whatItContains": "Campaign, ad group, or keyword rows with date range, cost, impressions, clicks, click-through rate, average cost per click, recorded conversions, and conversion value where conversion tracking is configured.",
+  "whatAiCanDoWithIt": [
+    "Compare spend and recorded results across campaigns",
+    "Highlight spend that produced no recorded conversions",
+    "Point out campaigns or search terms worth investigating",
+    "Explain performance changes in plain language for review"
+  ],
+  "relatedUseCases": [
+    "google-ads-performance-coach"
+  ],
+  "relatedApis": [],
+  "privacyLevel": "Internal",
+  "accessMethod": "Manual CSV or spreadsheet export from the Google Ads reporting interface",
+  "tags": [
+    "advertising",
+    "google-ads",
+    "marketing",
+    "reporting"
+  ]
+}

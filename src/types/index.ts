@@ -2,6 +2,7 @@ export type {
   Api,
   ApiTool,
   AutomationLevel,
+  BlueprintGuide,
   DataSource,
   Difficulty,
   PrivacyLevel,

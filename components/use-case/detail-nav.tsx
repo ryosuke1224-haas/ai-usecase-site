@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-const sections = [
+type Section = { id: string; label: string };
+
+const defaultSections: Section[] = [
   { id: "requirements", label: "What you need" },
   { id: "problem", label: "Problem" },
   { id: "data-sources", label: "Data sources" },
@@ -15,8 +17,12 @@ const sections = [
   { id: "risks", label: "Risks" },
 ];
 
-export function UseCaseDetailNav() {
-  const [active, setActive] = useState("requirements");
+export function UseCaseDetailNav({
+  sections = defaultSections,
+}: {
+  sections?: Section[];
+}) {
+  const [active, setActive] = useState(sections[0]?.id ?? "");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -36,7 +42,7 @@ export function UseCaseDetailNav() {
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [sections]);
 
   return (
     <nav className="sticky top-20 hidden lg:block">

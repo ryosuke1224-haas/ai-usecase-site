@@ -1,0 +1,31 @@
+{
+  "id": "ds-037",
+  "slug": "ga4-website-reports",
+  "name": "GA4 Website Reports",
+  "examples": [
+    "Traffic acquisition report export",
+    "Landing page report export",
+    "Key events (conversions) report export"
+  ],
+  "category": "Marketing",
+  "summary": "Exported Google Analytics 4 reports describing what visitors did on the website after arriving.",
+  "whatItContains": "Sessions and users by traffic source or campaign, landing page rows, engagement metrics such as engagement rate and average engagement time, and counts of the key events configured as conversions.",
+  "whatAiCanDoWithIt": [
+    "Compare advertising traffic with on-site behaviour",
+    "Flag landing pages that receive traffic but show weak engagement",
+    "Surface differences between ad-platform and website conversion counts for review",
+    "Describe what the numbers suggest and what still needs checking"
+  ],
+  "relatedUseCases": [
+    "google-ads-performance-coach"
+  ],
+  "relatedApis": [],
+  "privacyLevel": "Internal",
+  "accessMethod": "Manual CSV or spreadsheet export from the GA4 reporting interface",
+  "tags": [
+    "analytics",
+    "ga4",
+    "website",
+    "reporting"
+  ]
+}
