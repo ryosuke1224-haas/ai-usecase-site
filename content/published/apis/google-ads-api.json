@@ -1,0 +1,37 @@
+{
+  "id": "api-031",
+  "slug": "google-ads-api",
+  "name": "Google Ads API",
+  "provider": "Google",
+  "category": "Advertising",
+  "summary": "Programmatically read Google Ads campaign, search-term, conversion, and reporting data for repeatable performance workflows.",
+  "whatItDoes": "The Google Ads API provides structured access to account entities and reports, including campaign performance, search terms, conversion actions, budgets, and bidding settings. It is most useful after a manual workflow has been validated and recurring exports become burdensome.",
+  "dataAvailable": [
+    "Campaign and ad group performance metrics",
+    "Search terms and keyword metrics when reportable",
+    "Conversion actions, categories, status, and settings",
+    "Budgets, bidding strategies, targeting, and account structure"
+  ],
+  "actionsSupported": [
+    "Query reports with Google Ads Query Language",
+    "Read conversion-action configuration",
+    "Create and update campaign entities with appropriate permissions",
+    "Automate scheduled extracts for analysis"
+  ],
+  "authenticationType": "OAuth 2.0 plus a Google Ads developer token and customer account access",
+  "commonUseCases": [
+    "google-ads-performance-coach"
+  ],
+  "relatedDataSources": [
+    "google-ads-reports"
+  ],
+  "difficulty": "Advanced",
+  "privacyNotes": "Advertising data may reveal business strategy, spend, customer-intent patterns, and account identifiers. Use least-privilege access, protect developer tokens and refresh tokens, and avoid autonomous campaign changes without review.",
+  "documentationUrlPlaceholder": "https://developers.google.com/google-ads/api/docs/start",
+  "tags": [
+    "google-ads",
+    "advertising",
+    "reporting",
+    "campaigns"
+  ]
+}

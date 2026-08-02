@@ -1,0 +1,34 @@
+{
+  "id": "ds-037",
+  "slug": "ga4-reports",
+  "name": "GA4 Reports",
+  "examples": [
+    "Traffic acquisition CSV using Session source / medium",
+    "Landing page CSV filtered to paid Google traffic",
+    "Key-event and revenue metrics",
+    "Current and previous date-range exports"
+  ],
+  "category": "Marketing Analytics",
+  "summary": "GA4 traffic-acquisition and landing-page reports used to understand paid sessions, engagement, key events, and where ad traffic lands.",
+  "whatItContains": "Session-scoped traffic-source dimensions, sessions, engaged sessions, engagement rate, average engagement time, landing pages, key events, session key-event rate, and revenue when configured.",
+  "whatAiCanDoWithIt": [
+    "Compare paid traffic and engagement across periods",
+    "Identify landing pages receiving most paid sessions",
+    "Check whether meaningful key events are recording",
+    "Flag Ads-versus-GA4 gaps as investigation signals"
+  ],
+  "relatedUseCases": [
+    "google-ads-performance-coach"
+  ],
+  "relatedApis": [
+    "google-analytics-data-api"
+  ],
+  "privacyLevel": "Sensitive",
+  "accessMethod": "Export from GA4 Reports using Share this report > Download file, or query through the Google Analytics Data API. Document the exact paid-traffic filter or session-scoped dimension used.",
+  "tags": [
+    "ga4",
+    "traffic-acquisition",
+    "landing-pages",
+    "key-events"
+  ]
+}

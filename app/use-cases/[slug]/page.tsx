@@ -26,6 +26,9 @@ import { getBusinessArea } from "@/src/lib/business-areas";
 import { createContentResolver } from "@/src/lib/resolve";
 import type { UseCase } from "@/src/types";
 import { FinancePlanningDisclaimer } from "@/components/use-case/finance-disclaimer";
+import { GoogleAdsPlaybookSection } from "@/components/use-case/google-ads-playbook";
+
+const PLAYBOOK_SLUGS = new Set(["google-ads-performance-coach"]);
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -63,6 +66,14 @@ export default async function UseCaseDetailPage({ params }: PageProps) {
     : undefined;
   const related = useCases.filter((u) => uc.relatedUseCases.includes(u.slug));
   const hasGuide = Boolean(uc.blueprintGuide);
+  const hasPlaybook = PLAYBOOK_SLUGS.has(uc.slug);
+  const guideSections = hasPlaybook
+    ? BLUEPRINT_GUIDE_SECTIONS.flatMap((section) =>
+        section.id === "technical"
+          ? [{ id: "playbook", label: "Playbook" }, section]
+          : [section],
+      )
+    : [...BLUEPRINT_GUIDE_SECTIONS];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8">
@@ -71,9 +82,7 @@ export default async function UseCaseDetailPage({ params }: PageProps) {
       </Link>
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[180px_1fr]">
-        <UseCaseDetailNav
-          sections={hasGuide ? [...BLUEPRINT_GUIDE_SECTIONS] : undefined}
-        />
+        <UseCaseDetailNav sections={hasGuide ? guideSections : undefined} />
 
         <article>
           <header className="border-b border-border/60 pb-6">
@@ -118,6 +127,12 @@ export default async function UseCaseDetailPage({ params }: PageProps) {
               <div className="mt-8">
                 <BlueprintGuide useCase={uc} />
               </div>
+
+              {hasPlaybook && (
+                <div className="mt-12">
+                  <GoogleAdsPlaybookSection />
+                </div>
+              )}
 
               <section id="technical" className="mt-12 scroll-mt-24">
                 <details className="group rounded-xl border border-border/60 bg-surface/40">

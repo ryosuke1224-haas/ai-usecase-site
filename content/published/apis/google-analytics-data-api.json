@@ -1,0 +1,37 @@
+{
+  "id": "api-032",
+  "slug": "google-analytics-data-api",
+  "name": "Google Analytics Data API",
+  "provider": "Google",
+  "category": "Analytics",
+  "summary": "Query GA4 report data such as sessions, traffic sources, landing pages, engagement, key events, and revenue.",
+  "whatItDoes": "The Google Analytics Data API lets a workflow run structured GA4 reports without manually exporting each period. It supports dimensions, metrics, date ranges, filters, and comparisons for repeatable analytics workflows.",
+  "dataAvailable": [
+    "Session source and medium",
+    "Session campaign and channel group",
+    "Landing pages and engagement metrics",
+    "Key events and revenue metrics"
+  ],
+  "actionsSupported": [
+    "Run standard and custom reports",
+    "Apply dimension and metric filters",
+    "Compare date ranges",
+    "Automate recurring analytics extracts"
+  ],
+  "authenticationType": "OAuth 2.0 or a service account with access to the GA4 property",
+  "commonUseCases": [
+    "google-ads-performance-coach"
+  ],
+  "relatedDataSources": [
+    "ga4-reports"
+  ],
+  "difficulty": "Intermediate",
+  "privacyNotes": "Use aggregated report data where possible. Avoid exporting user-level identifiers or combining analytics data in ways that create unnecessary personal profiles.",
+  "documentationUrlPlaceholder": "https://developers.google.com/analytics/devguides/reporting/data/v1",
+  "tags": [
+    "ga4",
+    "analytics",
+    "traffic-acquisition",
+    "landing-pages"
+  ]
+}

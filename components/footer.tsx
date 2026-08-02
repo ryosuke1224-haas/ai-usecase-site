@@ -77,6 +77,10 @@ function LiveFooter() {
                 { href: "/apis", label: "APIs & Tools" },
                 { href: "/data-sources", label: "Data Sources" },
                 { href: "/workflow-ideas", label: "Workflow Ideas" },
+                {
+                  href: "/playbooks/google-ads-audit",
+                  label: "Google Ads Playbook",
+                },
               ].map((link) => (
                 <li key={link.href}>
                   <Link

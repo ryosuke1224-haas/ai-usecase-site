@@ -5,22 +5,27 @@ import { createContentResolver } from "@/src/lib/resolve";
 import { Badge } from "@/components/ui/detail";
 
 export function RequirementsPanel({ useCase }: { useCase: UseCase }) {
+  const isGoogleAdsAudit = useCase.slug === "google-ads-performance-coach";
   const { resolveApiName, resolveDataSourceName } =
     createContentResolver(loadPublishedContent());
   return (
     <div className="rounded-xl border-2 border-accent/20 bg-accent/5">
       <div className="border-b border-accent/20 px-5 py-3">
-        <h2 className="font-semibold">What you need to build this</h2>
+        <h2 className="font-semibold">
+          {isGoogleAdsAudit ? "What you need to run this" : "What you need to build this"}
+        </h2>
         <p className="mt-0.5 text-xs text-muted">
-          Connect these tools, give the AI this data, expect these outputs.
+          {isGoogleAdsAudit
+            ? "Start with manual exports. APIs are optional when you automate recurring reviews."
+            : "Connect these tools, give the AI this data, expect these outputs."}
         </p>
       </div>
 
       <div className="grid divide-y divide-accent/10 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4 lg:divide-y-0">
         <RequirementBlock
           step="1"
-          title="Connect"
-          subtitle="APIs & tools to set up"
+          title={isGoogleAdsAudit ? "Automate later" : "Connect"}
+          subtitle={isGoogleAdsAudit ? "Optional APIs for recurring runs" : "APIs & tools to set up"}
         >
           <ul className="space-y-2">
             {useCase.requiredApis.map((api) => (
@@ -35,7 +40,9 @@ export function RequirementsPanel({ useCase }: { useCase: UseCase }) {
             ))}
           </ul>
           <p className="mt-3 text-xs text-muted">
-            OAuth, API keys, or webhooks depending on the tool.
+            {isGoogleAdsAudit
+              ? "The manual playbook works with exports; no API setup is required for the first audit."
+              : "OAuth, API keys, or webhooks depending on the tool."}
           </p>
         </RequirementBlock>
 

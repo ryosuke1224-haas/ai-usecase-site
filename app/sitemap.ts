@@ -34,6 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/apis",
     "/data-sources",
     "/workflow-ideas",
+    "/playbooks/google-ads-audit",
     "/contact",
   ].map((path) => ({
     url: `${SITE_URL}${path}`,

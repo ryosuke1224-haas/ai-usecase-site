@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BusinessAreaCard } from "@/components/business-areas/business-area-card";
+import { FlagshipPlaybook } from "@/components/homepage/flagship-playbook";
 import { getBusinessAreaOverviews } from "@/src/lib/business-area-content";
 
 const steps = [
@@ -55,6 +56,8 @@ export function LiveHomePage() {
           </Link>
         </div>
       </section>
+
+      <FlagshipPlaybook />
 
       <section id="business-areas" className="mt-16 scroll-mt-24 sm:mt-20">
         <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">

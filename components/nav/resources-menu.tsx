@@ -33,6 +33,11 @@ const resourceLinks: ResourceLink[] = [
     description: "Tool combinations worth exploring",
   },
   {
+    href: "/playbooks/google-ads-audit",
+    label: "Google Ads Audit Playbook",
+    description: "Step-by-step package for auditing ad performance",
+  },
+  {
     href: "/#how-it-works",
     label: "How it works",
     description: "The three steps from a business area to a blueprint",

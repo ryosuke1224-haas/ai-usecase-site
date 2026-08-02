@@ -3,7 +3,7 @@
   "slug": "google-ads-performance-coach",
   "title": "Google Ads Performance Coach",
   "category": "Marketing",
-  "tagline": "Understand what your ad spend is actually doing.",
+  "tagline": "Turn ad exports into a calculation workbook, measurement check, and prioritized action plan.",
   "industries": [
     "Local Services",
     "Professional Services",
@@ -125,7 +125,7 @@
         "Ask it to separate confirmed findings from assumptions",
         "Review the recommended actions before changing campaigns"
       ],
-      "note": "A complete playbook with export instructions, prompts, templates, and checklists is in development."
+      "note": "A complete playbook with export instructions, prompts, templates, and checklists is available, including sample input files and a calculated workbook example."
     },
     "automatedApproach": {
       "effort": "Intermediate — requires setting up a small local tool",
@@ -143,7 +143,8 @@
       {
         "title": "Try it yourself",
         "description": "Use a complete playbook with prompts, templates, export instructions, and checklists.",
-        "ctaLabel": "Playbook coming soon"
+        "ctaLabel": "See the playbook",
+        "href": "/playbooks/google-ads-audit"
       },
       {
         "title": "Run it locally",
@@ -159,99 +160,108 @@
       }
     ]
   },
-  "summary": "Analyze your Google Ads and website performance data to identify wasted spend, tracking problems, underperforming campaigns, and the highest-priority improvements.",
-  "businessProblem": "Small businesses often have access to advertising reports but lack the time or expertise to determine what is working, what is wasting money, and what should be changed first. Reports arrive regularly, get skimmed, and rarely turn into a decision.",
+  "summary": "Review Google Ads and GA4 exports with an AI assistant that calculates the metrics, checks conversion tracking, and separates confirmed findings from hypotheses.",
+  "businessProblem": "Small businesses often have ad data but cannot tell which numbers are trustworthy, whether conversions are configured correctly, or which issue should be investigated first. Generic AI analysis can confidently optimize the wrong metric when page views or other low-value events are configured as Primary conversions.",
   "businessProblems": [
-    "improve-marketing-performance"
+    "improve-marketing-performance",
+    "get-more-leads"
   ],
-  "outcome": "A prioritized list of advertising findings that separates what the reports confirm from what still needs to be checked, so the owner can decide what to look at first instead of reading the whole report.",
+  "outcome": "A repeatable audit package containing a calculated Excel workbook, measurement-readiness status, campaign and landing-page findings, and a short action plan with evidence and guardrails.",
   "expectedOutcomes": [
-    "A prioritized list of findings and suggested next actions from the uploaded reports",
-    "Clear separation between confirmed findings, possible explanations, and recommendations",
-    "Visibility of campaigns with spend but no recorded conversions",
-    "Visibility of differences between Google Ads and GA4 conversion reporting that need investigation"
+    "Less time spent manually reconciling Google Ads and GA4 reports",
+    "Earlier detection of conversion-tracking problems",
+    "Clear separation between confirmed findings and possible explanations",
+    "A prioritized list of safe verification steps and controlled tests"
   ],
-  "whoItsFor": "Owners and marketers who already spend on Google Ads, do not have an agency reviewing the account weekly, and want to understand the reports before changing budgets. It is not a replacement for a specialist on complex or high-spend accounts.",
+  "whoItsFor": "Small-business owners, marketers, and consultants who can export Google Ads and GA4 reports but want a structured review before changing budgets, bidding, or landing pages.",
   "requiredDataSources": [
     "google-ads-reports",
-    "ga4-website-reports"
+    "ga4-reports"
   ],
   "requiredData": [
     "google-ads-reports",
-    "ga4-website-reports"
+    "ga4-reports"
   ],
   "aiInputs": [
-    "Exported Google Ads campaign performance rows for the selected period",
-    "Exported GA4 traffic, landing page, and key event rows for the same period",
-    "The calculated metrics and rule-based check results",
-    "Business context: what counts as a lead or sale, and the date range being reviewed"
+    "Current and previous Google Ads campaign CSV files",
+    "Current search-terms CSV when available",
+    "Current and previous GA4 Traffic acquisition CSV files",
+    "Current and previous GA4 Landing page CSV files",
+    "One Google Ads conversion-actions screenshot",
+    "Business context and definition of a qualified outcome"
   ],
   "aiOutputs": [
-    "Findings labelled as confirmed, possible explanation, or recommendation",
-    "A short explanation of why each finding matters",
-    "A suggested next action for each finding",
-    "A prioritized order for reviewing the findings"
+    "Downloadable calculated_metrics.xlsx workbook",
+    "Measurement-readiness status and data-quality checks",
+    "Current-vs-previous campaign scorecard",
+    "Search-term and landing-page findings when supported",
+    "Prioritized verification and action plan"
   ],
   "requiredApis": [
-    "openai-api",
-    "anthropic-claude-api",
-    "google-gemini-api"
+    "google-ads-api",
+    "google-analytics-data-api",
+    "openai-api"
   ],
   "requiredCapabilities": [
-    "llm"
+    "llm",
+    "file-analysis",
+    "spreadsheet-generation"
   ],
   "noCodeTools": [
-    "Any AI assistant that accepts file uploads",
-    "Google Ads and GA4 report exports",
-    "A spreadsheet for the metric calculations"
+    "File-capable ChatGPT with the Google Ads AI Audit Playbook",
+    "Google Ads and GA4 manual CSV exports",
+    "Excel or Google Sheets for reviewing the generated workbook"
   ],
   "lowCodeTools": [
-    "Spreadsheet formulas or a saved template for the repeatable checks",
-    "n8n or Make to move exports into a review folder on a schedule"
+    "Google Apps Script or Python for standardized exports",
+    "n8n or Make for scheduled file collection",
+    "A reusable workbook-generation script with human review"
   ],
   "customBuildStack": [
-    "Local script that parses the exported CSV files",
-    "Deterministic metric and check layer before any model call",
-    "Model call for explanation and prioritization only",
-    "Report saved to file or spreadsheet"
+    "Google Ads API and Google Analytics Data API",
+    "Python data validation and formula-driven workbook generation",
+    "LLM structured-output layer for evidence-based findings",
+    "Secure report storage and action-log workflow"
   ],
   "implementationSteps": [
-    "Decide the period to review and confirm the same date range is used in both exports",
-    "Export the Google Ads campaign performance report for that period",
-    "Export the matching GA4 traffic, landing page, and key event reports",
-    "Calculate the totals and ratios first, so the numbers do not depend on the model",
-    "Run the rule-based checks, such as spend with no recorded conversions",
-    "Ask the AI assistant to explain the results and label each finding by confidence",
-    "Review every recommendation yourself before changing bids, budgets, or pages"
+    "Define the qualified business outcome and acceptable cost target",
+    "Export matching current and previous periods from Google Ads and GA4",
+    "Capture one conversion-actions screenshot with the required columns visible",
+    "Upload the files and run the workbook-generation prompt",
+    "Review the generated Dashboard, Calculated Metrics, Conversion Setup, and Read Me sheets",
+    "Run the evidence-based audit prompt using the workbook as the arithmetic source of truth",
+    "Approve only the smallest safe tests and record owners, due dates, and review dates"
   ],
   "systemBehavior": [
-    "Runs on demand from uploaded reports — it does not connect to or change the ad account",
-    "Calculates metrics and runs checks before any model call",
-    "Labels each finding as a confirmed finding, a possible explanation, or a recommendation",
-    "Never pauses campaigns, changes budgets, or edits bids",
-    "States when the data is insufficient rather than filling the gap with a guess"
+    "Checks measurement readiness before evaluating campaign efficiency",
+    "Creates a new calculation workbook for each audit period",
+    "Labels findings as confirmed, possible explanation, or recommendation",
+    "Stops budget and bidding recommendations when meaningful tracking is unreliable",
+    "Documents missing files, filters, assumptions, and limitations",
+    "Does not autonomously change campaigns"
   ],
   "risks": [
-    "If conversion tracking is broken or incomplete, the reports are wrong and so is any analysis based on them — check tracking before acting on a finding",
-    "Google Ads and GA4 count conversions differently, so a gap between them is not automatically an error",
-    "Short periods and low-volume campaigns produce numbers that look meaningful but are not",
-    "AI explanations can sound confident while being wrong; the confidence labels are a prompt for review, not a guarantee",
-    "Exported reports may contain customer or location detail that you do not want to paste into a public AI tool",
-    "Acting on a single finding without checking the account can make performance worse"
+    "A page view or other low-value event may be mistaken for a qualified outcome",
+    "GA4 All Users exports may be incorrectly treated as paid Google traffic",
+    "Google Ads and GA4 will not reconcile exactly because their measurement concepts differ",
+    "Small samples can produce unstable trends",
+    "Uploaded reports may contain sensitive business or customer information",
+    "AI-generated spreadsheets require arithmetic and formula review before decisions"
   ],
   "difficulty": "Beginner",
   "automationLevel": "Manual trigger",
   "valuePotential": "High",
   "relatedUseCases": [
+    "ai-content-calendar",
     "local-seo-content-assistant",
-    "ai-content-calendar"
+    "weekly-owner-briefing"
   ],
   "tags": [
     "google-ads",
-    "advertising",
-    "campaign-analysis",
     "ga4",
-    "reporting"
+    "conversion-tracking",
+    "campaign-analysis",
+    "spreadsheet"
   ],
   "featured": true
 }

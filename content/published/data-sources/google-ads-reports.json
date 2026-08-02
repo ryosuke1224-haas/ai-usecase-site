@@ -3,29 +3,32 @@
   "slug": "google-ads-reports",
   "name": "Google Ads Reports",
   "examples": [
-    "Campaign performance report export",
-    "Search terms report export",
-    "Conversion actions report export"
+    "Campaign performance CSV",
+    "Search terms CSV",
+    "Conversion-actions configuration screenshot",
+    "Budget and bidding reports"
   ],
-  "category": "Marketing",
-  "summary": "Exported Google Ads performance reports covering spend, clicks, impressions, and recorded conversions per campaign.",
-  "whatItContains": "Campaign, ad group, or keyword rows with date range, cost, impressions, clicks, click-through rate, average cost per click, recorded conversions, and conversion value where conversion tracking is configured.",
+  "category": "Marketing Analytics",
+  "summary": "Exported Google Ads performance and conversion-configuration data used to evaluate spend, traffic, reported outcomes, and measurement readiness.",
+  "whatItContains": "Campaign names and types, impressions, clicks, cost, reported conversions, conversion value, goals, search queries, and conversion-action settings such as Primary or Secondary, tracking status, and account-default goal inclusion.",
   "whatAiCanDoWithIt": [
-    "Compare spend and recorded results across campaigns",
-    "Highlight spend that produced no recorded conversions",
-    "Point out campaigns or search terms worth investigating",
-    "Explain performance changes in plain language for review"
+    "Calculate CTR, CPC, reported conversion rate, CPA, and period changes",
+    "Identify measurement warnings before campaign optimization",
+    "Compare spend concentration and reported-outcome concentration",
+    "Review search-term intent with cautious evidence labels"
   ],
   "relatedUseCases": [
     "google-ads-performance-coach"
   ],
-  "relatedApis": [],
-  "privacyLevel": "Internal",
-  "accessMethod": "Manual CSV or spreadsheet export from the Google Ads reporting interface",
+  "relatedApis": [
+    "google-ads-api"
+  ],
+  "privacyLevel": "Sensitive",
+  "accessMethod": "Manual CSV export from Google Ads statistics tables, plus one screenshot from Goals > Conversions > Summary. For recurring workflows, use the Google Ads API with authorized account access.",
   "tags": [
-    "advertising",
     "google-ads",
-    "marketing",
-    "reporting"
+    "campaign-performance",
+    "conversion-tracking",
+    "search-terms"
   ]
 }
