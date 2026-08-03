@@ -3,6 +3,8 @@
   "slug": "ai-daily-inbox-briefing",
   "title": "AI Daily Inbox Briefing",
   "category": "Operations",
+  "templateVersion": "experience-v2",
+  "status": "preview",
   "industries": [
     "Professional Services",
     "Agencies",
@@ -110,5 +112,334 @@
     "email",
     "calendar"
   ],
-  "featured": true
+  "featured": true,
+  "experience": {
+    "tile": {
+      "headline": "Start the day knowing what needs attention.",
+      "scenes": [
+        {
+          "caption": "This morning",
+          "metrics": [
+            { "value": "18", "label": "unread emails" },
+            { "value": "6", "label": "calendar events" }
+          ]
+        },
+        {
+          "caption": "AI organizing…",
+          "metrics": []
+        },
+        {
+          "caption": "Briefing ready",
+          "metrics": [
+            { "value": "3", "label": "urgent" },
+            { "value": "4", "label": "replies" },
+            { "value": "1", "label": "conflict" }
+          ]
+        }
+      ],
+      "demoLabel": "Watch demo",
+      "workflowLabel": "View workflow"
+    },
+    "hero": {
+      "headline": "Start every day knowing exactly what needs attention.",
+      "description": "Turn recent emails and today's calendar into one prioritized morning briefing—with urgent items, reply obligations, meeting preparation, and schedule conflicts clearly separated.",
+      "demoLabel": "Watch demo",
+      "workflowLabel": "See how it works"
+    },
+    "outcomes": {
+      "metrics": [
+        { "value": "3", "label": "urgent items" },
+        { "value": "4", "label": "replies needed" },
+        { "value": "1", "label": "calendar conflict" }
+      ],
+      "supporting": "Review what matters in minutes instead of scanning every message yourself."
+    },
+    "conceptDemo": {
+      "inputs": {
+        "metrics": [
+          { "value": "18", "label": "unread emails" },
+          { "value": "6", "label": "calendar events today" }
+        ],
+        "emails": [
+          { "subject": "Client contract approval needed", "priority": "high" },
+          { "subject": "Revised proposal request", "priority": "high" },
+          { "subject": "Vendor payment confirmation", "priority": "normal" },
+          { "subject": "Team newsletter", "priority": "low" },
+          { "subject": "Updated project timeline", "priority": "normal" }
+        ],
+        "events": [
+          { "time": "10:00 AM", "title": "Team stand-up" },
+          { "time": "2:00 PM", "title": "Client review", "conflict": true },
+          { "time": "2:00 PM", "title": "Internal pricing review", "conflict": true }
+        ]
+      },
+      "processingSteps": [
+        "Detecting deadlines",
+        "Finding reply requests",
+        "Matching emails to meetings",
+        "Checking calendar conflicts"
+      ],
+      "summary": [
+        { "value": "3", "label": "urgent items" },
+        { "value": "4", "label": "replies needed" },
+        { "value": "1", "label": "calendar conflict" }
+      ],
+      "briefing": {
+        "title": "TODAY'S INBOX BRIEFING",
+        "groups": [
+          {
+            "label": "Urgent today",
+            "items": [
+              {
+                "title": "Client contract approval",
+                "meta": "Due by 11:00 AM"
+              }
+            ]
+          },
+          {
+            "label": "Reply needed",
+            "items": [
+              { "title": "Sarah requested the revised proposal" }
+            ]
+          },
+          {
+            "label": "Meeting preparation",
+            "items": [
+              { "title": "Update the pricing slide before 2:00 PM" }
+            ]
+          },
+          {
+            "label": "Calendar conflict",
+            "items": [
+              {
+                "title": "Client review overlaps with internal pricing review"
+              }
+            ]
+          }
+        ],
+        "status": "Morning briefing ready"
+      }
+    },
+    "sampleBriefing": {
+      "heading": "See what your morning briefing could look like",
+      "title": "TODAY'S INBOX BRIEFING",
+      "date": "Monday, August 3",
+      "groups": [
+        {
+          "label": "Urgent today",
+          "items": [
+            {
+              "title": "Client contract approval",
+              "meta": "Due by 11:00 AM",
+              "fact": "The client requested approval before today's call.",
+              "action": "Review the latest contract and respond before 11:00 AM."
+            }
+          ]
+        },
+        {
+          "label": "Reply needed",
+          "items": [
+            {
+              "title": "Revised proposal request from Sarah",
+              "fact": "Sarah requested an updated proposal.",
+              "action": "Send the revised version or confirm when it will be ready."
+            }
+          ]
+        },
+        {
+          "label": "Meeting preparation",
+          "items": [
+            {
+              "title": "Client Review",
+              "meta": "2:00 PM",
+              "action": "Update the pricing slide using the latest numbers."
+            }
+          ]
+        },
+        {
+          "label": "Calendar conflict",
+          "items": [
+            {
+              "title": "Client Review overlaps with Internal Pricing Review",
+              "fact": "Both meetings are scheduled for 2:00 PM today.",
+              "interpretation": "The two meetings cover different audiences, so attending both is unlikely to work.",
+              "action": "Move the internal meeting or assign another attendee."
+            }
+          ]
+        }
+      ],
+      "secondaryActionLabel": "See the full sample briefing"
+    },
+    "workflow": {
+      "heading": "How it works",
+      "steps": [
+        {
+          "title": "Provide the context",
+          "description": "Connect or provide recent Gmail messages, today's Google Calendar events, and your priority rules."
+        },
+        {
+          "title": "Let AI organize the information",
+          "description": "AI identifies deadlines, reply obligations, meeting preparation, and scheduling conflicts."
+        },
+        {
+          "title": "Review and decide",
+          "description": "Confirm the priorities, correct any mistakes, and decide what action to take."
+        }
+      ],
+      "note": "The workflow starts in read-only mode. It does not send emails or modify calendar events automatically."
+    },
+    "responsibilities": {
+      "heading": "AI handles the preparation. You keep the judgment.",
+      "ai": {
+        "heading": "What AI does",
+        "items": [
+          "Summarizes important messages",
+          "Detects stated deadlines",
+          "Identifies reply requests",
+          "Connects emails to meetings",
+          "Flags possible calendar conflicts",
+          "Suggests next actions"
+        ]
+      },
+      "human": {
+        "heading": "What you decide",
+        "items": [
+          "What counts as urgent",
+          "Which senders or clients are priorities",
+          "Whether the AI's interpretation is correct",
+          "Which action should be taken",
+          "Whether a suggested reply should be used",
+          "What access and permissions the AI receives"
+        ]
+      }
+    },
+    "learning": {
+      "heading": "Learn the workflow—not just the answer.",
+      "items": [
+        "Define clear priority rules",
+        "Separate facts from AI inference",
+        "Give AI appropriate limits and permissions",
+        "Evaluate and correct AI-generated results",
+        "Improve the workflow using your feedback"
+      ],
+      "supporting": "The goal is not simply to receive a briefing. It is to understand how to build, evaluate, and improve an AI-assisted workflow for your own business."
+    },
+    "offers": {
+      "heading": "Choose how you want to use it",
+      "items": [
+        {
+          "key": "manual",
+          "label": "Learn it yourself",
+          "name": "Manual Playbook",
+          "price": "$29 one-time",
+          "status": "Available soon",
+          "description": "Build and customize the workflow using ChatGPT, Claude, or Gemini.",
+          "features": [
+            "ChatGPT, Claude, and Gemini setup guides",
+            "Gmail and Calendar connection guidance",
+            "Ready-to-use prompts",
+            "Priority-rule worksheet",
+            "Sample inputs and outputs",
+            "Review checklist",
+            "Safety guide",
+            "Troubleshooting"
+          ],
+          "ctaLabel": "Get the Manual Playbook",
+          "primary": true
+        },
+        {
+          "key": "local",
+          "label": "Run it locally",
+          "name": "Local Guided Workspace",
+          "price": "$99 one-time",
+          "badge": "Founding Pilot",
+          "description": "Run the workflow repeatedly on your own computer while keeping the prompts, rules, evidence, and judgment visible.",
+          "features": [
+            "Everything in the Manual",
+            "Gmail and Calendar connection",
+            "Briefing generation",
+            "Saved and editable priority rules",
+            "Visible and editable prompts",
+            "Evidence display",
+            "Separation of facts, inference, and recommendations",
+            "Local briefing history",
+            "Markdown and PDF export"
+          ],
+          "note": "AI API usage may be billed separately.",
+          "ctaLabel": "Join the Founding Pilot"
+        },
+        {
+          "key": "app",
+          "label": "Automate it",
+          "name": "Automated App",
+          "price": "Planned at $19/month",
+          "badge": "Coming later",
+          "description": "Receive scheduled briefings with minimal setup.",
+          "features": [
+            "Scheduled morning briefings",
+            "Email or browser notifications",
+            "Briefing history",
+            "Open-item tracking",
+            "Shared team rules",
+            "Managed updates"
+          ],
+          "ctaLabel": "Join the Waitlist"
+        }
+      ]
+    },
+    "setup": {
+      "heading": "Set up your first briefing in about 15–20 minutes",
+      "steps": [
+        "Choose ChatGPT, Claude, or Gemini",
+        "Connect Gmail and Google Calendar",
+        "Define your priority rules",
+        "Generate your first briefing",
+        "Review and improve the result"
+      ],
+      "ctaLabel": "Preview the setup"
+    },
+    "safety": {
+      "heading": "You control what the AI can access and what actions it can take.",
+      "items": [
+        "Start with read-only access",
+        "Do not enable automatic sending initially",
+        "Review priorities and suggested replies",
+        "Avoid exposing confidential information in shared demos",
+        "Follow company policies when using work accounts",
+        "Remove access whenever it is no longer needed"
+      ]
+    },
+    "faq": [
+      {
+        "question": "Which AI tools can I use?",
+        "answer": "The Manual includes versions for ChatGPT, Claude, and Gemini. Available Gmail and Calendar capabilities may differ by platform and plan."
+      },
+      {
+        "question": "Does the workflow send emails automatically?",
+        "answer": "No. The initial workflow is designed for reviewing, organizing, and drafting only."
+      },
+      {
+        "question": "Can I use a work Google account?",
+        "answer": "Possibly, but your organization may restrict external AI connections. Confirm your company's policies and administrator settings first."
+      },
+      {
+        "question": "Do I need technical experience?",
+        "answer": "No coding is required for the Manual version. The guide explains the setup and includes ready-to-use prompts and templates."
+      },
+      {
+        "question": "What is the difference between Manual, Local, and App?",
+        "answer": "Manual teaches you how to build and customize the workflow. Local makes repeated use easier on your computer. The App is planned as a managed, scheduled service."
+      },
+      {
+        "question": "Are AI subscription or API fees included?",
+        "answer": "No. Any ChatGPT, Claude, Gemini, or API charges are separate unless explicitly stated."
+      }
+    ],
+    "finalCta": {
+      "headline": "Ready to build your first AI-powered morning workflow?",
+      "description": "Learn how it works, customize the rules, and create a briefing that reflects the way you actually work.",
+      "primaryLabel": "$29 — Get the Manual Playbook",
+      "supporting": "Interested in more automation? Join the Local Pilot or App Waitlist."
+    }
+  }
 }

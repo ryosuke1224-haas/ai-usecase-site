@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExperienceTile } from "@/components/use-case/experience/experience-tile";
 import { Badge } from "@/components/ui/detail";
 import type { UseCase } from "@/src/types";
 
@@ -22,6 +23,13 @@ export function WorkflowCard({
   alsoRelevantTo?: string[];
 }) {
   const outcome = useCase.businessOutcomes?.[0];
+
+  // Opt-in animated tile; all other workflow cards keep the existing layout.
+  if (useCase.templateVersion === "experience-v2" && useCase.experience) {
+    return (
+      <ExperienceTile useCase={useCase} tile={useCase.experience.tile} />
+    );
+  }
 
   return (
     <Link

@@ -115,12 +115,231 @@ export const blueprintGuideSchema = z
   })
   .strict();
 
+/**
+ * Opt-in page template. Absent means the long-standing blueprint template,
+ * so existing use cases keep rendering exactly as before.
+ */
+export const templateVersionSchema = z.enum(["experience-v2"]);
+
+export const publishStatusSchema = z.enum(["published", "preview"]);
+
+const metricSchema = z
+  .object({
+    value: z.string().min(1),
+    label: z.string().min(1),
+  })
+  .strict();
+
+const labelledItemsSchema = z
+  .object({
+    heading: z.string().min(1),
+    items: z.array(z.string()).min(1),
+  })
+  .strict();
+
+/**
+ * Scenes for the tile preview animation. Rendered as a static final scene
+ * when JavaScript or motion is unavailable.
+ */
+const tileSceneSchema = z
+  .object({
+    /** Short status caption, e.g. "AI organizing...". */
+    caption: z.string().min(1),
+    metrics: z.array(metricSchema),
+  })
+  .strict();
+
+const demoEmailSchema = z
+  .object({
+    subject: z.string().min(1),
+    /** Drives emphasis and an explicit text label, never colour alone. */
+    priority: z.enum(["high", "normal", "low"]),
+  })
+  .strict();
+
+const demoEventSchema = z
+  .object({
+    time: z.string().min(1),
+    title: z.string().min(1),
+    conflict: z.boolean().optional(),
+  })
+  .strict();
+
+const briefingGroupSchema = z
+  .object({
+    label: z.string().min(1),
+    items: z
+      .array(
+        z
+          .object({
+            title: z.string().min(1),
+            /** Deadline or time context shown beside the title. */
+            meta: z.string().optional(),
+            /** Stated in the source data. */
+            fact: z.string().optional(),
+            /** Model inference, labelled separately from facts. */
+            interpretation: z.string().optional(),
+            /** Recommended next step for the owner to approve. */
+            action: z.string().optional(),
+          })
+          .strict(),
+      )
+      .min(1),
+  })
+  .strict();
+
+const conceptDemoSchema = z
+  .object({
+    inputs: z
+      .object({
+        metrics: z.array(metricSchema).min(1),
+        emails: z.array(demoEmailSchema).min(1),
+        events: z.array(demoEventSchema).min(1),
+      })
+      .strict(),
+    processingSteps: z.array(z.string()).min(1),
+    summary: z.array(metricSchema).min(1),
+    briefing: z
+      .object({
+        title: z.string().min(1),
+        groups: z.array(briefingGroupSchema).min(1),
+        status: z.string().min(1),
+      })
+      .strict(),
+  })
+  .strict();
+
+const offerSchema = z
+  .object({
+    /** Chooses the configurable destination; see src/lib/offers.ts. */
+    key: z.enum(["manual", "local", "app"]),
+    label: z.string().min(1),
+    name: z.string().min(1),
+    price: z.string().min(1),
+    badge: z.string().optional(),
+    status: z.string().optional(),
+    description: z.string().min(1),
+    features: z.array(z.string()).min(1),
+    note: z.string().optional(),
+    ctaLabel: z.string().min(1),
+    /** Marks the visually primary purchase path. */
+    primary: z.boolean().optional(),
+  })
+  .strict();
+
+export const useCaseExperienceSchema = z
+  .object({
+    tile: z
+      .object({
+        headline: z.string().min(1),
+        scenes: z.array(tileSceneSchema).min(1),
+        demoLabel: z.string().min(1),
+        workflowLabel: z.string().min(1),
+      })
+      .strict(),
+    hero: z
+      .object({
+        headline: z.string().min(1),
+        description: z.string().min(1),
+        demoLabel: z.string().min(1),
+        workflowLabel: z.string().min(1),
+      })
+      .strict(),
+    outcomes: z
+      .object({
+        metrics: z.array(metricSchema).min(1),
+        supporting: z.string().min(1),
+      })
+      .strict(),
+    conceptDemo: conceptDemoSchema,
+    sampleBriefing: z
+      .object({
+        heading: z.string().min(1),
+        title: z.string().min(1),
+        date: z.string().min(1),
+        groups: z.array(briefingGroupSchema).min(1),
+        secondaryActionLabel: z.string().min(1),
+      })
+      .strict(),
+    workflow: z
+      .object({
+        heading: z.string().min(1),
+        steps: z
+          .array(
+            z
+              .object({
+                title: z.string().min(1),
+                description: z.string().min(1),
+              })
+              .strict(),
+          )
+          .min(1),
+        note: z.string().min(1),
+      })
+      .strict(),
+    responsibilities: z
+      .object({
+        heading: z.string().min(1),
+        ai: labelledItemsSchema,
+        human: labelledItemsSchema,
+      })
+      .strict(),
+    learning: z
+      .object({
+        heading: z.string().min(1),
+        items: z.array(z.string()).min(1),
+        supporting: z.string().min(1),
+      })
+      .strict(),
+    offers: z
+      .object({
+        heading: z.string().min(1),
+        items: z.array(offerSchema).min(1),
+      })
+      .strict(),
+    setup: z
+      .object({
+        heading: z.string().min(1),
+        steps: z.array(z.string()).min(1),
+        ctaLabel: z.string().min(1),
+      })
+      .strict(),
+    safety: labelledItemsSchema,
+    faq: z
+      .array(
+        z
+          .object({
+            question: z.string().min(1),
+            answer: z.string().min(1),
+          })
+          .strict(),
+      )
+      .min(1),
+    finalCta: z
+      .object({
+        headline: z.string().min(1),
+        description: z.string().min(1),
+        primaryLabel: z.string().min(1),
+        supporting: z.string().min(1),
+      })
+      .strict(),
+  })
+  .strict();
+
 export const useCaseSchema = z
   .object({
     id: z.string().min(1),
     slug: z.string().min(1),
     title: z.string().min(1),
     category: z.string().min(1),
+    /** Opt-in alternative page template. Omit to keep the existing template. */
+    templateVersion: templateVersionSchema.optional(),
+    status: publishStatusSchema.optional(),
+    /**
+     * Content for the experience-led template. Only read when
+     * templateVersion is "experience-v2".
+     */
+    experience: useCaseExperienceSchema.optional(),
     tagline: z.string().optional(),
     industries: z.array(z.string()).min(1),
     businessFunctions: z.array(z.string()).min(1),
@@ -254,6 +473,9 @@ export type PrivacyLevel = z.infer<typeof privacyLevelSchema>;
 export type BusinessProblem = z.infer<typeof businessProblemSchema>;
 export type UseCaseBusinessArea = z.infer<typeof businessAreaSchema>;
 export type BlueprintGuide = z.infer<typeof blueprintGuideSchema>;
+export type TemplateVersion = z.infer<typeof templateVersionSchema>;
+export type PublishStatus = z.infer<typeof publishStatusSchema>;
+export type UseCaseExperience = z.infer<typeof useCaseExperienceSchema>;
 export type SourceType = z.infer<typeof sourceTypeSchema>;
 
 export type UseCase = z.infer<typeof useCaseSchema>;

@@ -27,6 +27,7 @@ import { createContentResolver } from "@/src/lib/resolve";
 import type { UseCase } from "@/src/types";
 import { FinancePlanningDisclaimer } from "@/components/use-case/finance-disclaimer";
 import { GoogleAdsPlaybookSection } from "@/components/use-case/google-ads-playbook";
+import { ExperienceUseCasePage } from "@/components/use-case/experience/experience-use-case-page";
 
 const PLAYBOOK_SLUGS = new Set(["google-ads-performance-coach"]);
 
@@ -59,6 +60,12 @@ export default async function UseCaseDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const uc = getUseCaseBySlug(slug);
   if (!uc) notFound();
+
+  // Opt-in experience-led template. Every other use case falls through to the
+  // existing blueprint template below, unchanged.
+  if (uc.templateVersion === "experience-v2" && uc.experience) {
+    return <ExperienceUseCasePage useCase={uc} experience={uc.experience} />;
+  }
 
   const { useCases } = loadPublishedContent();
   const businessArea = uc.businessArea

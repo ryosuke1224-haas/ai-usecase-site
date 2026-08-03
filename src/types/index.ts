@@ -6,8 +6,11 @@ export type {
   DataSource,
   Difficulty,
   PrivacyLevel,
+  PublishStatus,
   SourceRegistryItem,
+  TemplateVersion,
   UseCase,
+  UseCaseExperience,
   ValuePotential,
   WorkflowIdea,
 } from "@/src/content/schemas";

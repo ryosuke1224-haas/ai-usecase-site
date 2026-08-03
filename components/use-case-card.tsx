@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { UseCase } from "@/src/types";
+import { ExperienceTile } from "./use-case/experience/experience-tile";
 import { Badge } from "./ui/detail";
 
 const valueStyles = {
@@ -18,6 +19,13 @@ const difficultyStyles = {
 
 export function UseCaseCard({ useCase }: { useCase: UseCase }) {
   const outcome = useCase.businessOutcomes?.[0];
+
+  // Opt-in animated tile; all other cards keep the existing layout.
+  if (useCase.templateVersion === "experience-v2" && useCase.experience) {
+    return (
+      <ExperienceTile useCase={useCase} tile={useCase.experience.tile} />
+    );
+  }
 
   return (
     <Link
