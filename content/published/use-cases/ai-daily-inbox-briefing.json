@@ -268,7 +268,7 @@
           ]
         }
       ],
-      "secondaryActionLabel": "See the full sample briefing"
+      "secondaryActionLabel": "Download the sample briefing"
     },
     "workflow": {
       "heading": "How it works",
@@ -334,6 +334,7 @@
           "price": "$29 one-time",
           "status": "Available soon",
           "description": "Build and customize the workflow using ChatGPT, Claude, or Gemini.",
+          "bestFor": "Best for learning and customization",
           "features": [
             "ChatGPT, Claude, and Gemini setup guides",
             "Gmail and Calendar connection guidance",
@@ -345,6 +346,7 @@
             "Troubleshooting"
           ],
           "ctaLabel": "Get the Manual Playbook",
+          "previewCtaLabel": "Join Early Access",
           "primary": true
         },
         {
@@ -354,6 +356,7 @@
           "price": "$99 one-time",
           "badge": "Founding Pilot",
           "description": "Run the workflow repeatedly on your own computer while keeping the prompts, rules, evidence, and judgment visible.",
+          "bestFor": "Best for repeated personal use",
           "features": [
             "Everything in the Manual",
             "Gmail and Calendar connection",
@@ -375,6 +378,7 @@
           "price": "Planned at $19/month",
           "badge": "Coming later",
           "description": "Receive scheduled briefings with minimal setup.",
+          "bestFor": "Best for convenience and automation",
           "features": [
             "Scheduled morning briefings",
             "Email or browser notifications",

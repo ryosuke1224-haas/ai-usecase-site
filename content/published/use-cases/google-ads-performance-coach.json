@@ -43,13 +43,14 @@
       ]
     },
     "whatItDoes": {
-      "summary": "The workflow reads your exported advertising and website reports, does the arithmetic and the routine checks for you, and then explains what it found in plain language.",
+      "summary": "The workflow reads your exported advertising and website reports, builds a calculation workbook so the arithmetic is visible and repeatable, runs the routine checks for you, and then explains what it found in plain language.",
       "capabilities": [
+        "Check whether conversion tracking is trustworthy before judging efficiency",
+        "Build a calculation workbook with the formulas left visible",
         "Organize advertising cost, clicks, conversions, and related metrics",
-        "Compare campaign performance",
+        "Compare the current period against the previous one",
         "Highlight possible wasted spend",
-        "Identify campaigns or keywords that require investigation",
-        "Check for possible conversion-tracking inconsistencies",
+        "Identify campaigns, search terms, or landing pages that require investigation",
         "Compare advertising results with GA4 website behavior",
         "Produce a prioritized list of recommended next actions"
       ],
@@ -71,36 +72,41 @@
     },
     "howItWorks": {
       "inputs": [
-        "Google Ads report",
-        "GA4 website report"
+        "Google Ads reports (current + previous)",
+        "GA4 reports (current + previous)",
+        "Conversion-actions screenshot",
+        "Business context"
       ],
       "stages": [
+        "Measurement-readiness check",
         "Metric calculations and checks",
         "AI explanation and diagnosis",
         "Prioritized improvement actions"
       ],
-      "note": "The order matters. The totals, ratios, and rule-based checks are calculated first, so the numbers are the same every time you run it. The AI model only explains and prioritizes what those calculations already found — it is not asked to do the arithmetic. Any capable AI assistant can play that role; the workflow does not depend on one provider."
+      "note": "The order matters. Measurement is checked before efficiency, so the workflow can stop and report MEASUREMENT REVIEW FIRST rather than judging cost per conversion against events that do not represent qualified outcomes. The totals, ratios, and rule-based checks are calculated next, so the numbers are the same every time you run it. The AI model only explains and prioritizes what those calculations already found — it is not asked to do the arithmetic."
     },
     "whatYouNeed": {
       "items": [
         "An active Google Ads account",
-        "A website with analytics installed",
-        "A GA4 property",
-        "Meaningful conversion events",
-        "Google Ads campaign reports",
-        "GA4 website-performance reports",
-        "Access to an AI assistant"
+        "A GA4 property connected to your website",
+        "Google Ads campaign reports for the current and the previous period",
+        "GA4 Traffic acquisition reports for the current and the previous period",
+        "GA4 Landing page reports for the current and the previous period",
+        "One Google Ads conversion-actions screenshot from Goals > Conversions > Summary",
+        "Business context: what counts as a qualified outcome for your business",
+        "A Google Ads search-terms report when the campaign type supports it",
+        "A file-capable AI assistant that can read CSV files and images"
       ],
-      "note": "No integration or developer work is needed to try this. The reports are ordinary exports, and any AI assistant you already use is enough to run the manual version."
+      "note": "Meaningful conversion events are recommended but not required. If your events are missing, misconfigured, or unreliable, the workflow does not guess — it reports MEASUREMENT REVIEW FIRST, and that finding is the useful output for this run. Spreadsheet-generation capability is recommended so the assistant can build the calculation workbook for you; without it you still get the audit, but you will assemble the workbook yourself. No integration or developer work is needed either way, because every input is an ordinary export or screenshot."
     },
     "exampleOutput": {
       "disclaimer": "Illustrative sample only. The numbers below are made up to show the format of the output. They are not from a real business and are not a benchmark.",
       "findings": [
         {
           "label": "Confirmed finding",
-          "finding": "Campaign A spent $840 during the selected period but recorded no tracked conversions.",
-          "whyItMatters": "This campaign represents 18% of total spend. Before reducing the budget, confirm that conversion tracking is working correctly.",
-          "nextAction": "Review the campaign's search terms and landing page, then test the conversion event before changing bids or budget."
+          "finding": "A page view is configured as a Primary conversion action, and GA4 records zero key events from paid Google traffic for the same period. Result: MEASUREMENT REVIEW FIRST.",
+          "whyItMatters": "Every conversion Google Ads reports for this account is a page view, so cost per conversion and conversion rate describe visits rather than qualified outcomes. GA4 recording zero paid key events means there is no independent signal that anything of value happened. Optimizing bids or budgets against these numbers would push spend toward whichever campaign produces the most page views.",
+          "nextAction": "Decide what a qualified outcome is for your business, configure it as a Primary conversion action, demote the page view to Secondary, and confirm the matching GA4 key event records paid traffic. Re-run the audit once real outcomes are recording; do not change budgets or bids before then."
         },
         {
           "label": "Possible explanation",
@@ -119,10 +125,12 @@
     "manualApproach": {
       "effort": "Beginner — no tools to set up",
       "steps": [
-        "Export the relevant Google Ads report",
-        "Export the corresponding GA4 report",
-        "Upload both reports to an AI assistant",
-        "Ask it to separate confirmed findings from assumptions",
+        "Export the Google Ads campaign reports for the current and the previous period",
+        "Export the GA4 Traffic acquisition and Landing page reports for the same two periods",
+        "Capture one screenshot of the Google Ads conversion-actions summary",
+        "Upload the files, the screenshot, and your business context to a file-capable AI assistant",
+        "Ask it to build the calculation workbook and check measurement readiness first",
+        "Ask it to separate confirmed findings from possible explanations",
         "Review the recommended actions before changing campaigns"
       ],
       "note": "A complete playbook with export instructions, prompts, templates, and checklists is available, including sample input files and a calculated workbook example."

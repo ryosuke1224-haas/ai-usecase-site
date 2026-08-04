@@ -9,8 +9,8 @@ export const BLUEPRINT_GUIDE_SECTIONS = [
   { id: "how-it-works", label: "How it works" },
   { id: "what-you-need", label: "What you need" },
   { id: "example", label: "Example output" },
-  { id: "manual", label: "Try it manually" },
-  { id: "automate", label: "Automate it" },
+  { id: "manual", label: "Try it yourself" },
+  { id: "automate", label: "Run it locally" },
   { id: "get-started", label: "Get started" },
   { id: "technical", label: "Technical details" },
 ] as const;
@@ -132,7 +132,7 @@ export function BlueprintGuide({ useCase }: { useCase: UseCase }) {
         </div>
       </DetailSection>
 
-      <DetailSection id="manual" title="Try it manually">
+      <DetailSection id="manual" title="Try it yourself">
         <p className="text-sm font-medium text-accent">
           {guide.manualApproach.effort}
         </p>
@@ -144,7 +144,7 @@ export function BlueprintGuide({ useCase }: { useCase: UseCase }) {
         </p>
       </DetailSection>
 
-      <DetailSection id="automate" title="Automate the workflow">
+      <DetailSection id="automate" title="Run it locally">
         <p className="text-sm font-medium text-accent">
           {guide.automatedApproach.effort}
         </p>
@@ -199,8 +199,8 @@ function FlowDiagram({
 }) {
   return (
     <div className="rounded-xl border border-border/60 bg-surface/50 p-4 sm:p-5">
-      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center">
           {inputs.map((input, index) => (
             <Fragment key={input}>
               {index > 0 && (

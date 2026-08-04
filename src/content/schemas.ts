@@ -219,9 +219,17 @@ const offerSchema = z
     badge: z.string().optional(),
     status: z.string().optional(),
     description: z.string().min(1),
+    /** One-line audience hint, e.g. "Best for learning and customization". */
+    bestFor: z.string().optional(),
     features: z.array(z.string()).min(1),
     note: z.string().optional(),
+    /** Label once a real purchase or signup destination is configured. */
     ctaLabel: z.string().min(1),
+    /**
+     * Label while no destination is configured and the CTA falls back to the
+     * contact route, so a preview state never implies a working checkout.
+     */
+    previewCtaLabel: z.string().optional(),
     /** Marks the visually primary purchase path. */
     primary: z.boolean().optional(),
   })

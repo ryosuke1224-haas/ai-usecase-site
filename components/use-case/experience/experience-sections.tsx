@@ -161,25 +161,27 @@ export function SetupPreview({
 }: {
   setup: UseCaseExperience["setup"];
 }) {
-  // Structured so an interactive walkthrough embed can replace the CTA later
-  // without changing the surrounding layout.
   const previewUrl = getSetupPreviewUrl();
 
   return (
     <ExperienceSection id="setup" heading={setup.heading}>
-      <div className="rounded-2xl border border-border/60 bg-card p-6 sm:p-8">
-        <ol className="space-y-3">
+      {/* Interactive walkthrough embed replaces the CTA row below when ready. */}
+      <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6">
+        <ol className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-3">
           {setup.steps.map((step, index) => (
-            <li key={step} className="flex gap-3 text-sm text-foreground">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface text-xs font-bold text-muted">
+            <li
+              key={step}
+              className="flex items-start gap-2.5 rounded-xl bg-surface/60 px-3 py-3 text-sm text-foreground lg:flex-col lg:gap-2"
+            >
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-card text-xs font-bold text-muted">
                 {index + 1}
               </span>
-              <span className="pt-0.5">{step}</span>
+              <span className="leading-snug lg:text-xs">{step}</span>
             </li>
           ))}
         </ol>
 
-        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-border/40 pt-5">
+        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border/40 pt-4">
           {previewUrl ? (
             <a
               href={previewUrl}

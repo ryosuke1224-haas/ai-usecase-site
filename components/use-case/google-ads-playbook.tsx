@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/src/lib/site";
 
+const PREVIEW_IMAGE = "/images/google-ads-audit/calculated-metrics-dashboard.png";
+
 const steps = [
   {
     number: "1",
@@ -83,15 +85,21 @@ export function GoogleAdsPlaybookSection() {
 
       <div className="overflow-hidden rounded-2xl border border-border/60 bg-card">
         <div className="grid items-center gap-8 p-6 lg:grid-cols-[1.25fr_0.75fr] lg:p-8">
-          <div className="overflow-hidden rounded-xl border border-border/60 bg-white">
+          <a
+            href={PREVIEW_IMAGE}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View the sample workbook preview at full size"
+            className="group block overflow-hidden rounded-xl border border-border/60 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          >
             <Image
-              src="/images/google-ads-audit/calculated-metrics-dashboard.png"
+              src={PREVIEW_IMAGE}
               alt="Fictional Google Ads and GA4 calculated workbook dashboard showing measurement review first"
               width={2048}
               height={640}
-              className="h-auto w-full"
+              className="h-auto w-full transition-opacity group-hover:opacity-90"
             />
-          </div>
+          </a>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted">
               Sample output
@@ -104,6 +112,14 @@ export function GoogleAdsPlaybookSection() {
               claim that the campaign generated qualified leads.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
+              <a
+                href={PREVIEW_IMAGE}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-surface px-4 py-2.5 text-sm font-semibold hover:border-accent/40 hover:bg-card"
+              >
+                View full-size preview
+              </a>
               <a
                 href="/downloads/google-ads-audit/calculated_metrics_sample.xlsx"
                 className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-surface px-4 py-2.5 text-sm font-semibold hover:border-accent/40 hover:bg-card"

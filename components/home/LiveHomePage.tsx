@@ -3,6 +3,14 @@ import { BusinessAreaCard } from "@/components/business-areas/business-area-card
 import { FlagshipPlaybook } from "@/components/homepage/flagship-playbook";
 import { getBusinessAreaOverviews } from "@/src/lib/business-area-content";
 
+/**
+ * Temporarily hides the flagship Google Ads section below the hero.
+ * Set to true to restore it — the component, blueprint page, playbook page,
+ * content, and images all remain in place. With it hidden, the hero flows
+ * straight into #business-areas, which supplies its own section spacing.
+ */
+const showFlagshipWorkflow: boolean = false;
+
 const steps = [
   {
     number: "1",
@@ -57,7 +65,7 @@ export function LiveHomePage() {
         </div>
       </section>
 
-      <FlagshipPlaybook />
+      {showFlagshipWorkflow && <FlagshipPlaybook />}
 
       <section id="business-areas" className="mt-16 scroll-mt-24 sm:mt-20">
         <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">

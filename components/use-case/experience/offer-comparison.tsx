@@ -9,6 +9,10 @@ type Offer = Offers["items"][number];
 function OfferCard({ offer }: { offer: Offer }) {
   const destination = getOfferDestination(offer.key);
   const isPrimary = offer.primary === true;
+  // While no real destination is configured the CTA must not imply checkout.
+  const ctaLabel = destination.isFallback
+    ? (offer.previewCtaLabel ?? offer.ctaLabel)
+    : offer.ctaLabel;
 
   return (
     <div
@@ -42,6 +46,11 @@ function OfferCard({ offer }: { offer: Offer }) {
       <p className="mt-3 text-sm leading-relaxed text-muted">
         {offer.description}
       </p>
+      {offer.bestFor && (
+        <p className="mt-2 text-xs font-medium text-foreground">
+          {offer.bestFor}
+        </p>
+      )}
 
       <ul className="mt-4 flex-1 space-y-2">
         {offer.features.map((feature) => (
@@ -70,7 +79,7 @@ function OfferCard({ offer }: { offer: Offer }) {
               : "border border-border/60 bg-surface text-foreground hover:border-accent/40 hover:bg-card"
           }`}
         >
-          {offer.ctaLabel}
+          {ctaLabel}
         </Link>
       </div>
     </div>
@@ -90,9 +99,13 @@ export function OfferComparison({ offers }: { offers: Offers }) {
         ))}
       </div>
       {anyFallback && (
-        <p className="mt-4 text-sm text-muted">
-          These are not open for purchase yet. Each button opens the contact
-          page so you can register your interest.
+        <p className="mt-4 text-sm leading-relaxed text-muted">
+          <span className="font-medium text-foreground">
+            None of these are available to buy yet.
+          </span>{" "}
+          Prices show what each option is planned to cost. Every button opens
+          the contact page, where you can register interest and be told when it
+          is ready — no payment is taken.
         </p>
       )}
     </ExperienceSection>

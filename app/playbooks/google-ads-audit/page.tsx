@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { CONTACT_EMAIL } from "@/src/lib/site";
 
+const PREVIEW_IMAGE = "/images/google-ads-audit/calculated-metrics-dashboard.png";
+
 export const metadata: Metadata = {
   title: "Google Ads AI Audit Playbook",
   description:
@@ -69,15 +71,31 @@ export default function GoogleAdsAuditPlaybookPage() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-border/60 bg-white shadow-sm">
-          <Image
-            src="/images/google-ads-audit/calculated-metrics-dashboard.png"
-            alt="Sample Google Ads audit workbook dashboard"
-            width={2048}
-            height={640}
-            className="h-auto w-full"
-            priority
-          />
+        <div>
+          <a
+            href={PREVIEW_IMAGE}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View the sample workbook preview at full size"
+            className="group block overflow-hidden rounded-2xl border border-border/60 bg-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          >
+            <Image
+              src={PREVIEW_IMAGE}
+              alt="Sample Google Ads audit workbook dashboard"
+              width={2048}
+              height={640}
+              className="h-auto w-full transition-opacity group-hover:opacity-90"
+              priority
+            />
+          </a>
+          <a
+            href={PREVIEW_IMAGE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex text-sm font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          >
+            View full-size preview
+          </a>
         </div>
       </section>
 
