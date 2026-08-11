@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { GlobalSearch } from "@/components/discovery/global-search";
+import { AccountMenu } from "@/components/nav/account-menu";
 import { ResourcesMenu } from "@/components/nav/resources-menu";
+import { getCurrentUser } from "@/src/lib/auth";
 import { isComingSoonMode } from "@/src/lib/site-mode";
 
 const navLinks = [
@@ -40,7 +42,9 @@ function ComingSoonHeader() {
   );
 }
 
-function LiveHeader() {
+async function LiveHeader() {
+  const user = await getCurrentUser();
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-6">
@@ -61,6 +65,10 @@ function LiveHeader() {
             </Link>
           ))}
           <ResourcesMenu />
+          <AccountMenu
+            isAuthenticated={Boolean(user)}
+            email={user?.email}
+          />
         </nav>
       </div>
 
@@ -71,7 +79,7 @@ function LiveHeader() {
   );
 }
 
-export function Header() {
+export async function Header() {
   if (isComingSoonMode()) {
     return <ComingSoonHeader />;
   }

@@ -369,12 +369,11 @@
       "heading": "Ready to try it with your own inbox?",
       "description": "Create a free Atlas account to get the prompts, setup guides, worksheets, and review checklist used in this workflow.",
       "ctaLabel": "Get the Free Starter Kit",
-      "supporting": "Free account required.",
-      "previewNote": "Account signup coming next — this opens the contact page for now."
+      "supporting": "Free account required."
     },
     "offers": {
       "heading": "Choose how you want to use it",
-      "footnote": "The Atlas workflow and Starter Kit are free with an Atlas account. Local and App options are planned paid products. Third-party AI tools (ChatGPT, Claude, Gemini) may have their own plan or usage fees. Starter Kit signup is not live yet — that button opens the contact page until account gating is wired.",
+      "footnote": "The Atlas workflow and Starter Kit are free with an Atlas account. Local and App options are planned paid products. Third-party AI tools (ChatGPT, Claude, Gemini) may have their own plan or usage fees.",
       "items": [
         {
           "key": "starter",

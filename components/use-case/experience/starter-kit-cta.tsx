@@ -1,18 +1,14 @@
 import Link from "next/link";
 import type { UseCaseExperience } from "@/src/types";
-import { getStarterKitDestination } from "@/src/lib/offers";
+import { getStarterKitHref } from "@/src/lib/offers";
 
 type StarterCta = NonNullable<UseCaseExperience["starterCta"]>;
 
 /**
- * Mid-page Free Starter Kit CTA. Destination resolves through
- * getStarterKitDestination() so the next task can point
- * NEXT_PUBLIC_STARTER_KIT_URL at a real signup/download flow without
- * redesigning this section.
+ * Mid-page Free Starter Kit conversion CTA.
+ * Links to the protected Starter Kit route; that page handles auth redirect.
  */
 export function StarterKitCta({ starterCta }: { starterCta: StarterCta }) {
-  const destination = getStarterKitDestination();
-
   return (
     <section
       id="starter-kit"
@@ -29,16 +25,15 @@ export function StarterKitCta({ starterCta }: { starterCta: StarterCta }) {
       </p>
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <Link
-          href={destination.href}
+          href={getStarterKitHref()}
           className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
         >
           {starterCta.ctaLabel}
         </Link>
-        <p className="text-xs font-medium text-muted">{starterCta.supporting}</p>
+        <p className="text-xs font-medium text-muted">
+          {starterCta.supporting}
+        </p>
       </div>
-      {destination.isFallback && starterCta.previewNote && (
-        <p className="mt-3 text-xs text-muted">{starterCta.previewNote}</p>
-      )}
     </section>
   );
 }

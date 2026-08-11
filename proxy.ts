@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { updateSession } from "@/src/lib/supabase/proxy";
 
 /**
  * Public routes allowed while SITE_MODE=coming-soon.
@@ -26,18 +27,20 @@ function isStaticAsset(pathname: string) {
   );
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  // Always refresh the Auth session first so protected routes see current cookies.
+  const sessionResponse = await updateSession(request);
+
   if (!isComingSoonMode()) {
-    return NextResponse.next();
+    return sessionResponse;
   }
 
   const { pathname } = request.nextUrl;
 
   if (COMING_SOON_PUBLIC_PATHS.has(pathname) || isStaticAsset(pathname)) {
-    return NextResponse.next();
+    return sessionResponse;
   }
 
-  // Avoid redirect loops: only unfinished application routes are redirected.
   const url = request.nextUrl.clone();
   url.pathname = "/";
   url.search = "";
@@ -48,7 +51,7 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except Next.js internals and common static assets.
-     * Public pages are allowlisted inside the proxy function.
+     * Public pages are allowlisted inside the proxy function for coming-soon mode.
      */
     "/((?!_next/static|_next/image|_next/data|favicon.ico).*)",
   ],

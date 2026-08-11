@@ -1,32 +1,23 @@
 /**
  * Destinations for the commercial offers on experience-led use-case pages.
  *
- * No authentication, gated download, or payment flow exists yet, so each offer
- * resolves in one of two ways:
+ * Free Starter Kit CTAs always point at the protected starter-kit route.
+ * That route verifies the session server-side and sends logged-out visitors
+ * into /auth while preserving `next`.
  *
- * - An operator sets the matching NEXT_PUBLIC_* variable to a real URL
- *   (signup route, Stripe payment link, Tally form) and the CTA becomes live.
- * - Nothing is configured, and the CTA falls back to the existing /contact
- *   route so it always leads somewhere real instead of a broken checkout.
- *
- * The Free Starter Kit CTA is deliberately structured the same way so the next
- * task can point NEXT_PUBLIC_STARTER_KIT_URL at an authenticated download or
- * signup flow without redesigning the page.
- *
- * Sections with no meaningful fallback (the full sample briefing) resolve to
- * `undefined` so the UI can render a disabled "coming soon" state.
+ * Local / App still fall back to /contact until their real destinations exist.
  */
+
+import { DAILY_INBOX_STARTER_KIT_PATH } from "@/src/lib/blueprints";
 
 export type OfferKey = "starter" | "local" | "app";
 
 const CONTACT_ROUTE = "/contact";
 
-/** Same validation approach as the configured Tally form URL on the homepage. */
 function readConfiguredUrl(raw: string | undefined): string | undefined {
   const trimmed = raw?.trim();
   if (!trimmed) return undefined;
 
-  // Allow site-relative paths as well as absolute URLs.
   if (trimmed.startsWith("/")) return trimmed;
 
   try {
@@ -38,17 +29,25 @@ function readConfiguredUrl(raw: string | undefined): string | undefined {
 
 export type OfferDestination = {
   href: string;
-  /** True when falling back to /contact because no product URL is configured. */
+  /** True when falling back because no product URL is configured. */
   isFallback: boolean;
 };
 
+/** Protected Starter Kit path — auth gate lives on that route. */
+export function getStarterKitHref(): string {
+  return DAILY_INBOX_STARTER_KIT_PATH;
+}
+
 export function getOfferDestination(key: OfferKey): OfferDestination {
+  if (key === "starter") {
+    return {
+      href: getStarterKitHref(),
+      isFallback: false,
+    };
+  }
+
   const configured = readConfiguredUrl(
     {
-      // Prefer the starter-kit URL; accept the older manual env var during transition.
-      starter:
-        process.env.NEXT_PUBLIC_STARTER_KIT_URL ??
-        process.env.NEXT_PUBLIC_MANUAL_PLAYBOOK_URL,
       local: process.env.NEXT_PUBLIC_LOCAL_PILOT_URL,
       app: process.env.NEXT_PUBLIC_APP_WAITLIST_URL,
     }[key],
@@ -57,11 +56,6 @@ export function getOfferDestination(key: OfferKey): OfferDestination {
   return configured
     ? { href: configured, isFallback: false }
     : { href: CONTACT_ROUTE, isFallback: true };
-}
-
-/** Convenience alias used by mid-page and final Starter Kit CTAs. */
-export function getStarterKitDestination(): OfferDestination {
-  return getOfferDestination("starter");
 }
 
 /** Full sample briefing document. Undefined until a real file exists. */

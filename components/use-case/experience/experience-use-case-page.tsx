@@ -17,8 +17,8 @@ import { UseCaseHero } from "./use-case-hero";
 
 /**
  * Page template for use cases with templateVersion "experience-v2".
- * Free Starter journey leads with the guided demo before deeper education,
- * then converts to the Starter Kit and shows Local/App options.
+ * Public guided experience stays open. Starter Kit CTAs link to the protected
+ * kit route, which handles auth redirect server-side.
  */
 export function ExperienceUseCasePage({
   useCase,

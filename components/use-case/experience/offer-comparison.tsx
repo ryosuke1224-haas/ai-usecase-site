@@ -9,10 +9,10 @@ type Offer = Offers["items"][number];
 function OfferCard({ offer }: { offer: Offer }) {
   const destination = getOfferDestination(offer.key);
   const isPrimary = offer.primary === true;
-  // While no real destination is configured the CTA must not imply checkout.
-  const ctaLabel = destination.isFallback
-    ? (offer.previewCtaLabel ?? offer.ctaLabel)
-    : offer.ctaLabel;
+  const ctaLabel =
+    destination.isFallback && offer.previewCtaLabel
+      ? offer.previewCtaLabel
+      : offer.ctaLabel;
 
   return (
     <div
@@ -81,9 +81,9 @@ function OfferCard({ offer }: { offer: Offer }) {
         >
           {ctaLabel}
         </Link>
-        {destination.isFallback && offer.key === "starter" && (
+        {offer.key === "starter" && (
           <p className="mt-2 text-center text-xs text-muted">
-            Account signup coming next
+            Free account required.
           </p>
         )}
       </div>
@@ -140,11 +140,7 @@ export function FinalPurchaseCta({
         </Link>
       </div>
       <p className="mt-4 text-xs text-muted">{finalCta.supporting}</p>
-      {destination.isFallback && (
-        <p className="mt-1 text-xs text-muted">
-          Account signup coming next — this opens the contact page for now.
-        </p>
-      )}
+      <p className="mt-1 text-xs text-muted">Free account required.</p>
     </section>
   );
 }
