@@ -6,6 +6,7 @@ export type {
   DataSource,
   Difficulty,
   PrivacyLevel,
+  AccessTier,
   PublishStatus,
   SourceRegistryItem,
   TemplateVersion,

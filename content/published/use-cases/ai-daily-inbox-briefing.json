@@ -5,6 +5,7 @@
   "category": "Operations",
   "templateVersion": "experience-v2",
   "status": "preview",
+  "accessTier": "free",
   "industries": [
     "Professional Services",
     "Agencies",
@@ -141,8 +142,12 @@
       "workflowLabel": "View workflow"
     },
     "hero": {
+      "eyebrow": "Free Starter",
+      "startHereLabel": "Start here",
+      "intro": "New to AI Use Case Atlas? Start here.",
       "headline": "Start every day knowing exactly what needs attention.",
-      "description": "Turn recent emails and today's calendar into one prioritized morning briefing—with urgent items, reply obligations, meeting preparation, and schedule conflicts clearly separated.",
+      "description": "See how AI can turn Gmail and Google Calendar into a prioritized daily briefing, then learn how to customize the workflow for the way you work.",
+      "noSignupNote": "No signup required to view the guided demo.",
       "demoLabel": "Watch demo",
       "workflowLabel": "See how it works"
     },
@@ -286,7 +291,7 @@
           "description": "Confirm the priorities, correct any mistakes, and decide what action to take."
         }
       ],
-      "note": "The workflow starts in read-only mode. It does not send emails or modify calendar events automatically."
+      "note": "This workflow is designed to summarize, prioritize, and recommend—not send emails or modify calendar events unless you explicitly ask. Connected AI tools may request broader permissions during setup, so review them before authorizing."
     },
     "responsibilities": {
       "heading": "AI handles the preparation. You keep the judgment.",
@@ -324,29 +329,75 @@
       ],
       "supporting": "The goal is not simply to receive a briefing. It is to understand how to build, evaluate, and improve an AI-assisted workflow for your own business."
     },
+    "philosophy": "AI Use Case Atlas automates the repetitive setup, but keeps the important decisions visible so you can understand, customize, and reuse the workflow yourself.",
+    "guidedDemos": {
+      "heading": "Build Your First AI Daily Inbox Briefing",
+      "supporting": "Choose the AI tool you already use and follow the guided walkthrough from connection to your first briefing and customization.",
+      "defaultTool": "chatgpt",
+      "tools": [
+        {
+          "key": "chatgpt",
+          "label": "ChatGPT",
+          "availabilityNote": "Availability may vary by plan.",
+          "embedUrl": "https://app.supademo.com/embed/cmsj5sjvu0g0aqm5s7ozo2cn2?embed_v=2&utm_source=embed"
+        },
+        {
+          "key": "claude",
+          "label": "Claude",
+          "availabilityNote": "Free plan supported. Usage limits apply.",
+          "embedUrl": "https://app.supademo.com/embed/cmsj61hfm0g97qm5sqxld998x?embed_v=2&utm_source=embed"
+        },
+        {
+          "key": "gemini",
+          "label": "Gemini",
+          "availabilityNote": "Google account required. Availability may depend on account settings.",
+          "embedUrl": "https://app.supademo.com/embed/cmsj6a7z20gelqm5sy979t6w0?embed_v=2&utm_source=embed"
+        }
+      ],
+      "learning": {
+        "heading": "What you’ll learn",
+        "items": [
+          "Connect your work data to AI",
+          "Generate a structured Daily Inbox Briefing",
+          "Separate confirmed facts from AI interpretation",
+          "Create priority rules for your own business",
+          "Regenerate the briefing and compare what changed"
+        ]
+      }
+    },
+    "starterCta": {
+      "heading": "Ready to try it with your own inbox?",
+      "description": "Create a free Atlas account to get the prompts, setup guides, worksheets, and review checklist used in this workflow.",
+      "ctaLabel": "Get the Free Starter Kit",
+      "supporting": "Free account required.",
+      "previewNote": "Account signup coming next — this opens the contact page for now."
+    },
     "offers": {
       "heading": "Choose how you want to use it",
+      "footnote": "The Atlas workflow and Starter Kit are free with an Atlas account. Local and App options are planned paid products. Third-party AI tools (ChatGPT, Claude, Gemini) may have their own plan or usage fees. Starter Kit signup is not live yet — that button opens the contact page until account gating is wired.",
       "items": [
         {
-          "key": "manual",
+          "key": "starter",
           "label": "Learn it yourself",
-          "name": "Manual Playbook",
-          "price": "$29 one-time",
-          "status": "Available soon",
-          "description": "Build and customize the workflow using ChatGPT, Claude, or Gemini.",
+          "name": "Free Starter Kit",
+          "price": "FREE",
+          "status": "Free Atlas account required",
+          "description": "Get the prompts, setup guides, worksheets, and review tools you need to run and customize this workflow yourself.",
           "bestFor": "Best for learning and customization",
           "features": [
-            "ChatGPT, Claude, and Gemini setup guides",
-            "Gmail and Calendar connection guidance",
-            "Ready-to-use prompts",
-            "Priority-rule worksheet",
-            "Sample inputs and outputs",
+            "Initial Daily Inbox Briefing prompt",
+            "Priority Rules prompt",
+            "ChatGPT setup guide",
+            "Claude setup guide",
+            "Gemini setup guide",
+            "Priority Rules worksheet",
             "Review checklist",
-            "Safety guide",
-            "Troubleshooting"
+            "Safety guidance",
+            "Troubleshooting",
+            "Future Starter Kit updates"
           ],
-          "ctaLabel": "Get the Manual Playbook",
-          "previewCtaLabel": "Join Early Access",
+          "ctaLabel": "Get the Free Starter Kit",
+          "previewCtaLabel": "Get the Free Starter Kit",
           "primary": true
         },
         {
@@ -358,7 +409,7 @@
           "description": "Run the workflow repeatedly on your own computer while keeping the prompts, rules, evidence, and judgment visible.",
           "bestFor": "Best for repeated personal use",
           "features": [
-            "Everything in the Manual",
+            "Everything in the Free Starter Kit",
             "Gmail and Calendar connection",
             "Briefing generation",
             "Saved and editable priority rules",
@@ -391,17 +442,6 @@
         }
       ]
     },
-    "setup": {
-      "heading": "Set up your first briefing in about 15–20 minutes",
-      "steps": [
-        "Choose ChatGPT, Claude, or Gemini",
-        "Connect Gmail and Google Calendar",
-        "Define your priority rules",
-        "Generate your first briefing",
-        "Review and improve the result"
-      ],
-      "ctaLabel": "Preview the setup"
-    },
     "safety": {
       "heading": "You control what the AI can access and what actions it can take.",
       "items": [
@@ -416,7 +456,7 @@
     "faq": [
       {
         "question": "Which AI tools can I use?",
-        "answer": "The Manual includes versions for ChatGPT, Claude, and Gemini. Available Gmail and Calendar capabilities may differ by platform and plan."
+        "answer": "The Free Starter Kit includes versions for ChatGPT, Claude, and Gemini. Available Gmail and Calendar capabilities may differ by platform and plan. Claude’s free plan is supported; usage limits apply."
       },
       {
         "question": "Does the workflow send emails automatically?",
@@ -428,11 +468,15 @@
       },
       {
         "question": "Do I need technical experience?",
-        "answer": "No coding is required for the Manual version. The guide explains the setup and includes ready-to-use prompts and templates."
+        "answer": "No coding is required for the Free Starter Kit. The guides explain the setup and include ready-to-use prompts and templates."
       },
       {
-        "question": "What is the difference between Manual, Local, and App?",
-        "answer": "Manual teaches you how to build and customize the workflow. Local makes repeated use easier on your computer. The App is planned as a managed, scheduled service."
+        "question": "What is the difference between the Free Starter Kit, Local, and App?",
+        "answer": "The Free Starter Kit teaches you how to build and customize the workflow yourself. Local makes repeated use easier on your computer. The App is planned as a managed, scheduled service."
+      },
+      {
+        "question": "Is the Atlas workflow really free?",
+        "answer": "Yes. The guided demo and Free Starter Kit are free with an Atlas account. Third-party AI tools (ChatGPT, Claude, Gemini) and any API usage may have their own fees depending on the plan you use."
       },
       {
         "question": "Are AI subscription or API fees included?",
@@ -441,9 +485,9 @@
     ],
     "finalCta": {
       "headline": "Ready to build your first AI-powered morning workflow?",
-      "description": "Learn how it works, customize the rules, and create a briefing that reflects the way you actually work.",
-      "primaryLabel": "$29 — Get the Manual Playbook",
-      "supporting": "Interested in more automation? Join the Local Pilot or App Waitlist."
+      "description": "Get the Free Starter Kit, customize the rules, and create a briefing that reflects the way you actually work.",
+      "primaryLabel": "Get the Free Starter Kit",
+      "supporting": "Free Atlas account required. Interested in more automation later? Join the Local Pilot or App Waitlist."
     }
   }
 }

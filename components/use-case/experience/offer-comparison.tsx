@@ -81,31 +81,32 @@ function OfferCard({ offer }: { offer: Offer }) {
         >
           {ctaLabel}
         </Link>
+        {destination.isFallback && offer.key === "starter" && (
+          <p className="mt-2 text-center text-xs text-muted">
+            Account signup coming next
+          </p>
+        )}
       </div>
     </div>
   );
 }
 
 export function OfferComparison({ offers }: { offers: Offers }) {
-  const anyFallback = offers.items.some(
-    (offer) => getOfferDestination(offer.key).isFallback,
-  );
-
   return (
     <ExperienceSection id="offers" heading={offers.heading}>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <p className="max-w-3xl text-sm leading-relaxed text-muted">
+        Compare the free Starter Kit with the planned Local and App options.
+        The Starter Kit is the same free package invited above—shown here as a
+        product choice alongside the paid paths.
+      </p>
+      <div className="mt-5 grid gap-4 lg:grid-cols-3">
         {offers.items.map((offer) => (
           <OfferCard key={offer.key} offer={offer} />
         ))}
       </div>
-      {anyFallback && (
+      {offers.footnote && (
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          <span className="font-medium text-foreground">
-            None of these are available to buy yet.
-          </span>{" "}
-          Prices show what each option is planned to cost. Every button opens
-          the contact page, where you can register interest and be told when it
-          is ready — no payment is taken.
+          {offers.footnote}
         </p>
       )}
     </ExperienceSection>
@@ -117,7 +118,7 @@ export function FinalPurchaseCta({
 }: {
   finalCta: UseCaseExperience["finalCta"];
 }) {
-  const destination = getOfferDestination("manual");
+  const destination = getOfferDestination("starter");
 
   return (
     <section
@@ -141,7 +142,7 @@ export function FinalPurchaseCta({
       <p className="mt-4 text-xs text-muted">{finalCta.supporting}</p>
       {destination.isFallback && (
         <p className="mt-1 text-xs text-muted">
-          Checkout is not live yet — this opens the contact page.
+          Account signup coming next — this opens the contact page for now.
         </p>
       )}
     </section>

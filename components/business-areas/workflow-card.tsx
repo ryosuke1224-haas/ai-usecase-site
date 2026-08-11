@@ -36,6 +36,11 @@ export function WorkflowCard({
       href={`/use-cases/${useCase.slug}`}
       className="group flex h-full flex-col rounded-2xl border border-border/60 bg-card p-6 transition-all hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
     >
+      {useCase.accessTier !== "free" && (
+        <p className="mb-3">
+          <Badge variant="info">Premium Blueprint</Badge>
+        </p>
+      )}
       <h3 className="text-lg font-semibold tracking-tight transition-colors group-hover:text-accent">
         {useCase.title}
       </h3>

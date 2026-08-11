@@ -99,9 +99,12 @@ export function ExperienceTile({
         <span className="sr-only">{useCase.title}</span>
       </Link>
 
-      <div className="flex items-start justify-between gap-3">
-        <span className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent">
-          Interactive preview
+      <div className="flex flex-wrap items-start gap-2">
+        <span className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-accent">
+          Free Starter
+        </span>
+        <span className="inline-flex items-center rounded-md bg-surface px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-foreground">
+          Start here
         </span>
       </div>
 

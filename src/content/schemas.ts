@@ -123,6 +123,12 @@ export const templateVersionSchema = z.enum(["experience-v2"]);
 
 export const publishStatusSchema = z.enum(["published", "preview"]);
 
+/**
+ * Commercial access tier. Absent means the long-standing premium blueprint
+ * catalog entry. Only the Free Starter workflow sets "free".
+ */
+export const accessTierSchema = z.enum(["free", "premium"]);
+
 const metricSchema = z
   .object({
     value: z.string().min(1),
@@ -212,7 +218,7 @@ const conceptDemoSchema = z
 const offerSchema = z
   .object({
     /** Chooses the configurable destination; see src/lib/offers.ts. */
-    key: z.enum(["manual", "local", "app"]),
+    key: z.enum(["starter", "local", "app"]),
     label: z.string().min(1),
     name: z.string().min(1),
     price: z.string().min(1),
@@ -230,8 +236,19 @@ const offerSchema = z
      * contact route, so a preview state never implies a working checkout.
      */
     previewCtaLabel: z.string().optional(),
-    /** Marks the visually primary purchase path. */
+    /** Marks the visually primary path (Free Starter Kit). */
     primary: z.boolean().optional(),
+  })
+  .strict();
+
+const guidedDemoToolSchema = z
+  .object({
+    key: z.enum(["chatgpt", "claude", "gemini"]),
+    label: z.string().min(1),
+    /** Concise plan/account note shown beside the selector. */
+    availabilityNote: z.string().min(1),
+    /** Supademo (or similar) embed URL for this tool. */
+    embedUrl: z.string().url(),
   })
   .strict();
 
@@ -247,8 +264,16 @@ export const useCaseExperienceSchema = z
       .strict(),
     hero: z
       .object({
+        /** e.g. "Free Starter" */
+        eyebrow: z.string().optional(),
+        /** e.g. "Start here" */
+        startHereLabel: z.string().optional(),
+        /** e.g. "New to AI Use Case Atlas? Start here." */
+        intro: z.string().optional(),
         headline: z.string().min(1),
         description: z.string().min(1),
+        /** e.g. "No signup required to view the guided demo." */
+        noSignupNote: z.string().optional(),
         demoLabel: z.string().min(1),
         workflowLabel: z.string().min(1),
       })
@@ -303,15 +328,46 @@ export const useCaseExperienceSchema = z
       .object({
         heading: z.string().min(1),
         items: z.array(offerSchema).min(1),
+        /** Explains free vs paid / preview destinations under the cards. */
+        footnote: z.string().optional(),
       })
       .strict(),
+    /**
+     * Interactive AI-tool walkthroughs (Supademo). Replaces the old
+     * placeholder setup section when present.
+     */
+    guidedDemos: z
+      .object({
+        heading: z.string().min(1),
+        supporting: z.string().min(1),
+        defaultTool: z.enum(["chatgpt", "claude", "gemini"]),
+        tools: z.array(guidedDemoToolSchema).min(1),
+        learning: labelledItemsSchema,
+      })
+      .strict()
+      .optional(),
+    /** Mid-page CTA for the free Starter Kit (account gating comes later). */
+    starterCta: z
+      .object({
+        heading: z.string().min(1),
+        description: z.string().min(1),
+        ctaLabel: z.string().min(1),
+        supporting: z.string().min(1),
+        previewNote: z.string().optional(),
+      })
+      .strict()
+      .optional(),
+    /** Short product-philosophy line shown near learning content. */
+    philosophy: z.string().optional(),
+    /** @deprecated Prefer guidedDemos. Kept optional for backward compatibility. */
     setup: z
       .object({
         heading: z.string().min(1),
         steps: z.array(z.string()).min(1),
         ctaLabel: z.string().min(1),
       })
-      .strict(),
+      .strict()
+      .optional(),
     safety: labelledItemsSchema,
     faq: z
       .array(
@@ -343,6 +399,11 @@ export const useCaseSchema = z
     /** Opt-in alternative page template. Omit to keep the existing template. */
     templateVersion: templateVersionSchema.optional(),
     status: publishStatusSchema.optional(),
+    /**
+     * Commercial access tier. "free" marks the Free Starter workflow; omit or
+     * "premium" for catalog blueprints. Used for subtle card badges only.
+     */
+    accessTier: accessTierSchema.optional(),
     /**
      * Content for the experience-led template. Only read when
      * templateVersion is "experience-v2".
@@ -483,6 +544,7 @@ export type UseCaseBusinessArea = z.infer<typeof businessAreaSchema>;
 export type BlueprintGuide = z.infer<typeof blueprintGuideSchema>;
 export type TemplateVersion = z.infer<typeof templateVersionSchema>;
 export type PublishStatus = z.infer<typeof publishStatusSchema>;
+export type AccessTier = z.infer<typeof accessTierSchema>;
 export type UseCaseExperience = z.infer<typeof useCaseExperienceSchema>;
 export type SourceType = z.infer<typeof sourceTypeSchema>;
 

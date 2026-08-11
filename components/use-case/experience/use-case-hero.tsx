@@ -98,15 +98,29 @@ export function UseCaseHero({
           </ol>
         </nav>
 
-        {statusLabel && (
-          <p className="mt-4">
-            <span className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-medium capitalize text-accent">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {hero.eyebrow && (
+            <span className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-accent">
+              {hero.eyebrow}
+            </span>
+          )}
+          {hero.startHereLabel && (
+            <span className="inline-flex items-center rounded-md bg-surface px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-foreground">
+              {hero.startHereLabel}
+            </span>
+          )}
+          {statusLabel && (
+            <span className="inline-flex items-center rounded-md bg-surface px-2.5 py-0.5 text-xs font-medium capitalize text-muted">
               {statusLabel}
             </span>
-          </p>
+          )}
+        </div>
+
+        {hero.intro && (
+          <p className="mt-3 text-sm font-medium text-accent">{hero.intro}</p>
         )}
 
-        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
           {title}
         </h1>
         <p className="mt-3 text-lg font-medium leading-snug text-foreground">
@@ -132,6 +146,10 @@ export function UseCaseHero({
             {hero.workflowLabel}
           </a>
         </div>
+
+        {hero.noSignupNote && (
+          <p className="mt-3 text-xs text-muted">{hero.noSignupNote}</p>
+        )}
       </div>
 
       <div id={DEMO_SECTION_ID} className="scroll-mt-24">

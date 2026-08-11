@@ -33,7 +33,12 @@ export function UseCaseCard({ useCase }: { useCase: UseCase }) {
       className="group flex flex-col rounded-2xl border border-border/60 bg-card p-6 transition-all hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5"
     >
       <div className="flex items-start justify-between gap-3">
-        <Badge>{useCase.category}</Badge>
+        <div className="flex flex-wrap gap-1.5">
+          <Badge>{useCase.category}</Badge>
+          {useCase.accessTier !== "free" && (
+            <Badge variant="info">Premium Blueprint</Badge>
+          )}
+        </div>
         <div className="flex gap-1.5">
           <Badge variant={difficultyStyles[useCase.difficulty]}>
             {useCase.difficulty}

@@ -1,20 +1,23 @@
 /**
  * Destinations for the commercial offers on experience-led use-case pages.
  *
- * No checkout, waitlist backend, or payment flow exists yet, so each offer
+ * No authentication, gated download, or payment flow exists yet, so each offer
  * resolves in one of two ways:
  *
  * - An operator sets the matching NEXT_PUBLIC_* variable to a real URL
- *   (Stripe payment link, Tally form, Gumroad page) and the CTA becomes live.
+ *   (signup route, Stripe payment link, Tally form) and the CTA becomes live.
  * - Nothing is configured, and the CTA falls back to the existing /contact
  *   route so it always leads somewhere real instead of a broken checkout.
  *
- * Sections with no meaningful fallback (the setup walkthrough, the full sample
- * briefing) resolve to `undefined` so the UI can render a disabled
- * "coming soon" state rather than inventing a destination.
+ * The Free Starter Kit CTA is deliberately structured the same way so the next
+ * task can point NEXT_PUBLIC_STARTER_KIT_URL at an authenticated download or
+ * signup flow without redesigning the page.
+ *
+ * Sections with no meaningful fallback (the full sample briefing) resolve to
+ * `undefined` so the UI can render a disabled "coming soon" state.
  */
 
-export type OfferKey = "manual" | "local" | "app";
+export type OfferKey = "starter" | "local" | "app";
 
 const CONTACT_ROUTE = "/contact";
 
@@ -42,7 +45,10 @@ export type OfferDestination = {
 export function getOfferDestination(key: OfferKey): OfferDestination {
   const configured = readConfiguredUrl(
     {
-      manual: process.env.NEXT_PUBLIC_MANUAL_PLAYBOOK_URL,
+      // Prefer the starter-kit URL; accept the older manual env var during transition.
+      starter:
+        process.env.NEXT_PUBLIC_STARTER_KIT_URL ??
+        process.env.NEXT_PUBLIC_MANUAL_PLAYBOOK_URL,
       local: process.env.NEXT_PUBLIC_LOCAL_PILOT_URL,
       app: process.env.NEXT_PUBLIC_APP_WAITLIST_URL,
     }[key],
@@ -53,12 +59,9 @@ export function getOfferDestination(key: OfferKey): OfferDestination {
     : { href: CONTACT_ROUTE, isFallback: true };
 }
 
-/**
- * Interactive setup walkthrough (Supademo or similar). Returns undefined until
- * configured so the section can render as an explicit preview placeholder.
- */
-export function getSetupPreviewUrl(): string | undefined {
-  return readConfiguredUrl(process.env.NEXT_PUBLIC_SETUP_PREVIEW_URL);
+/** Convenience alias used by mid-page and final Starter Kit CTAs. */
+export function getStarterKitDestination(): OfferDestination {
+  return getOfferDestination("starter");
 }
 
 /** Full sample briefing document. Undefined until a real file exists. */

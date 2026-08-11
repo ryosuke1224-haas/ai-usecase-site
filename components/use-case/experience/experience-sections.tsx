@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { UseCaseExperience } from "@/src/types";
-import { getSetupPreviewUrl } from "@/src/lib/offers";
 
 /**
  * Shared section shell for the experience-led template. Keeps heading level,
@@ -81,7 +80,9 @@ export function WorkflowSteps({
         ))}
       </ol>
       <p className="mt-4 rounded-xl border border-border/60 bg-surface/60 px-5 py-4 text-sm leading-relaxed text-muted">
-        <span className="font-medium text-foreground">Read-only by default: </span>
+        <span className="font-medium text-foreground">
+          No external actions by default:{" "}
+        </span>
         {workflow.note}
       </p>
     </ExperienceSection>
@@ -129,8 +130,10 @@ export function AiHumanSplit({
 
 export function LearningObjectives({
   learning,
+  philosophy,
 }: {
   learning: UseCaseExperience["learning"];
+  philosophy?: string;
 }) {
   return (
     <ExperienceSection id="what-you-learn" heading={learning.heading}>
@@ -151,61 +154,11 @@ export function LearningObjectives({
         <p className="mt-6 border-t border-border/40 pt-5 text-sm leading-relaxed text-muted">
           {learning.supporting}
         </p>
-      </div>
-    </ExperienceSection>
-  );
-}
-
-export function SetupPreview({
-  setup,
-}: {
-  setup: UseCaseExperience["setup"];
-}) {
-  const previewUrl = getSetupPreviewUrl();
-
-  return (
-    <ExperienceSection id="setup" heading={setup.heading}>
-      {/* Interactive walkthrough embed replaces the CTA row below when ready. */}
-      <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6">
-        <ol className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-3">
-          {setup.steps.map((step, index) => (
-            <li
-              key={step}
-              className="flex items-start gap-2.5 rounded-xl bg-surface/60 px-3 py-3 text-sm text-foreground lg:flex-col lg:gap-2"
-            >
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-card text-xs font-bold text-muted">
-                {index + 1}
-              </span>
-              <span className="leading-snug lg:text-xs">{step}</span>
-            </li>
-          ))}
-        </ol>
-
-        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border/40 pt-4">
-          {previewUrl ? (
-            <a
-              href={previewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-surface px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-accent/40 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-            >
-              {setup.ctaLabel}
-            </a>
-          ) : (
-            <>
-              <button
-                type="button"
-                disabled
-                className="inline-flex cursor-not-allowed items-center justify-center rounded-lg border border-border/60 bg-surface px-4 py-2 text-sm font-semibold text-muted opacity-70"
-              >
-                {setup.ctaLabel}
-              </button>
-              <span className="text-xs font-medium uppercase tracking-wider text-muted">
-                Coming soon
-              </span>
-            </>
-          )}
-        </div>
+        {philosophy && (
+          <p className="mt-4 text-sm font-medium leading-relaxed text-foreground">
+            {philosophy}
+          </p>
+        )}
       </div>
     </ExperienceSection>
   );
