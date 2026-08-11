@@ -7,34 +7,22 @@ import {
   getBlueprintById,
   MY_BLUEPRINTS_PATH,
 } from "@/src/lib/blueprints";
+import { STARTER_KIT_RESOURCES } from "@/src/lib/starter-kit/catalog";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "AI Daily Inbox Briefing Starter Kit",
   description:
-    "Everything you need to run, review, and customize the Daily Inbox Briefing workflow yourself.",
+    "Prompts, setup guidance, decision rules, and review tools for the Daily Inbox Briefing workflow.",
   robots: { index: false, follow: false },
 };
-
-const RESOURCES = [
-  "Initial Daily Inbox Briefing Prompt",
-  "Priority Rules Prompt",
-  "ChatGPT Setup Guide",
-  "Claude Setup Guide",
-  "Gemini Setup Guide",
-  "Priority Rules Worksheet",
-  "Review Checklist",
-  "Safety Guidance",
-  "Troubleshooting",
-] as const;
 
 export default async function DailyInboxStarterKitPage() {
   const user = await requireUser(DAILY_INBOX_STARTER_KIT_PATH);
   const blueprint = getBlueprintById("daily-inbox-briefing-starter-kit");
 
   if (!blueprint || !canAccessBlueprint(user.id, blueprint)) {
-    // Structured so premium rules can deny access later without a redesign.
     return (
       <div className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="text-2xl font-bold tracking-tight">Access required</h1>
@@ -60,31 +48,41 @@ export default async function DailyInboxStarterKitPage() {
         AI Daily Inbox Briefing Starter Kit
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        Everything you need to run, review, and customize the workflow yourself.
+        This kit contains the prompts, setup guidance, decision rules, and
+        review tools used in the guided demo. Use it with ChatGPT, Claude, or
+        Gemini—no download required.
       </p>
       <p className="mt-2 text-xs text-muted">
         Signed in as {user.email ?? "your Atlas account"}
       </p>
 
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
-        {RESOURCES.map((title) => (
-          <div
-            key={title}
-            className="rounded-2xl border border-border/60 bg-card p-5"
+        {STARTER_KIT_RESOURCES.map((resource) => (
+          <Link
+            key={resource.slug}
+            href={resource.href}
+            className="group rounded-2xl border border-border/60 bg-card p-5 transition-colors hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           >
-            <h2 className="text-sm font-semibold tracking-tight text-foreground">
-              {title}
-            </h2>
-            <p className="mt-2 text-xs font-medium uppercase tracking-wider text-muted">
-              Coming next
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-sm font-semibold tracking-tight text-foreground group-hover:text-accent">
+                {resource.title}
+              </h2>
+              <span className="shrink-0 inline-flex items-center rounded-md bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                Ready
+              </span>
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-muted">
+              {resource.summary}
             </p>
-            <p className="mt-1 text-xs leading-relaxed text-muted">
-              The downloadable content for this resource will be added in the
-              next update.
-            </p>
-          </div>
+            <p className="mt-3 text-xs font-medium text-accent">Open resource →</p>
+          </Link>
         ))}
       </div>
+
+      <p className="mt-6 text-xs text-muted">
+        Printable / downloadable version coming later. The interactive Atlas
+        version is the primary product.
+      </p>
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
