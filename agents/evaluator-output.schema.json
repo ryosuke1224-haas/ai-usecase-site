@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atlas-evaluator-output-v0",
+  "title": "Atlas Evaluator output v0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "use_case",
+    "evaluated_at",
+    "qa_report",
+    "scores",
+    "overall",
+    "strengths",
+    "risks",
+    "recommendation",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": { "const": "atlas-evaluator-output-v0" },
+    "use_case": { "type": "string" },
+    "evaluated_at": { "type": "string", "format": "date-time" },
+    "qa_report": { "type": "string" },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clarity",
+        "accuracy",
+        "actionability",
+        "smb_relevance",
+        "ai_literacy",
+        "safety",
+        "setup_difficulty",
+        "automation_potential"
+      ],
+      "properties": {
+        "clarity": { "$ref": "#/$defs/score" },
+        "accuracy": { "$ref": "#/$defs/score" },
+        "actionability": { "$ref": "#/$defs/score" },
+        "smb_relevance": { "$ref": "#/$defs/score" },
+        "ai_literacy": { "$ref": "#/$defs/score" },
+        "safety": { "$ref": "#/$defs/score" },
+        "setup_difficulty": { "$ref": "#/$defs/score" },
+        "automation_potential": { "$ref": "#/$defs/score" }
+      }
+    },
+    "overall": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "strengths": { "type": "array", "items": { "type": "string" } },
+    "risks": { "type": "array", "items": { "type": "string" } },
+    "recommendation": { "enum": ["ready", "revise", "not-ready"] },
+    "notes": { "type": "string" }
+  },
+  "$defs": {
+    "score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "notes"],
+      "properties": {
+        "score": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

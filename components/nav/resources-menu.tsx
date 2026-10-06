@@ -13,6 +13,18 @@ type ResourceLink = {
 
 const resourceLinks: ResourceLink[] = [
   {
+    href: "/business-areas",
+    label: "Business Areas",
+    description: "Browse workflows by the part of the business they support",
+    smallScreenOnly: true,
+  },
+  {
+    href: "/use-cases",
+    label: "AI Blueprints",
+    description: "Published AI workflow blueprints",
+    smallScreenOnly: true,
+  },
+  {
     href: "/find-workflows",
     label: "Find workflows by tools",
     description: "For people who already know which tools they use",

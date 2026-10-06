@@ -12,6 +12,14 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Atlas agent QA output and local credentials. Never commit these.
+/agent-reports/
+/agent-secrets/
 
 # next.js
 /.next/

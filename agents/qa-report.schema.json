@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atlas-qa-report-v0",
+  "title": "Atlas QA report v0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "use_case",
+    "generated_at",
+    "status",
+    "score",
+    "tests_passed",
+    "tests_failed",
+    "tests_skipped",
+    "blocking_issues",
+    "non_blocking_issues",
+    "console_errors",
+    "evidence",
+    "human_action_required",
+    "pipeline"
+  ],
+  "properties": {
+    "schema_version": { "const": "atlas-qa-report-v0" },
+    "use_case": { "const": "daily-inbox-briefing" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["pass", "fail", "blocked"] },
+    "score": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+    "tests_passed": { "type": "integer", "minimum": 0 },
+    "tests_failed": { "type": "integer", "minimum": 0 },
+    "tests_skipped": { "type": "integer", "minimum": 0 },
+    "blocking_issues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" }
+    },
+    "non_blocking_issues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" }
+    },
+    "console_errors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["screenshots", "traces"],
+      "properties": {
+        "screenshots": { "type": "array", "items": { "type": "string" } },
+        "traces": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "human_action_required": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "pipeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validate_content", "build", "browser_tests"],
+      "properties": {
+        "validate_content": { "$ref": "#/$defs/step" },
+        "build": { "$ref": "#/$defs/step" },
+        "browser_tests": { "$ref": "#/$defs/step" }
+      }
+    }
+  },
+  "$defs": {
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "title", "detail"],
+      "properties": {
+        "id": { "type": "string" },
+        "severity": { "enum": ["blocking", "non_blocking"] },
+        "title": { "type": "string" },
+        "detail": { "type": "string" },
+        "project": { "type": "string" },
+        "test": { "type": "string" }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "duration_ms", "detail"],
+      "properties": {
+        "status": { "enum": ["pass", "fail", "skipped", "blocked"] },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "detail": { "type": "string" }
+      }
+    }
+  }
+}

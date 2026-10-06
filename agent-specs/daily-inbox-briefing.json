@@ -1,0 +1,304 @@
+{
+  "schemaVersion": "atlas-use-case-spec-v0",
+  "id": "daily-inbox-briefing",
+  "source": {
+    "contentFile": "content/published/use-cases/ai-daily-inbox-briefing.json",
+    "useCaseId": "uc-001",
+    "slug": "ai-daily-inbox-briefing",
+    "templateVersion": "experience-v2",
+    "status": "preview",
+    "category": "Operations",
+    "businessArea": "administration",
+    "primaryBusinessProcess": "Email & Inbox Management"
+  },
+  "identity": {
+    "title": "AI Daily Inbox Briefing",
+    "summary": "Start each day with a prioritized summary of urgent emails, pending replies, and calendar conflicts — without reading every message.",
+    "difficulty": "Beginner",
+    "automationLevel": "Semi-automated",
+    "accessTier": "free"
+  },
+  "audience": {
+    "whoItsFor": "Solo business owners, agency principals, and office managers who manage their own inbox and calendar without an executive assistant.",
+    "industries": [
+      "Professional Services",
+      "Agencies",
+      "Consulting",
+      "Any SMB"
+    ],
+    "businessFunctions": ["Operations", "Owner/Admin"]
+  },
+  "tier": {
+    "guidedDemo": "Public. No Atlas account.",
+    "starterKit": {
+      "access": "free-authenticated",
+      "badge": "FREE STARTER",
+      "blueprintId": "daily-inbox-briefing-starter-kit"
+    },
+    "localGuidedWorkspace": {
+      "name": "Local Guided Workspace",
+      "priceLabel": "$99 one-time",
+      "badge": "Founding Pilot",
+      "availability": "Planned paid product. The page does not check out. The CTA uses NEXT_PUBLIC_LOCAL_PILOT_URL when set, otherwise /contact."
+    },
+    "automatedApp": {
+      "name": "Automated App",
+      "priceLabel": "Planned at $19/month",
+      "badge": "Coming later",
+      "availability": "Planned. The CTA uses NEXT_PUBLIC_APP_WAITLIST_URL when set, otherwise /contact."
+    },
+    "thirdPartyAiFees": "ChatGPT, Claude, Gemini, and API charges are not included unless the page explicitly says so."
+  },
+  "supportedAiTools": [
+    {
+      "key": "chatgpt",
+      "label": "ChatGPT",
+      "availabilityNote": "Availability may vary by plan."
+    },
+    {
+      "key": "claude",
+      "label": "Claude",
+      "availabilityNote": "Free plan supported. Usage limits apply."
+    },
+    {
+      "key": "gemini",
+      "label": "Gemini",
+      "availabilityNote": "Google account required. Availability may depend on account settings."
+    }
+  ],
+  "publishedRecordOnly": {
+    "note": "These fields exist on the published use-case record. The experience-v2 page does not render them as interactive products.",
+    "requiredDataSources": ["emails", "calendar-events"],
+    "requiredApis": ["gmail-api", "google-calendar-api", "openai-api"],
+    "noCodeTools": [
+      "Zapier or Make.com for scheduled trigger",
+      "ChatGPT with Gmail/Calendar plugins (manual daily run)",
+      "Google Apps Script + OpenAI API (lightweight custom)"
+    ],
+    "lowCodeTools": [
+      "n8n workflow with Gmail + Calendar + OpenAI nodes",
+      "Pipedream scheduled workflow",
+      "Relevance AI agent with Gmail connector"
+    ],
+    "customBuildStack": [
+      "Node.js cron job",
+      "Gmail API + Google Calendar API",
+      "OpenAI API (gpt-4o-mini for cost efficiency)",
+      "Slack webhook or email delivery"
+    ]
+  },
+  "routes": {
+    "publicUseCase": "/use-cases/ai-daily-inbox-briefing",
+    "starterKit": "/blueprints/daily-inbox-briefing/starter-kit",
+    "myBlueprints": "/my-blueprints",
+    "auth": "/auth"
+  },
+  "publicExperience": {
+    "noSignupNote": "No signup required to view the guided demo.",
+    "previewBadge": "Preview",
+    "starterCtaHeading": "Ready to try it with your own inbox?",
+    "starterCtaLabel": "Get the Free Starter Kit",
+    "freeAccountRequired": "Free account required.",
+    "responsibilitiesHeading": "AI handles the preparation. You keep the judgment.",
+    "safetyHeading": "You control what the AI can access and what actions it can take.",
+    "offersHeading": "Choose how you want to use it",
+    "offersFootnoteIncludes": "Local and App options are planned paid products.",
+    "faqHeading": "Questions before you start",
+    "faqSample": {
+      "question": "Which AI tools can I use?",
+      "answerIncludes": "The Free Starter Kit includes versions for ChatGPT, Claude, and Gemini."
+    },
+    "faqQuestions": [
+      "Which AI tools can I use?",
+      "Does the workflow send emails automatically?",
+      "Can I use a work Google account?",
+      "Do I need technical experience?",
+      "What is the difference between the Free Starter Kit, Local, and App?",
+      "Is the Atlas workflow really free?",
+      "Are AI subscription or API fees included?"
+    ],
+    "sampleBriefing": {
+      "heading": "See what your morning briefing could look like",
+      "download": "The sample-briefing file link is disabled and labeled Coming soon unless NEXT_PUBLIC_SAMPLE_BRIEFING_URL is set. There is no downloadable file in the repo."
+    }
+  },
+  "supademo": {
+    "sectionId": "guided-demos",
+    "heading": "Build Your First AI Daily Inbox Briefing",
+    "defaultTool": "chatgpt",
+    "onlySelectedEmbedIsMounted": true,
+    "tools": [
+      {
+        "key": "chatgpt",
+        "label": "ChatGPT",
+        "availabilityNote": "Availability may vary by plan.",
+        "embedUrl": "https://app.supademo.com/embed/cmsj5sjvu0g0aqm5s7ozo2cn2?embed_v=2&utm_source=embed",
+        "iframeTitle": "ChatGPT guided walkthrough for AI Daily Inbox Briefing"
+      },
+      {
+        "key": "claude",
+        "label": "Claude",
+        "availabilityNote": "Free plan supported. Usage limits apply.",
+        "embedUrl": "https://app.supademo.com/embed/cmsj61hfm0g97qm5sqxld998x?embed_v=2&utm_source=embed",
+        "iframeTitle": "Claude guided walkthrough for AI Daily Inbox Briefing"
+      },
+      {
+        "key": "gemini",
+        "label": "Gemini",
+        "availabilityNote": "Google account required. Availability may depend on account settings.",
+        "embedUrl": "https://app.supademo.com/embed/cmsj6a7z20gelqm5sy979t6w0?embed_v=2&utm_source=embed",
+        "iframeTitle": "Gemini guided walkthrough for AI Daily Inbox Briefing"
+      }
+    ],
+    "starterKitSetupGuides": "ChatGPT, Claude, and Gemini setup guides embed the same Supademo URL as the public selector. They are behind sign-in."
+  },
+  "starterKit": {
+    "title": "AI Daily Inbox Briefing Starter Kit",
+    "readyLabel": "Ready",
+    "resourceCount": 9,
+    "resources": [
+      {
+        "slug": "initial-prompt",
+        "title": "Initial Daily Inbox Briefing Prompt",
+        "kind": "prompt"
+      },
+      {
+        "slug": "priority-rules-prompt",
+        "title": "Priority Rules Prompt",
+        "kind": "prompt"
+      },
+      {
+        "slug": "chatgpt-setup",
+        "title": "ChatGPT Setup Guide",
+        "kind": "setup-guide"
+      },
+      {
+        "slug": "claude-setup",
+        "title": "Claude Setup Guide",
+        "kind": "setup-guide"
+      },
+      {
+        "slug": "gemini-setup",
+        "title": "Gemini Setup Guide",
+        "kind": "setup-guide"
+      },
+      {
+        "slug": "priority-worksheet",
+        "title": "Priority Rules Worksheet",
+        "kind": "worksheet"
+      },
+      {
+        "slug": "review-checklist",
+        "title": "Review Checklist",
+        "kind": "checklist"
+      },
+      {
+        "slug": "safety-guidance",
+        "title": "Safety Guidance",
+        "kind": "guidance"
+      },
+      {
+        "slug": "troubleshooting",
+        "title": "Troubleshooting",
+        "kind": "guidance"
+      }
+    ],
+    "copyPrompt": {
+      "label": "Copy Prompt",
+      "copiedLabel": "Copied"
+    },
+    "initialPromptMustInclude": [
+      "CONFIRMED FACT",
+      "AI INTERPRETATION",
+      "RECOMMENDED ACTION",
+      "Do not invent deadlines.",
+      "Do not send emails.",
+      "Do not modify calendar events.",
+      "TODAY'S TOP 3 PRIORITIES"
+    ],
+    "priorityRulesPromptMustInclude": [
+      "WHAT CHANGED",
+      "CONFIRMED FACT",
+      "do not send emails",
+      "do not modify calendar events",
+      "Newsletters"
+    ],
+    "priorityWorksheet": {
+      "persistence": "Responses stay in the browser session only. Atlas does not save them.",
+      "generateButton": "Generate My Priority Rules Prompt",
+      "emptyError": "Enter at least one rule before generating a prompt.",
+      "generatedHeading": "Your generated prompt",
+      "filledExample": {
+        "label": "High-priority customers / senders",
+        "value": "Acme Corp",
+        "headingInPrompt": "### High-priority customers / senders"
+      },
+      "whitespaceOnly": {
+        "label": "What should never be marked urgent?",
+        "value": "   "
+      },
+      "omittedHeadingsWhenEmpty": [
+        "### High-priority request types",
+        "### What makes something urgent?",
+        "### What should never be marked urgent?",
+        "### Items that should be Waiting / FYI",
+        "### Meeting-related rules",
+        "### Actions AI must never take automatically"
+      ],
+      "retainedSafetyLines": [
+        "do not send emails",
+        "do not modify calendar events",
+        "WHAT CHANGED"
+      ]
+    },
+    "reviewChecklist": {
+      "persistence": "Progress stays in this browser session only.",
+      "resetLabel": "Reset checklist",
+      "items": [
+        "Are deadlines explicitly supported by the source?",
+        "Are CONFIRMED FACT labels separated from AI INTERPRETATION?",
+        "Were newsletters/FYI messages incorrectly prioritized?",
+        "Are calendar conflicts real?",
+        "Are email/calendar connections supported by evidence?",
+        "Are the Top 3 actually the most important items?",
+        "Did the AI invent any missing information?",
+        "Is each RECOMMENDED ACTION reasonable?",
+        "Is human approval required before any external action?"
+      ]
+    }
+  },
+  "auth": {
+    "mechanism": "Supabase magic link. Logged-out protected routes redirect to /auth and preserve the destination in the next query parameter.",
+    "starterKitHeading": "Get your free Starter Kit",
+    "genericHeading": "Sign in to AI Use Case Atlas",
+    "signedOutSignInDestination": "/my-blueprints",
+    "signOut": "The account menu signs out through Supabase and returns to the home page. Protected routes then require auth again.",
+    "entitlement": "Any signed-in user can open the free Starter Kit. Premium entitlement checks are not implemented.",
+    "sessionForQa": "Playwright storage state supplied at runtime. Tests must not embed credentials."
+  },
+  "contentSafety": [
+    "Guided demo states that no signup is required.",
+    "Starter Kit copy separates CONFIRMED FACT, AI INTERPRETATION, and RECOMMENDED ACTION.",
+    "Prompts forbid inventing deadlines and forbid sending email or changing calendar events.",
+    "Safety guidance tells the person to review connector permissions before authorizing.",
+    "The workflow is described as summarize, prioritize, and recommend, not as a silent actor.",
+    "Worksheet answers and checklist progress are not saved to Atlas.",
+    "Local and App prices are labeled as planned or pilot, not as an active Atlas purchase.",
+    "Third-party AI plan limits and fees are called out.",
+    "Starter Kit, auth, and My Blueprints pages are noindex."
+  ],
+  "qaAcceptanceCriteria": [
+    "Public use-case page loads without authentication.",
+    "Guided demo is available without authentication.",
+    "ChatGPT, Claude, and Gemini selector shows one Supademo and loads the selected embed.",
+    "Logged-out Starter Kit access redirects to auth and preserves next.",
+    "Logged-out protected resource access redirects to auth and preserves next.",
+    "Logged-out My Blueprints access redirects to auth and preserves next.",
+    "When a storage state is provided: Starter Kit home loads and every resource is Ready.",
+    "When a storage state is provided: Initial Prompt and Priority Rules Prompt load, and Copy Prompt writes the prompt.",
+    "When a storage state is provided: the worksheet accepts input and the generated prompt omits empty rules.",
+    "When a storage state is provided: the review checklist toggles and resets.",
+    "When a storage state is provided: My Blueprints shows the free Starter Kit, and sign-out removes access.",
+    "Core public and auth pages have no unexpected console errors at desktop and mobile viewport sizes."
+  ]
+}

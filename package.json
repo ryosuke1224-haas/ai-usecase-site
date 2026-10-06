@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "validate:content": "tsx scripts/validate-content.ts",
+    "qa": "tsx scripts/run-atlas-qa.ts",
+    "qa:save-session": "tsx scripts/save-atlas-qa-session.ts",
+    "test:e2e": "playwright test",
     "generate:suggestion": "tsx scripts/generate-suggestion.ts",
     "research:sources": "tsx scripts/research-sources.ts"
   },
@@ -22,6 +25,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

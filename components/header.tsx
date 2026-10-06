@@ -5,11 +5,12 @@ import { ResourcesMenu } from "@/components/nav/resources-menu";
 import { getCurrentUser } from "@/src/lib/auth";
 import { isComingSoonMode } from "@/src/lib/site-mode";
 
+/** Shown in the header from the sm breakpoint up. On smaller screens they live in the Resources menu. */
 const navLinks = [
-  { href: "/business-areas", label: "Business Areas", alwaysVisible: true },
-  { href: "/use-cases", label: "AI Blueprints", alwaysVisible: true },
-  { href: "/#how-it-works", label: "How It Works", alwaysVisible: false },
-  { href: "/contact", label: "Contact", alwaysVisible: false },
+  { href: "/business-areas", label: "Business Areas" },
+  { href: "/use-cases", label: "AI Blueprints" },
+  { href: "/#how-it-works", label: "How It Works" },
+  { href: "/contact", label: "Contact" },
 ];
 
 function BrandLink() {
@@ -57,9 +58,7 @@ async function LiveHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className={`shrink-0 rounded px-2.5 py-1.5 text-xs font-medium text-muted hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:text-sm ${
-                link.alwaysVisible ? "" : "hidden sm:inline-flex"
-              }`}
+              className="hidden shrink-0 rounded px-2.5 py-1.5 text-xs font-medium text-muted hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:inline-flex sm:text-sm"
             >
               {link.label}
             </Link>
