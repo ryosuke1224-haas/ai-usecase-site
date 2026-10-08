@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atlas-builder-report-v1",
+  "title": "Atlas Builder report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "iteration",
+    "files_changed",
+    "summary",
+    "acceptance_criteria_addressed",
+    "known_risks",
+    "build_result",
+    "possible_test_defects"
+  ],
+  "properties": {
+    "schema_version": { "const": "atlas-builder-report-v1" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "iteration": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "files_changed": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "summary": { "type": "string" },
+    "acceptance_criteria_addressed": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "known_risks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "build_result": {
+      "enum": ["not_run", "pass", "fail"],
+      "description": "The Builder's own build, if it ran one. This is not a QA result."
+    },
+    "possible_test_defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["issue_id", "reason"],
+        "properties": {
+          "issue_id": { "type": "string", "minLength": 1 },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      },
+      "description": "Set when the Builder believes a test is wrong. The Builder must not edit that test."
+    }
+  }
+}

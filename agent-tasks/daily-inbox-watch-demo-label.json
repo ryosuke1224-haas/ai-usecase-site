@@ -1,0 +1,27 @@
+{
+  "schema_version": "atlas-agent-task-v1",
+  "id": "daily-inbox-watch-demo-label",
+  "title": "Rename the Daily Inbox hero demo button",
+  "objective": "On the public Daily Inbox Briefing page, change only the hero button label from \"Watch demo\" to \"Watch the guided demo\". Edit experience.hero.demoLabel in content/published/use-cases/ai-daily-inbox-briefing.json. Leave experience.tile.demoLabel as \"Watch demo\". Do not change any other copy, component, test, or spec.",
+  "target_use_case": "daily-inbox-briefing",
+  "scope": ["content/published/use-cases/ai-daily-inbox-briefing.json"],
+  "acceptance_criteria": [
+    "The public Daily Inbox Briefing hero button reads Watch the guided demo.",
+    "The catalog tile label remains Watch demo.",
+    "No tests, specs, or other product files change."
+  ],
+  "forbidden_changes": [
+    "app/",
+    "components/",
+    "e2e/",
+    "src/",
+    "agent-specs/",
+    "agents/",
+    "scripts/",
+    "playwright.config.ts",
+    "package.json"
+  ],
+  "permits_qa_changes": false,
+  "requires_authenticated_qa": true,
+  "max_iterations": 3
+}

@@ -41,6 +41,18 @@ Each score is an integer from 1 to 5.
 - Inventing product behavior that QA did not observe or that the spec does not describe.
 - Putting secrets or account emails in the evaluation.
 
-## v0 limit
+## How the loop calls the Evaluator
 
-The QA runner does not call the Evaluator. Scoring stays a separate, explicit step until the browser checks are stable.
+After QA passes, the orchestrator runs the Evaluator hook. The hook does not edit the product and cannot override QA.
+
+Set `ATLAS_EVALUATOR_COMMAND` to a command that reads these environment variables and writes JSON matching `agents/evaluator-output.schema.json`:
+
+| Variable | Meaning |
+| --- | --- |
+| `ATLAS_EVALUATOR_QA_REPORT` | Path to the QA report that just passed |
+| `ATLAS_EVALUATOR_SPEC` | Path to the use-case spec |
+| `ATLAS_EVALUATOR_OUTPUT` | Path where the command must write its JSON |
+
+The loop then stores a hook result (`agents/evaluator-hook.schema.json`) with clarity, accuracy, actionability, SMB relevance, AI literacy, safety, setup difficulty, automation potential, an overall score, and suggested improvements taken from the evaluation's risks.
+
+If `ATLAS_EVALUATOR_COMMAND` is unset, the hook records `not_executed` and leaves the scores empty. It does not invent them. A person still gets `READY_FOR_HUMAN_REVIEW` when QA passed.

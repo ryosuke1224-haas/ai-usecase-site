@@ -1,6 +1,6 @@
-# Atlas Agent System v0
+# Atlas Agent System
 
-This folder defines the first three Atlas agents and the shared rules they follow. v0 uses the Daily Inbox Briefing as the reference use case. The orchestrator can validate, build, and browser-test that use case. It does not change code, publish, or merge.
+This folder defines the Atlas agents and the shared rules they follow. The reference use case is Daily Inbox Briefing. The QA runner validates, builds, and browser-tests that use case. The v1 loop can ask the Builder to change a working copy, then run QA again. Nothing in this folder publishes, deploys, or merges.
 
 ## What each agent does
 
@@ -8,7 +8,7 @@ This folder defines the first three Atlas agents and the shared rules they follo
 
 **QA** (`qa.md`) assumes the Builder may be wrong. It checks the running app: public pages, the sign-in boundary, interactions, phone-sized layout, and console errors. It writes a pass/fail report. It does not edit the application while it is testing.
 
-**Evaluator** (`evaluator.md`) scores whether the use case is clear, accurate, and useful for a small business. It does not re-check implementation. QA already did that. Its output shape is `evaluator-output.schema.json`. v0 does not run the Evaluator automatically.
+**Evaluator** (`evaluator.md`) scores whether the use case is clear, accurate, and useful for a small business. It does not re-check implementation. QA already did that. Its output shape is `evaluator-output.schema.json`. The loop calls it only after QA passes, and only when `ATLAS_EVALUATOR_COMMAND` is set. Until then the hook records that scoring did not run.
 
 Shared product rules live in `standards.md`.
 
@@ -81,16 +81,108 @@ Override the app URL or output path if needed:
 ATLAS_QA_APP_URL=http://localhost:3000 ATLAS_QA_STORAGE_STATE=agent-secrets/playwright-storage-state.json npm run qa:save-session
 ```
 
-## What v0 does not do
+## Create a task
 
-The runner does not modify application code after a failure. There is no automatic publish step and no merge to `main`.
+Add a JSON file under `agent-tasks/`. The shape is `agents/task.schema.json`.
 
-## Later: Builder → QA → Evaluator
+```json
+{
+  "schema_version": "atlas-agent-task-v1",
+  "id": "v1-loop-dry-run",
+  "title": "Record that the v1 agent loop can run",
+  "objective": "Add a documentation note. Do not change Atlas product behavior.",
+  "target_use_case": "daily-inbox-briefing",
+  "scope": ["agents/v1-loop-dry-run.md"],
+  "acceptance_criteria": [
+    "The note exists and does not change product behavior."
+  ],
+  "forbidden_changes": ["app/", "components/", "content/", "e2e/"],
+  "permits_qa_changes": false,
+  "requires_authenticated_qa": true,
+  "max_iterations": 3
+}
+```
 
-When the browser checks are stable, the intended loop is:
+`scope` is the only set of files the Builder may keep. `max_iterations` cannot be higher than 3. `permits_qa_changes` defaults to false.
 
-1. Builder reads `agent-specs/daily-inbox-briefing.json` and `agents/standards.md`, then edits a working copy.
-2. QA runs `npm run qa` and writes a report. Failures are blocking. Missing session coverage stays a human action, not a silent pass.
-3. A person, or a later Builder pass, fixes blocking failures. QA re-runs. The Builder still does not merge or deploy.
-4. Evaluator reads the spec and the QA report and returns the JSON in `evaluator-output.schema.json`. A QA failure cannot be scored away.
-5. A person decides whether to publish. Nothing in this loop publishes by itself.
+## Run the agent loop
+
+```bash
+npm run agent:run -- agent-tasks/v1-loop-dry-run.json
+```
+
+The loop runs only on the `private-preview` branch. It then:
+
+1. Validates the task file.
+2. Invokes the Builder with `agents/builder.md`, the task, and nothing else from an earlier chat.
+3. Runs content validation.
+4. Runs the production build.
+5. Runs `npm run qa`, which reuses `agent-secrets/playwright-storage-state.json` when that file is already present. It does not request a Magic Link.
+6. Reads the QA report.
+7. Stops with `READY_FOR_HUMAN_REVIEW` when QA passes.
+8. On failure, sends only the structured failures back to the Builder with: fix only the failing behavior, and preserve all passing functionality.
+9. Repeats from the Builder step until QA passes or 3 iterations are used.
+10. Stops with `HUMAN_REVIEW_REQUIRED` when the third iteration still fails, when a test may be wrong, or when the Builder leaves the task scope.
+
+The result is written under `agent-reports/loops/`. That directory is gitignored. The loop does not commit or push.
+
+## How the Builder is invoked
+
+The orchestrator checks, in order:
+
+1. `ATLAS_BUILDER_COMMAND`, if you set it. The command receives `ATLAS_BUILDER_REQUEST`, `ATLAS_BUILDER_REPORT`, and `ATLAS_BUILDER_PROMPT`. It must write a builder report and must not commit.
+2. The Cursor Agent CLI, when `agent` is on your PATH. Each iteration starts a new non-interactive process: `agent -p --force --trust --output-format text --workspace <repo>`. The prompt is `agents/builder.md`, the task JSON, and the current failure packet. The command does not pass `--continue` or `--resume`, so earlier chats are not sent. On Windows the `agent` entry point is a PowerShell script, and the orchestrator launches that script with the same arguments.
+3. A documentation fallback, only when no external Builder is available and every scoped path is a markdown file under `agents/` or `agent-tasks/`. It can add that note. It cannot change product code.
+
+Any other task stops for a person until a Builder command is configured.
+
+The Builder writes `agents/builder-report.schema.json`. That report cannot say QA passed.
+
+## How QA failures go back
+
+Each failure handed to the next iteration matches `agents/qa-failure.schema.json`:
+
+- `issue_id`
+- `test`
+- `severity`
+- `expected`
+- `actual`
+- `evidence` (screenshot and trace paths only)
+- `relevant_files` when the error names repo files
+
+The next prompt does not include the previous conversation.
+
+## Iteration limit
+
+`max_iterations` is 1, 2, or 3. The task schema rejects a larger number. A passing QA run stops immediately, even on iteration 1. After the third failure the loop stops with `HUMAN_REVIEW_REQUIRED` and does not start a fourth Builder pass.
+
+## Test protection
+
+Unless `permits_qa_changes` is true, the loop restores edits to Playwright tests, the QA runner, the session helper, and `agents/qa.md`. It always restores edits to the task file, package scripts, standards, and the loop itself, so a Builder cannot change its own acceptance criteria or turn QA off.
+
+Skipping a test or removing an `expect` is restored and recorded as `TEST_PROTECTION_VIOLATION`.
+
+If the Builder believes a test is wrong, it must say so in `possible_test_defects` and leave the test file alone. The loop classifies that as `POSSIBLE_TEST_DEFECT` and stops for a person. It does not accept a silent test edit.
+
+## Secrets and the saved session
+
+The loop reads the existing Playwright storage state to decide whether signed-in QA can run. It does not print the file, copy it into a report, or call `npm run qa:save-session`. If the task requires authenticated QA and the session file is missing, the loop stops. It does not ask for a new Magic Link.
+
+Do not put tokens, passwords, API keys, magic links, or email addresses in a task file.
+
+## Human approval
+
+A finished loop prints one of:
+
+- `READY_FOR_HUMAN_REVIEW` when QA passed
+- `HUMAN_REVIEW_REQUIRED` when it stopped for a person
+
+The report includes the task, iterations used, files the loop kept, the QA counts, unresolved issues, the Evaluator hook result, and a diff summary of those kept files. `committed` is always false. A person decides whether anything is committed, merged, or published.
+
+## Evaluator integration
+
+QA pass runs the hook in `agents/evaluator.md`. With no `ATLAS_EVALUATOR_COMMAND`, the result is `not_executed` and the score fields are empty. A future command writes `agents/evaluator-output.schema.json` to `ATLAS_EVALUATOR_OUTPUT`. The loop copies clarity, accuracy, actionability, SMB relevance, AI literacy, safety, setup difficulty, automation potential, the overall score, and suggested improvements from that file. The Evaluator still cannot change the product or override a QA failure.
+
+## What the loop does not do
+
+It does not publish, deploy, merge to `main`, or commit. `npm run qa` by itself still does not edit the application. Only the loop's Builder step edits a working copy, and only inside the task scope.

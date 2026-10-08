@@ -10,6 +10,7 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "qa": "tsx scripts/run-atlas-qa.ts",
     "qa:save-session": "tsx scripts/save-atlas-qa-session.ts",
+    "agent:run": "tsx scripts/run-atlas-agent-loop.ts",
     "test:e2e": "playwright test",
     "generate:suggestion": "tsx scripts/generate-suggestion.ts",
     "research:sources": "tsx scripts/research-sources.ts"

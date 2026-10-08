@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atlas-evaluator-hook-v1",
+  "title": "Atlas Evaluator hook result v1",
+  "description": "Written after QA passes. Scores stay empty until an evaluator command is configured. The hook does not modify the product.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "reason",
+    "output_schema",
+    "qa_report",
+    "scores",
+    "overall",
+    "suggested_improvements"
+  ],
+  "properties": {
+    "schema_version": { "const": "atlas-evaluator-hook-v1" },
+    "status": { "enum": ["not_executed", "executed", "invalid_output"] },
+    "reason": { "type": "string" },
+    "output_schema": { "const": "agents/evaluator-output.schema.json" },
+    "qa_report": { "type": "string" },
+    "evaluation_file": { "type": "string" },
+    "scores": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "clarity",
+        "accuracy",
+        "actionability",
+        "smb_relevance",
+        "ai_literacy",
+        "safety",
+        "setup_difficulty",
+        "automation_potential"
+      ],
+      "properties": {
+        "clarity": { "type": ["integer", "null"] },
+        "accuracy": { "type": ["integer", "null"] },
+        "actionability": { "type": ["integer", "null"] },
+        "smb_relevance": { "type": ["integer", "null"] },
+        "ai_literacy": { "type": ["integer", "null"] },
+        "safety": { "type": ["integer", "null"] },
+        "setup_difficulty": { "type": ["integer", "null"] },
+        "automation_potential": { "type": ["integer", "null"] }
+      }
+    },
+    "overall": { "type": ["integer", "null"] },
+    "suggested_improvements": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

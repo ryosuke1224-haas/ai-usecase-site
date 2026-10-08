@@ -33,6 +33,8 @@ The QA Agent checks behavior. Builder output is untrusted until a person or a br
 - `status: "pass"` means every test that ran passed. It does not mean signed-in coverage ran.
 - Console errors from the Atlas app fail the quality checks. Missing favicon requests and third-party analytics or Supademo noise are recorded as non-blocking when they match the ignore list in `e2e/support/console.ts`.
 
-## v0 limit
+## What happens after a failure
 
-QA does not rewrite the app after a failure. Fix loops come later, through the Builder, and only after this check is stable.
+QA still does not edit the application. The v1 loop reads the report and sends each blocking failure to the Builder as structured data: issue id, test, severity, expected, actual, evidence paths, and relevant files when the error names them. It does not send the rest of the conversation.
+
+A pass stops the loop for human review. A failure can return to the Builder at most three times. Skipping signed-in tests is not a pass when the task requires authenticated QA.

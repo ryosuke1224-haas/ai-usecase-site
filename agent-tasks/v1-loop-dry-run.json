@@ -1,0 +1,24 @@
+{
+  "schema_version": "atlas-agent-task-v1",
+  "id": "v1-loop-dry-run",
+  "title": "Record that the v1 agent loop can run",
+  "objective": "Add a documentation note that the controlled Builder, QA, and human-review loop exists. Do not change Atlas product behavior.",
+  "target_use_case": "daily-inbox-briefing",
+  "scope": ["agents/v1-loop-dry-run.md"],
+  "acceptance_criteria": [
+    "agents/v1-loop-dry-run.md exists and states that this file is a loop dry run and does not change product behavior.",
+    "No application routes, components, content, or tests are changed by this task."
+  ],
+  "forbidden_changes": [
+    "app/",
+    "components/",
+    "content/",
+    "src/",
+    "public/",
+    "e2e/",
+    "playwright.config.ts"
+  ],
+  "permits_qa_changes": false,
+  "requires_authenticated_qa": true,
+  "max_iterations": 3
+}

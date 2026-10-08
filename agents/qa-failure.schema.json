@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atlas-qa-failure-v1",
+  "title": "Atlas QA failure handed back to the Builder",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "issue_id",
+    "test",
+    "severity",
+    "expected",
+    "actual",
+    "evidence",
+    "relevant_files"
+  ],
+  "properties": {
+    "issue_id": { "type": "string", "minLength": 1 },
+    "test": { "type": "string", "minLength": 1 },
+    "severity": { "enum": ["blocking", "non_blocking"] },
+    "expected": { "type": "string" },
+    "actual": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Repo-relative screenshot or trace paths. File contents are not inlined."
+    },
+    "relevant_files": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "classification": {
+      "enum": [
+        "QA_FAILURE",
+        "BUILD_FAILURE",
+        "VALIDATION_FAILURE",
+        "POSSIBLE_TEST_DEFECT",
+        "TEST_PROTECTION_VIOLATION",
+        "SCOPE_VIOLATION"
+      ]
+    }
+  }
+}
