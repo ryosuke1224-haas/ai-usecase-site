@@ -47,6 +47,16 @@
       "description": "When false, the Builder must not edit tests or QA infrastructure."
     },
     "requires_authenticated_qa": { "type": "boolean" },
+    "product_changes_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "When false, the Builder must not keep product edits. The loop still runs QA and, on a QA pass, the Evaluator."
+    },
+    "evaluation_targets": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Repo files the Evaluator must inspect. The Evaluator does not edit them."
+    },
     "max_iterations": {
       "type": "integer",
       "minimum": 1,

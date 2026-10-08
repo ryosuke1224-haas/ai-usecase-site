@@ -1,0 +1,44 @@
+{
+  "schema_version": "atlas-agent-task-v1",
+  "id": "daily-inbox-evaluate",
+  "title": "Evaluate the finished Daily Inbox Briefing workflow",
+  "objective": "Do not change product content, tests, or application code. The current Daily Inbox Briefing implementation is already complete. Write only the builder report and state that no product edits were made.",
+  "target_use_case": "daily-inbox-briefing",
+  "scope": ["agent-specs/daily-inbox-briefing.json"],
+  "acceptance_criteria": [
+    "The public use-case page explains the guided demo without requiring an account.",
+    "The Free Starter Kit stays behind sign-in and includes prompts, setup guides, the priority worksheet, the review checklist, safety guidance, and troubleshooting.",
+    "My Blueprints shows the free Starter Kit after sign-in.",
+    "No product file changes are kept."
+  ],
+  "forbidden_changes": [
+    "app/",
+    "components/",
+    "content/",
+    "e2e/",
+    "src/",
+    "public/",
+    "playwright.config.ts"
+  ],
+  "permits_qa_changes": false,
+  "requires_authenticated_qa": true,
+  "max_iterations": 3,
+  "product_changes_required": false,
+  "evaluation_targets": [
+    "content/published/use-cases/ai-daily-inbox-briefing.json",
+    "agent-specs/daily-inbox-briefing.json",
+    "components/use-case/experience/use-case-hero.tsx",
+    "components/use-case/experience/starter-kit-cta.tsx",
+    "app/blueprints/daily-inbox-briefing/starter-kit/page.tsx",
+    "app/blueprints/daily-inbox-briefing/starter-kit/[resource]/page.tsx",
+    "app/my-blueprints/page.tsx",
+    "src/lib/starter-kit/catalog.ts",
+    "src/lib/starter-kit/prompts.ts",
+    "components/starter-kit/prompt-resource.tsx",
+    "components/starter-kit/setup-guide.tsx",
+    "components/starter-kit/priority-worksheet.tsx",
+    "components/starter-kit/review-checklist.tsx",
+    "components/starter-kit/safety-guidance.tsx",
+    "components/starter-kit/troubleshooting.tsx"
+  ]
+}

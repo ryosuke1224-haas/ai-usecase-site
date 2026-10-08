@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { decideEvaluation } from "./evaluator";
 import { guardChanges } from "./guards";
 import { taskSchema } from "./schema";
 
@@ -92,11 +93,56 @@ function checkIterationCap() {
   assert.equal(parsed.success, false);
 }
 
+function scores(safety = 9, accuracy = 9) {
+  return [
+    { dimension: "clarity", score: 9 },
+    { dimension: "accuracy_and_grounding", score: accuracy },
+    { dimension: "actionability", score: 9 },
+    { dimension: "smb_relevance", score: 9 },
+    { dimension: "ai_literacy_value", score: 9 },
+    { dimension: "safety", score: safety },
+    { dimension: "setup_usability", score: 9 },
+    { dimension: "human_ai_boundary", score: 9 },
+  ];
+}
+
+function checkEvaluatorDecisions() {
+  assert.equal(
+    decideEvaluation({ overallScore: 9, scores: scores(), findings: [] }),
+    "PASS",
+  );
+  assert.equal(
+    decideEvaluation({
+      overallScore: 8,
+      scores: scores(),
+      findings: [{ severity: "LOW" }],
+    }),
+    "PASS_WITH_RECOMMENDATIONS",
+  );
+  assert.equal(
+    decideEvaluation({
+      overallScore: 9,
+      scores: scores(),
+      findings: [{ severity: "CRITICAL" }],
+    }),
+    "HUMAN_REVIEW_REQUIRED",
+  );
+  assert.equal(
+    decideEvaluation({ overallScore: 9, scores: scores(6.5, 9), findings: [] }),
+    "HUMAN_REVIEW_REQUIRED",
+  );
+  assert.equal(
+    decideEvaluation({ overallScore: 7.4, scores: scores(), findings: [] }),
+    "HUMAN_REVIEW_REQUIRED",
+  );
+}
+
 export function runAgentLoopSelfCheck(): void {
   checkScopeKeepsDocumentation();
   checkTestEditIsRestored();
   checkOutOfScopeProductFileIsRestored();
   checkTaskFileIsAlwaysProtected();
   checkIterationCap();
+  checkEvaluatorDecisions();
   console.log("Agent loop self-check passed.");
 }

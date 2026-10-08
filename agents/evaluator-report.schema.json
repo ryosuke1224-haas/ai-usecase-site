@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "atlas-evaluator-report-v1",
+  "title": "Atlas Evaluator report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "evaluator_executor",
+    "evaluated_files",
+    "scores",
+    "overall_score",
+    "setup_difficulty",
+    "automation_potential",
+    "human_oversight",
+    "findings",
+    "strengths",
+    "recommended_improvements",
+    "decision",
+    "timestamp"
+  ],
+  "properties": {
+    "schema_version": { "const": "atlas-evaluator-report-v1" },
+    "task_id": { "type": "string" },
+    "evaluator_executor": { "const": "cursor-agent-cli" },
+    "evaluated_files": { "type": "array", "items": { "type": "string" } },
+    "scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dimension", "score", "evidence", "issues"],
+        "properties": {
+          "dimension": {
+            "enum": [
+              "clarity",
+              "accuracy_and_grounding",
+              "actionability",
+              "smb_relevance",
+              "ai_literacy_value",
+              "safety",
+              "setup_usability",
+              "human_ai_boundary"
+            ]
+          },
+          "score": { "type": "number", "minimum": 1, "maximum": 10 },
+          "evidence": { "type": "array", "items": { "type": "string" } },
+          "issues": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "overall_score": { "type": "number", "minimum": 1, "maximum": 10 },
+    "overall_score_basis": { "enum": ["evaluator", "capped_for_critical_issue"] },
+    "setup_difficulty": { "enum": ["EASY", "MODERATE", "HARD"] },
+    "automation_potential": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+    "human_oversight": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "severity", "category", "description", "evidence", "recommendation"],
+        "properties": {
+          "finding_id": { "type": "string" },
+          "severity": { "enum": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+          "category": { "type": "string" },
+          "description": { "type": "string" },
+          "evidence": { "type": "array", "items": { "type": "string" } },
+          "recommendation": { "type": "string" }
+        }
+      }
+    },
+    "strengths": { "type": "array", "items": { "type": "string" } },
+    "recommended_improvements": { "type": "array", "items": { "type": "string" } },
+    "decision": { "enum": ["PASS", "PASS_WITH_RECOMMENDATIONS", "HUMAN_REVIEW_REQUIRED"] },
+    "decision_adjusted": { "type": "boolean" },
+    "timestamp": { "type": "string" }
+  }
+}

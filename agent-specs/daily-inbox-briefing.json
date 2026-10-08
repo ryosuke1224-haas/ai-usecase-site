@@ -58,7 +58,7 @@
     {
       "key": "claude",
       "label": "Claude",
-      "availabilityNote": "Free plan supported. Usage limits apply."
+      "availabilityNote": "Availability may vary by plan. Usage limits may apply."
     },
     {
       "key": "gemini",
@@ -71,8 +71,8 @@
     "requiredDataSources": ["emails", "calendar-events"],
     "requiredApis": ["gmail-api", "google-calendar-api", "openai-api"],
     "noCodeTools": [
-      "Zapier or Make.com for scheduled trigger",
-      "ChatGPT with Gmail/Calendar plugins (manual daily run)",
+      "Zapier or Make.com only if you later choose a scheduled trigger. The Free Starter Kit does not schedule one.",
+      "ChatGPT with Gmail and Calendar connectors, which you run yourself. Availability may vary by plan.",
       "Google Apps Script + OpenAI API (lightweight custom)"
     ],
     "lowCodeTools": [
@@ -138,7 +138,7 @@
       {
         "key": "claude",
         "label": "Claude",
-        "availabilityNote": "Free plan supported. Usage limits apply.",
+        "availabilityNote": "Availability may vary by plan. Usage limits may apply.",
         "embedUrl": "https://app.supademo.com/embed/cmsj61hfm0g97qm5sqxld998x?embed_v=2&utm_source=embed",
         "iframeTitle": "Claude guided walkthrough for AI Daily Inbox Briefing"
       },

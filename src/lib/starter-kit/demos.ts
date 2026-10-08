@@ -20,7 +20,7 @@ const FALLBACK_DEMOS: StarterKitDemoTool[] = [
   {
     key: "claude",
     label: "Claude",
-    availabilityNote: "Free plan supported. Usage limits apply.",
+    availabilityNote: "Availability may vary by plan. Usage limits may apply.",
     embedUrl:
       "https://app.supademo.com/embed/cmsj61hfm0g97qm5sqxld998x?embed_v=2&utm_source=embed",
   },

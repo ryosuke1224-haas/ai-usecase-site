@@ -62,6 +62,7 @@ const SETUP_COPY: Record<
     whereToConnect: [
       "Open ChatGPT and go to settings for apps, connectors, or connected apps (wording varies by plan).",
       "Look for Gmail and Google Calendar connectors.",
+      "Before you connect, read the permission prompt. Approve only access you understand, and confirm your organization's policy if this is a work account.",
       "Connect the Google account that holds the inbox and calendar you want to brief.",
       "Return to a new chat and confirm the connector is available before pasting the Starter Kit prompt.",
     ],
@@ -73,15 +74,15 @@ const SETUP_COPY: Record<
   "claude-setup": {
     toolKey: "claude",
     accountNeeded:
-      "A Claude account that can use connectors for Gmail and Google Calendar. Free plan support may include usage limits.",
+      "A Claude account that can use connectors for Gmail and Google Calendar.",
     whereToConnect: [
       "Open Claude and open the connectors / integrations area for your account.",
       "Find Gmail and Google Calendar (or Google Workspace) connectors.",
+      "Before you authorize, read every permission requested. Approve only what you understand, and confirm your company's policies if this is a work account.",
       "Authorize the Google account you use for work email and calendar.",
       "Start a chat where connectors are enabled, then paste the Initial Daily Inbox Briefing Prompt.",
     ],
     notes: [
-      "Review every permission Claude requests before authorizing.",
       "If connectors are unavailable, check plan limits and account settings, or use ChatGPT/Gemini from this kit.",
     ],
   },
@@ -91,8 +92,8 @@ const SETUP_COPY: Record<
       "A Google account with access to Gemini, Gmail, and Google Calendar. Availability may depend on account settings.",
     whereToConnect: [
       "Open Gemini while signed into the Google account that owns your Gmail and Calendar.",
+      "Before you enable access, read the permission prompt. Approve only what you understand, and confirm your organization's policy if this is a work account.",
       "Enable or confirm access to Gmail and Calendar where Gemini offers Google app connections.",
-      "Review the permission prompt carefully before continuing.",
       "Ask Gemini to confirm it can see today’s calendar, then paste the Starter Kit prompt.",
     ],
     notes: [

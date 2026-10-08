@@ -179,9 +179,17 @@ A finished loop prints one of:
 
 The report includes the task, iterations used, files the loop kept, the QA counts, unresolved issues, the Evaluator hook result, and a diff summary of those kept files. `committed` is always false. A person decides whether anything is committed, merged, or published.
 
-## Evaluator integration
+## Evaluator
 
-QA pass runs the hook in `agents/evaluator.md`. With no `ATLAS_EVALUATOR_COMMAND`, the result is `not_executed` and the score fields are empty. A future command writes `agents/evaluator-output.schema.json` to `ATLAS_EVALUATOR_OUTPUT`. The loop copies clarity, accuracy, actionability, SMB relevance, AI literacy, safety, setup difficulty, automation potential, the overall score, and suggested improvements from that file. The Evaluator still cannot change the product or override a QA failure.
+When deterministic QA passes, the loop starts a second Cursor Agent process for the Evaluator. It uses `agent -p --mode ask --trust --output-format text` so the process is read-only. The command does not include `--continue`, `--resume`, or `--force`, and it does not receive the Builder chat.
+
+The Evaluator reads `agents/evaluator.md`, the task, the builder report, the QA result, the task diff, and the files listed in `evaluation_targets`. It prints a report matching `agents/evaluator-report.schema.json`. The orchestrator writes that report to `agent-reports/loops/<run-id>/evaluator-report.json`.
+
+Scores run from 1.0 to 10.0 for clarity, accuracy and grounding, actionability, SMB relevance, AI literacy, safety, setup usability, and the human/AI boundary. The report also classifies setup difficulty, automation potential, and human oversight, and it chooses `PASS`, `PASS_WITH_RECOMMENDATIONS`, or `HUMAN_REVIEW_REQUIRED`.
+
+A QA failure does not start the Evaluator. Findings are not sent back to the Builder. An Evaluator pass still stops at `READY_FOR_HUMAN_REVIEW`. If the Evaluator edits any file, those edits are restored and the loop stops with `EVALUATOR_WRITE_VIOLATION`.
+
+Set `product_changes_required` to false when the task is an evaluation of the current implementation and the Builder must not keep product edits. QA and the Evaluator still run.
 
 ## What the loop does not do
 

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "atlas-evaluator-hook-v1",
   "title": "Atlas Evaluator hook result v1",
-  "description": "Written after QA passes. Scores stay empty until an evaluator command is configured. The hook does not modify the product.",
+  "description": "Summary written after a QA pass. The full scores and findings are in evaluator-report.json. The Evaluator does not modify the product.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -11,45 +11,55 @@
     "reason",
     "output_schema",
     "qa_report",
+    "evaluator_executor",
+    "evaluator_command",
+    "separate_context",
+    "files_changed_by_evaluator",
+    "decision",
+    "overall_score",
     "scores",
-    "overall",
-    "suggested_improvements"
+    "findings"
   ],
   "properties": {
     "schema_version": { "const": "atlas-evaluator-hook-v1" },
-    "status": { "enum": ["not_executed", "executed", "invalid_output"] },
+    "status": { "enum": ["executed", "invalid_output", "write_violation"] },
     "reason": { "type": "string" },
-    "output_schema": { "const": "agents/evaluator-output.schema.json" },
+    "output_schema": { "const": "agents/evaluator-report.schema.json" },
     "qa_report": { "type": "string" },
-    "evaluation_file": { "type": "string" },
+    "evaluation_file": { "type": ["string", "null"] },
+    "evaluator_executor": { "const": "cursor-agent-cli" },
+    "evaluator_command": { "type": "string" },
+    "separate_context": { "const": true },
+    "files_changed_by_evaluator": { "type": "array", "items": { "type": "string" } },
+    "decision": {
+      "type": ["string", "null"],
+      "enum": ["PASS", "PASS_WITH_RECOMMENDATIONS", "HUMAN_REVIEW_REQUIRED", null]
+    },
+    "overall_score": { "type": ["number", "null"] },
     "scores": {
-      "type": ["object", "null"],
-      "additionalProperties": false,
-      "required": [
-        "clarity",
-        "accuracy",
-        "actionability",
-        "smb_relevance",
-        "ai_literacy",
-        "safety",
-        "setup_difficulty",
-        "automation_potential"
-      ],
-      "properties": {
-        "clarity": { "type": ["integer", "null"] },
-        "accuracy": { "type": ["integer", "null"] },
-        "actionability": { "type": ["integer", "null"] },
-        "smb_relevance": { "type": ["integer", "null"] },
-        "ai_literacy": { "type": ["integer", "null"] },
-        "safety": { "type": ["integer", "null"] },
-        "setup_difficulty": { "type": ["integer", "null"] },
-        "automation_potential": { "type": ["integer", "null"] }
+      "type": ["array", "null"],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dimension", "score"],
+        "properties": {
+          "dimension": { "type": "string" },
+          "score": { "type": "number" }
+        }
       }
     },
-    "overall": { "type": ["integer", "null"] },
-    "suggested_improvements": {
+    "findings": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "severity", "description"],
+        "properties": {
+          "finding_id": { "type": "string" },
+          "severity": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
     }
   }
 }

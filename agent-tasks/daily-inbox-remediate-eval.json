@@ -1,0 +1,56 @@
+{
+  "schema_version": "atlas-agent-task-v1",
+  "id": "daily-inbox-remediate-eval",
+  "title": "Remediate Daily Inbox evaluator findings EVAL-001 through EVAL-004",
+  "objective": "Fix only the product and content issues behind evaluator findings EVAL-001, EVAL-002, EVAL-003, and EVAL-004. Preserve the Daily Inbox Briefing workflow: public guided demo, free Starter Kit behind sign-in, manual review-first briefing, and both hero and tile demo labels as \"Watch demo\". Do not edit tests, QA scripts, the evaluator, or unrelated copy. Do not commit, push, merge, or deploy.\n\nEVAL-001: Stop stating that Claude's free plan supports this Gmail and Calendar workflow. In content/published/use-cases/ai-daily-inbox-briefing.json, set guidedDemos.tools Claude availabilityNote to exactly \"Availability may vary by plan. Usage limits may apply.\" In the FAQ answer for \"Which AI tools can I use?\", keep the sentence \"The Free Starter Kit includes versions for ChatGPT, Claude, and Gemini.\" and replace \"Claude’s free plan is supported; usage limits apply.\" with \"Connector availability may vary by plan, and usage limits may apply.\" In agent-specs/daily-inbox-briefing.json, set the same Claude availabilityNote on supportedAiTools and on supademo.tools. Public QA reads that spec string and checks the page shows it, so the spec and the page must match. Do not change faqSample.answerIncludes or any other spec assertion. In src/lib/starter-kit/demos.ts, set the Claude fallback availabilityNote to the same sentence. In the Claude setup copy, replace \"Free plan support may include usage limits.\" with \"Gmail and Calendar connector availability may vary by plan, and usage limits may apply.\"\n\nEVAL-002: Remove stale scheduled-delivery and sending opt-in language from the published record, and keep agent-specs publishedRecordOnly.noCodeTools identical to the published noCodeTools array. Set outcome and the single expectedOutcomes entry to exactly \"A concise morning briefing you review yourself, listing emails that need a reply today, messages waiting 48+ hours, and today's meetings with one-line context from related threads.\" Replace implementation step \"Schedule daily run at 6:30 AM local time\" with \"Run the briefing yourself when you start work. This workflow does not schedule a daily send.\" Replace \"Deliver briefing via email draft, Slack message, or mobile notification\" with \"Read the briefing in the chat and take any follow-up yourself. Do not have the tool send email or change calendar events.\" Replace system behavior \"Runs on a fixed daily schedule (not real-time)\" with \"Runs when you start it. It does not run on a fixed schedule.\" Replace \"Never sends emails automatically without explicit opt-in to that feature\" with \"Does not send email, edit calendar events, or take external actions. You take those actions yourself.\" Replace noCodeTools entry \"ChatGPT with Gmail/Calendar plugins (manual daily run)\" with \"ChatGPT with Gmail and Calendar connectors, which you run yourself. Availability may vary by plan.\" Replace \"Zapier or Make.com for scheduled trigger\" with \"Zapier or Make.com only if you later choose a scheduled trigger. The Free Starter Kit does not schedule one.\" Do not rewrite lowCodeTools, customBuildStack, prices, badges, or offer copy.\n\nEVAL-003: Make conceptDemo.summary match the items actually shown. The briefing has one Urgent today item, one Reply needed item, and one calendar conflict. Set the summary to value \"1\" label \"urgent item\", value \"1\" label \"reply needed\", and value \"1\" label \"calendar conflict\". On sampleBriefing, add a fact to the Meeting preparation item and do not invent a new event: \"Client Review is on the calendar at 2:00 PM today.\" Leave its existing title, meta, and action. Do not add fact fields to the animated concept-demo briefing items.\n\nEVAL-004: In components/starter-kit/setup-guide.tsx, render the existing \"Before you authorize\" section after \"What you need\" and before \"Where to find the connection setting\". Do not change that section's sentences. In the ChatGPT whereToConnect steps, insert this step immediately before the step that connects the Google account: \"Before you connect, read the permission prompt. Approve only access you understand, and confirm your organization's policy if this is a work account.\" In the Claude whereToConnect steps, insert this step immediately before the step that authorizes the Google account: \"Before you authorize, read every permission requested. Approve only what you understand, and confirm your company's policies if this is a work account.\" Leave the Gemini steps as they are.",
+  "target_use_case": "daily-inbox-briefing",
+  "scope": [
+    "content/published/use-cases/ai-daily-inbox-briefing.json",
+    "agent-specs/daily-inbox-briefing.json",
+    "src/lib/starter-kit/demos.ts",
+    "app/blueprints/daily-inbox-briefing/starter-kit/[resource]/page.tsx",
+    "components/starter-kit/setup-guide.tsx"
+  ],
+  "acceptance_criteria": [
+    "No Claude availability note or FAQ sentence says that Claude's free plan is supported.",
+    "The published Claude availability note, both spec Claude availability notes, and the Starter Kit demo fallback are exactly: Availability may vary by plan. Usage limits may apply.",
+    "The FAQ still contains: The Free Starter Kit includes versions for ChatGPT, Claude, and Gemini.",
+    "outcome and expectedOutcomes no longer say the briefing is delivered by 7 AM.",
+    "implementationSteps no longer schedule a 6:30 AM run, and systemBehavior no longer offers a sending opt-in.",
+    "published noCodeTools matches agent-specs publishedRecordOnly.noCodeTools, and neither says ChatGPT uses Gmail/Calendar plugins.",
+    "conceptDemo.summary shows 1 urgent item, 1 reply needed, and 1 calendar conflict.",
+    "The sample briefing Meeting preparation item has fact: Client Review is on the calendar at 2:00 PM today.",
+    "Setup guides show Before you authorize before Where to find the connection setting, and the ChatGPT and Claude steps review permissions before connect or authorize.",
+    "Hero and tile demo labels remain Watch demo. Tests, QA scripts, prompts, prices, and badges are unchanged."
+  ],
+  "forbidden_changes": [
+    "e2e/",
+    "agents/",
+    "scripts/",
+    "playwright.config.ts",
+    "package.json",
+    "package-lock.json"
+  ],
+  "permits_qa_changes": false,
+  "requires_authenticated_qa": true,
+  "product_changes_required": true,
+  "max_iterations": 3,
+  "evaluation_targets": [
+    "content/published/use-cases/ai-daily-inbox-briefing.json",
+    "agent-specs/daily-inbox-briefing.json",
+    "components/use-case/experience/use-case-hero.tsx",
+    "components/use-case/experience/starter-kit-cta.tsx",
+    "app/blueprints/daily-inbox-briefing/starter-kit/page.tsx",
+    "app/blueprints/daily-inbox-briefing/starter-kit/[resource]/page.tsx",
+    "app/my-blueprints/page.tsx",
+    "src/lib/starter-kit/catalog.ts",
+    "src/lib/starter-kit/demos.ts",
+    "src/lib/starter-kit/prompts.ts",
+    "components/starter-kit/prompt-resource.tsx",
+    "components/starter-kit/setup-guide.tsx",
+    "components/starter-kit/priority-worksheet.tsx",
+    "components/starter-kit/review-checklist.tsx",
+    "components/starter-kit/safety-guidance.tsx",
+    "components/starter-kit/troubleshooting.tsx"
+  ]
+}

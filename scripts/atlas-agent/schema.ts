@@ -17,6 +17,8 @@ export const taskSchema = z.object({
   permits_qa_changes: z.boolean().default(false),
   requires_authenticated_qa: z.boolean(),
   max_iterations: z.number().int().min(1).max(3),
+  product_changes_required: z.boolean().default(true),
+  evaluation_targets: z.array(repoPath).default([]),
 });
 
 export const testDefectSchema = z.object({

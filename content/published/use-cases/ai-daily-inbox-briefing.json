@@ -30,9 +30,9 @@
     "reduce-repetitive-admin-work",
     "improve-scheduling-and-operations"
   ],
-  "outcome": "A concise morning briefing delivered by 7 AM listing: emails needing reply today, messages waiting 48+ hours, and today's meetings with one-line context from related threads.",
+  "outcome": "A concise morning briefing you review yourself, listing emails that need a reply today, messages waiting 48+ hours, and today's meetings with one-line context from related threads.",
   "expectedOutcomes": [
-    "A concise morning briefing delivered by 7 AM listing: emails needing reply today, messages waiting 48+ hours, and today's meetings with one-line context from related threads."
+    "A concise morning briefing you review yourself, listing emails that need a reply today, messages waiting 48+ hours, and today's meetings with one-line context from related threads."
   ],
   "whoItsFor": "Solo business owners, agency principals, and office managers who manage their own inbox and calendar without an executive assistant.",
   "requiredDataSources": [
@@ -63,8 +63,8 @@
     "llm"
   ],
   "noCodeTools": [
-    "Zapier or Make.com for scheduled trigger",
-    "ChatGPT with Gmail/Calendar plugins (manual daily run)",
+    "Zapier or Make.com only if you later choose a scheduled trigger. The Free Starter Kit does not schedule one.",
+    "ChatGPT with Gmail and Calendar connectors, which you run yourself. Availability may vary by plan.",
     "Google Apps Script + OpenAI API (lightweight custom)"
   ],
   "lowCodeTools": [
@@ -82,21 +82,21 @@
     "Connect Gmail and Google Calendar via OAuth with read scopes",
     "Define priority rules: which senders, keywords, or labels escalate urgency",
     "Build prompt template: inbox threads + calendar → structured briefing format",
-    "Schedule daily run at 6:30 AM local time",
-    "Deliver briefing via email draft, Slack message, or mobile notification",
+    "Run the briefing yourself when you start work. This workflow does not schedule a daily send.",
+    "Read the briefing in the chat and take any follow-up yourself. Do not have the tool send email or change calendar events.",
     "Review first 2 weeks of briefings and tune priority rules based on misses"
   ],
   "systemBehavior": [
-    "Runs on a fixed daily schedule (not real-time)",
+    "Runs when you start it. It does not run on a fixed schedule.",
     "Reads inbox state at run time — does not monitor continuously",
-    "Never sends emails automatically without explicit opt-in to that feature",
+    "Does not send email, edit calendar events, or take external actions. You take those actions yourself.",
     "Skips newsletters, automated notifications, and marketing unless flagged",
     "Preserves thread context — summarizes, does not replace reading critical emails"
   ],
   "risks": [
     "AI may deprioritize genuinely urgent messages with unusual phrasing",
-    "OAuth tokens expire — unattended runs fail silently without monitoring",
-    "Briefing sent to wrong channel could expose client email content",
+    "Connector access can expire. If a later run cannot see Gmail or Calendar, reconnect and review the permissions before continuing.",
+    "Pasting a briefing into the wrong chat or a shared demo can expose client email content. Review it before you share it.",
     "Over-reliance reduces owner's direct inbox awareness over time"
   ],
   "difficulty": "Beginner",
@@ -132,8 +132,8 @@
         {
           "caption": "Briefing ready",
           "metrics": [
-            { "value": "3", "label": "urgent" },
-            { "value": "4", "label": "replies" },
+            { "value": "1", "label": "urgent" },
+            { "value": "1", "label": "reply" },
             { "value": "1", "label": "conflict" }
           ]
         }
@@ -153,8 +153,8 @@
     },
     "outcomes": {
       "metrics": [
-        { "value": "3", "label": "urgent items" },
-        { "value": "4", "label": "replies needed" },
+        { "value": "1", "label": "urgent item" },
+        { "value": "1", "label": "reply needed" },
         { "value": "1", "label": "calendar conflict" }
       ],
       "supporting": "Review what matters in minutes instead of scanning every message yourself."
@@ -185,8 +185,8 @@
         "Checking calendar conflicts"
       ],
       "summary": [
-        { "value": "3", "label": "urgent items" },
-        { "value": "4", "label": "replies needed" },
+        { "value": "1", "label": "urgent item" },
+        { "value": "1", "label": "reply needed" },
         { "value": "1", "label": "calendar conflict" }
       ],
       "briefing": {
@@ -197,7 +197,7 @@
             "items": [
               {
                 "title": "Client contract approval",
-                "meta": "Due by 11:00 AM"
+                "meta": "Before the 2:00 PM client review"
               }
             ]
           },
@@ -235,9 +235,9 @@
           "items": [
             {
               "title": "Client contract approval",
-              "meta": "Due by 11:00 AM",
-              "fact": "The client requested approval before today's call.",
-              "action": "Review the latest contract and respond before 11:00 AM."
+              "meta": "Before the 2:00 PM client review",
+              "fact": "The client asked for contract approval before today's 2:00 PM client review.",
+              "action": "Review the latest contract and decide whether to approve it before that meeting."
             }
           ]
         },
@@ -257,6 +257,7 @@
             {
               "title": "Client Review",
               "meta": "2:00 PM",
+              "fact": "Client Review is on the calendar at 2:00 PM today.",
               "action": "Update the pricing slide using the latest numbers."
             }
           ]
@@ -291,7 +292,7 @@
           "description": "Confirm the priorities, correct any mistakes, and decide what action to take."
         }
       ],
-      "note": "This workflow is designed to summarize, prioritize, and recommend—not send emails or modify calendar events unless you explicitly ask. Connected AI tools may request broader permissions during setup, so review them before authorizing."
+      "note": "This workflow is designed to summarize, prioritize, and recommend. It does not send emails or modify calendar events. You take those actions yourself. Connected AI tools may request broader permissions during setup, so review them before authorizing."
     },
     "responsibilities": {
       "heading": "AI handles the preparation. You keep the judgment.",
@@ -344,7 +345,7 @@
         {
           "key": "claude",
           "label": "Claude",
-          "availabilityNote": "Free plan supported. Usage limits apply.",
+          "availabilityNote": "Availability may vary by plan. Usage limits may apply.",
           "embedUrl": "https://app.supademo.com/embed/cmsj61hfm0g97qm5sqxld998x?embed_v=2&utm_source=embed"
         },
         {
@@ -455,7 +456,7 @@
     "faq": [
       {
         "question": "Which AI tools can I use?",
-        "answer": "The Free Starter Kit includes versions for ChatGPT, Claude, and Gemini. Available Gmail and Calendar capabilities may differ by platform and plan. Claude’s free plan is supported; usage limits apply."
+        "answer": "The Free Starter Kit includes versions for ChatGPT, Claude, and Gemini. Available Gmail and Calendar capabilities may differ by platform and plan. Connector availability may vary by plan, and usage limits may apply."
       },
       {
         "question": "Does the workflow send emails automatically?",

@@ -11,7 +11,7 @@ import {
   resolveBuilderInvocation,
   type BuilderInvocation,
 } from "./atlas-agent/builder";
-import { runEvaluatorHook, type EvaluatorHookResult } from "./atlas-agent/evaluator";
+import { runEvaluator, type EvaluatorHookResult } from "./atlas-agent/evaluator";
 import { guardChanges } from "./atlas-agent/guards";
 import { listQaReports, readNewQaReport, type QaRunResult } from "./atlas-agent/qa-failures";
 import { redact } from "./atlas-agent/redact";
@@ -286,11 +286,19 @@ async function main() {
       unresolved = incomingFailures;
       break;
     }
-    if (kept.length === 0 && failures.length > 0) {
+    if (task.product_changes_required === false) {
+      const stray = changesSince(baseline).map((change) => change.path);
+      if (stray.length > 0) {
+        restoreFiles(baseline, stray);
+        console.log(
+          `Restored ${stray.length} file(s). This task evaluates the current implementation and does not allow product changes.`,
+        );
+      }
+    } else if (kept.length === 0 && failures.length > 0) {
       unresolved = failures;
       break;
     }
-    if (kept.length === 0 && defects.length === 0) {
+    if (task.product_changes_required !== false && kept.length === 0 && defects.length === 0) {
       failures = [
         issue(
           "scope-not-updated",
@@ -356,18 +364,37 @@ async function main() {
       break;
     }
     if (qa.report?.status === "pass" && qa.failures.length === 0) {
-      const specPath = `agent-specs/${task.target_use_case}.json`;
-      evaluator = runEvaluatorHook({
+      const keptNow = changesSince(baseline).map((change) => change.path);
+      evaluator = await runEvaluator({
+        task,
+        taskPath,
         qaReportPath: qa.reportPath || "",
-        specPath,
-        outputPath: path.join(loopDirectory, "evaluator-hook.json").replace(/\\/g, "/"),
+        qaStatus: qa.report.status,
+        testsPassed: qa.report.tests_passed,
+        testsFailed: qa.report.tests_failed,
+        testsSkipped: qa.report.tests_skipped,
+        builderReportPath: reportPath,
+        gitDiffSummary: diffSummary(baseline, keptNow),
+        outputPath: path.join(loopDirectory, "evaluator-report.json"),
       });
       fs.writeFileSync(
         path.join(loopDirectory, "evaluator-hook.json"),
         `${JSON.stringify(evaluator, null, 2)}\n`,
       );
-      disposition = "READY_FOR_HUMAN_REVIEW";
-      unresolved = [];
+      if (evaluator.status === "executed" && evaluator.decision !== "HUMAN_REVIEW_REQUIRED") {
+        disposition = "READY_FOR_HUMAN_REVIEW";
+        unresolved = [];
+      } else {
+        disposition = "HUMAN_REVIEW_REQUIRED";
+        unresolved = [
+          issue(
+            evaluator.status === "write_violation" ? "EVALUATOR_WRITE_VIOLATION" : "evaluator-review",
+            "Evaluator",
+            evaluator.reason,
+            "QA_FAILURE",
+          ),
+        ];
+      }
       break;
     }
     failures = qa.failures;
@@ -457,7 +484,16 @@ function finish(input: {
   console.log(`Authenticated session: ${result.authenticated_session}`);
   console.log(`Builder command: ${result.builder_command || "(none)"}`);
   console.log(`Fallback used: ${result.fallback_used}`);
-  console.log(`Evaluator: ${result.evaluator_result?.status ?? "not_run"}`);
+  console.log(
+    `Evaluator: ${result.evaluator_result?.status ?? "not_run"}` +
+      (result.evaluator_result?.decision ? ` ${result.evaluator_result.decision}` : "") +
+      (result.evaluator_result?.overall_score != null
+        ? ` overall ${result.evaluator_result.overall_score}`
+        : ""),
+  );
+  if (result.evaluator_result?.evaluator_command) {
+    console.log(`Evaluator command: ${result.evaluator_result.evaluator_command}`);
+  }
   console.log(`Committed: false`);
   console.log(`Report: ${input.resultPath}`);
   process.exit(result.disposition === "READY_FOR_HUMAN_REVIEW" ? 0 : 1);

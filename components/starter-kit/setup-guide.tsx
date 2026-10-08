@@ -29,17 +29,6 @@ export function SetupGuide({
 
       <section className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6">
         <h2 className="text-base font-semibold tracking-tight text-foreground">
-          Where to find the connection setting
-        </h2>
-        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-muted">
-          {whereToConnect.map((step) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ol>
-      </section>
-
-      <section className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6">
-        <h2 className="text-base font-semibold tracking-tight text-foreground">
           Before you authorize
         </h2>
         <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted">
@@ -57,6 +46,17 @@ export function SetupGuide({
             deliberately configure something else later.
           </li>
         </ul>
+      </section>
+
+      <section className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6">
+        <h2 className="text-base font-semibold tracking-tight text-foreground">
+          Where to find the connection setting
+        </h2>
+        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-muted">
+          {whereToConnect.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
       </section>
 
       <section>

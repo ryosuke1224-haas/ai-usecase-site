@@ -20,6 +20,8 @@ const ALWAYS_PROTECTED = [
   "agents/loop-result.schema.json",
   "agents/evaluator-hook.schema.json",
   "agents/evaluator-output.schema.json",
+  "agents/evaluator-report.schema.json",
+  "agents/evaluator.md",
   "scripts/run-atlas-agent-loop.ts",
 ];
 
