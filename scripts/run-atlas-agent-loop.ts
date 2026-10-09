@@ -11,6 +11,7 @@ import {
   resolveBuilderInvocation,
   type BuilderInvocation,
 } from "./atlas-agent/builder";
+import { BuilderTimeoutError } from "./atlas-agent/cursor-cli";
 import { runEvaluator, type EvaluatorHookResult } from "./atlas-agent/evaluator";
 import { guardChanges } from "./atlas-agent/guards";
 import { listQaReports, readNewQaReport, type QaRunResult } from "./atlas-agent/qa-failures";
@@ -208,6 +209,25 @@ async function main() {
       report = invoked.report;
       builderCommand = invoked.command;
     } catch (error) {
+      if (error instanceof BuilderTimeoutError) {
+        restoreSecrets(baseline);
+        const kept = changesSince(baseline).map((change) => change.path);
+        console.log(
+          "BUILDER_TIMEOUT. Partial product changes were kept. The loop will not start another Builder attempt.",
+        );
+        unresolved = [
+          {
+            ...issue(
+              "BUILDER_TIMEOUT",
+              "Builder",
+              error.message,
+              "BUILDER_TIMEOUT",
+            ),
+            relevant_files: kept,
+          },
+        ];
+        break;
+      }
       unresolved = [
         issue(
           "builder-failed",

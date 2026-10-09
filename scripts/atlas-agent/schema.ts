@@ -52,8 +52,9 @@ export const qaFailureSchema = z.object({
       "BUILD_FAILURE",
       "VALIDATION_FAILURE",
       "POSSIBLE_TEST_DEFECT",
-      "TEST_PROTECTION_VIOLATION",
-      "SCOPE_VIOLATION",
+        "TEST_PROTECTION_VIOLATION",
+        "SCOPE_VIOLATION",
+        "BUILDER_TIMEOUT",
     ])
     .optional(),
 });

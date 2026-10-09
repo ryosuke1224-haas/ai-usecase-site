@@ -1,0 +1,179 @@
+{
+  "schema_version": "atlas-reference-research-v1",
+  "title": "Premium candidate research, 2026-10-07",
+  "generated_at": "2026-10-07T22:30:00-07:00",
+  "note": "Condensed from the manual Premium candidate decision report. It is a reference, not a ranking. Atlas Auto uses it as context for the Research Agent and as a labelled fallback when the agents are unavailable. Scores were set by that report; workflow_quality was added for Atlas Auto. Google Ads Performance Coach led that report, but nothing here selects a winner.",
+  "candidates": [
+    {
+      "id": "google-ads-performance-coach",
+      "name": "Google Ads Performance Coach",
+      "persona": "An owner, marketer, or consultant who already runs Google Ads and can export reports, but does not know which number to trust before changing a budget.",
+      "problem": "Ad spend decisions are made on conversion numbers that may not measure a qualified outcome. A generic chatbot will happily optimize the wrong conversion.",
+      "workflow": [
+        "Define what counts as a qualified outcome for the business.",
+        "Export current and previous Google Ads campaign reports, GA4 traffic and landing-page reports, and a conversion-actions screenshot.",
+        "Run the measurement check first. If the primary conversion is not a qualified outcome, stop and report that.",
+        "Calculate totals and period-over-period changes in a workbook whose formulas stay visible.",
+        "Label each point as a confirmed finding, a possible explanation, or a recommendation.",
+        "The owner verifies the evidence and decides whether to change anything in Google Ads. The Blueprint never edits the account."
+      ],
+      "before": "The owner compares two dashboards by hand, trusts the conversion count, and moves budget on a hunch.",
+      "after": "The owner knows whether the numbers can be trusted, sees calculated changes with visible formulas, and gets a short evidence-labelled list of what to verify next.",
+      "required_data_tools": ["Google Ads campaign export (CSV)", "Search-terms export when available", "GA4 traffic and landing-page exports", "Conversion-actions screenshot", "A file-capable AI assistant"],
+      "why_pay": "Bad conversion tracking makes every other optimization wrong. Catching one bad setup on an account spending hundreds or thousands a month justifies the kit.",
+      "setup_difficulty": "MODERATE",
+      "automation_potential": "MEDIUM",
+      "human_oversight": "HIGH",
+      "major_risks": ["Stating savings or ROI the exports do not support.", "A user changing live bids from a hypothesis.", "Report layouts change and break the workbook rules.", "Useless to businesses that do not advertise."],
+      "estimated_premium_value": "Low hundreds as a one-time kit, or about $49-$149/month later, anchored to monthly ad spend. Value estimate, not a price.",
+      "sample_input": "campaign,clicks,cost,conversions,primary_conversion\nSpring Promo,1240,$1,860,96,page_view\nBrand,410,$290,22,form_submit\n(GA4) /spring-landing: 1,050 sessions, 81% bounce",
+      "sample_output": "MEASUREMENT REVIEW FIRST\nConfirmed: Spring Promo's primary conversion is page_view, not a qualified lead.\nConfirmed: /spring-landing receives 85% of paid sessions.\nInterpretation: Spring Promo's cost per conversion ($19.38) is not meaningful until tracking changes.\nRecommendation (you decide): Set form_submit as primary for Spring Promo, then re-run in 14 days. Do not change bids yet.",
+      "guided_demo": "A fictional account where a page view is the primary conversion. The demo stops at 'measurement review first', then shows one confirmed finding and one hypothesis, and states that the numbers are invented.",
+      "related_catalog_slugs": ["google-ads-performance-coach"],
+      "novelty_note": "Existing playbook material at app/playbooks/google-ads-audit is a manual audit, not a signed-in Premium kit.",
+      "criteria": {
+        "smb_value": 8, "willingness_to_pay": 9, "frequency": 6, "time_to_value": 7,
+        "setup_simplicity": 8, "demonstrability": 9, "ai_literacy_value": 9, "differentiation": 9,
+        "automation_potential": 7, "testability": 9, "permission_simplicity": 9, "smb_breadth": 5,
+        "workflow_quality": 9
+      },
+      "score_summary": "Strong teaching point (check measurement before efficiency) with export-only permissions. Narrow: only for businesses already advertising."
+    },
+    {
+      "id": "ai-collections-assistant",
+      "name": "AI Collections Assistant",
+      "persona": "A service business or clinic with net-30 invoices and roughly $10k or more sitting in accounts receivable.",
+      "problem": "Cash is earned but not collected. Owners avoid the awkward follow-up and chase invoices in no particular order.",
+      "workflow": [
+        "Export the overdue-invoice aging report from QuickBooks, Xero, or a CSV.",
+        "Skip disputed invoices and credit memos using explicit rules.",
+        "Build a priority queue by amount, age, and customer history.",
+        "Draft a follow-up per invoice in the owner's voice, escalating tone by age.",
+        "The owner reviews and sends each draft. Nothing is sent automatically."
+      ],
+      "before": "The owner scrolls an aging report once a month and writes a few awkward emails to whoever comes to mind.",
+      "after": "A weekly queue chases the largest, oldest, cleanest invoices first with ready-to-review drafts.",
+      "required_data_tools": ["QuickBooks or Xero aging report (CSV)", "Optional past email threads", "Gmail drafts later"],
+      "why_pay": "One collected invoice covers the cost. The queue, escalation rules, and dispute check are what a single chatbot prompt does not give you.",
+      "setup_difficulty": "MODERATE",
+      "automation_potential": "MEDIUM",
+      "human_oversight": "HIGH",
+      "major_risks": ["Wrong tone or wrong recipient.", "Sounding like a collections agency.", "Chasing a disputed invoice."],
+      "estimated_premium_value": "About $29-$79/month equivalent, anchored to one recovered invoice. Value estimate, not a price.",
+      "sample_input": "invoice,customer,amount,days_overdue,status\nINV-1042,Harbor Dental,$4,200,47,open\nINV-1051,Lopez Landscaping,$860,12,open\nINV-1038,Brightline Co,$2,150,63,disputed",
+      "sample_output": "QUEUE (skipped 1 disputed)\n1. INV-1042 Harbor Dental, $4,200, 47 days. Confirmed: no payment recorded. Draft: firm second reminder.\n2. INV-1051 Lopez Landscaping, $860, 12 days. Draft: friendly nudge.\nSkipped: INV-1038 (disputed; needs your call).\nYou review and send each draft.",
+      "guided_demo": "A fictional aging report of 8 invoices becomes a ranked queue with one disputed invoice skipped and two drafts at different tones.",
+      "related_catalog_slugs": ["ai-collections-assistant"],
+      "novelty_note": "Turns a published use case into a weekly operating ritual with explicit skip and escalation rules.",
+      "criteria": {
+        "smb_value": 9, "willingness_to_pay": 9, "frequency": 8, "time_to_value": 8,
+        "setup_simplicity": 7, "demonstrability": 8, "ai_literacy_value": 7, "differentiation": 6,
+        "automation_potential": 8, "testability": 8, "permission_simplicity": 6, "smb_breadth": 7,
+        "workflow_quality": 8
+      },
+      "score_summary": "Broad, frequent, and tied directly to cash. Easier for a generic chatbot to imitate than the ads workflow."
+    },
+    {
+      "id": "quote-request-assistant",
+      "name": "Quote Request Assistant",
+      "persona": "A contractor, home-service business, agency, or custom shop getting about 5-30 quote requests a week.",
+      "problem": "Quote requests arrive in inconsistent formats. Staff spend 20-30 minutes per request reconstructing scope before pricing anything.",
+      "workflow": [
+        "Paste or forward a quote request.",
+        "Extract structured scope, timeline, location, and budget signals.",
+        "Judge fit against the owner's written qualification rules.",
+        "List clarifying questions and draft an acknowledgment.",
+        "Add a tracker row. The owner prices and sends."
+      ],
+      "before": "Requests sit in an inbox until someone has time to read them carefully, and some are lost.",
+      "after": "Every request has a structured scope, a fit judgment with reasons, and a draft reply within the hour.",
+      "required_data_tools": ["The request (form or email)", "Service catalog", "Qualification rules", "A sheet or CRM"],
+      "why_pay": "The expensive part is reconstructing scope, not writing a polite reply. Faster, consistent qualification wins jobs.",
+      "setup_difficulty": "MODERATE",
+      "automation_potential": "MEDIUM",
+      "human_oversight": "HIGH",
+      "major_risks": ["Missing a requirement.", "Rejecting an unusual good lead.", "Leaking internal pricing notes into a draft."],
+      "estimated_premium_value": "About $39-$99/month equivalent when slow quotes mean lost jobs. Value estimate, not a price.",
+      "sample_input": "From website form: 'Need our back deck redone, maybe 300 sq ft, composite if not crazy expensive. Hoping before July. We're in Riverside.'",
+      "sample_output": "Confirmed: deck replacement, ~300 sq ft, Riverside, wants completion before July.\nInterpretation: budget-sensitive (\"if not crazy expensive\").\nFit: YES (in service area, above minimum size).\nQuestions: existing structure condition? railing included?\nYou price and send.",
+      "guided_demo": "One fictional request flows through extraction, fit rules, and clarifying questions into a tracker row.",
+      "related_catalog_slugs": ["quote-request-assistant"],
+      "novelty_note": "Adds owner-written qualification rules and a tracker to an otherwise summarization-style task.",
+      "criteria": {
+        "smb_value": 8, "willingness_to_pay": 8, "frequency": 7, "time_to_value": 8,
+        "setup_simplicity": 7, "demonstrability": 8, "ai_literacy_value": 7, "differentiation": 6,
+        "automation_potential": 7, "testability": 9, "permission_simplicity": 7, "smb_breadth": 6,
+        "workflow_quality": 7
+      },
+      "score_summary": "Close to revenue and easy to demonstrate. Collapses into 'summarize this email' if the rules are thin."
+    },
+    {
+      "id": "ai-expense-watchdog",
+      "name": "AI Expense Watchdog",
+      "persona": "An owner who has not looked line by line at software and vendor spend for months.",
+      "problem": "Forgotten subscriptions, duplicate tools, and quiet price increases accumulate in card and bank statements.",
+      "workflow": [
+        "Export a few months of card, bank, or accounting transactions as CSV.",
+        "Group recurring charges by vendor and cadence.",
+        "Flag price increases and possible duplicate tools.",
+        "Produce a short review list with only the savings the data supports.",
+        "The owner decides what to cancel. Nothing is cancelled for them."
+      ],
+      "before": "Recurring charges blur together and nobody owns the review.",
+      "after": "A monthly ledger of recurring charges with flagged increases and duplicates to review.",
+      "required_data_tools": ["Accounting or card CSV export", "QuickBooks optional"],
+      "why_pay": "Forgotten subscriptions are concrete money. The product is the repeatable monthly check, not a summary of a statement.",
+      "setup_difficulty": "MODERATE",
+      "automation_potential": "MEDIUM",
+      "human_oversight": "HIGH",
+      "major_risks": ["False 'you could save this much' claims.", "Cancelling a tool the business still needs.", "Sensitive financial data in an AI tool."],
+      "estimated_premium_value": "About $19-$49/month equivalent, only if the first run finds something. Value estimate, not a price.",
+      "sample_input": "date,vendor,amount\n2026-07-03,DesignHub Pro,$29.00\n2026-08-03,DesignHub Pro,$39.00\n2026-08-11,CanvaLite Teams,$30.00\n2026-08-15,ZoomMeet,$15.99",
+      "sample_output": "Confirmed: DesignHub Pro rose from $29 to $39 (+$10/month) in August.\nInterpretation: DesignHub Pro and CanvaLite Teams may overlap (both design tools).\nReview: confirm who uses each before cancelling either.",
+      "guided_demo": "Three months of fictional card transactions become a recurring-charge ledger with one increase and one possible duplicate.",
+      "related_catalog_slugs": ["ai-expense-watchdog"],
+      "novelty_note": "CSV-first instead of the published record's bank aggregation.",
+      "criteria": {
+        "smb_value": 8, "willingness_to_pay": 7, "frequency": 5, "time_to_value": 7,
+        "setup_simplicity": 7, "demonstrability": 8, "ai_literacy_value": 6, "differentiation": 6,
+        "automation_potential": 7, "testability": 8, "permission_simplicity": 7, "smb_breadth": 9,
+        "workflow_quality": 7
+      },
+      "score_summary": "Applies to almost every SMB and is read-only. Dollar value is often small and one-time."
+    },
+    {
+      "id": "no-show-recovery-assistant",
+      "name": "No-show Recovery Assistant",
+      "persona": "A clinic, salon, fitness studio, or consultant with several no-shows a month.",
+      "problem": "Missed appointments are lost revenue the same day, and the rebooking message usually never gets sent.",
+      "workflow": [
+        "Export the day's booking list with attendance status and open slots.",
+        "Confirm the no-show against the booking record.",
+        "Draft one rebooking message with real open times and the client's contact preference.",
+        "Flag repeat no-shows for a human policy decision.",
+        "The owner reviews and sends. Consent is checked before any message."
+      ],
+      "before": "Staff mean to follow up on no-shows but rarely do, and slots stay empty.",
+      "after": "Each missed visit gets a timely, specific rebooking draft with real open times.",
+      "required_data_tools": ["Booking or calendar export", "Open slots", "Contact preference and consent status"],
+      "why_pay": "An empty slot is lost revenue the same day, and the upgrade from template to triggered draft is real.",
+      "setup_difficulty": "HARD",
+      "automation_potential": "HIGH",
+      "human_oversight": "HIGH",
+      "major_risks": ["Texting someone who attended.", "Offering a slot that is not open.", "Messaging without SMS consent."],
+      "estimated_premium_value": "About $49-$99/month equivalent for a busy appointment book. Value estimate, not a price.",
+      "sample_input": "time,client,service,status,contact_pref,sms_consent\n10:00,J. Rivera,Cut & color,no_show,sms,yes\n11:30,A. Chen,Consult,attended,email,no\nOpen: Thu 2:00, Fri 9:30",
+      "sample_output": "Confirmed: J. Rivera missed 10:00 Cut & color; SMS consent on file.\nDraft (SMS): 'Hi J., we missed you today. Would Thu 2:00 or Fri 9:30 work instead?'\nYou review and send.",
+      "guided_demo": "A fictional day's bookings with one no-show produce one rebooking draft with real open slots and a consent check.",
+      "related_catalog_slugs": ["no-show-recovery-assistant"],
+      "novelty_note": "Draft-only premium version avoids the published record's automatic SMS.",
+      "criteria": {
+        "smb_value": 8, "willingness_to_pay": 8, "frequency": 8, "time_to_value": 6,
+        "setup_simplicity": 5, "demonstrability": 7, "ai_literacy_value": 5, "differentiation": 5,
+        "automation_potential": 9, "testability": 7, "permission_simplicity": 3, "smb_breadth": 5,
+        "workflow_quality": 6
+      },
+      "score_summary": "Obvious money story, but fragmented booking systems and SMS consent make setup and permissions hard."
+    }
+  ]
+}

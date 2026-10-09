@@ -10,7 +10,7 @@ The QA Agent checks behavior. Builder output is untrusted until a person or a br
 - Test the interactions a person actually uses: tool choice, Starter Kit resources, copy, worksheet, checklist, and sign-out.
 - Test a desktop viewport and a phone-sized viewport.
 - Inspect browser console and page errors.
-- Write a machine-readable PASS/FAIL report. The schema is `agents/qa-report.schema.json`. Reports are written to `agent-reports/<timestamp>-daily-inbox-briefing.json`.
+- Write a machine-readable PASS/FAIL report. The schema is `agents/qa-report.schema.json`. Reports are written to `agent-reports/<timestamp>-qa.json`.
 - Leave authenticated coverage skipped, with `human_action_required`, when no local session file is available.
 
 ## Allowed access

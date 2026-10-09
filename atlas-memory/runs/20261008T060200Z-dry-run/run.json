@@ -1,0 +1,83 @@
+{
+  "schema_version": "atlas-auto-run-v1",
+  "run_id": "20261008T060200Z-dry-run",
+  "mode": "full",
+  "branch": "private-preview",
+  "started_at": "2026-10-08T06:02:00.395Z",
+  "updated_at": "2026-10-08T06:31:38.145Z",
+  "phase": "FINISHED",
+  "research_source": "research-agent",
+  "scoring_source": "scoring-agent",
+  "research_notes": [],
+  "candidates": [
+    {
+      "id": "ai-collections-assistant",
+      "name": "AI Collections Assistant",
+      "rank": 1,
+      "commercial": 7.1,
+      "atlas_fit": 7.1,
+      "buildability": 7.3,
+      "overall": 7.29
+    },
+    {
+      "id": "ai-cash-flow-forecaster",
+      "name": "13-Week Cash Gap Planner",
+      "rank": 2,
+      "commercial": 7.6,
+      "atlas_fit": 7.8,
+      "buildability": 6.5,
+      "overall": 7.18
+    },
+    {
+      "id": "ai-pricing-impact-simulator",
+      "name": "Price Increase Planner",
+      "rank": 3,
+      "commercial": 5.5,
+      "atlas_fit": 7.4,
+      "buildability": 7,
+      "overall": 6.51
+    },
+    {
+      "id": "ai-staffing-optimizer",
+      "name": "Shift Coverage vs Demand Check",
+      "rank": 4,
+      "commercial": 6.3,
+      "atlas_fit": 6.9,
+      "buildability": 6.5,
+      "overall": 6.41
+    },
+    {
+      "id": "ai-review-intelligence",
+      "name": "Review-to-Fix Tracker",
+      "rank": 5,
+      "commercial": 5.3,
+      "atlas_fit": 6.8,
+      "buildability": 6.9,
+      "overall": 6.3
+    }
+  ],
+  "filtered_candidates": [
+    {
+      "id": "google-ads-performance-coach",
+      "name": "Google Ads Performance Coach",
+      "reason": "Ranked 6; only the top 5 are shown."
+    }
+  ],
+  "dashboard_file": "agent-reports/atlas-auto/20261008T060200Z-dry-run/final-review.html",
+  "dashboard_url": "http://localhost:4317",
+  "approval_file": "atlas-memory/runs/20261008T060200Z-dry-run/approval.json",
+  "approved_candidate_id": "ai-collections-assistant",
+  "spec_path": "agent-specs/ai-collections-assistant.json",
+  "task_path": "agent-tasks/ai-collections-assistant-premium-build.json",
+  "loop_result": "agent-reports/loops/20261008T061336Z-ai-collections-assistant-premium-build/loop-result.json",
+  "loop_disposition": "HUMAN_REVIEW_REQUIRED",
+  "final_review_file": "atlas-memory/runs/20261008T060200Z-dry-run/final-review.json",
+  "final_review_decision": "CHANGES_REQUESTED",
+  "builder_ran": true,
+  "committed": false,
+  "pushed": false,
+  "published": false,
+  "notes": [
+    "Resumed from a dry run as a full run."
+  ]
+}

@@ -390,7 +390,7 @@ async function main() {
   const score = executed === 0 ? null : Math.round((testsPassed / executed) * 100);
   const report = {
     schema_version: "atlas-qa-report-v0",
-    use_case: "daily-inbox-briefing",
+    use_case: "atlas-qa",
     generated_at: startedAt.toISOString(),
     status,
     score,
@@ -414,7 +414,7 @@ async function main() {
 
   const reportPath = path.join(
     "agent-reports",
-    `${reportTimestamp(startedAt)}-daily-inbox-briefing.json`,
+    `${reportTimestamp(startedAt)}-qa.json`,
   );
   fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
 

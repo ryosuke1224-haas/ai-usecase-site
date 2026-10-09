@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { agentCliExists, cursorAgentLaunch, runCursorAgent } from "./cursor-cli";
+import { agentCliExists, builderTimeoutMs, cursorAgentLaunch, runCursorAgent } from "./cursor-cli";
 import type { AgentTask, BuilderReport, QaFailure } from "./schema";
 import { assertBuilderReportShape } from "./schema";
 import { tail } from "./redact";
@@ -113,7 +113,7 @@ export async function invokeBuilder(input: {
         }
       : cursorAgentLaunch(assignment, "builder");
   console.log(`Builder command: ${launch.display}`);
-  const result = await runCursorAgent(launch, env, 20 * 60 * 1000);
+  const result = await runCursorAgent(launch, env, builderTimeoutMs());
   if (result.status !== 0 && !fs.existsSync(input.reportPath)) {
     throw new Error(
       `Builder exited ${result.status ?? "without a status"}. ${tail(result.stderr || result.stdout || "No output.")}`,

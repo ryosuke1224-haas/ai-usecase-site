@@ -1,8 +1,9 @@
-import { spawn, spawnSync } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-export type CursorAgentRole = "builder" | "evaluator";
+/** Every role except the Builder runs in read-only ask mode. */
+export type CursorAgentRole = "builder" | "evaluator" | "research" | "scoring" | "spec";
 
 export type CursorLaunch = {
   command: string;
@@ -12,6 +13,30 @@ export type CursorLaunch = {
 };
 
 const FORBIDDEN_FLAGS = ["--continue", "--resume"];
+
+/** Default Builder limit. Override with ATLAS_BUILDER_TIMEOUT_MS for a local experiment. */
+export const DEFAULT_BUILDER_TIMEOUT_MS = 15 * 60 * 1000;
+
+export class BuilderTimeoutError extends Error {
+  readonly code = "BUILDER_TIMEOUT";
+  readonly timeoutMs: number;
+
+  constructor(timeoutMs: number) {
+    super(
+      `BUILDER_TIMEOUT. The Builder exceeded ${Math.round(timeoutMs / 60000)} minutes and its process tree was stopped. Partial product changes were kept. The loop will not start another Builder attempt.`,
+    );
+    this.name = "BuilderTimeoutError";
+    this.timeoutMs = timeoutMs;
+  }
+}
+
+export function builderTimeoutMs(): number {
+  const raw = process.env.ATLAS_BUILDER_TIMEOUT_MS?.trim();
+  if (!raw) return DEFAULT_BUILDER_TIMEOUT_MS;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed < 1000) return DEFAULT_BUILDER_TIMEOUT_MS;
+  return parsed;
+}
 
 export function agentCliExists(): boolean {
   return findOnPath("agent") !== null;
@@ -61,37 +86,65 @@ export function runCursorAgent(
   launch: CursorLaunch,
   env: NodeJS.ProcessEnv,
   timeoutMs: number,
+  options: { echo?: boolean } = {},
 ): Promise<{ status: number | null; stdout: string; stderr: string }> {
+  const echo = options.echo ?? true;
   return new Promise((resolve, reject) => {
     const child = spawn(launch.command, launch.args, {
       cwd: process.cwd(),
       env,
       shell: launch.shell,
       windowsHide: true,
+      // A new process group lets a Unix timeout kill the Agent and its children.
+      detached: process.platform !== "win32",
     });
     let stdout = "";
     let stderr = "";
-    const timer = setTimeout(() => {
-      child.kill();
-      reject(new Error(`Cursor Agent CLI timed out after ${Math.round(timeoutMs / 60000)} minutes.`));
+    let settled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const settle = (finish: () => void) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      finish();
+    };
+    timer = setTimeout(() => {
+      stopProcessTree(child);
+      settle(() => reject(new BuilderTimeoutError(timeoutMs)));
     }, timeoutMs);
     const push = (target: "stdout" | "stderr", chunk: Buffer) => {
       const text = chunk.toString();
       if (target === "stdout") stdout = (stdout + text).slice(-200_000);
       else stderr = (stderr + text).slice(-100_000);
-      process.stdout.write(text);
+      if (echo) process.stdout.write(text);
     };
     child.stdout?.on("data", (chunk: Buffer) => push("stdout", chunk));
     child.stderr?.on("data", (chunk: Buffer) => push("stderr", chunk));
     child.on("error", (error) => {
-      clearTimeout(timer);
-      reject(error);
+      settle(() => reject(error));
     });
     child.on("close", (status) => {
-      clearTimeout(timer);
-      resolve({ status, stdout, stderr });
+      settle(() => resolve({ status, stdout, stderr }));
     });
   });
+}
+
+/** Stops the Agent process and every child it started. Does not delete files. */
+function stopProcessTree(child: ChildProcess): void {
+  const pid = child.pid;
+  if (pid && process.platform === "win32") {
+    spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], { windowsHide: true });
+    return;
+  }
+  if (pid && process.platform !== "win32") {
+    try {
+      process.kill(-pid, "SIGKILL");
+      return;
+    } catch {
+      // The process may already have exited, or it may not lead a group.
+    }
+  }
+  child.kill("SIGKILL");
 }
 
 function powershellEntry(entry: string): string | null {

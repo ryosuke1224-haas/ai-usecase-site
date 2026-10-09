@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { DEFAULT_BUILDER_TIMEOUT_MS } from "./cursor-cli";
 import { decideEvaluation } from "./evaluator";
 import { guardChanges } from "./guards";
-import { taskSchema } from "./schema";
+import { qaFailureSchema, taskSchema } from "./schema";
 
 const taskPath = "agent-tasks/v1-loop-dry-run.json";
 
@@ -137,6 +138,21 @@ function checkEvaluatorDecisions() {
   );
 }
 
+function checkBuilderTimeoutContract() {
+  assert.equal(DEFAULT_BUILDER_TIMEOUT_MS, 15 * 60 * 1000);
+  const parsed = qaFailureSchema.parse({
+    issue_id: "BUILDER_TIMEOUT",
+    test: "Builder",
+    severity: "blocking",
+    expected: "The Builder finishes or stops.",
+    actual: "BUILDER_TIMEOUT. Partial product changes were kept.",
+    evidence: [],
+    relevant_files: ["app/blueprints/ai-collections-assistant/page.tsx"],
+    classification: "BUILDER_TIMEOUT",
+  });
+  assert.equal(parsed.classification, "BUILDER_TIMEOUT");
+}
+
 export function runAgentLoopSelfCheck(): void {
   checkScopeKeepsDocumentation();
   checkTestEditIsRestored();
@@ -144,5 +160,6 @@ export function runAgentLoopSelfCheck(): void {
   checkTaskFileIsAlwaysProtected();
   checkIterationCap();
   checkEvaluatorDecisions();
+  checkBuilderTimeoutContract();
   console.log("Agent loop self-check passed.");
 }

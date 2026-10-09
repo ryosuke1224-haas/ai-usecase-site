@@ -43,7 +43,7 @@ That command:
 2. Runs the existing production build (`npm run build`).
 3. Starts the built app on `http://localhost:3100` with `SITE_MODE=live` for that process only.
 4. Runs the Playwright tests.
-5. Writes `agent-reports/<timestamp>-daily-inbox-briefing.json`.
+5. Writes `agent-reports/<timestamp>-qa.json`. The report covers the full Playwright suite, not only Daily Inbox Briefing.
 
 `status: "pass"` means every test that actually ran passed. Signed-in tests are skipped until you provide a session, and the report lists that under `human_action_required`.
 
@@ -138,6 +138,12 @@ Any other task stops for a person until a Builder command is configured.
 
 The Builder writes `agents/builder-report.schema.json`. That report cannot say QA passed.
 
+## Builder timeout
+
+The Builder process is limited to 15 minutes (`ATLAS_BUILDER_TIMEOUT_MS` can set a different number of milliseconds, at least 1000). When the limit is reached, the orchestrator kills the Builder process tree: `taskkill /T /F` on Windows, or the process group on other systems. Files the Builder already wrote stay on disk. Secrets or session files are restored and are not printed.
+
+The loop records a blocking `BUILDER_TIMEOUT` failure and stops with `HUMAN_REVIEW_REQUIRED`. It does not start another Builder attempt for that run, so a hung edit is not retried automatically. QA and the Evaluator do not run after a timeout.
+
 ## How QA failures go back
 
 Each failure handed to the next iteration matches `agents/qa-failure.schema.json`:
@@ -194,3 +200,50 @@ Set `product_changes_required` to false when the task is an evaluation of the cu
 ## What the loop does not do
 
 It does not publish, deploy, merge to `main`, or commit. `npm run qa` by itself still does not edit the application. Only the loop's Builder step edits a working copy, and only inside the task scope.
+
+## Atlas Auto
+
+```bash
+npm run atlas:auto
+```
+
+Atlas Auto chooses and builds one Premium Blueprint per run, with a person approving before and after the build:
+
+1. The **Research Agent** proposes about six candidates. It is a read-only Cursor Agent session that follows `research.md`.
+2. A separate **Scoring Agent** scores 13 criteria. The orchestrator computes the Commercial, Atlas Fit, Buildability, and overall scores, then shows the top five.
+3. Atlas serves an **approval dashboard** at `http://localhost:4317` (or the next free port) and prints `Waiting for approval...`. Each candidate card has APPROVE, HOLD, and REJECT buttons.
+4. Nothing is specified or built until one candidate is approved. After that, the other buttons are locked.
+5. The **Spec Agent** (`spec.md`) writes `agent-specs/<id>.json`. The orchestrator writes `agent-tasks/<id>-premium-build.json`.
+6. The existing loop runs unchanged: `npm run agent:run -- agent-tasks/<id>-premium-build.json`.
+7. The same URL switches to a **final review** page. It shows files changed, build, QA, Evaluator score and findings, critical issues, and the sample output. The buttons are APPROVE FOR LATER PUBLISHING, REQUEST CHANGES, and REJECT. None of them publishes, commits, or pushes.
+
+Options:
+
+| Flag | Effect |
+| --- | --- |
+| `--dry-run` | Research, scoring, and the dashboard. Decisions are recorded. Approving does not build. |
+| `--dry-run --no-serve` | Writes the dashboard HTML and exits. |
+| `--offline` | Uses the reference library in `atlas-memory/reference/` instead of the Research and Scoring agents. |
+| `--resume <run-id>` | Continues a run. A dry run that already has an approval is built as a full run. |
+| `--self-check` | Checks scoring, dedupe, history rules, and the generated task guard. |
+
+### Memory
+
+Run history is committed JSON under `atlas-memory/`:
+
+- `candidate-history.json` holds each candidate's status: PROPOSED, APPROVED, HOLD, REJECTED, BUILT, or COMPLETED. Research skips APPROVED, REJECTED, BUILT, and COMPLETED ideas. HOLD ideas may come back.
+- `runs/<run-id>/run.json` holds the phase, sources, scores, and artifact paths.
+- `runs/<run-id>/candidates.json` holds the full candidates and scores.
+- `runs/<run-id>/decisions.json` lists every APPROVE, HOLD, and REJECT click.
+- `runs/<run-id>/approval.json` is the approval Atlas Auto waits for. Writing `{"candidate_id": "...", "decision": "APPROVED"}` there by hand also continues the run.
+- `runs/<run-id>/final-review.json` is the final human decision.
+
+Generated HTML, prompts, and raw agent output go to `agent-reports/atlas-auto/<run-id>/`. That directory is gitignored.
+
+### Safety
+
+- Runs only on `private-preview`.
+- Never commits, pushes, merges, deploys, or publishes.
+- Research, Scoring, and Spec agents are read-only ask-mode sessions. Any file they change is restored, and that step fails.
+- The Builder task is scoped to the new Blueprint's own directories. It forbids the Daily Inbox Briefing, shared navigation, content, agents, scripts, and memory. `scripts/atlas-auto/`, `scripts/run-atlas-auto.ts`, and `atlas-memory/` are always protected.
+- The dashboard listens on 127.0.0.1 only and requires a per-run token for every decision. The HTML copy on disk cannot record decisions.

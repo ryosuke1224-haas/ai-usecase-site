@@ -1,0 +1,432 @@
+[
+  {
+    "id": "ai-collections-assistant",
+    "name": "AI Collections Assistant",
+    "persona": "A professional-services firm, agency, B2B trades business, or clinic that bills on net-15 or net-30 terms. A meaningful amount sits in overdue invoices, and the owner personally dislikes chasing payment.",
+    "problem": "Cash is earned but not collected. Follow-up happens irregularly, in no particular order, and sometimes reaches the wrong invoice, such as one that is disputed or already promised.",
+    "workflow": [
+      "Export the overdue-invoice aging report (invoice, customer, amount, due date, days overdue, status) from QuickBooks, Xero, or an invoicing tool. Add the previous week's outcome log if one exists.",
+      "Apply skip rules before anything else: disputed invoices, credit memos, invoices on a payment plan, invoices whose promised payment date has not yet passed, and amounts below the owner's minimum.",
+      "Rank the remaining invoices by amount and age band. Use the customer's usual payment pattern as a tie-breaker when payment history is available.",
+      "Assign a tone from an owner-approved ladder, such as friendly at 1-14 days, firm at 15-44 days, and phone call recommended at 45+ days. Never threaten legal action. Draft each message using only the invoice number, amount, and due date from the export.",
+      "The owner reviews, edits, and sends each draft from their own email. Nothing is sent automatically.",
+      "The owner logs outcomes such as paid, promised date, or disputed. Next week's run reads the log, so promises are respected and disputes stay skipped."
+    ],
+    "before": "The owner scrolls the aging report occasionally, writes a few awkward emails to whoever comes to mind, and sometimes chases an invoice that is already disputed or promised.",
+    "after": "A weekly queue covers the largest, oldest, cleanest invoices first. Every skip is shown with its reason, tone matches the invoice's age, and an outcome log carries forward so nothing is chased twice by mistake.",
+    "required_data_tools": [
+      "Accounts-receivable aging report from QuickBooks, Xero, or an invoicing tool (CSV)",
+      "Outcome log spreadsheet (provided as a template)",
+      "Optional customer payment history",
+      "The owner's own email client for sending",
+      "A file-capable AI assistant"
+    ],
+    "why_pay": "One recovered invoice can cover the cost. The Premium value is in the skip rules, the tone ladder, and the outcome log that carries from week to week. A single chatbot prompt drafts polite emails, but it does not stop the owner from chasing a disputed or already-promised invoice.",
+    "setup_difficulty": "MODERATE",
+    "automation_potential": "MEDIUM",
+    "human_oversight": "HIGH",
+    "major_risks": [
+      "Wrong amount, wrong invoice, or wrong recipient in a draft.",
+      "A tone that sounds like a collections agency and damages a relationship.",
+      "Chasing a disputed or already-promised invoice because the log was not updated.",
+      "Uploading customer financial data to an AI tool without reviewing its data settings."
+    ],
+    "estimated_premium_value": "Perceived at roughly $29-$79/month equivalent. Anchored to the value of a single recovered overdue invoice and to the owner's reluctance to write these messages. Value estimate, not a price.",
+    "sample_input": "as_of: 2026-06-08\ninvoice,customer,amount,due_date,days_overdue,status,notes\nINV-3307,Cedar Row Vet,3900,2026-05-01,38,open,\nINV-3312,Mill St Bakery,640,2026-05-20,19,open,promised 2026-06-12\nINV-3290,Tallis Fitness,1750,2026-04-10,59,disputed,\nINV-3315,Orchard Dental,2480,2026-05-28,11,open,",
+    "sample_output": "QUEUE as of 2026-06-08 (2 to chase, 2 skipped)\n1. INV-3307, Cedar Row Vet, $3,900, 38 days overdue. CONFIRMED: open, no promise recorded. Tone: firm reminder. Draft: 'Invoice INV-3307 for $3,900 was due on May 1. Could you confirm when payment will be sent?'\n2. INV-3315, Orchard Dental, $2,480, 11 days overdue. CONFIRMED: open. Tone: friendly. Draft: 'A quick reminder that INV-3315 for $2,480 was due May 28.'\nSKIPPED: INV-3312 (payment promised for Jun 12; re-check after that date).\nSKIPPED: INV-3290 (disputed; needs your decision).\nAI INTERPRETATION: none; no payment history was provided.\nYou review, edit, and send each draft from your own email.",
+    "guided_demo": "1) Show a fictional aging report of 8 invented invoices. 2) Apply the skip rules and show 2 invoices set aside with visible reasons. 3) Show the ranked queue with tone assigned by age band. 4) Open one draft and check that every number in it matches the export row. 5) Show the outcome log and a mock next-week run where a promised invoice is still skipped. 6) End on 'you send it; nothing is sent automatically.'",
+    "related_catalog_slugs": [
+      "ai-collections-assistant",
+      "ai-cash-flow-forecaster",
+      "ai-proposal-follow-up-assistant"
+    ],
+    "novelty_note": "This candidate returns from the earlier reference report under the same id. This version adds an outcome log carried from week to week and promised-date skip rules. It shares the receivables export with the 13-Week Cash Gap Planner but answers a different question: which invoice to chase today and how, rather than when cash runs short. A generic chatbot has no memory of last week's promises or disputes.",
+    "rank": 1,
+    "scores": {
+      "criteria": {
+        "smb_value": 7.5,
+        "willingness_to_pay": 7,
+        "frequency": 8,
+        "time_to_value": 8.5,
+        "setup_simplicity": 8,
+        "demonstrability": 8,
+        "ai_literacy_value": 7,
+        "differentiation": 5,
+        "automation_potential": 6,
+        "testability": 8.5,
+        "permission_simplicity": 6.5,
+        "smb_breadth": 6,
+        "workflow_quality": 8.5
+      },
+      "rationale": {
+        "smb_value": "Collecting overdue invoices sooner directly improves cash and saves the owner awkward time, though 'one recovered invoice can cover the cost' is an assertion rather than a supported figure.",
+        "willingness_to_pay": "The direct link to money and the owner's dislike of chasing support payment, but built-in invoice reminders in QuickBooks and Xero reduce urgency.",
+        "frequency": "It runs as a weekly queue with an outcome log carried forward, which fits the weekly band.",
+        "time_to_value": "A single aging export produces a ranked queue with skip reasons and drafts in the first run.",
+        "setup_simplicity": "One standard receivables export plus a provided log template is about as simple as an accounting-based workflow gets.",
+        "demonstrability": "Showing two invoices set aside with visible reasons and then checking a draft's numbers against the export row demonstrates the value clearly.",
+        "ai_literacy_value": "Checking every number in a draft against the export and keeping sending manual teaches verification, though it says less about uncertainty than the forecasting candidates do.",
+        "differentiation": "Polite reminder drafting is a strength of generic chatbots and accounting tools already send reminders, so only the skip rules and outcome log are distinctive.",
+        "automation_potential": "Queue building and drafting could be automated, but the outbound customer messages must remain a manual step, which caps safe automation.",
+        "testability": "The skip rules, age bands, ranking, and date math are deterministic, and the sample days overdue and tone assignments are all correct.",
+        "permission_simplicity": "Access is read-only, but it handles customer financial data and produces outbound messages that carry relationship risk if a wrong amount or recipient slips through.",
+        "smb_breadth": "It only applies to businesses that invoice on terms, not to retail, restaurants, or other point-of-sale businesses.",
+        "workflow_quality": "Skip rules come first, the tone ladder rules out legal threats, drafts use only export fields, and a week-to-week log respects promises and disputes."
+      },
+      "summary": "Its main strength is a tight, fast, highly testable weekly workflow with clear skip rules and a direct link to cash. Its main weakness is overlap with built-in accounting reminders and chatbot email drafting, plus a narrower audience limited to businesses that invoice on terms."
+    },
+    "summary_scores": {
+      "commercial": 7.1,
+      "atlas_fit": 7.1,
+      "buildability": 7.3,
+      "overall": 7.29
+    },
+    "history_status": "PROPOSED",
+    "source": "research-agent"
+  },
+  {
+    "id": "ai-cash-flow-forecaster",
+    "name": "13-Week Cash Gap Planner",
+    "persona": "Owner of a 5-25 person service business, such as a clinic, agency, or trades company. They run biweekly payroll, pay monthly rent, get paid unevenly by customers, and check the bank balance to decide what can be paid this week.",
+    "problem": "Cash shortfalls show up when payroll or rent is due. By then the owner can no longer chase a payment, move a discretionary expense, or arrange credit calmly.",
+    "workflow": [
+      "Export the current bank balance, the open accounts-receivable aging report, open bills or accounts payable, and the payroll calendar as CSV files. Fill in a short fixed-cost worksheet and set a minimum cash threshold.",
+      "Apply explicit timing rules. An invoice is expected on the later of its due date or its due date plus that customer's average days late. Disputed invoices and invoices more than 90 days overdue are excluded from inflows. Recurring bills land on their scheduled dates.",
+      "Build a 13-week workbook with visible formulas for opening balance, inflows, outflows, and closing balance per week.",
+      "Label every line as CONFIRMED (from an export), ASSUMED (from a timing rule), or OWNER-ENTERED. Flag each week that falls below the minimum and list the lines that cause each gap.",
+      "List options for each gap, such as asking a named customer to pay on time, moving a discretionary payment, or using a credit line. The owner decides. Nothing is paid, moved, or sent.",
+      "Each week, re-run the plan and compare last week's projected closing balance with the actual balance. Record the variance and any assumption that was wrong."
+    ],
+    "before": "The owner looks at today's bank balance, keeps upcoming payroll and rent in their head, and finds out about a gap a few days before it hits.",
+    "after": "The owner sees a 13-week view that marks below-minimum weeks several weeks ahead. Every number is traceable to an export, a stated rule, or the owner's own entry, and a weekly variance check shows how far to trust the forecast.",
+    "required_data_tools": [
+      "Bank balance and recent transactions (CSV export)",
+      "Accounts-receivable aging report from QuickBooks, Xero, or an invoicing tool (CSV)",
+      "Open bills / accounts-payable export (CSV)",
+      "Payroll schedule (export or owner-entered)",
+      "Spreadsheet (Google Sheets or Excel)",
+      "A file-capable AI assistant"
+    ],
+    "why_pay": "A generic chatbot returns one confident balance with no stated assumptions. The Premium kit adds written timing rules, exclusion rules for disputed and stale invoices, labels separating confirmed from assumed figures, and a weekly forecast-versus-actual check. Together these make the forecast something an owner can act on.",
+    "setup_difficulty": "MODERATE",
+    "automation_potential": "MEDIUM",
+    "human_oversight": "HIGH",
+    "major_risks": [
+      "False precision: presenting a projected balance as a certainty.",
+      "Stale or uncategorized books produce wrong projections.",
+      "The owner treats the output as lending or financial advice.",
+      "Sensitive financial data is uploaded to an AI tool without reviewing its data settings.",
+      "One-time charges are misclassified as recurring, or the reverse."
+    ],
+    "estimated_premium_value": "Perceived at roughly $29-$99/month equivalent. Anchored to the owner's sense of what it is worth to see a payroll gap weeks early instead of days early, and to the cost of paying a bookkeeper to keep a manual 13-week forecast. Value estimate, not a price.",
+    "sample_input": "as_of: 2026-03-02 | bank_balance: 18400 | min_cash: 10000\nAR: INV-221, Northgate Clinic, 6500, due 2026-03-10, customer_avg_days_late 18\nAR: INV-219, Pell & Co, 2300, due 2026-02-01, status disputed\nPayroll: biweekly 11200, next 2026-03-06\nRent: 4800 on the 1st (March already paid)",
+    "sample_output": "WEEK OF MAR 2: projected closing balance $7,200, BELOW your $10,000 minimum.\nCONFIRMED: opening balance $18,400 (bank export).\nCONFIRMED: payroll $11,200 on Mar 6 (payroll schedule).\nASSUMED (timing rule): INV-221 for $6,500 expected the week of Mar 23 (due Mar 10 plus 18 days average late), not this week.\nEXCLUDED: INV-219 for $2,300 (marked disputed).\nAI INTERPRETATION: this looks like a timing gap, not a revenue gap.\nOPTIONS (you decide): ask Northgate Clinic whether INV-221 can be paid by its due date; move a discretionary payment; use a credit line. Nothing is paid or sent.",
+    "guided_demo": "1) Show a fictional bank balance, 6 open invoices, a payroll schedule, and rent, all labelled as invented data. 2) Apply the timing rules and show one disputed invoice dropping out of inflows. 3) Show the 13-week table with one below-minimum week highlighted using a text label as well as color. 4) Open that week to show CONFIRMED, ASSUMED, and EXCLUDED lines. 5) Show the options list ending with 'you decide; nothing is paid or sent.' 6) Show a mock next-week variance check comparing projected and actual balance.",
+    "related_catalog_slugs": [
+      "ai-cash-flow-forecaster",
+      "ai-payroll-forecasting",
+      "ai-collections-assistant",
+      "ai-break-even-dashboard"
+    ],
+    "novelty_note": "The published record assumes Plaid and QuickBooks API connections. This version works from exports only and adds explicit timing and exclusion rules plus a forecast-versus-actual loop. It is a forward projection rather than a briefing, so it does not overlap the Daily Inbox Briefing. A generic chatbot will not keep assumptions separate from confirmed figures or check its own accuracy week to week.",
+    "rank": 2,
+    "scores": {
+      "criteria": {
+        "smb_value": 8,
+        "willingness_to_pay": 7,
+        "frequency": 8,
+        "time_to_value": 5,
+        "setup_simplicity": 5.5,
+        "demonstrability": 8,
+        "ai_literacy_value": 8.5,
+        "differentiation": 6,
+        "automation_potential": 6,
+        "testability": 8,
+        "permission_simplicity": 6.5,
+        "smb_breadth": 7.5,
+        "workflow_quality": 8.5
+      },
+      "rationale": {
+        "smb_value": "Spotting a payroll or rent shortfall weeks early instead of days early gives a cash-tight service owner real options such as chasing a named invoice or moving a discretionary payment.",
+        "willingness_to_pay": "Cash anxiety is a strong motivator, but some owners will expect their accounting tool or bookkeeper to cover forecasting, which caps willingness to pay for a separate kit.",
+        "frequency": "The workflow is built as a weekly re-run with a variance check, which fits the weekly band.",
+        "time_to_value": "A first forecast needs four exports plus a fixed-cost worksheet and threshold, and trust only builds after several weekly variance checks.",
+        "setup_simplicity": "It uses exports only, but bank, receivables, payables, and payroll exports plus a worksheet is a moderate first-time setup for a busy owner.",
+        "demonstrability": "A highlighted below-minimum week that opens into CONFIRMED, ASSUMED, and EXCLUDED lines shows the value clearly with invented data.",
+        "ai_literacy_value": "Labelling every line by source, excluding disputed invoices, and comparing forecast with actual each week teaches calibrated trust in AI output very directly.",
+        "differentiation": "The 13-week cash forecast is a well-known spreadsheet pattern and dedicated tools exist, so the timing rules and variance loop are what set it apart, and they are only moderately hard to replicate.",
+        "automation_potential": "Read-only export pulls and the weekly recalculation could be scheduled safely, but stale books and owner-entered items still need human input each cycle.",
+        "testability": "Explicit timing and exclusion rules give deterministic outputs from fictional fixtures, for example the $7,200 closing balance in the sample.",
+        "permission_simplicity": "There is no write or payment access, but uploading bank transactions and receivables to an AI tool is sensitive, as the candidate's own risk list notes.",
+        "smb_breadth": "Almost any SMB with payroll and uneven customer payments can use it, although businesses paid at the point of sale gain less from the receivables timing rules.",
+        "workflow_quality": "The steps are ordered and concrete, the timing and exclusion rules are stated, the owner makes the decisions, and there is a built-in accuracy feedback loop."
+      },
+      "summary": "Its main strength is a well-specified, traceable forecast with a weekly forecast-versus-actual loop that addresses a high-stakes, recurring pain. Its main weakness is a multi-export setup and a familiar 13-week format, which slow first value and limit differentiation from existing tools and careful chatbot prompts."
+    },
+    "summary_scores": {
+      "commercial": 7.6,
+      "atlas_fit": 7.8,
+      "buildability": 6.5,
+      "overall": 7.18
+    },
+    "history_status": null,
+    "source": "research-agent"
+  },
+  {
+    "id": "ai-pricing-impact-simulator",
+    "name": "Price Increase Planner",
+    "persona": "Owner of a service business that has not raised prices in over a year, such as a nail salon, cleaning company, tutoring center, or small bookkeeping practice. They can export sales by service and know roughly how long each service takes.",
+    "problem": "Owners put off price increases because they cannot see which services are underpriced against their real costs or how many customers they could lose before an increase stops paying off. When they finally act, they often raise every price by the same amount.",
+    "workflow": [
+      "Export 12 months of sales by service, plus customer counts if available, from the POS or invoicing tool. Enter labor rate, minutes per service, and materials cost in a worksheet.",
+      "Calculate cost per visit and margin per service with visible formulas. Flag services below the owner's target margin.",
+      "For each flagged service, calculate the price that reaches the target margin and the break-even loss rate: the share of visits that could be lost before total contribution falls below today's level.",
+      "Model scenarios using churn assumptions the owner chooses, not industry averages. Show contribution under each assumption.",
+      "Apply segment rules. Exclude customers on locked contracts, flag top customers for a personal conversation, and set a notice period. Draft a customer notice template and staff talking points for review.",
+      "The owner changes prices in their own POS. Sixty days later, re-run on new exports to compare visits and contribution per service with the baseline."
+    ],
+    "before": "The owner raises everything by a round percentage, or postpones again, without knowing which services lose money or how much customer loss the business could absorb.",
+    "after": "The owner has a per-service margin table, a target price and break-even loss rate for each underpriced service, a reviewed customer notice, and a baseline for checking the result after rollout.",
+    "required_data_tools": [
+      "POS or invoicing export of sales by service (CSV)",
+      "Owner-entered labor rate, service duration, and materials cost",
+      "Optional customer list with contract or membership status",
+      "Spreadsheet (Google Sheets or Excel)",
+      "A file-capable AI assistant"
+    ],
+    "why_pay": "A chatbot will usually suggest a generic 10% increase. This kit calculates real per-service margins from the owner's own numbers, shows the break-even loss rate so the risk is visible, applies segment rules, and sets up a 60-day re-check. Pricing decisions repeat every year, and getting one service right can matter for a whole year of revenue.",
+    "setup_difficulty": "MODERATE",
+    "automation_potential": "MEDIUM",
+    "human_oversight": "HIGH",
+    "major_risks": [
+      "Labor-time and cost inputs are guesses, so margins look more precise than they are.",
+      "Presenting assumed churn as a prediction of customer behavior.",
+      "Raising prices on customers who have locked contracts.",
+      "A notice that sounds defensive or careless and damages relationships.",
+      "Ignoring competitive or local market context that the exports do not contain."
+    ],
+    "estimated_premium_value": "Perceived as a one-time kit in the low hundreds of dollars, re-used annually. Anchored to a year of revenue on the services that turn out to be underpriced. Value estimate, not a price.",
+    "sample_input": "service,price,minutes,materials,annual_visits\nGel manicure,45,60,6,820\nClassic pedicure,40,50,5,610\nOwner-entered: labor rate 28/hour; target margin 35%",
+    "sample_output": "CONFIRMED (from your inputs): Gel manicure cost per visit $34.00 ($28 labor + $6 materials). Margin 24.4%, below your 35% target.\nCONFIRMED: Classic pedicure cost per visit $28.33 ($23.33 labor + $5 materials). Margin 29.2%, below target.\nCALCULATED: Gel manicure at $53 gives a 35.8% margin. Contribution per visit rises from $11 to $19.\nCALCULATED: break-even loss rate 42.1%. Annual contribution stays at or above today's $9,020 unless more than 42.1% of visits are lost.\nCALCULATED (your 10% loss assumption): about $14,022 contribution (738 visits x $19).\nAI INTERPRETATION: under your own assumptions the increase has a wide margin for error. This data cannot tell how your customers will react.\nRECOMMENDATION (you decide): raise Gel manicure to $53 with 30 days' notice and talk to your top clients first. Draft notice attached for review. No prices are changed in your POS.",
+    "guided_demo": "1) Show a fictional salon with 4 services, labelled as invented. 2) The owner enters labor rate and minutes, and the margin table fills in with formulas visible. 3) Two services are flagged below target with a text label. 4) Open one service to show the target price, the break-even loss rate, and contribution under 0%, 5%, and 10% loss assumptions. 5) Show segment rules excluding contract customers and flagging top clients. 6) Show the draft notice with a 'review before sending' banner and a 60-day re-check reminder.",
+    "related_catalog_slugs": [
+      "ai-pricing-impact-simulator",
+      "ai-revenue-scenario-planner",
+      "ai-break-even-dashboard"
+    ],
+    "novelty_note": "No current Atlas Blueprint covers pricing. Unlike the broad Revenue Scenario Planner, it focuses on one recurring decision, per-service price increases. It uses a break-even loss calculation and segment rules that a chatbot conversation does not produce reliably, and it re-measures with the same exports after rollout.",
+    "rank": 3,
+    "scores": {
+      "criteria": {
+        "smb_value": 7,
+        "willingness_to_pay": 6,
+        "frequency": 3,
+        "time_to_value": 7,
+        "setup_simplicity": 7,
+        "demonstrability": 8.5,
+        "ai_literacy_value": 7.5,
+        "differentiation": 6,
+        "automation_potential": 4,
+        "testability": 8.5,
+        "permission_simplicity": 8.5,
+        "smb_breadth": 6,
+        "workflow_quality": 7.5
+      },
+      "rationale": {
+        "smb_value": "Correcting an underpriced service can lift contribution for a full year, as the sample shows ($11 to $19 per visit), though the gain depends on owner-guessed labor minutes.",
+        "willingness_to_pay": "Owners who keep postponing price increases may pay once for the kit, but a one-time annual decision limits repeat spending.",
+        "frequency": "Price reviews happen about once a year with a single 60-day re-check, which puts it in the yearly band.",
+        "time_to_value": "One sales export plus a few owner-entered costs produce a per-service margin table and target prices in a single sitting.",
+        "setup_simplicity": "A single POS export is easy, but estimating minutes per service and labor rate takes some honest effort and is error-prone.",
+        "demonstrability": "A margin table that flags two services, then expands into a target price and a break-even loss rate, makes the value obvious with fictional data.",
+        "ai_literacy_value": "It labels churn as the owner's assumption rather than a prediction and states that the data cannot show how customers will react, which models good limits.",
+        "differentiation": "The break-even loss calculation is standard pricing math that a well-prompted chatbot with a spreadsheet can reproduce, so the segment rules and re-check add only moderate separation.",
+        "automation_potential": "This is an infrequent, judgment-heavy decision, so beyond re-running the margin math there is little that could safely be automated.",
+        "testability": "Everything up to the draft notice is deterministic arithmetic, and the sample figures (24.4%, 42.1%, $14,022) check out exactly.",
+        "permission_simplicity": "It uses one sales export and owner-entered costs, and price changes and notices stay with the owner.",
+        "smb_breadth": "The per-service, time-based cost model fits salons, cleaners, and tutors well but fits product retailers and project-priced firms poorly.",
+        "workflow_quality": "The steps are clear and include segment rules and a re-measure, but contribution ignores overhead and competitive context is only listed as a risk, not handled in the workflow."
+      },
+      "summary": "Its main strength is a crisp, highly testable calculation that makes the risk of a price increase visible with low permissions and fast first value. Its main weakness is that the decision happens about once a year and the core math is easy to reproduce, which limits frequency, automation, and differentiation."
+    },
+    "summary_scores": {
+      "commercial": 5.5,
+      "atlas_fit": 7.4,
+      "buildability": 7,
+      "overall": 6.51
+    },
+    "history_status": null,
+    "source": "research-agent"
+  },
+  {
+    "id": "ai-staffing-optimizer",
+    "name": "Shift Coverage vs Demand Check",
+    "persona": "Owner or general manager of a café, quick-service restaurant, retail shop, or fitness studio with 8-40 hourly staff. They use a POS and a scheduling or time-clock app and mostly copy each week's schedule from the last.",
+    "problem": "Schedules follow habit instead of demand. Some slow hours have more staff than needed while rush hours run short, and nobody has time to line up sales by hour against clocked hours.",
+    "workflow": [
+      "Export 4-8 weeks of hourly transactions or sales from the POS, and clocked hours by hour from the time-clock or scheduling app.",
+      "The owner sets rules: minimum staff per open hour, a target range of transactions per staff-hour, roles that cannot be cut (such as the keyholder), and any day-parts with non-sales work like prep or cleaning.",
+      "Calculate transactions per staff-hour and labor cost as a share of sales for each day-part, with visible formulas. Flag a block only if it is outside the target range in at least 3 of the weeks.",
+      "Label each flag CONFIRMED (calculated from exports), AI INTERPRETATION (possible causes the data cannot confirm), or RECOMMENDATION (a shift move that respects minimum staffing). Include a reminder to check local scheduling and break rules.",
+      "The manager edits the next schedule in their own tool. The Blueprint never edits schedules, posts shifts, or contacts staff.",
+      "After 4 weeks, re-run on new exports to see whether the flagged blocks moved into the target range."
+    ],
+    "before": "The manager copies last week's schedule, feels short-handed on Saturday, sees staff idle on Tuesday afternoon, and has no numbers to justify a change.",
+    "after": "The manager has a short list of day-parts that are overstaffed or understaffed in most weeks, each with its calculation, a coverage-safe suggestion, and a re-check four weeks later.",
+    "required_data_tools": [
+      "POS hourly sales or transactions export (CSV)",
+      "Time-clock or scheduling export of hours by employee or role (CSV), with names removed",
+      "Owner-entered staffing rules",
+      "Spreadsheet (Google Sheets or Excel)",
+      "A file-capable AI assistant"
+    ],
+    "why_pay": "Scheduling decisions repeat every week, and labor is usually one of a location's largest controllable costs. The kit's value is the repeatable pattern rule (3 or more weeks, not one bad day), the minimum-coverage guardrail, and the before/after re-check. A chatbot looking at one pasted week will overreact.",
+    "setup_difficulty": "MODERATE",
+    "automation_potential": "HIGH",
+    "human_oversight": "HIGH",
+    "major_risks": [
+      "Recommending coverage below a safe or legally required level.",
+      "Local scheduling, break, or predictive-scheduling rules the data cannot show.",
+      "Ignoring non-sales work (prep, restocking, cleaning) that justifies staff in quiet hours.",
+      "Employee data privacy if exports include names or pay rates.",
+      "Short or unusual history, such as holidays or one-off events, skewing the averages."
+    ],
+    "estimated_premium_value": "Perceived at roughly $39-$99/month equivalent for a multi-shift location. Anchored to the owner's weekly labor spend and the time a manager spends building schedules. Value estimate, not a price.",
+    "sample_input": "4-week averages\nday,hour,avg_transactions,avg_staff_on_clock\nTue,14:00,11,4\nTue,15:00,9,4\nSat,11:00,74,3\nSat,12:00,88,3\nRules: minimum 2 on floor; target 15-25 transactions per staff-hour; flag only if outside target in 3+ of 4 weeks",
+    "sample_output": "CONFIRMED (calculated): Tue 14:00 = 2.8 and Tue 15:00 = 2.3 transactions per staff-hour, below your 15-25 target in 4 of 4 weeks.\nCONFIRMED (calculated): Sat 12:00 = 29.3 transactions per staff-hour, above target in 3 of 4 weeks. Sat 11:00 = 24.7, within target.\nAI INTERPRETATION: Tuesday afternoon may include prep or restocking that the POS export does not show.\nRECOMMENDATION (you decide): consider 2 on floor Tue 14:00-16:00 (your minimum). Consider adding 1 person at Sat 12:00 (88 / 4 = 22 per staff-hour). Check local scheduling rules before changing posted shifts. You edit the schedule; nothing is changed or sent.",
+    "guided_demo": "1) Show a fictional café with 4 weeks of invented hourly sales and clocked hours, names already removed. 2) The owner sets the minimum staff and target range. 3) A day-by-hour grid shows transactions per staff-hour, with over and under flags marked by text and icon, not color alone. 4) Click one flagged block to see the formula, the weeks that triggered it, and the interpretation kept separate from the calculation. 5) Show a recommendation that stops at the minimum-staff rule. 6) Show a mock 4-week re-check of the same blocks.",
+    "related_catalog_slugs": [
+      "ai-staffing-optimizer",
+      "ai-payroll-forecasting",
+      "ai-booking-optimizer"
+    ],
+    "novelty_note": "No current Atlas Blueprint covers labor scheduling. It differs from Payroll Forecasting, which projects total cost, because it compares demand and coverage hour by hour under owner-set guardrails. The 3-of-4-weeks pattern rule and minimum-coverage limit are decision rules a one-off chatbot analysis usually lacks.",
+    "rank": 4,
+    "scores": {
+      "criteria": {
+        "smb_value": 7.5,
+        "willingness_to_pay": 6,
+        "frequency": 6,
+        "time_to_value": 5.5,
+        "setup_simplicity": 4.5,
+        "demonstrability": 8,
+        "ai_literacy_value": 7,
+        "differentiation": 5,
+        "automation_potential": 7,
+        "testability": 8,
+        "permission_simplicity": 6.5,
+        "smb_breadth": 5.5,
+        "workflow_quality": 7.5
+      },
+      "rationale": {
+        "smb_value": "Labor is a large controllable cost for hourly-staffed locations, and moving coverage from slow Tuesday afternoons to busy Saturday lunches has tangible value.",
+        "willingness_to_pay": "Many target businesses already pay for scheduling or POS tools that report sales per labor hour, which weakens the case for paying for a separate kit.",
+        "frequency": "Schedules are built weekly, but the analysis itself is designed as a four-week re-run, which is closer to the monthly band.",
+        "time_to_value": "A first result requires hourly-level sales and clocked-hours exports aligned by hour, which takes some reshaping before any flag appears.",
+        "setup_simplicity": "Clocked hours broken down by hour are not a standard export in many time-clock apps, and the hours must be joined to POS hours with names removed.",
+        "demonstrability": "A day-by-hour grid with text-and-icon over and under flags that open into formulas and triggering weeks is very easy to understand.",
+        "ai_literacy_value": "Keeping the calculation separate from the possible prep-work interpretation, and requiring a 3-of-4-weeks pattern, teaches users not to overreact to AI analysis.",
+        "differentiation": "Sales-per-labor-hour reporting is a common feature in restaurant and retail scheduling software, so the guardrails are the main addition.",
+        "automation_potential": "Read-only exports and the recurring calculation could be scheduled safely, while schedule edits correctly stay with the manager.",
+        "testability": "The ratios and pattern rule are deterministic, and the sample figures (2.8, 29.3, 22 per staff-hour) are correct, though the sample input shows averages that cannot by themselves confirm '4 of 4 weeks'.",
+        "permission_simplicity": "It is read-only, but employee hours and possibly pay rates are sensitive, and name removal depends on the user doing it correctly.",
+        "smb_breadth": "It only fits walk-in businesses with hourly staff and a POS, not appointment-based, project-based, or owner-operated businesses.",
+        "workflow_quality": "The owner-set rules, minimum-coverage guardrail, legal-rule reminder, and four-week re-check are concrete, but the sample is not fully traceable to per-week data."
+      },
+      "summary": "Its main strength is a guardrailed, demonstrable demand-versus-coverage analysis tied to one of the largest controllable costs. Its main weakness is awkward hourly data preparation and strong overlap with features already built into scheduling software."
+    },
+    "summary_scores": {
+      "commercial": 6.3,
+      "atlas_fit": 6.9,
+      "buildability": 6.5,
+      "overall": 6.41
+    },
+    "history_status": null,
+    "source": "research-agent"
+  },
+  {
+    "id": "ai-review-intelligence",
+    "name": "Review-to-Fix Tracker",
+    "persona": "Owner or general manager of a 1-3 location restaurant, dental or vet clinic, auto repair shop, or salon with at least 100 public reviews. They read new reviews when they arrive but have never counted what customers keep complaining about.",
+    "problem": "Reviews are read one at a time and reacted to emotionally. Recurring operational problems, such as long waits or bills higher than the quote, are never counted, assigned to anyone, or checked later to see whether they improved.",
+    "workflow": [
+      "Export or copy the business's own reviews (date, rating, text) into a CSV. Remove reviewer names before analysis.",
+      "Apply a fixed, owner-editable codebook, such as wait time, staff attitude, price or billing, cleanliness, quality of work, and booking. Tag each review with a quoted phrase as evidence. Mark unclear reviews as UNCODED instead of guessing.",
+      "Count themes by period and by rating. Flag a theme as a pattern only when it meets the owner's minimum mention count, so one angry review does not drive a decision.",
+      "The owner chooses up to 3 fixes and records an owner, a first step, and a check date in a fix list. The Blueprint can draft an internal staff note; it does not draft or post public replies.",
+      "After 60-90 days, re-run on new reviews and compare each theme's share of reviews before and after the fix."
+    ],
+    "before": "The owner reads a bad review, feels stung, maybe replies, and moves on. The same complaint returns because nobody counted or owned it.",
+    "after": "The owner has theme counts backed by quoted evidence, a minimum-count rule against overreacting, a short assigned fix list, and a before/after comparison on later reviews.",
+    "required_data_tools": [
+      "The business's own Google, Yelp, or booking-platform reviews, exported or copied into a CSV (date, rating, text)",
+      "Owner-editable theme codebook",
+      "Spreadsheet (Google Sheets or Excel)",
+      "A file-capable AI assistant",
+      "Optional: booking or POS export to verify a theme, such as appointment start times"
+    ],
+    "why_pay": "A free prompt gives a one-time summary. The Premium kit provides a stable codebook so themes are comparable across months, quoted evidence for every tag, a minimum-count rule, an owner-assigned fix list, and a re-measurement step. That turns reviews from a mood check into an operational loop.",
+    "setup_difficulty": "EASY",
+    "automation_potential": "MEDIUM",
+    "human_oversight": "MEDIUM",
+    "major_risks": [
+      "Small samples presented as trends.",
+      "Fake, competitor, or off-topic reviews skewing counts.",
+      "Misreading sarcasm or mixed reviews.",
+      "Reviewer or staff names carried into the analysis or the staff note.",
+      "Collecting reviews in ways a platform's terms do not allow. The first version uses only the business's own exported or manually copied reviews."
+    ],
+    "estimated_premium_value": "Perceived at roughly $19-$49/month equivalent, used quarterly or monthly. Anchored to how much the owner already cares about star rating and repeat customers, not to a claimed revenue lift. Value estimate, not a price.",
+    "sample_input": "date,rating,text\n2026-04-02,2,\"Waited 40 minutes past my appointment time.\"\n2026-04-09,5,\"Front desk was so kind, quick visit.\"\n2026-04-15,3,\"Good care but the bill was higher than the quote.\"\n2026-04-21,2,\"Another long wait in the lobby.\"\nRule: flag a theme only at 5+ mentions in the period",
+    "sample_output": "THEME COUNTS, April (4 reviews; no theme reaches your 5-mention minimum, so nothing is flagged yet)\nCONFIRMED: Wait time, 2 mentions. Quotes: 'Waited 40 minutes past my appointment time'; 'Another long wait in the lobby'.\nCONFIRMED: Price or billing, 1 mention. Quote: 'the bill was higher than the quote'.\nCONFIRMED: Staff attitude (positive), 1 mention. Quote: 'Front desk was so kind'.\nAI INTERPRETATION: wait time may be emerging as a pattern, but 2 mentions in one month is not enough to confirm it.\nRECOMMENDATION (you decide): compare April appointment start times in your booking export before assigning a fix. No public replies are drafted or posted.",
+    "guided_demo": "1) Show a fictional clinic's 40 invented reviews with reviewer names already removed. 2) Show the codebook and let the viewer rename one theme. 3) Each review gets a theme tag with its quoted phrase visible beside it, and unclear reviews show as UNCODED. 4) A theme table shows one theme over the minimum and one under, labelled in text. 5) The viewer adds one fix with an owner and check date. 6) Show a mock 90-day re-run comparing that theme's share before and after.",
+    "related_catalog_slugs": [
+      "ai-review-intelligence",
+      "ai-review-response-assistant",
+      "local-seo-content-assistant"
+    ],
+    "novelty_note": "The Review Response Assistant handles one review at a time and writes public replies. This Blueprint works on the whole set of reviews, writes no public replies, and links themes to assigned operational fixes with a re-measure. It shares no inputs with the Daily Inbox Briefing. The stable codebook and minimum-count rule are what separate it from asking a chatbot to summarize reviews.",
+    "rank": 5,
+    "scores": {
+      "criteria": {
+        "smb_value": 5.5,
+        "willingness_to_pay": 4.5,
+        "frequency": 4.5,
+        "time_to_value": 8,
+        "setup_simplicity": 7,
+        "demonstrability": 8,
+        "ai_literacy_value": 8,
+        "differentiation": 3.5,
+        "automation_potential": 6,
+        "testability": 5.5,
+        "permission_simplicity": 9,
+        "smb_breadth": 6.5,
+        "workflow_quality": 7.5
+      },
+      "rationale": {
+        "smb_value": "Fixing recurring complaints such as long waits helps the business, but the money or time gained is indirect and the candidate rightly claims no revenue lift.",
+        "willingness_to_pay": "Owners care about reviews, but review-management platforms already bundle AI theme summaries, so paying for a quarterly analysis kit is a hard sell.",
+        "frequency": "The candidate describes monthly or quarterly use with a 60-90 day re-run, which sits at or below the monthly band.",
+        "time_to_value": "Pasting reviews into a CSV and applying a starter codebook gives theme counts with quotes in the first session.",
+        "setup_simplicity": "No connectors are needed, but copying 100 or more reviews by hand where a platform has no easy export is tedious.",
+        "demonstrability": "Theme tags with quoted phrases beside them, an UNCODED bucket, and a minimum-count threshold show clearly with invented reviews.",
+        "ai_literacy_value": "Requiring quoted evidence, marking unclear reviews UNCODED instead of guessing, and declining to call 2 mentions a pattern are strong lessons in AI limits.",
+        "differentiation": "Summarizing reviews into themes is something generic chatbots and review tools already do well, and the codebook and minimum count add only modest separation.",
+        "automation_potential": "Periodic theme re-runs on newly collected own reviews could be automated safely because nothing is posted externally.",
+        "testability": "Tagging free text with an AI model is less deterministic than arithmetic, so tests can check structure and thresholds more reliably than tag accuracy.",
+        "permission_simplicity": "It uses only the business's own public reviews with no write access, and it explicitly avoids drafting or posting public replies.",
+        "smb_breadth": "It fits many consumer-facing local businesses but requires at least 100 reviews, which excludes many B2B and newer businesses.",
+        "workflow_quality": "The codebook, minimum count, owner-assigned fix list, and re-measure form a clear loop, though before-and-after comparisons on small samples are easily confounded."
+      },
+      "summary": "Its main strength is excellent AI-literacy design with very low permission risk and fast first value. Its main weakness is low differentiation from what chatbots and review platforms already do, combined with indirect value and weak willingness to pay."
+    },
+    "summary_scores": {
+      "commercial": 5.3,
+      "atlas_fit": 6.8,
+      "buildability": 6.9,
+      "overall": 6.3
+    },
+    "history_status": null,
+    "source": "research-agent"
+  }
+]

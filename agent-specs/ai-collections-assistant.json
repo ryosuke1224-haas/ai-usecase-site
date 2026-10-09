@@ -1,0 +1,376 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "ai-collections-assistant",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "AI Collections Assistant",
+  "value_proposition": "A weekly collections queue that you review yourself: it sets aside disputed, promised, and below-minimum invoices with a visible reason, matches each draft's tone to how overdue the invoice is, and carries a weekly outcome log forward so the same invoice is not chased twice by mistake.",
+  "persona": "The owner or office manager of a professional-services firm, agency, B2B trades business, or clinic that bills on net-15 or net-30 terms. Overdue invoices hold a meaningful amount of earned cash, and the owner personally dislikes chasing payment.",
+  "problem": "Cash is earned but not collected. Follow-up is irregular and in no particular order. Messages sometimes go out about the wrong invoice, such as one that is disputed or already has a promised payment date, which can damage the customer relationship.",
+  "workflow": [
+    "1. The person exports the overdue-invoice aging report as CSV from QuickBooks, Xero, or their invoicing tool. It needs these columns: invoice, customer, amount, due_date, days_overdue, status, notes, plus the export's as-of date. PERSON DECIDES: which columns to include. Remove contact emails, phone numbers, and any other columns the workflow does not need.",
+    "2. The person opens last week's outcome log, if one exists, and makes sure every outcome from last week is recorded (paid, promised with a date, disputed, payment plan, or no reply).",
+    "3. The person checks the data settings of their AI assistant, such as chat history, training use, and file retention, before uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to upload the export or paste the rows as text, or not use AI for this data at all.",
+    "4. The person pastes the Weekly Collections Queue Prompt and their personal rules from the Skip Rules and Tone Ladder Worksheet, then attaches the export and the outcome log.",
+    "5. AI applies the skip rules before anything else. It sets aside disputed invoices, credit memos, invoices on a payment plan, invoices whose promised payment date has not passed as of the export date, and invoices below the owner's minimum. Every skipped invoice is listed with its reason.",
+    "6. AI ranks the remaining invoices by age band, oldest band first, then by amount, largest first. When payment history is provided, the customer's usual payment pattern is used only as a tie-breaker and is labelled AI INTERPRETATION.",
+    "7. AI assigns a tone from the owner-approved ladder (default: friendly at 1-14 days, firm at 15-44 days, phone call recommended at 45+ days). It writes each draft or call note using only the invoice number, amount, and due date from the export. Drafts never threaten legal action and never mention fees that the export does not contain.",
+    "8. The person checks every draft against its export row with the Draft Review Checklist. PERSON DECIDES: for each invoice, whether to send, edit, call, hold, or skip. The person picks the recipient from their own contacts and sends from their own email client. Nothing is sent automatically.",
+    "9. The person records each outcome in the outcome log. PERSON DECIDES: whether a dispute is resolved and the invoice can be chased again. Next week's run reads the log, so promised dates are respected and disputes stay skipped until the person changes them."
+  ],
+  "before": "The owner scrolls the aging report occasionally and writes a few awkward emails to whichever customers come to mind. Sometimes they chase an invoice that is already disputed or has a promised payment date. There is no record of what was promised last week.",
+  "after": "Each week the owner reviews a queue that puts the oldest and largest invoices without disputes or promises first. Every skipped invoice is shown with its reason, the tone matches the invoice's age, and every number in a draft is checked against the export row before the owner sends it themselves. An outcome log carries promises and disputes into the next week's run.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/ai-collections-assistant using a fictional aging report of 8 invented invoices dated as of 2026-06-08, with a fictional owner minimum of $150 and the default tone ladder. It shows the skip rules setting aside 2 invoices with reasons, a ranked queue of 6 with tones assigned by age band, a number check of one draft against its export row, an outcome log feeding a mock next-week run where a promised invoice is still skipped, and an ending that states the person sends every message. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone.",
+    "steps": [
+      "Step 1 of 6 - The export: show the fictional aging report as a table of 8 rows (INV-3307, INV-3312, INV-3290, INV-3315, INV-3281, INV-3309, INV-3318, INV-3301) with the as-of date 2026-06-08, the fictional minimum of $150, and the tone ladder (friendly 1-14 days, firm 15-44 days, phone call recommended 45+ days).",
+      "Step 2 of 6 - Skip rules first: list the five skip rules, then show 2 invoices set aside with reasons. INV-3312 is skipped because payment was promised for 2026-06-12; re-check after that date. INV-3290 is skipped because it is disputed and needs your decision.",
+      "Step 3 of 6 - The ranked queue: show 6 invoices in order (INV-3301, INV-3281, INV-3307, INV-3309, INV-3315, INV-3318), each with days overdue, a CONFIRMED status line, and an assigned tone. Show AI INTERPRETATION: none, because no payment history was provided.",
+      "Step 4 of 6 - Check the draft: open the INV-3307 draft. A 'Check numbers against the export row' button shows three rows (invoice number INV-3307, amount $3,900 vs 3900, due date May 1 vs 2026-05-01), each labelled with the text 'Matches'.",
+      "Step 5 of 6 - Outcome log and next week: show the fictional outcome log for the week of 2026-06-08, then a mock run as of 2026-06-15. INV-3307 is skipped because the promised date 2026-06-19 has not passed. INV-3290 is still skipped because it is disputed. INV-3315 and INV-3312 are gone because they were paid. The queue is INV-3301, INV-3281, INV-3309, INV-3318.",
+      "Step 6 of 6 - You send it: state 'You send it. Nothing is sent automatically.' and explain that the person picks the recipient, edits, and sends from their own email, or makes the call. Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "as_of: 2026-06-08 (fictional)\nowner_minimum: 150\ntone_ladder: friendly 1-14, firm 15-44, phone call recommended 45+\ninvoice,customer,amount,due_date,days_overdue,status,notes\nINV-3307,Cedar Row Vet,3900,2026-05-01,38,open,\nINV-3312,Mill St Bakery,640,2026-05-20,19,open,promised 2026-06-12\nINV-3290,Tallis Fitness,1750,2026-04-10,59,disputed,\nINV-3315,Orchard Dental,2480,2026-05-28,11,open,\nINV-3281,Harbor Lane Physio,1200,2026-04-15,54,open,\nINV-3309,Birchwood Signs,860,2026-05-11,28,open,\nINV-3318,Lumen Studio,420,2026-06-01,7,open,\nINV-3301,Quarry Hill Landscaping,5200,2026-04-24,45,open,\n\nOutcome log after week of 2026-06-08 (fictional, entered by the owner):\nINV-3301,called,no reply\nINV-3281,called,no reply\nINV-3307,emailed,promised,2026-06-19\nINV-3309,emailed,no reply\nINV-3315,emailed,paid\nINV-3318,emailed,no reply\nINV-3312,skipped,paid\nINV-3290,skipped,disputed",
+    "sample_output": "QUEUE as of 2026-06-08 (6 to chase, 2 skipped) - FICTIONAL DATA\n1. INV-3301, Quarry Hill Landscaping, $5,200, 45 days overdue. CONFIRMED: open, no promise recorded. Tone: phone call recommended. Call note: 'Calling about invoice INV-3301 for $5,200, due April 24. When can we expect payment?'\n2. INV-3281, Harbor Lane Physio, $1,200, 54 days overdue. CONFIRMED: open, no promise recorded. Tone: phone call recommended. Call note: 'Calling about invoice INV-3281 for $1,200, due April 15. When can we expect payment?'\n3. INV-3307, Cedar Row Vet, $3,900, 38 days overdue. CONFIRMED: open, no promise recorded. Tone: firm. Draft: 'Invoice INV-3307 for $3,900 was due on May 1. Could you confirm when payment will be sent?'\n4. INV-3309, Birchwood Signs, $860, 28 days overdue. CONFIRMED: open, no promise recorded. Tone: firm. Draft: 'Invoice INV-3309 for $860 was due on May 11. Could you confirm when payment will be sent?'\n5. INV-3315, Orchard Dental, $2,480, 11 days overdue. CONFIRMED: open. Tone: friendly. Draft: 'A quick reminder that INV-3315 for $2,480 was due May 28.'\n6. INV-3318, Lumen Studio, $420, 7 days overdue. CONFIRMED: open. Tone: friendly. Draft: 'A quick reminder that INV-3318 for $420 was due June 1.'\nSKIPPED: INV-3312 (payment promised for 2026-06-12; re-check after that date).\nSKIPPED: INV-3290 (disputed; needs your decision).\nAI INTERPRETATION: none; no payment history was provided, so ranking uses age band and amount only.\nRECOMMENDED ACTION: Check each draft against its export row, choose the recipient from your own contacts, edit, and send from your own email or make the call yourself. Nothing is sent automatically.\n\nNEXT WEEK (mock run as of 2026-06-15, using your outcome log)\nQueue: 1. INV-3301, 52 days, phone call recommended. 2. INV-3281, 61 days, phone call recommended. 3. INV-3309, 35 days, firm. 4. INV-3318, 14 days, friendly.\nSKIPPED: INV-3307 (payment promised for 2026-06-19; date has not passed).\nSKIPPED: INV-3290 (still disputed; needs your decision).\nRemoved: INV-3315 and INV-3312 (logged as paid).",
+    "fictional_data_notice": "All invoices, customers, amounts, and dates on this page are fictional. No real business or customer data is used, and nothing is connected to an accounting system or email account."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Weekly Collections Setup Checklist",
+      "purpose": "Step-by-step setup for the weekly run. It covers exporting the aging report from QuickBooks, Xero, or an invoicing tool with the required columns and as-of date, removing columns the workflow does not need, checking the AI tool's data settings before uploading, and setting the minimum amount and tone ladder. It also notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
+    },
+    {
+      "id": "queue-prompt",
+      "title": "Weekly Collections Queue Prompt",
+      "purpose": "Copyable prompt that applies the skip rules first, ranks by age band then amount, assigns tone from the ladder, drafts using only the invoice number, amount, and due date, and labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately. It forbids sending, legal threats, and invented facts."
+    },
+    {
+      "id": "next-week-prompt",
+      "title": "Week-to-Week Update Prompt",
+      "purpose": "Copyable prompt for the following week. It reads the previous outcome log with the new export, keeps disputed invoices skipped until the person marks them resolved, skips promised invoices until the promised date has passed, and flags missed promises as CONFIRMED facts from the log."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Skip Rules and Tone Ladder Worksheet",
+      "purpose": "Browser-only form where the person sets their minimum amount, tone band limits, and customers to always skip. It generates a copyable rules block to paste with the queue prompt. Nothing is saved to Atlas."
+    },
+    {
+      "id": "outcome-log-template",
+      "title": "Outcome Log Template",
+      "purpose": "Column layout (week_of, invoice, customer, action_taken, outcome, promised_date, notes) with the allowed outcome values (paid, promised, disputed, payment plan, no reply) and fictional example rows. Includes a Copy CSV button so the person can start their own spreadsheet."
+    },
+    {
+      "id": "draft-review-checklist",
+      "title": "Draft Review Checklist",
+      "purpose": "Interactive, session-only checklist used before sending each draft. It confirms that the invoice number, amount, and due date match the export row, that the recipient was chosen by the person, that the invoice is not disputed, promised, or on a payment plan, that the tone matches the age band, and that there are no legal threats or invented facts."
+    },
+    {
+      "id": "sample-aging-report",
+      "title": "Fictional Sample Aging Report",
+      "purpose": "The same 8-row fictional CSV used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real customer data."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling customer financial data in AI tools: review data settings, remove unneeded columns, do not paste bank or card details, and remember that plan and admin settings differ. It also covers tone limits (no legal threats, no fees not in the export) and the rule that nothing is sent, edited, cancelled, or paid automatically."
+    }
+  ],
+  "decision_rules": [
+    "Compute days overdue from the export's as-of date, not today's date. If the export has no as-of date, ask the person for it before building the queue.",
+    "Apply all skip rules before ranking or drafting. Skipped invoices are never ranked or drafted.",
+    "Skip any invoice whose status or latest outcome-log entry is disputed. Show the reason 'disputed; needs your decision'. It stays skipped in later weeks until the person changes the log entry to resolved.",
+    "Skip credit memos and any row with a zero or negative amount. Show the reason 'credit memo or non-positive amount'.",
+    "Skip any invoice marked as on a payment plan in the export or the outcome log. Show the reason 'on a payment plan'.",
+    "Skip any invoice with a promised payment date on or after the as-of date. Show the reason 'payment promised for <date>; re-check after that date'. If the promised date is before the as-of date and the invoice is still open, return it to the queue with the CONFIRMED note 'promise of <date> missed'.",
+    "Skip any invoice whose amount is below the owner's minimum. Show the reason 'below your minimum of $<minimum>'.",
+    "If a row is missing its invoice number, amount, or due date, or the same invoice number appears twice, do not draft it. List it under 'needs your check'.",
+    "Rank the remaining invoices by age band (45+ days, then 15-44, then 1-14 or the owner's custom bands), then by amount, largest first, then by earlier due date. Use the customer's usual payment pattern only as a tie-breaker, only when payment history is provided, and label it AI INTERPRETATION.",
+    "Assign tone strictly from the owner-approved ladder (default: friendly 1-14 days, firm 15-44 days, phone call recommended 45+ days). Invoices at 45+ days get a call note instead of an email draft.",
+    "Drafts and call notes may state only the invoice number, amount, and due date from the export row. Do not invent payment history, contact names, late fees, interest, or deadlines.",
+    "Never threaten legal action, collections agencies, credit reporting, or service suspension in any draft.",
+    "If a customer has more than one invoice in the queue, list them together and recommend one combined message. The person decides whether to combine them."
+  ],
+  "human_ai_boundary": [
+    "AI applies skip rules and lists every skipped invoice with its reason. The person decides whether to resolve a dispute, accept a promise, or override a skip.",
+    "AI ranks the queue by the stated rules. The person decides which invoices to chase this week and in what order.",
+    "AI assigns a tone from the ladder the owner approved. The person sets the ladder and can change the tone of any individual draft.",
+    "AI drafts emails and call notes using only export fields. The person checks every number against the export row, edits the wording, and approves it.",
+    "AI never chooses or sees the recipient address. The person addresses and sends every message from their own email client or makes the call themselves.",
+    "AI reads the outcome log. Only the person records outcomes, and the log reflects what the person entered, not what AI assumed.",
+    "AI labels CONFIRMED facts (from the export or log), AI INTERPRETATION (for example, a payment-pattern tie-breaker), and RECOMMENDED ACTION separately. The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, refunded, or paid automatically. Every page states that the person sends each message from their own email.",
+    "Atlas does not connect to QuickBooks, Xero, an invoicing tool, or email. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before uploading an export to an AI tool, the person is told to review that tool's data settings (such as chat history, training use, and file retention) and to remove columns the workflow does not need, such as emails and phone numbers.",
+    "The kit tells the person not to paste bank account numbers, card numbers, or tax IDs into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "Drafts never threaten legal action, collections agencies, credit reporting, or service suspension, and never mention fees or interest that the export does not contain.",
+    "Disputed and promised invoices are skipped with a visible reason so they are not chased by mistake.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no statistics, recovery rates, time savings, ROI claims, prices, or checkout."
+  ],
+  "required_data_tools": [
+    "Accounts-receivable aging report exported as CSV from QuickBooks, Xero, or an invoicing tool, with invoice, customer, amount, due date, days overdue, status, notes, and an as-of date",
+    "Outcome log spreadsheet, started from the kit's Outcome Log Template",
+    "Optional customer payment history, used only as a tie-breaker",
+    "The owner's own email client and phone for sending and calling",
+    "A file-capable AI assistant such as ChatGPT, Claude, or Gemini. File upload support differs by plan, account, and admin settings; rows can be pasted as text instead."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/ai-collections-assistant without a session renders a page whose h1 is 'AI Collections Assistant', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a table with exactly 8 data rows whose invoice numbers are INV-3307, INV-3312, INV-3290, INV-3315, INV-3281, INV-3309, INV-3318, and INV-3301. It also shows the as-of date 2026-06-08, the minimum $150, and the tone ladder text 'friendly 1-14 days', 'firm 15-44 days', 'phone call recommended 45+ days'.",
+    "Step 2 lists exactly 2 skipped invoices: INV-3312 with reason text containing 'payment promised for 2026-06-12' and INV-3290 with reason text containing 'disputed; needs your decision'.",
+    "Step 3 lists exactly 6 queued invoices in this order: INV-3301, INV-3281, INV-3307, INV-3309, INV-3315, INV-3318. Their tones are phone call recommended, phone call recommended, firm, firm, friendly, friendly, and their days overdue are 45, 54, 38, 28, 11, 7.",
+    "Step 3 shows the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. The AI INTERPRETATION line states that no payment history was provided.",
+    "Step 4 shows the INV-3307 draft text 'Invoice INV-3307 for $3,900 was due on May 1. Could you confirm when payment will be sent?'. Activating 'Check numbers against the export row' reveals three rows (invoice number, amount, due date), each containing the text 'Matches'.",
+    "Step 5 shows the fictional outcome log and a mock next-week run as of 2026-06-15. The run lists INV-3307 as skipped with text containing 'payment promised for 2026-06-19', lists INV-3290 as skipped with text containing 'disputed', and lists the queue INV-3301, INV-3281, INV-3309, INV-3318 in that order.",
+    "Step 6 contains the exact sentence 'You send it. Nothing is sent automatically.' and a link to /blueprints/ai-collections-assistant/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every dollar amount and date in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', '/month', 'per month', or a price. The only dollar figures are the fictional invoice amounts and the fictional $150 minimum.",
+    "Neither page contains a percentage, a recovery rate, an hours-saved figure, or an ROI or savings claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/ai-collections-assistant', and /sitemap.xml does not contain '/blueprints/ai-collections-assistant'.",
+    "GET /blueprints/ai-collections-assistant/kit without a session redirects to /auth with the query parameter next=/blueprints/ai-collections-assistant/kit.",
+    "The kit page calls requireUser('/blueprints/ai-collections-assistant/kit') from src/lib/auth.ts, exports metadata with robots { index: false, follow: false }, and does not add an entry to src/lib/blueprints.ts.",
+    "With a signed-in session, the kit page renders h1 'AI Collections Assistant Premium Kit' and the exact label text 'Premium · Private preview'.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Weekly Collections Queue Prompt is shown in a <pre> element and contains these strings: 'SKIPPED', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'Apply the skip rules before ranking', 'Use only the invoice number, amount, and due date', 'Do not send', 'Never threaten legal action', 'Do not invent'.",
+    "The Week-to-Week Update Prompt is shown in a <pre> element and contains: 'outcome log', 'promised', 'disputed', 'missed', 'Do not send'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Skip Rules and Tone Ladder Worksheet has inputs with visible labels 'Minimum amount to chase (USD)' (default 150), 'Friendly tone up to (days overdue)' (default 14), 'Firm tone up to (days overdue)' (default 44), and 'Customers to always skip (one per line)', plus a 'Generate My Collections Rules' button.",
+    "With the defaults, the generated rules block contains 'Skip invoices under $150', 'Friendly: 1-14 days', 'Firm: 15-44 days', 'Phone call recommended: 45+ days', 'Never threaten legal action.', and 'Do not send anything.'. The block has a Copy button.",
+    "If the friendly limit is greater than or equal to the firm limit, the worksheet shows the error 'Friendly limit must be lower than the firm limit.' and generates no rules block. If the minimum is empty or negative, it shows 'Enter a minimum amount of 0 or more.'.",
+    "When 'Customers to always skip' is empty, the generated rules block contains no 'Always skip' line. When it contains 'Cedar Row Vet', the block contains 'Always skip: Cedar Row Vet'.",
+    "The Outcome Log Template shows the columns week_of, invoice, customer, action_taken, outcome, promised_date, notes and the allowed outcomes paid, promised, disputed, payment plan, no reply. Its 'Copy CSV' button writes text whose first line is 'week_of,invoice,customer,action_taken,outcome,promised_date,notes'.",
+    "The Draft Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Aging Report section is labelled 'Fictional' and its Copy CSV text equals the 8 invoice rows and header from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With a signed-in session, /my-blueprints contains zero links whose href includes '/blueprints/ai-collections-assistant'.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "All new files are under app/blueprints/ai-collections-assistant/, components/premium/ai-collections-assistant/, src/lib/premium/ai-collections-assistant/, or e2e/ai-collections-assistant/. No existing file is modified."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/ai-collections-assistant renders h1 'AI Collections Assistant', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/ai-collections-assistant'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/ai-collections-assistant'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-export-table",
+      "description": "Step 1 table has exactly 8 data rows with invoice numbers INV-3307, INV-3312, INV-3290, INV-3315, INV-3281, INV-3309, INV-3318, INV-3301, and shows '2026-06-08', '$150', and the three tone ladder bands.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-skip-reasons",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and exactly 2 skipped items: INV-3312 with text containing 'payment promised for 2026-06-12' and INV-3290 with text containing 'disputed; needs your decision'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-queue-order-tone",
+      "description": "On step 3, the queued items appear in the DOM order INV-3301, INV-3281, INV-3307, INV-3309, INV-3315, INV-3318, with tones phone call recommended, phone call recommended, firm, firm, friendly, friendly and days 45, 54, 38, 28, 11, 7. The text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-number-check",
+      "description": "On step 4, the INV-3307 draft text is visible. Clicking 'Check numbers against the export row' reveals 3 rows (INV-3307; $3,900 vs 3900; May 1 vs 2026-05-01), each with the text 'Matches'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-next-week-run",
+      "description": "On step 5, the outcome log shows INV-3307 promised 2026-06-19. The mock run as of 2026-06-15 shows INV-3307 skipped with 'payment promised for 2026-06-19', INV-3290 skipped with 'disputed', and the queue order INV-3301, INV-3281, INV-3309, INV-3318.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-sends",
+      "description": "On step 6, the exact sentence 'You send it. Nothing is sent automatically.' is visible. A link to /blueprints/ai-collections-assistant/kit is present with visible text mentioning sign-in and private preview. 'Next step' is absent or disabled.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|\\/month|per month|\\d+%|ROI|hours saved/i.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/ai-collections-assistant/kit ends on pathname /auth with searchParams next equal to '/blueprints/ai-collections-assistant/kit' (expectAuthNext helper).",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "In e2e/ai-collections-assistant/authenticated.spec.ts, using the saved session and skipping via authSkipReason when none exists, /blueprints/ai-collections-assistant/kit renders h1 'AI Collections Assistant Premium Kit', the exact text 'Premium · Private preview', and meta robots containing 'noindex'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, queue-prompt, next-week-prompt, rules-worksheet, outcome-log-template, draft-review-checklist, sample-aging-report, and safety-guidance, each with a heading matching its kit_contents title. A table-of-contents link with href '#<id>' exists for each.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-price-or-checkout",
+      "description": "Kit page body text does not match /checkout|buy now|purchase|\\/month|per month|\\d+%|ROI|hours saved/i, and the page contains no form that posts to a payment URL.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-queue-prompt-copy",
+      "description": "The queue prompt <pre> contains all required strings. Clicking its 'Copy Prompt' button changes the label to 'Copied', and navigator.clipboard.readText() equals the <pre> text.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-next-week-prompt-content",
+      "description": "The Week-to-Week Update Prompt <pre> contains 'outcome log', 'promised', 'disputed', 'missed', and 'Do not send'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Collections Rules' with default values produces a block containing 'Skip invoices under $150', 'Friendly: 1-14 days', 'Firm: 15-44 days', 'Phone call recommended: 45+ days', 'Never threaten legal action.', and 'Do not send anything.', and no 'Always skip' line.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-custom-skip",
+      "description": "Entering 'Cedar Row Vet' in 'Customers to always skip (one per line)' and generating produces a block containing 'Always skip: Cedar Row Vet'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Setting 'Friendly tone up to (days overdue)' to 44 and the firm limit to 44 shows 'Friendly limit must be lower than the firm limit.' and no rules block. Clearing the minimum shows 'Enter a minimum amount of 0 or more.'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-outcome-log-copy-csv",
+      "description": "The Outcome Log Template lists the allowed outcomes paid, promised, disputed, payment plan, no reply. Its 'Copy CSV' button writes clipboard text whose first line is 'week_of,invoice,customer,action_taken,outcome,promised_date,notes'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-report-fictional",
+      "description": "The Fictional Sample Aging Report section shows the label 'Fictional'. Its copied CSV contains the header 'invoice,customer,amount,due_date,days_overdue,status,notes' and the 8 invoice rows from the demo.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Draft Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-not-in-my-blueprints",
+      "description": "With the saved session, /my-blueprints contains 0 links whose href includes '/blueprints/ai-collections-assistant'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts (the only authenticated file run by the authenticated-desktop project), call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, every worksheet input and the Generate button, every checklist checkbox, and Reset. Each shows a visible focus ring (non-'none' outline or box-shadow on :focus-visible).",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to QuickBooks, Xero, invoicing tools, email, or phone systems, including OAuth flows and API calls.",
+    "Uploading, parsing, or storing the person's real aging report or outcome log on Atlas.",
+    "Sending, scheduling, or queueing emails, texts, or calls on the person's behalf.",
+    "Payment links, late-fee or interest calculation, payment plans set up by Atlas, or escalation to collections agencies or legal action.",
+    "Pricing, checkout, entitlement checks, or any claim that the Premium kit can be bought today.",
+    "Listing the Blueprint in My Blueprints, src/lib/blueprints.ts, the homepage, header navigation, or the sitemap.",
+    "Changes to the published /use-cases/ai-collections-assistant page or anything in content/published/.",
+    "Changes to shared components, existing tests, or anything for the Daily Inbox Briefing.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or outcome logs to an Atlas account.",
+    "Multi-currency handling, partial payments, and customer-level payment-history analytics.",
+    "Statistics, recovery rates, time savings, or ROI figures."
+  ],
+  "source": {
+    "run_id": "20261008T060200Z-dry-run",
+    "candidate_id": "ai-collections-assistant",
+    "approved_at": "2026-10-08T06:07:38.902Z",
+    "approval_note": "",
+    "summary_scores": {
+      "commercial": 7.1,
+      "atlas_fit": 7.1,
+      "buildability": 7.3,
+      "overall": 7.29
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/ai-collections-assistant",
+    "kit": "/blueprints/ai-collections-assistant/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/ai-collections-assistant/",
+    "components/premium/ai-collections-assistant/",
+    "src/lib/premium/ai-collections-assistant/",
+    "e2e/ai-collections-assistant/"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/ai-collections-assistant and the Premium kit at /blueprints/ai-collections-assistant/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or My Blueprints.",
+    "The Premium kit requires sign-in with requireUser from src/lib/auth.ts, the same pattern as app/blueprints/daily-inbox-briefing/starter-kit/page.tsx. It is labelled \"Premium · Private preview\". It shows no price, checkout, or claim that it can be bought today.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "New code lives only in app/blueprints/ai-collections-assistant/, components/premium/ai-collections-assistant/, src/lib/premium/ai-collections-assistant/, and e2e/ai-collections-assistant/. Do not edit shared components, src/lib/blueprints.ts, content/published/, or anything for the Daily Inbox Briefing.",
+    "Playwright tests live in e2e/ai-collections-assistant/. Public tests use any *.spec.ts name except authenticated*. Signed-in kit tests go in e2e/ai-collections-assistant/authenticated.spec.ts so they use the saved session. Do not edit or skip existing tests.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}

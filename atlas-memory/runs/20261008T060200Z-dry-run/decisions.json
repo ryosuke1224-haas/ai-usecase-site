@@ -1,0 +1,12 @@
+[
+  {
+    "schema_version": "atlas-auto-decision-v1",
+    "run_id": "20261008T060200Z-dry-run",
+    "candidate_id": "ai-collections-assistant",
+    "candidate_name": "AI Collections Assistant",
+    "decision": "APPROVED",
+    "note": "",
+    "decided_at": "2026-10-08T06:07:38.902Z",
+    "source": "dashboard"
+  }
+]

@@ -32,7 +32,7 @@ export function listQaReports(): string[] {
   if (!fs.existsSync(directory)) return [];
   return fs
     .readdirSync(directory)
-    .filter((name) => /^\d{8}T\d{6}Z-daily-inbox-briefing\.json$/.test(name))
+    .filter((name) => /^\d{8}T\d{6}Z-(?:qa|daily-inbox-briefing)\.json$/.test(name))
     .map((name) => `agent-reports/${name}`)
     .sort();
 }

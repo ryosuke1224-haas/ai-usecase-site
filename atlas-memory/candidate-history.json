@@ -1,0 +1,264 @@
+{
+  "schema_version": "atlas-candidate-history-v1",
+  "updated_at": "2026-10-08T06:31:37.630Z",
+  "candidates": [
+    {
+      "id": "ai-cash-flow-forecaster",
+      "name": "13-Week Cash Gap Planner",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-08T06:05:29.992Z",
+      "updated_at": "2026-10-08T06:05:29.992Z",
+      "runs": [
+        "20261008T060200Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 7.6,
+        "atlas_fit": 7.8,
+        "buildability": 6.5,
+        "overall": 7.18
+      },
+      "events": [
+        {
+          "at": "2026-10-08T06:05:29.992Z",
+          "run_id": "20261008T060200Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 2 with overall 7.18."
+        }
+      ]
+    },
+    {
+      "id": "ai-collections-assistant",
+      "name": "AI Collections Assistant",
+      "status": "BUILT",
+      "first_seen_at": "2026-10-08T05:54:22.319Z",
+      "updated_at": "2026-10-08T06:31:37.630Z",
+      "runs": [
+        "20261008T055422Z-dry-run",
+        "20261008T060200Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 7.1,
+        "atlas_fit": 7.1,
+        "buildability": 7.3,
+        "overall": 7.29
+      },
+      "events": [
+        {
+          "at": "2026-10-08T05:54:22.319Z",
+          "run_id": "20261008T055422Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 2 with overall 7.73."
+        },
+        {
+          "at": "2026-10-08T06:05:29.992Z",
+          "run_id": "20261008T060200Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 1 with overall 7.29."
+        },
+        {
+          "at": "2026-10-08T06:07:38.906Z",
+          "run_id": "20261008T060200Z-dry-run",
+          "status": "APPROVED",
+          "note": "APPROVED from the dashboard."
+        },
+        {
+          "at": "2026-10-08T06:30:31.602Z",
+          "run_id": "20261008T060200Z-dry-run",
+          "status": "BUILT",
+          "note": "Agent loop finished: HUMAN_REVIEW_REQUIRED. QA not_run. Evaluator n/a."
+        },
+        {
+          "at": "2026-10-08T06:31:37.630Z",
+          "run_id": "20261008T060200Z-dry-run",
+          "status": "BUILT",
+          "note": "Final review: CHANGES_REQUESTED."
+        }
+      ]
+    },
+    {
+      "id": "ai-expense-watchdog",
+      "name": "AI Expense Watchdog",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-08T05:54:22.319Z",
+      "updated_at": "2026-10-08T05:54:22.319Z",
+      "runs": [
+        "20261008T055422Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 7.3,
+        "atlas_fit": 6.8,
+        "buildability": 7.3,
+        "overall": 7.08
+      },
+      "events": [
+        {
+          "at": "2026-10-08T05:54:22.319Z",
+          "run_id": "20261008T055422Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 4 with overall 7.08."
+        }
+      ]
+    },
+    {
+      "id": "ai-pricing-impact-simulator",
+      "name": "Price Increase Planner",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-08T06:05:29.992Z",
+      "updated_at": "2026-10-08T06:05:29.992Z",
+      "runs": [
+        "20261008T060200Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 5.5,
+        "atlas_fit": 7.4,
+        "buildability": 7,
+        "overall": 6.51
+      },
+      "events": [
+        {
+          "at": "2026-10-08T06:05:29.992Z",
+          "run_id": "20261008T060200Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 3 with overall 6.51."
+        }
+      ]
+    },
+    {
+      "id": "ai-review-intelligence",
+      "name": "Review-to-Fix Tracker",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-08T06:05:29.992Z",
+      "updated_at": "2026-10-08T06:05:29.992Z",
+      "runs": [
+        "20261008T060200Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 5.3,
+        "atlas_fit": 6.8,
+        "buildability": 6.9,
+        "overall": 6.3
+      },
+      "events": [
+        {
+          "at": "2026-10-08T06:05:29.992Z",
+          "run_id": "20261008T060200Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 5 with overall 6.3."
+        }
+      ]
+    },
+    {
+      "id": "ai-staffing-optimizer",
+      "name": "Shift Coverage vs Demand Check",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-08T06:05:29.992Z",
+      "updated_at": "2026-10-08T06:05:29.992Z",
+      "runs": [
+        "20261008T060200Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 6.3,
+        "atlas_fit": 6.9,
+        "buildability": 6.5,
+        "overall": 6.41
+      },
+      "events": [
+        {
+          "at": "2026-10-08T06:05:29.992Z",
+          "run_id": "20261008T060200Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 4 with overall 6.41."
+        }
+      ]
+    },
+    {
+      "id": "daily-inbox-briefing",
+      "name": "AI Daily Inbox Briefing",
+      "status": "COMPLETED",
+      "first_seen_at": "2026-10-05T23:11:38-07:00",
+      "updated_at": "2026-10-07T22:27:52-07:00",
+      "runs": [],
+      "last_scores": null,
+      "events": [
+        {
+          "at": "2026-10-07T22:27:52-07:00",
+          "run_id": "manual",
+          "status": "COMPLETED",
+          "note": "Free Starter Kit completed before Atlas Auto. Do not modify it and do not propose another inbox or daily briefing."
+        }
+      ]
+    },
+    {
+      "id": "google-ads-performance-coach",
+      "name": "Google Ads Performance Coach",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-08T05:54:22.319Z",
+      "updated_at": "2026-10-08T05:54:22.319Z",
+      "runs": [
+        "20261008T055422Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 7,
+        "atlas_fit": 9,
+        "buildability": 8.3,
+        "overall": 7.85
+      },
+      "events": [
+        {
+          "at": "2026-10-08T05:54:22.319Z",
+          "run_id": "20261008T055422Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 1 with overall 7.85."
+        }
+      ]
+    },
+    {
+      "id": "no-show-recovery-assistant",
+      "name": "No-show Recovery Assistant",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-08T05:54:22.319Z",
+      "updated_at": "2026-10-08T05:54:22.319Z",
+      "runs": [
+        "20261008T055422Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 7.3,
+        "atlas_fit": 5.8,
+        "buildability": 6,
+        "overall": 6.43
+      },
+      "events": [
+        {
+          "at": "2026-10-08T05:54:22.319Z",
+          "run_id": "20261008T055422Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 5 with overall 6.43."
+        }
+      ]
+    },
+    {
+      "id": "quote-request-assistant",
+      "name": "Quote Request Assistant",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-08T05:54:22.319Z",
+      "updated_at": "2026-10-08T05:54:22.319Z",
+      "runs": [
+        "20261008T055422Z-dry-run"
+      ],
+      "last_scores": {
+        "commercial": 7.3,
+        "atlas_fit": 7,
+        "buildability": 7.5,
+        "overall": 7.3
+      },
+      "events": [
+        {
+          "at": "2026-10-08T05:54:22.319Z",
+          "run_id": "20261008T055422Z-dry-run",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 3 with overall 7.3."
+        }
+      ]
+    }
+  ]
+}
