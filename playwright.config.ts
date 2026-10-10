@@ -1,5 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import { storageStatePath } from "./e2e/support/auth-state";
+import { E2E_ENTITLEMENT_SECRET } from "./e2e/support/payments-e2e";
 
 const baseURL = "http://localhost:3100";
 const storageState = storageStatePath();
@@ -10,6 +11,8 @@ function serverEnv(): Record<string, string> {
     if (typeof value === "string") env[key] = value;
   }
   env.SITE_MODE = "live";
+  env.ATLAS_PAYMENTS_E2E = "1";
+  env.ATLAS_PAYMENTS_E2E_SECRET = E2E_ENTITLEMENT_SECRET;
   return env;
 }
 

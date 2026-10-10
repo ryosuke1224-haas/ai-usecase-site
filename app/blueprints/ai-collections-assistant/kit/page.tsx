@@ -10,8 +10,14 @@ import {
   SampleAgingReportSection,
   SetupChecklistSection,
 } from "@/components/premium/ai-collections-assistant/kit-sections";
+import { PremiumAccessPanel } from "@/components/premium/ai-collections-assistant/premium-access-panel";
 import { FOCUS_RING } from "@/components/premium/ai-collections-assistant/styles";
 import { requireUser } from "@/src/lib/auth";
+import { hasActiveEntitlement } from "@/src/lib/payments/access";
+import {
+  COLLECTIONS_KIT_PATH,
+  COLLECTIONS_PRODUCT_SLUG,
+} from "@/src/lib/payments/products";
 import { COLLECTIONS_DEMO_PATH } from "@/src/lib/premium/ai-collections-assistant/demo-data";
 import {
   KIT_SECTIONS,
@@ -30,7 +36,29 @@ export const metadata: Metadata = {
 };
 
 export default async function AiCollectionsAssistantKitPage() {
-  await requireUser("/blueprints/ai-collections-assistant/kit");
+  const user = await requireUser(COLLECTIONS_KIT_PATH);
+  const entitled = await hasActiveEntitlement(user.id, COLLECTIONS_PRODUCT_SLUG);
+  if (!entitled) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+        <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-accent">
+          Premium · Private preview
+        </p>
+        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Premium is locked</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
+          Your Atlas account is signed in. This Blueprint opens after Stripe confirms a
+          one-time payment for this account.
+        </p>
+        <PremiumAccessPanel mode="buy" />
+        <Link
+          href={COLLECTIONS_DEMO_PATH}
+          className={`mt-8 inline-flex text-sm font-medium text-accent hover:underline ${FOCUS_RING}`}
+        >
+          Back to the guided demo
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">

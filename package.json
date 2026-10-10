@@ -13,6 +13,7 @@
     "agent:run": "tsx scripts/run-atlas-agent-loop.ts",
     "atlas:auto": "tsx scripts/run-atlas-auto.ts",
     "test:e2e": "playwright test",
+    "test:payments": "node --import tsx --test src/lib/payments/payments.test.ts",
     "generate:suggestion": "tsx scripts/generate-suggestion.ts",
     "research:sources": "tsx scripts/research-sources.ts"
   },
@@ -24,6 +25,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
+    "stripe": "^23.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

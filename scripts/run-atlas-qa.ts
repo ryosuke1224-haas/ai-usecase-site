@@ -52,7 +52,9 @@ function redact(input: string): string {
       /((?:access_token|refresh_token|code|token)=)[^&\s]+/gi,
       "$1[redacted]",
     )
-    .replace(/\b(sb_secret|service_role)_[A-Za-z0-9_-]+/g, "[redacted-secret]");
+    .replace(/\b(sb_secret|service_role)_[A-Za-z0-9_-]+/g, "[redacted-secret]")
+    .replace(/\b(?:sk|rk|pk)_(?:live|test)_[A-Za-z0-9]+/g, "[redacted-stripe-key]")
+    .replace(/\bwhsec_[A-Za-z0-9]+/g, "[redacted-webhook-secret]");
 }
 
 function tail(input: string, max = 4000): string {
@@ -224,6 +226,8 @@ async function main() {
     detail: tail(`${content.detail}\n\n${contractDetail}`),
   };
 
+  const payments = await runCommand("npm run test:payments");
+
   const build: StepResult =
     validate.status === "pass"
       ? await runCommand("npm run build")
@@ -274,6 +278,14 @@ async function main() {
   const blocking: Issue[] = [];
   const nonBlocking: Issue[] = [];
 
+  if (payments.status !== "pass") {
+    blocking.push({
+      id: "payments-unit",
+      severity: "blocking",
+      title: "Payments unit tests failed",
+      detail: payments.detail,
+    });
+  }
   if (validate.status === "fail") {
     blocking.push({
       id: "validate-content",

@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import { FactLabel } from "@/components/premium/ai-collections-assistant/fact-label";
 import { GuidedDemo } from "@/components/premium/ai-collections-assistant/guided-demo";
+import { PremiumAccessPanel } from "@/components/premium/ai-collections-assistant/premium-access-panel";
+import { getCurrentUser } from "@/src/lib/auth";
+import { hasActiveEntitlement } from "@/src/lib/payments/access";
+import { COLLECTIONS_PRODUCT_SLUG } from "@/src/lib/payments/products";
 import { FICTIONAL_DATA_NOTICE } from "@/src/lib/premium/ai-collections-assistant/demo-data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "AI Collections Assistant guided demo",
@@ -11,7 +17,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function AiCollectionsAssistantDemoPage() {
+export default async function AiCollectionsAssistantDemoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>;
+}) {
+  const params = await searchParams;
+  const user = await getCurrentUser();
+  let mode: "sign-in" | "buy" | "open" = "sign-in";
+  if (user) {
+    const entitled = await hasActiveEntitlement(user.id, COLLECTIONS_PRODUCT_SLUG);
+    mode = entitled ? "open" : "buy";
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
       <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-accent">
@@ -52,6 +70,11 @@ export default function AiCollectionsAssistantDemoPage() {
       >
         {FICTIONAL_DATA_NOTICE}
       </p>
+
+      <PremiumAccessPanel
+        mode={mode}
+        checkoutUnavailable={params.checkout === "unavailable"}
+      />
 
       <div className="mt-6">
         <GuidedDemo />

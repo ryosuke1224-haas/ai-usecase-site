@@ -4,6 +4,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 export const DEMO_PATH = "/blueprints/ai-collections-assistant";
 export const KIT_PATH = "/blueprints/ai-collections-assistant/kit";
+export const SUCCESS_PATH = "/blueprints/ai-collections-assistant/checkout/success";
 
 export const FORBIDDEN_COPY =
   /checkout|buy now|purchase|\/month|per month|\d+%|ROI|hours saved/i;

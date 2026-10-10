@@ -30,12 +30,15 @@ function isStaticAsset(pathname: string) {
 export async function proxy(request: NextRequest) {
   // Always refresh the Auth session first so protected routes see current cookies.
   const sessionResponse = await updateSession(request);
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/api/stripe/")) {
+    return sessionResponse;
+  }
 
   if (!isComingSoonMode()) {
     return sessionResponse;
   }
-
-  const { pathname } = request.nextUrl;
 
   if (COMING_SOON_PUBLIC_PATHS.has(pathname) || isStaticAsset(pathname)) {
     return sessionResponse;

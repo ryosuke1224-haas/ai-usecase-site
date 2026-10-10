@@ -40,6 +40,10 @@ test.describe("AI Collections Assistant public demo", () => {
     await expect(page.getByText("Private preview", { exact: true })).toBeVisible();
     await expect(page.getByText(spec.guided_demo.fictional_data_notice)).toBeVisible();
     await expect(stepLabel(page, 1)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Sign in to purchase", exact: true })).toHaveAttribute(
+      "href",
+      "/auth?next=%2Fblueprints%2Fai-collections-assistant",
+    );
     const notice = page.getByText(spec.guided_demo.fictional_data_notice);
     const step = stepLabel(page, 1);
     expect(

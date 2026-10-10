@@ -2,12 +2,18 @@ import { authSkipReason } from "../support/auth-state";
 import { expect, test } from "../support/fixtures";
 import { expectNoHorizontalOverflow, openAuthenticated } from "../support/navigation";
 import {
+  E2E_ENTITLEMENT_HEADER,
+  E2E_ENTITLEMENT_SECRET,
+} from "../support/payments-e2e";
+import {
+  DEMO_PATH,
   describeFocus,
   expectSameClipboardText,
   FORBIDDEN_COPY,
   KIT_PATH,
   loadCollectionsSpec,
   sampleAgingCsv,
+  SUCCESS_PATH,
 } from "./helpers";
 
 const spec = loadCollectionsSpec();
@@ -17,6 +23,9 @@ test.describe("AI Collections Assistant signed-in kit", () => {
   test.skip(Boolean(skipReason), skipReason ?? "");
 
   test.beforeEach(async ({ page }) => {
+    await page.setExtraHTTPHeaders({
+      [E2E_ENTITLEMENT_HEADER]: E2E_ENTITLEMENT_SECRET,
+    });
     await openAuthenticated(page, KIT_PATH);
   });
 
@@ -195,11 +204,38 @@ test.describe("AI Collections Assistant signed-in kit", () => {
     await expect(setup).toContainText("Do not invent a dispute, a promise, or a payment status.");
   });
 
-  test("my blueprints does not link to this kit", async ({ page }) => {
+  test("my blueprints unlocks this premium kit", async ({ page }) => {
     await openAuthenticated(page, "/my-blueprints");
+    await expect(page.getByRole("link", { name: "Open Starter Kit" })).toHaveAttribute(
+      "href",
+      "/blueprints/daily-inbox-briefing/starter-kit",
+    );
+    await expect(page.getByRole("link", { name: "Open Blueprint" })).toHaveAttribute(
+      "href",
+      KIT_PATH,
+    );
+    await expect(page.getByText("PREMIUM", { exact: true })).toBeVisible();
+    await expect(page.getByText("FREE STARTER", { exact: true })).toBeVisible();
+  });
+
+  test("the preview offers the premium kit when entitled", async ({ page }) => {
+    await page.goto(DEMO_PATH);
+    await expect(page.getByRole("link", { name: "Open Premium Kit", exact: true })).toHaveAttribute(
+      "href",
+      KIT_PATH,
+    );
+  });
+
+  test("checkout success opens the blueprint only after entitlement", async ({ page }) => {
+    await page.goto(SUCCESS_PATH);
+    await expect(page.getByText("Payment received.")).toBeVisible();
     await expect(
-      page.locator("a[href*='/blueprints/ai-collections-assistant']"),
-    ).toHaveCount(0);
+      page.getByText("We're confirming access to your Premium Blueprint."),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open Blueprint" })).toHaveAttribute(
+      "href",
+      KIT_PATH,
+    );
   });
 
   test("kit does not scroll sideways at phone width", async ({ page }) => {
@@ -235,5 +271,62 @@ test.describe("AI Collections Assistant signed-in kit", () => {
     expect([...seen].sort()).toEqual(
       ["checkbox", "copy", "firm", "friendly", "generate", "minimum", "reset", "skip", "toc"].sort(),
     );
+  });
+});
+
+test.describe("AI Collections Assistant without a premium entitlement", () => {
+  test.skip(Boolean(skipReason), skipReason ?? "");
+
+  test("signed-in kit stays locked", async ({ page }) => {
+    await openAuthenticated(page, KIT_PATH);
+    await expect(page.getByRole("heading", { name: "Premium is locked" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Buy Premium" })).toBeVisible();
+    await expect(page.locator("#setup-checklist")).toHaveCount(0);
+  });
+
+  test("a browser entitlement header does not unlock the kit", async ({ page }) => {
+    await page.setExtraHTTPHeaders({ [E2E_ENTITLEMENT_HEADER]: "self-granted" });
+    await openAuthenticated(page, KIT_PATH);
+    await expect(page.getByRole("heading", { name: "Premium is locked" })).toBeVisible();
+    await expect(page.locator(`a[href='${KIT_PATH}']`)).toHaveCount(0);
+  });
+
+  test("my blueprints keeps this premium kit locked", async ({ page }) => {
+    await openAuthenticated(page, "/my-blueprints");
+    await expect(page.getByRole("link", { name: "Open Starter Kit" })).toHaveAttribute(
+      "href",
+      "/blueprints/daily-inbox-briefing/starter-kit",
+    );
+    await expect(page.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
+      "href",
+      DEMO_PATH,
+    );
+    await expect(page.locator(`a[href='${KIT_PATH}']`)).toHaveCount(0);
+    await expect(page.getByText("Locked", { exact: true })).toBeVisible();
+    await expect(page.getByText("Unlocked", { exact: true })).toBeVisible();
+  });
+
+  test("the preview offers buy premium when signed in without access", async ({ page }) => {
+    await openAuthenticated(page, DEMO_PATH);
+    await expect(page.getByRole("button", { name: "Buy Premium" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open Premium Kit" })).toHaveCount(0);
+  });
+
+  test("checkout success stays pending until the entitlement exists", async ({ page }) => {
+    await openAuthenticated(page, SUCCESS_PATH);
+    await expect(page.getByText("Payment received.")).toBeVisible();
+    await expect(
+      page.getByText("We're confirming access to your Premium Blueprint."),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Access is not confirmed yet. This page does not unlock the Blueprint."),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Check again" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open Blueprint" })).toHaveCount(0);
+    await page.getByRole("link", { name: "Check again" }).click();
+    await expect(
+      page.getByText("Access is not confirmed yet. This page does not unlock the Blueprint."),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open Blueprint" })).toHaveCount(0);
   });
 });

@@ -1,7 +1,7 @@
 /**
- * Catalog of Atlas blueprints a signed-in user can access from My Blueprints.
- * Free Starter Kit access is granted to every authenticated user for now.
- * Paid entitlement rules can be added later without redesigning this list.
+ * Catalog of Atlas blueprints shown on My Blueprints.
+ * Free Starter Kits are unlocked for every signed-in user.
+ * Premium cards use the entitlement lookup in src/lib/payments/access.ts.
  */
 
 export type BlueprintAccess = "free-authenticated" | "premium";
@@ -10,10 +10,14 @@ export type BlueprintDefinition = {
   id: string;
   title: string;
   badge: string;
-  /** Protected resource path. */
+  /** Protected resource path. Used when the blueprint is unlocked. */
   href: string;
   access: BlueprintAccess;
   summary: string;
+  /** Matches entitlements.product_slug for a paid blueprint. */
+  productSlug?: string;
+  /** Signed-in users without access start here. */
+  purchaseHref?: string;
 };
 
 export const DAILY_INBOX_STARTER_KIT_PATH =
@@ -31,6 +35,17 @@ export const blueprintCatalog: BlueprintDefinition[] = [
     summary:
       "Prompts, setup guides, worksheets, and review tools for the free starter workflow.",
   },
+  {
+    id: "ai-collections-assistant",
+    title: "AI Collections Assistant",
+    badge: "PREMIUM",
+    href: "/blueprints/ai-collections-assistant/kit",
+    purchaseHref: "/blueprints/ai-collections-assistant",
+    productSlug: "ai-collections-assistant",
+    access: "premium",
+    summary:
+      "A weekly collections queue you review yourself before anything is sent.",
+  },
 ];
 
 export function authPath(nextPath: string): string {
@@ -39,8 +54,8 @@ export function authPath(nextPath: string): string {
 }
 
 /**
- * Entitlement check. Today authentication alone unlocks free starters.
- * Premium products can add purchase/entitlement lookups here later.
+ * Free Starter Kits are available to every signed-in user.
+ * Premium Blueprints stay closed here. Kit pages call hasActiveEntitlement.
  */
 export function canAccessBlueprint(
   userId: string | null | undefined,
@@ -48,7 +63,6 @@ export function canAccessBlueprint(
 ): boolean {
   if (!userId) return false;
   if (blueprint.access === "free-authenticated") return true;
-  // Future: look up purchases / entitlements for premium blueprints.
   return false;
 }
 
