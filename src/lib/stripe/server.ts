@@ -1,19 +1,14 @@
 import "server-only";
 
 import Stripe from "stripe";
+import type { MarketCode } from "@/src/lib/payments/registry";
+import { selectProvisioningAccount } from "@/scripts/atlas-commerce/stripe-accounts";
 
-function isTestSecretKey(key: string): boolean {
-  return key.startsWith("sk_test_") || key.startsWith("rk_test_");
-}
-
-/** Server-only Stripe client. Uses the test secret key and never logs it. */
-export function getStripe(): Stripe {
-  const key = process.env.STRIPE_SECRET_KEY?.trim() ?? "";
-  if (!key) {
-    throw new Error("Stripe is not configured.");
-  }
-  if (!isTestSecretKey(key)) {
+/** Server-only Stripe client for one Sandbox account. The key is never logged. */
+export function getStripe(market: MarketCode = "US"): Stripe {
+  const selected = selectProvisioningAccount({ market, environment: "SANDBOX" });
+  if (!selected.ok) {
     throw new Error("Stripe is not configured for test mode.");
   }
-  return new Stripe(key);
+  return new Stripe(selected.key);
 }

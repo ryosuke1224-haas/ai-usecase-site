@@ -1,4 +1,4 @@
-import type { RegistryProduct } from "./registry";
+import type { LocaleCode, MarketCode, RegistryCurrency, RegistryProduct, StripeEnvironment } from "./registry";
 
 export const LIVE_STRIPE_PROVISIONING_BLOCKED = "LIVE_STRIPE_PROVISIONING_BLOCKED";
 export const PRICE_APPROVAL_REQUIRED = "PRICE_APPROVAL_REQUIRED";
@@ -66,10 +66,16 @@ export function assertSandboxStripeKey(key: string): { ok: true } | { ok: false;
 }
 
 export type SandboxStripe = {
-  findProductBySlug(slug: string): Promise<{ id: string } | null>;
-  findPrice(productId: string, amountCents: number): Promise<{ id: string } | null>;
-  createProduct(input: { name: string; slug: string }): Promise<{ id: string }>;
-  createPrice(input: { productId: string; amountCents: number; slug: string }): Promise<{ id: string }>;
+  findProductBySlug(slug: string, market?: MarketCode): Promise<{ id: string } | null>;
+  findPrice(productId: string, amountCents: number, currency?: RegistryCurrency): Promise<{ id: string } | null>;
+  createProduct(input: { name: string; slug: string; market?: MarketCode; locale?: LocaleCode }): Promise<{ id: string }>;
+  createPrice(input: {
+    productId: string;
+    amountCents: number;
+    slug: string;
+    currency?: RegistryCurrency;
+    market?: MarketCode;
+  }): Promise<{ id: string }>;
 };
 
 export type ProvisionResult =
@@ -97,6 +103,39 @@ const READY: CommerceStatus[] = [
   "READY_FOR_PREVIEW",
 ];
 
+type ProvisionScope = {
+  market: MarketCode;
+  locale: LocaleCode;
+  currency: RegistryCurrency;
+  environment: StripeEnvironment;
+};
+
+function provisionScope(input: Partial<ProvisionScope>): ProvisionScope {
+  return {
+    market: input.market ?? "US",
+    locale: input.locale ?? "en",
+    currency: input.currency ?? "usd",
+    environment: input.environment ?? "SANDBOX",
+  };
+}
+
+function amountIsValid(currency: RegistryCurrency, amount: number): boolean {
+  if (!Number.isInteger(amount)) return false;
+  if (currency === "jpy") return amount >= 50 && amount <= 9_999_999;
+  return amount >= 100 && amount <= 99_900;
+}
+
+/** A US Sandbox row must not be reused as the Japan price, or the reverse. */
+function alignedExisting(existing: RegistryProduct | null, slug: string, scope: ProvisionScope): RegistryProduct | null {
+  if (!existing) return null;
+  if (existing.product_slug !== slug) return null;
+  if ((existing.market ?? "US") !== scope.market) return null;
+  if ((existing.locale ?? "en") !== scope.locale) return null;
+  if ((existing.currency ?? "usd") !== scope.currency) return null;
+  if ((existing.stripe_environment ?? "SANDBOX") !== scope.environment) return null;
+  return existing;
+}
+
 export async function provisionSandboxProduct(input: {
   humanApproved: boolean;
   stripeKey: string;
@@ -108,17 +147,27 @@ export async function provisionSandboxProduct(input: {
   rationale: string;
   existing: RegistryProduct | null;
   stripe: SandboxStripe;
+  market?: MarketCode;
+  locale?: LocaleCode;
+  currency?: RegistryCurrency;
+  environment?: StripeEnvironment;
   now?: Date;
 }): Promise<ProvisionResult> {
+  const scope = provisionScope(input);
+  if (scope.environment !== "SANDBOX") {
+    return { ok: false, code: LIVE_STRIPE_PROVISIONING_BLOCKED, createdProduct: false, createdPrice: false };
+  }
+  const existing = alignedExisting(input.existing, input.slug, scope);
+  const scoped = { ...input, ...scope, existing };
   if (!input.humanApproved) {
     return { ok: false, code: PRICE_APPROVAL_REQUIRED, createdProduct: false, createdPrice: false };
   }
-  if (!Number.isInteger(input.approvedAmountCents) || input.approvedAmountCents < 100 || input.approvedAmountCents > 99900) {
+  if (!amountIsValid(scope.currency, input.approvedAmountCents)) {
     return { ok: false, code: "INVALID_AMOUNT", createdProduct: false, createdPrice: false };
   }
   const key = input.stripeKey.trim();
   if (!key) {
-    if (input.dryRun) return dryPlan(input, mappedProductId(input), mappedPriceId(input));
+    if (input.dryRun) return dryPlan(scoped, mappedProductId(scoped), mappedPriceId(scoped));
     return { ok: false, code: "STRIPE_NOT_CONFIGURED", createdProduct: false, createdPrice: false };
   }
   const sandbox = assertSandboxStripeKey(key);
@@ -126,30 +175,43 @@ export async function provisionSandboxProduct(input: {
     return { ok: false, code: sandbox.code, createdProduct: false, createdPrice: false };
   }
 
-  if (input.dryRun) return dryPlan(input, mappedProductId(input), mappedPriceId(input));
+  if (input.dryRun) return dryPlan(scoped, mappedProductId(scoped), mappedPriceId(scoped));
 
-  let productId = input.existing?.stripe_product_id ?? null;
+  let productId = existing?.stripe_product_id ?? null;
   let createdProduct = false;
   if (!productId) {
-    const found = await input.stripe.findProductBySlug(input.slug);
+    const found = await input.stripe.findProductBySlug(input.slug, scope.market);
     productId = found?.id ?? null;
   }
   if (!productId) {
-    productId = (await input.stripe.createProduct({ name: input.name, slug: input.slug })).id;
+    productId = (
+      await input.stripe.createProduct({
+        name: input.name,
+        slug: input.slug,
+        market: scope.market,
+        locale: scope.locale,
+      })
+    ).id;
     createdProduct = true;
   }
 
   let priceId =
-    input.existing?.stripe_price_id && input.existing.price_amount === input.approvedAmountCents
-      ? input.existing.stripe_price_id
-      : null;
+    existing?.stripe_price_id && existing.price_amount === input.approvedAmountCents ? existing.stripe_price_id : null;
   let createdPrice = false;
   if (!priceId) {
-    const found = await input.stripe.findPrice(productId, input.approvedAmountCents);
+    const found = await input.stripe.findPrice(productId, input.approvedAmountCents, scope.currency);
     priceId = found?.id ?? null;
   }
   if (!priceId) {
-    priceId = (await input.stripe.createPrice({ productId, amountCents: input.approvedAmountCents, slug: input.slug })).id;
+    priceId = (
+      await input.stripe.createPrice({
+        productId,
+        amountCents: input.approvedAmountCents,
+        slug: input.slug,
+        currency: scope.currency,
+        market: scope.market,
+      })
+    ).id;
     createdPrice = true;
   }
 
@@ -161,7 +223,7 @@ export async function provisionSandboxProduct(input: {
     createdPrice,
     reused: !createdProduct && !createdPrice,
     statuses: READY,
-    row: registryRow(input, productId, priceId, now),
+    row: registryRow(scoped, productId, priceId, now),
   };
 }
 
@@ -182,6 +244,10 @@ function dryPlan(
     suggestedAmountCents: number;
     rationale: string;
     existing: RegistryProduct | null;
+    market: MarketCode;
+    locale: LocaleCode;
+    currency: RegistryCurrency;
+    environment: StripeEnvironment;
   },
   productId: string | null,
   priceId: string | null,
@@ -207,6 +273,10 @@ function registryRow(
     suggestedAmountCents: number;
     rationale: string;
     existing: RegistryProduct | null;
+    market: MarketCode;
+    locale: LocaleCode;
+    currency: RegistryCurrency;
+    environment: StripeEnvironment;
   },
   productId: string,
   priceId: string,
@@ -215,14 +285,16 @@ function registryRow(
   return {
     product_slug: input.slug,
     name: input.name,
+    market: input.market,
+    locale: input.locale,
     stripe_product_id: productId,
     stripe_price_id: priceId,
     price_amount: input.approvedAmountCents,
     suggested_price_amount: input.suggestedAmountCents,
     approved_price_amount: input.approvedAmountCents,
-    currency: "usd",
+    currency: input.currency,
     payment_type: "ONE_TIME",
-    stripe_environment: "SANDBOX",
+    stripe_environment: input.environment,
     status: "ACTIVE",
     commercial_rationale: input.rationale.slice(0, 2000),
     created_at: input.existing?.created_at ?? now,

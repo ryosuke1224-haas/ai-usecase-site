@@ -243,11 +243,14 @@ Run history is committed JSON under `atlas-memory/`:
 ```bash
 npm run atlas:commerce -- --dry-run <run-id>
 npm run atlas:commerce -- --import-existing
+npm run atlas:commerce -- --provision-jp-sandbox --slug ai-collections-assistant --market JP --locale ja --currency jpy --amount 4900
 ```
 
-The dry run prints the plan and creates nothing. `--import-existing` records the current AI Collections Assistant Sandbox price and does not create a second product.
+The dry run prints the plan and creates nothing. `--import-existing` records the current AI Collections Assistant US Sandbox price and does not create a second product. `--provision-jp-sandbox` records the ¥4,900 Japan Sandbox price beside that US mapping. It uses `STRIPE_SECRET_KEY_JP_SANDBOX` and does not read the US key. `STRIPE_SECRET_KEY_US_SANDBOX` overrides `STRIPE_SECRET_KEY` for US Sandbox calls. `--environment LIVE` stops with `LIVE_STRIPE_PROVISIONING_BLOCKED`. Apply `supabase/migrations/20261025000000_extend_product_registry_markets.sql` before the next registry sync.
 
 Checkout uses an ACTIVE registry row before any environment variable. `STRIPE_PRICE_AI_COLLECTIONS_ASSISTANT` is only a fallback while `ai-collections-assistant` has no registry row. Remove that variable after the product registry migration is applied and `--import-existing` reports that Supabase was updated. Until then, keep it so a machine without the gitignored local registry file can still open Checkout.
+
+Preview Checkout stays on US Sandbox unless `ATLAS_COMMERCE_MARKET=JP` and `ATLAS_COMMERCE_LOCALE=ja` are set on the server. Those select the Japan Sandbox yen price and `STRIPE_SECRET_KEY_JP_SANDBOX`. Japan webhooks use `STRIPE_WEBHOOK_SECRET_JP_SANDBOX`. The US webhook secret stays `STRIPE_WEBHOOK_SECRET`. The browser cannot send a Stripe Price id.
 
 Generated HTML, prompts, and raw agent output go to `agent-reports/atlas-auto/<run-id>/`. That directory is gitignored.
 

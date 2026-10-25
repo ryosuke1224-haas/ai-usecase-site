@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createServiceRoleClient } from "@/src/lib/supabase/admin";
-import type { RegistryProduct } from "./registry";
+import { normalizeRegistryProduct, type RegistryProduct } from "./registry";
 
 /** Service-role read. Returns null when the table or key is not available. */
 export async function readSupabaseRegistry(): Promise<RegistryProduct[] | null> {
@@ -13,9 +13,8 @@ export async function readSupabaseRegistry(): Promise<RegistryProduct[] | null> 
     const { data, error } = await supabase.from("product_registry").select("*");
     if (error || !data) return null;
     return data.flatMap((row) => {
-      const product = row as Partial<RegistryProduct>;
-      if (!product.product_slug || !product.name || !product.status) return [];
-      return [product as RegistryProduct];
+      const product = normalizeRegistryProduct(row as Partial<RegistryProduct>);
+      return product ? [product] : [];
     });
   } catch {
     return null;

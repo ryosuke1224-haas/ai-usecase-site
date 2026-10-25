@@ -16,6 +16,7 @@ import {
   type EntitlementWrite,
 } from "./entitlement";
 import { COLLECTIONS_PRODUCT_SLUG, getPaidProduct } from "./products";
+import { verifyStripeEvent } from "./webhook-verify";
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 const SECRET_ENV = /STRIPE_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY|STRIPE_WEBHOOK_SECRET/;
@@ -148,6 +149,74 @@ test("an invalid webhook signature is rejected and a paid session grants once", 
   assert.equal(row.stripe_subscription_id, null);
   assert.equal(row.stripe_customer_id, "cus_test");
   assert.equal(row.stripe_payment_intent_id, "pi_test");
+});
+
+test("japan sandbox webhooks use their own secret and a verified checkout grants entitlement", async () => {
+  const usSecret = "whsec_us_sandbox_secret";
+  const jpSecret = "whsec_jp_sandbox_secret";
+  const session = paidSession("cs_test_japan");
+  const payload = JSON.stringify({
+    id: "evt_test_japan",
+    object: "event",
+    type: "checkout.session.completed",
+    livemode: false,
+    data: { object: session },
+  });
+  const jpHeader = Stripe.webhooks.generateTestHeaderString({ payload, secret: jpSecret });
+  const usOnly = verifyStripeEvent(payload, jpHeader, [{ account: "US", secret: usSecret }]);
+  assert.equal(usOnly.ok, false);
+  const verified = verifyStripeEvent(payload, jpHeader, [
+    { account: "US", secret: usSecret },
+    { account: "JP", secret: jpSecret },
+  ]);
+  assert.equal(verified.ok, true);
+  if (!verified.ok) return;
+  assert.equal(verified.account, "JP");
+  assert.equal(verified.event.type, "checkout.session.completed");
+
+  assert.equal(verifyStripeEvent(payload, null, [{ account: "JP", secret: jpSecret }]).ok, false);
+  assert.equal(verifyStripeEvent(payload, "t=1,v1=bad", [{ account: "JP", secret: jpSecret }]).ok, false);
+  assert.equal(verifyStripeEvent(payload, jpHeader, [{ account: "JP", secret: "not-a-webhook-secret" }]).ok, false);
+
+  const livePayload = JSON.stringify({
+    id: "evt_live_blocked",
+    object: "event",
+    type: "checkout.session.completed",
+    livemode: true,
+    data: { object: session },
+  });
+  const liveHeader = Stripe.webhooks.generateTestHeaderString({ payload: livePayload, secret: jpSecret });
+  assert.equal(verifyStripeEvent(livePayload, liveHeader, [{ account: "JP", secret: jpSecret }]).ok, false);
+
+  const usPayload = JSON.stringify({
+    id: "evt_test_us",
+    object: "event",
+    type: "checkout.session.completed",
+    livemode: false,
+    data: { object: paidSession("cs_test_us") },
+  });
+  const usHeader = Stripe.webhooks.generateTestHeaderString({ payload: usPayload, secret: usSecret });
+  const usEvent = verifyStripeEvent(usPayload, usHeader, [
+    { account: "US", secret: usSecret },
+    { account: "JP", secret: jpSecret },
+  ]);
+  assert.equal(usEvent.ok, true);
+  if (usEvent.ok) assert.equal(usEvent.account, "US");
+
+  const memory = memoryStore();
+  const granted = await grantCheckoutSession(session, memory.store, new Date(), [COLLECTIONS_PRODUCT_SLUG]);
+  assert.equal(granted.granted, true);
+  assert.equal(memory.rows.get(`${USER_ID}:${COLLECTIONS_PRODUCT_SLUG}`)?.product_slug, COLLECTIONS_PRODUCT_SLUG);
+
+  const route = readFileSync("app/api/stripe/webhook/route.ts", "utf8");
+  const verifyAt = route.indexOf("verifyStripeEvent(");
+  const grantAt = route.indexOf("await grantCheckoutSession");
+  assert.ok(verifyAt > 0 && grantAt > verifyAt);
+  assert.match(route, /STRIPE_WEBHOOK_SECRET_JP_SANDBOX/);
+  assert.match(route, /stripe-signature/);
+  const success = readFileSync("app/blueprints/ai-collections-assistant/checkout/success/page.tsx", "utf8");
+  assert.match(success, /hasActiveEntitlement/);
+  assert.doesNotMatch(success, /grantCheckoutSession|upsertEntitlement/);
 });
 
 test("unpaid, unknown, and mismatched checkout sessions do not grant access", async () => {

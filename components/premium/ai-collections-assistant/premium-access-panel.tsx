@@ -10,16 +10,21 @@ import {
 export function PremiumAccessPanel({
   mode,
   checkoutUnavailable = false,
+  priceLabel = null,
 }: {
   mode: "sign-in" | "buy" | "open";
   checkoutUnavailable?: boolean;
+  priceLabel?: string | null;
 }) {
   return (
     <section
       aria-label="Premium access"
       className="mt-6 rounded-2xl border border-border/60 bg-card p-5 sm:p-6"
     >
-      <p className="text-sm leading-relaxed text-muted">
+      {priceLabel ? (
+        <p className="text-2xl font-semibold tracking-tight text-foreground">{priceLabel}</p>
+      ) : null}
+      <p className={`text-sm leading-relaxed text-muted ${priceLabel ? "mt-2" : ""}`}>
         One-time access. Stripe confirms the payment before this Blueprint opens.
       </p>
       {checkoutUnavailable ? (

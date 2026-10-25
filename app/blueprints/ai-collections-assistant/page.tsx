@@ -5,6 +5,7 @@ import { PremiumAccessPanel } from "@/components/premium/ai-collections-assistan
 import { getCurrentUser } from "@/src/lib/auth";
 import { hasActiveEntitlement } from "@/src/lib/payments/access";
 import { COLLECTIONS_PRODUCT_SLUG } from "@/src/lib/payments/products";
+import { loadPreviewPriceLabel } from "@/src/lib/payments/start-checkout";
 import { FICTIONAL_DATA_NOTICE } from "@/src/lib/premium/ai-collections-assistant/demo-data";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ export default async function AiCollectionsAssistantDemoPage({
 }) {
   const params = await searchParams;
   const user = await getCurrentUser();
+  const priceLabel = await loadPreviewPriceLabel(COLLECTIONS_PRODUCT_SLUG);
   let mode: "sign-in" | "buy" | "open" = "sign-in";
   if (user) {
     const entitled = await hasActiveEntitlement(user.id, COLLECTIONS_PRODUCT_SLUG);
@@ -73,6 +75,7 @@ export default async function AiCollectionsAssistantDemoPage({
 
       <PremiumAccessPanel
         mode={mode}
+        priceLabel={priceLabel}
         checkoutUnavailable={params.checkout === "unavailable"}
       />
 

@@ -38,6 +38,7 @@ import { runAutoSelfCheck } from "./atlas-auto/self-check";
 import { startReviewServer, type ReviewServer } from "./atlas-auto/server";
 import { runSpecAgent, writeBuildTask, type BlueprintSpec } from "./atlas-auto/spec";
 import { readMergedRegistry, saveRegistryRow } from "./atlas-commerce/save-registry";
+import { usSandboxSecret } from "./atlas-commerce/stripe-accounts";
 import { sandboxStripe } from "./atlas-commerce/stripe-adapter";
 import Stripe from "stripe";
 import {
@@ -554,8 +555,16 @@ async function approveProductAndPrice(
   note: string,
 ): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
   const data = session.finalData!;
-  const existing = (await readMergedRegistry()).find((item) => item.product_slug === data.candidateId) ?? null;
-  const key = process.env.STRIPE_SECRET_KEY?.trim() ?? "";
+  const existing =
+    (await readMergedRegistry()).find(
+      (item) =>
+        item.product_slug === data.candidateId &&
+        item.market === "US" &&
+        item.locale === "en" &&
+        item.currency === "usd" &&
+        item.stripe_environment === "SANDBOX",
+    ) ?? null;
+  const key = usSandboxSecret();
   const stripe: SandboxStripe = {
     async findProductBySlug() {
       throw new Error("Stripe lookup was not configured.");

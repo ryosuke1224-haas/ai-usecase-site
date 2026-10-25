@@ -3,7 +3,7 @@ import type Stripe from "stripe";
 import { grantCheckoutSession, type CheckoutCompletion } from "@/src/lib/payments/entitlement";
 import { upsertEntitlement } from "@/src/lib/payments/entitlement-store";
 import { loadRegistryProducts } from "@/src/lib/payments/load-registry";
-import { getStripe } from "@/src/lib/stripe/server";
+import { verifyStripeEvent, type WebhookAccount } from "@/src/lib/payments/webhook-verify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,22 +22,22 @@ function sessionFromEvent(event: Stripe.Event): CheckoutCompletion | null {
   };
 }
 
+function sandboxWebhookSecrets(): Array<{ account: WebhookAccount; secret: string }> {
+  return [
+    { account: "US", secret: process.env.STRIPE_WEBHOOK_SECRET?.trim() ?? "" },
+    { account: "JP", secret: process.env.STRIPE_WEBHOOK_SECRET_JP_SANDBOX?.trim() ?? "" },
+  ];
+}
+
 export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
-  const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim() ?? "";
-  if (!signature || !secret.startsWith("whsec_")) {
-    return NextResponse.json({ received: false, granted: false }, { status: 400 });
-  }
-
   const payload = await request.text();
-  let event: Stripe.Event;
-  try {
-    event = getStripe().webhooks.constructEvent(payload, signature, secret);
-  } catch {
+  const verified = verifyStripeEvent(payload, signature, sandboxWebhookSecrets());
+  if (!verified.ok) {
     return NextResponse.json({ received: false, granted: false }, { status: 400 });
   }
 
-  const session = sessionFromEvent(event);
+  const session = sessionFromEvent(verified.event);
   if (!session) {
     return NextResponse.json({ received: true, granted: false });
   }
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   try {
     const products = await loadRegistryProducts();
     const activeSlugs = products
-      .filter((item) => item.status === "ACTIVE")
+      .filter((item) => item.status === "ACTIVE" && item.stripe_environment === "SANDBOX")
       .map((item) => item.product_slug);
     const result = await grantCheckoutSession(session, { upsert: upsertEntitlement }, new Date(), activeSlugs);
     if (!result.granted) {

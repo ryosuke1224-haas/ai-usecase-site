@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import {
+  mergeRegistryProducts,
   readRegistryFile,
   upsertRegistryProduct,
   writeRegistryFile,
@@ -13,18 +14,9 @@ export async function readMergedRegistry(): Promise<RegistryProduct[]> {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? "";
   if (!url || !key) return local;
   try {
-    const supabase = createClient(url, key, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-    const { data, error } = await supabase.from("product_registry").select("*");
+    const { data, error } = await registryClient().from("product_registry").select("*");
     if (error || !data) return local;
-    const merged = new Map(local.map((row) => [row.product_slug, row]));
-    for (const row of data) {
-      const product = row as Partial<RegistryProduct>;
-      if (!product.product_slug || !product.name || !product.status) continue;
-      merged.set(product.product_slug, product as RegistryProduct);
-    }
-    return [...merged.values()];
+    return mergeRegistryProducts(local, data as Array<Partial<RegistryProduct>>);
   } catch {
     return local;
   }
@@ -46,7 +38,11 @@ export function publicRegistrySyncReason(reason: string, env: NodeJS.ProcessEnv 
   const secrets = [
     env.SUPABASE_SERVICE_ROLE_KEY,
     env.STRIPE_SECRET_KEY,
+    env.STRIPE_SECRET_KEY_US_SANDBOX,
+    env.STRIPE_SECRET_KEY_JP_SANDBOX,
+    env.STRIPE_SECRET_KEY_JP_LIVE,
     env.STRIPE_WEBHOOK_SECRET,
+    env.STRIPE_WEBHOOK_SECRET_JP_SANDBOX,
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     env.STRIPE_PRICE_AI_COLLECTIONS_ASSISTANT,
   ]
@@ -74,18 +70,35 @@ function supabaseErrorReason(error: { message?: string; code?: string; details?:
   return publicRegistrySyncReason(parts.join(" ") || "Supabase rejected the registry upsert.");
 }
 
+function registryClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? "";
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/** Confirms the multi-market columns exist before a new Stripe product is created. */
+export async function registryMarketSchemaReady(): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const missing = missingSupabaseRegistryConfig();
+  if (missing) return { ok: false, reason: missing };
+  try {
+    const { error } = await registryClient().from("product_registry").select("market,locale").limit(1);
+    if (error) return { ok: false, reason: supabaseErrorReason(error) };
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Supabase registry schema check failed.";
+    return { ok: false, reason: publicRegistrySyncReason(message) };
+  }
+}
+
 /** Writes the local registry. Updates Supabase when the service role and table are available. */
 export async function saveRegistryRow(row: RegistryProduct): Promise<RegistrySyncResult> {
   writeRegistryFile(upsertRegistryProduct(readRegistryFile(), row));
   const missing = missingSupabaseRegistryConfig();
   if (missing) return { status: "skipped", reason: missing };
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? "";
   try {
-    const supabase = createClient(url, key, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-    const { error } = await supabase.from("product_registry").upsert(
+    const { error } = await registryClient().from("product_registry").upsert(
       {
         product_slug: row.product_slug,
         name: row.name,
@@ -94,6 +107,8 @@ export async function saveRegistryRow(row: RegistryProduct): Promise<RegistrySyn
         price_amount: row.price_amount,
         suggested_price_amount: row.suggested_price_amount,
         approved_price_amount: row.approved_price_amount,
+        market: row.market,
+        locale: row.locale,
         currency: row.currency,
         payment_type: row.payment_type,
         stripe_environment: row.stripe_environment,
@@ -102,7 +117,7 @@ export async function saveRegistryRow(row: RegistryProduct): Promise<RegistrySyn
         created_at: row.created_at,
         updated_at: row.updated_at,
       },
-      { onConflict: "product_slug" },
+      { onConflict: "product_slug,market,locale,currency,stripe_environment" },
     );
     if (error) return { status: "skipped", reason: supabaseErrorReason(error) };
     return { status: "updated" };
