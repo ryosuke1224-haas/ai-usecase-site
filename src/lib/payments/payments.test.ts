@@ -8,7 +8,7 @@ import {
   buildCheckoutSessionCreateParams,
   serverPriceForProduct,
 } from "./checkout-session";
-import { isE2eEntitlementGrant } from "./e2e-grant";
+import { isE2eEntitlementDenied, isE2eEntitlementGrant } from "./e2e-grant";
 import {
   grantCheckoutSession,
   type CheckoutCompletion,
@@ -181,6 +181,10 @@ test("a browser header cannot grant an entitlement unless the local test flag ma
   assert.equal(isE2eEntitlementGrant("self-granted", env, "localhost:3100"), false);
   assert.equal(isE2eEntitlementGrant(secret, { ...env, ATLAS_PAYMENTS_E2E_SECRET: "short" }, "localhost"), false);
   assert.equal(isE2eEntitlementGrant(secret, env, "localhost:3100"), true);
+  assert.equal(isE2eEntitlementDenied("deny", env, "localhost:3100"), true);
+  assert.equal(isE2eEntitlementDenied("deny", { ATLAS_PAYMENTS_E2E_SECRET: secret }, "localhost:3100"), false);
+  assert.equal(isE2eEntitlementDenied("self-granted", env, "localhost:3100"), false);
+  assert.equal(isE2eEntitlementGrant("deny", env, "localhost:3100"), false);
 });
 
 test("the entitlement migration lets the owner read and blocks client writes", () => {
@@ -207,6 +211,7 @@ test("secret keys stay on the server and the success page cannot grant access", 
     path.normalize("src/lib/stripe/server.ts"),
     path.normalize("src/lib/supabase/admin.ts"),
     path.normalize("app/api/stripe/webhook/route.ts"),
+    path.normalize("src/lib/payments/registry-supabase.ts"),
   ]);
   const offenders: string[] = [];
   for (const file of [...sourceFiles("app"), ...sourceFiles("components"), ...sourceFiles("src")]) {

@@ -16,7 +16,7 @@ export type CheckoutSessionParams = {
 
 export type CheckoutBuildResult =
   | { ok: true; params: CheckoutSessionParams }
-  | { ok: false; error: "unknown_product" | "missing_price" | "invalid_origin" | "invalid_user" };
+  | { ok: false; error: "unknown_product" | "inactive_product" | "missing_price" | "invalid_origin" | "invalid_user" };
 
 const PRICE_ID = /^price_[A-Za-z0-9]+$/;
 
@@ -58,11 +58,18 @@ export function buildCheckoutSessionCreateParams(input: {
   origin: string;
   serverPriceId: string | undefined;
   clientPriceId?: string;
+  registryStatus?: "ACTIVE" | "DRAFT" | "ARCHIVED" | null;
 }): CheckoutBuildResult {
   void input.clientPriceId;
 
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.productSlug)) {
+    return { ok: false, error: "unknown_product" };
+  }
+  if (input.registryStatus && input.registryStatus !== "ACTIVE") {
+    return { ok: false, error: "inactive_product" };
+  }
   const product = getPaidProduct(input.productSlug);
-  if (!product) return { ok: false, error: "unknown_product" };
+  if (!product && input.registryStatus !== "ACTIVE") return { ok: false, error: "unknown_product" };
   if (!isUuid(input.userId)) return { ok: false, error: "invalid_user" };
 
   const origin = httpOrigin(input.origin);
@@ -77,13 +84,13 @@ export function buildCheckoutSessionCreateParams(input: {
     params: {
       mode: "payment",
       line_items: [{ price, quantity: 1 }],
-      success_url: `${origin}${product.successPath}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}${product.cancelPath}`,
+      success_url: `${origin}${product?.successPath ?? `/blueprints/${input.productSlug}/checkout/success`}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}${product?.cancelPath ?? `/blueprints/${input.productSlug}`}`,
       client_reference_id: input.userId,
       ...(email ? { customer_email: email } : {}),
       metadata: {
         atlas_user_id: input.userId,
-        product_slug: product.slug,
+        product_slug: product?.slug ?? input.productSlug,
       },
     },
   };

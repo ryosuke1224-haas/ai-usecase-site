@@ -37,12 +37,23 @@ import { researchAndScore } from "./atlas-auto/research";
 import { runAutoSelfCheck } from "./atlas-auto/self-check";
 import { startReviewServer, type ReviewServer } from "./atlas-auto/server";
 import { runSpecAgent, writeBuildTask, type BlueprintSpec } from "./atlas-auto/spec";
+import { readMergedRegistry, saveRegistryRow } from "./atlas-commerce/save-registry";
+import { sandboxStripe } from "./atlas-commerce/stripe-adapter";
+import Stripe from "stripe";
+import {
+  canApproveCommercialRelease,
+  provisionSandboxProduct,
+  parseApprovedAmount,
+  suggestPriceCents,
+  type SandboxStripe,
+} from "../src/lib/payments/provision";
 import {
   CANDIDATE_DECISIONS,
   FINAL_DECISIONS,
   type CandidateDecision,
   type CandidateDecisionValue,
   type FinalDecisionValue,
+  type CommerceRecord,
   type FinalReviewDecision,
   type RunRecord,
   type ScoredCandidate,
@@ -201,6 +212,7 @@ async function newSession(options: Options, branch: string): Promise<Session> {
     loop_disposition: null,
     final_review_file: null,
     final_review_decision: null,
+    commerce: null,
     builder_ran: false,
     committed: false,
     pushed: false,
@@ -250,7 +262,10 @@ function resumeSession(options: Options): Session {
   if (!run) fail(`Run not found: ${runMemoryDir(runId)}/run.json`);
   const candidates = loadRunCandidates(runId);
   if (candidates.length === 0) fail(`Run ${runId} has no candidates.`);
-  if (run.phase === "FINISHED") fail(`Run ${runId} is already finished.`);
+  run.commerce = run.commerce ?? null;
+  if (run.phase === "FINISHED" || run.phase === "READY_FOR_PREVIEW") {
+    fail(`Run ${runId} is already ${run.phase}.`);
+  }
   if (run.mode === "dry-run" && !options.dryRun) {
     run.mode = "full";
     run.notes.push("Resumed from a dry run as a full run.");
@@ -350,7 +365,7 @@ async function finalReview(session: Session) {
   const decision = await waitForFinalDecision(session);
   run.final_review_decision = decision.decision;
   run.final_review_file = `${runMemoryDir(run.run_id)}/final-review.json`;
-  run.phase = "FINISHED";
+  run.phase = run.commerce?.statuses.includes("READY_FOR_PREVIEW") ? "READY_FOR_PREVIEW" : "FINISHED";
   saveRun(run);
   fs.writeFileSync(file, renderFinalReview({ run, data, state: dashboardState(session), token: "" }));
   console.log(`Final review: ${decision.decision}`);
@@ -429,7 +444,21 @@ function finalReviewData(run: RunRecord, spec: BlueprintSpec, loopResultPath: st
     criticalIssues: critical.map((item) => redact(item)),
     sampleInput: spec.guided_demo.sample_input,
     sampleOutput: spec.guided_demo.sample_output,
+    suggestedPriceCents: suggestPriceCents(candidateValue(run, spec.id)),
+    suggestedPaymentType: "ONE_TIME",
+    commercialRationale: candidateRationale(run, spec.id),
   };
+}
+
+function candidateValue(run: RunRecord, candidateId: string): string {
+  return loadRunCandidates(run.run_id).find((item) => item.id === candidateId)?.estimated_premium_value ?? "";
+}
+
+function candidateRationale(run: RunRecord, candidateId: string): string {
+  return (
+    loadRunCandidates(run.run_id).find((item) => item.id === candidateId)?.why_pay ??
+    "One-time Premium Blueprint for this workflow."
+  );
 }
 
 function postDecision(session: Session, body: Record<string, unknown>) {
@@ -494,16 +523,108 @@ function postEndReview(session: Session) {
   return { status: 200, body: dashboardState(session) };
 }
 
-function postFinalReview(session: Session, body: Record<string, unknown>) {
+async function postFinalReview(session: Session, body: Record<string, unknown>) {
   if (!session.finalData) return { status: 409, body: { error: "The Blueprint has not been built yet." } };
   if (session.finalDecision) return { status: 409, body: { error: "A final decision is already recorded." } };
   const decision = body.decision as FinalDecisionValue;
   if (!FINAL_DECISIONS.includes(decision)) return { status: 400, body: { error: "Unknown decision." } };
-  recordFinalDecision(session, decision, typeof body.note === "string" ? body.note : "");
+  const note = typeof body.note === "string" ? body.note : "";
+  if (decision !== "APPROVE_PRODUCT_AND_PRICE") {
+    recordFinalDecision(session, decision, note, null);
+    return { status: 200, body: dashboardState(session) };
+  }
+  if (
+    !canApproveCommercialRelease({
+      disposition: session.finalData.disposition,
+      qaStatus: session.finalData.qa.status,
+    })
+  ) {
+    return { status: 409, body: { error: "QA and the Evaluator must pass before the product and price can be approved." } };
+  }
+  const amount = parseApprovedAmount({ choice: body.price_choice, customDollars: body.custom_dollars });
+  if (!amount.ok) return { status: 400, body: { error: amount.error } };
+  const provisioned = await approveProductAndPrice(session, amount.cents, note);
+  if (!provisioned.ok) return { status: provisioned.status, body: { error: provisioned.error } };
   return { status: 200, body: dashboardState(session) };
 }
 
-function recordFinalDecision(session: Session, decision: FinalDecisionValue, note: string) {
+async function approveProductAndPrice(
+  session: Session,
+  approvedCents: number,
+  note: string,
+): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
+  const data = session.finalData!;
+  const existing = (await readMergedRegistry()).find((item) => item.product_slug === data.candidateId) ?? null;
+  const key = process.env.STRIPE_SECRET_KEY?.trim() ?? "";
+  const stripe: SandboxStripe = {
+    async findProductBySlug() {
+      throw new Error("Stripe lookup was not configured.");
+    },
+    async findPrice() {
+      throw new Error("Stripe lookup was not configured.");
+    },
+    async createProduct() {
+      throw new Error("Stripe create was not configured.");
+    },
+    async createPrice() {
+      throw new Error("Stripe create was not configured.");
+    },
+  };
+  const sandboxKey = key.startsWith("sk_test_") || key.startsWith("rk_test_");
+  const client = session.run.mode === "dry-run" || !sandboxKey ? stripe : sandboxStripe(new Stripe(key));
+  const result = await provisionSandboxProduct({
+    humanApproved: true,
+    stripeKey: session.run.mode === "dry-run" ? key : key,
+    dryRun: session.run.mode === "dry-run",
+    slug: data.candidateId,
+    name: data.blueprintName,
+    approvedAmountCents: approvedCents,
+    suggestedAmountCents: data.suggestedPriceCents,
+    rationale: data.commercialRationale,
+    existing,
+    stripe: client,
+  });
+  if (!result.ok) {
+    return {
+      ok: false,
+      status: result.code === "LIVE_STRIPE_PROVISIONING_BLOCKED" ? 409 : 503,
+      error: result.code,
+    };
+  }
+  if (result.row) await saveRegistryRow(result.row);
+  const commerce: CommerceRecord = {
+    schema_version: "atlas-commerce-v1",
+    run_id: session.run.run_id,
+    product_slug: data.candidateId,
+    product_name: data.blueprintName,
+    suggested_price_cents: data.suggestedPriceCents,
+    approved_price_cents: approvedCents,
+    payment_type: "ONE_TIME",
+    stripe_environment: "SANDBOX",
+    statuses: result.statuses,
+    provisioning: result.dryRun ? "not_started" : result.reused ? "reused" : "created",
+    committed: false,
+    pushed: false,
+    published: false,
+    decided_at: new Date().toISOString(),
+  };
+  writeJson(`${runMemoryDir(session.run.run_id)}/commerce.json`, commerce);
+  session.run.commerce = commerce;
+  recordFinalDecision(session, "APPROVE_PRODUCT_AND_PRICE", note, approvedCents);
+  session.message = result.dryRun
+    ? "Price approved for this dry run. Stripe was not called. Nothing was published, committed, or pushed."
+    : result.reused
+      ? "Price approved. The existing Sandbox product was reused. Nothing was published, committed, or pushed."
+      : "Price approved. Stripe Sandbox product and price are recorded. Ready for preview. Nothing was published, committed, or pushed.";
+  return { ok: true };
+}
+
+function recordFinalDecision(
+  session: Session,
+  decision: FinalDecisionValue,
+  note: string,
+  approvedCents: number | null,
+) {
   const { run } = session;
   const data = session.finalData!;
   const record: FinalReviewDecision = {
@@ -515,6 +636,8 @@ function recordFinalDecision(session: Session, decision: FinalDecisionValue, not
     decided_at: new Date().toISOString(),
     published: false,
     committed: false,
+    suggested_price_cents: data.suggestedPriceCents,
+    approved_price_cents: approvedCents,
   };
   writeJson(`${runMemoryDir(run.run_id)}/final-review.json`, record);
   session.finalDecision = record;
@@ -522,17 +645,24 @@ function recordFinalDecision(session: Session, decision: FinalDecisionValue, not
   setStatus(history, {
     id: data.candidateId,
     name: data.blueprintName,
-    status: decision === "APPROVED_FOR_LATER_PUBLISHING" ? "COMPLETED" : decision === "REJECTED" ? "REJECTED" : "BUILT",
+    status:
+      decision === "APPROVED_FOR_LATER_PUBLISHING" || decision === "APPROVE_PRODUCT_AND_PRICE"
+        ? "COMPLETED"
+        : decision === "REJECTED"
+          ? "REJECTED"
+          : "BUILT",
     runId: run.run_id,
     note: record.note || `Final review: ${decision}.`,
   });
   saveHistory(history);
-  session.message =
-    decision === "APPROVED_FOR_LATER_PUBLISHING"
-      ? "Approved for later publishing. Nothing was published, committed, or pushed."
-      : decision === "CHANGES_REQUESTED"
-        ? "Changes requested. The working copy is left as-is for the next task."
-        : "Rejected. The working copy is left as-is; nothing was committed.";
+  if (decision !== "APPROVE_PRODUCT_AND_PRICE") {
+    session.message =
+      decision === "APPROVED_FOR_LATER_PUBLISHING"
+        ? "Approved for later publishing. Nothing was published, committed, or pushed."
+        : decision === "CHANGES_REQUESTED"
+          ? "Changes requested. The working copy is left as-is for the next task."
+          : "Rejected. The working copy is left as-is; nothing was committed.";
+  }
 }
 
 function waitForApproval(session: Session): Promise<void> {
@@ -564,7 +694,7 @@ function waitForFinalDecision(session: Session): Promise<FinalReviewDecision> {
       if (!session.finalDecision) {
         const written = readJson<Partial<FinalReviewDecision>>(file);
         if (written?.decision && FINAL_DECISIONS.includes(written.decision)) {
-          recordFinalDecision(session, written.decision, written.note ?? "");
+          recordFinalDecision(session, written.decision, written.note ?? "", written.approved_price_cents ?? null);
         }
       }
       if (session.finalDecision) {
@@ -596,6 +726,7 @@ function dashboardState(session: Session): DashboardState {
           decided_at: session.finalDecision.decided_at,
         }
       : null,
+    commerce_statuses: session.run.commerce?.statuses ?? [],
     message: session.message,
   };
 }

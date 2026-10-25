@@ -1,10 +1,9 @@
 import "server-only";
 
 import { getStripe } from "@/src/lib/stripe/server";
-import {
-  buildCheckoutSessionCreateParams,
-  serverPriceForProduct,
-} from "./checkout-session";
+import { buildCheckoutSessionCreateParams } from "./checkout-session";
+import { loadRegistryProducts } from "./load-registry";
+import { resolveTrustedPriceId } from "./registry";
 
 export class CheckoutUnavailable extends Error {
   constructor() {
@@ -19,13 +18,18 @@ export async function createHostedCheckoutUrl(input: {
   origin: string;
   clientPriceId?: string;
 }): Promise<string> {
+  const products = await loadRegistryProducts();
+  const resolved = resolveTrustedPriceId(input.productSlug, { products, env: process.env });
+  if (!resolved.ok) throw new CheckoutUnavailable();
+  const row = products.find((item) => item.product_slug === input.productSlug);
   const built = buildCheckoutSessionCreateParams({
     userId: input.userId,
     email: input.email,
     productSlug: input.productSlug,
     origin: input.origin,
-    serverPriceId: serverPriceForProduct(input.productSlug),
+    serverPriceId: resolved.priceId,
     clientPriceId: input.clientPriceId,
+    registryStatus: row?.status ?? null,
   });
   if (!built.ok) throw new CheckoutUnavailable();
 

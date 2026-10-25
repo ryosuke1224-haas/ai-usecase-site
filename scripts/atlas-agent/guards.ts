@@ -24,11 +24,17 @@ const ALWAYS_PROTECTED = [
   "agents/evaluator.md",
   "scripts/run-atlas-agent-loop.ts",
   "scripts/run-atlas-auto.ts",
+  "scripts/run-atlas-commerce.ts",
   "agents/research.md",
   "agents/spec.md",
 ];
 
-const ALWAYS_PROTECTED_PREFIXES = ["scripts/atlas-agent/", "scripts/atlas-auto/", "atlas-memory/"];
+const ALWAYS_PROTECTED_PREFIXES = [
+  "scripts/atlas-agent/",
+  "scripts/atlas-auto/",
+  "scripts/atlas-commerce/",
+  "atlas-memory/",
+];
 
 const QA_PROTECTED = [
   "playwright.config.ts",

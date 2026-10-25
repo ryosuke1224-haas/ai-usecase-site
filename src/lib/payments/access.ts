@@ -3,26 +3,25 @@ import "server-only";
 import { headers } from "next/headers";
 import { blueprintCatalog, type BlueprintDefinition } from "@/src/lib/blueprints";
 import { createClient } from "@/src/lib/supabase/server";
-import { E2E_ENTITLEMENT_HEADER, isE2eEntitlementGrant } from "./e2e-grant";
+import { E2E_ENTITLEMENT_HEADER, isE2eEntitlementDenied, isE2eEntitlementGrant } from "./e2e-grant";
 import { COLLECTIONS_PRODUCT_SLUG } from "./products";
 
 export type BlueprintCard = BlueprintDefinition & { unlocked: boolean };
 
-async function e2eGrantedSlug(): Promise<string | null> {
+async function e2eEntitlementOverride(): Promise<"grant" | "deny" | null> {
   const headerList = await headers();
-  const granted = isE2eEntitlementGrant(
-    headerList.get(E2E_ENTITLEMENT_HEADER),
-    process.env,
-    headerList.get("host") ?? headerList.get("x-forwarded-host"),
-  );
-  return granted ? COLLECTIONS_PRODUCT_SLUG : null;
+  const host = headerList.get("host") ?? headerList.get("x-forwarded-host");
+  const header = headerList.get(E2E_ENTITLEMENT_HEADER);
+  if (isE2eEntitlementDenied(header, process.env, host)) return "deny";
+  if (isE2eEntitlementGrant(header, process.env, host)) return "grant";
+  return null;
 }
 
 /** Active product slugs for this user. Missing table or query errors fail closed. */
 export async function listActiveProductSlugs(userId: string): Promise<Set<string>> {
   const slugs = new Set<string>();
-  const e2eSlug = await e2eGrantedSlug();
-  if (e2eSlug) slugs.add(e2eSlug);
+  const override = await e2eEntitlementOverride();
+  if (override === "grant") slugs.add(COLLECTIONS_PRODUCT_SLUG);
 
   try {
     const supabase = await createClient();
@@ -31,13 +30,15 @@ export async function listActiveProductSlugs(userId: string): Promise<Set<string
       .select("product_slug")
       .eq("user_id", userId)
       .eq("status", "active");
-    if (error || !data) return slugs;
-    for (const row of data) {
-      if (row && typeof row.product_slug === "string") slugs.add(row.product_slug);
+    if (!error && data) {
+      for (const row of data) {
+        if (row && typeof row.product_slug === "string") slugs.add(row.product_slug);
+      }
     }
   } catch {
-    return slugs;
+    // Fail closed for database access. A local test deny still applies below.
   }
+  if (override === "deny") slugs.delete(COLLECTIONS_PRODUCT_SLUG);
   return slugs;
 }
 

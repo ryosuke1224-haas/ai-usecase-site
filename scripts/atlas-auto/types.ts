@@ -144,6 +144,7 @@ export type CandidateDecision = {
 };
 
 export const FINAL_DECISIONS = [
+  "APPROVE_PRODUCT_AND_PRICE",
   "APPROVED_FOR_LATER_PUBLISHING",
   "CHANGES_REQUESTED",
   "REJECTED",
@@ -159,6 +160,37 @@ export type FinalReviewDecision = {
   decided_at: string;
   published: false;
   committed: false;
+  suggested_price_cents?: number | null;
+  approved_price_cents?: number | null;
+};
+
+export const COMMERCE_STATUSES = [
+  "BLUEPRINT_APPROVED",
+  "PRICE_APPROVED",
+  "STRIPE_PRODUCT_CREATED",
+  "STRIPE_PRICE_CREATED",
+  "READY_FOR_PREVIEW",
+  "PRODUCTION_APPROVED",
+  "PUBLISHED",
+] as const;
+
+export type CommerceStatus = (typeof COMMERCE_STATUSES)[number];
+
+export type CommerceRecord = {
+  schema_version: "atlas-commerce-v1";
+  run_id: string;
+  product_slug: string;
+  product_name: string;
+  suggested_price_cents: number;
+  approved_price_cents: number;
+  payment_type: "ONE_TIME";
+  stripe_environment: "SANDBOX";
+  statuses: CommerceStatus[];
+  provisioning: "reused" | "created" | "not_started";
+  committed: false;
+  pushed: false;
+  published: false;
+  decided_at: string;
 };
 
 export type RunPhase =
@@ -169,6 +201,7 @@ export type RunPhase =
   | "SPEC"
   | "BUILD"
   | "AWAITING_FINAL_REVIEW"
+  | "READY_FOR_PREVIEW"
   | "FINISHED"
   | "FAILED";
 
@@ -203,6 +236,7 @@ export type RunRecord = {
   loop_disposition: string | null;
   final_review_file: string | null;
   final_review_decision: FinalDecisionValue | null;
+  commerce: CommerceRecord | null;
   builder_ran: boolean;
   committed: false;
   pushed: false;

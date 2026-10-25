@@ -16,6 +16,7 @@ export type DashboardState = {
   approved_candidate_id: string | null;
   decisions: Record<string, Pick<CandidateDecision, "decision" | "note" | "decided_at">>;
   final_review: Pick<FinalReviewDecision, "decision" | "note" | "decided_at"> | null;
+  commerce_statuses: string[];
   message: string;
 };
 
@@ -44,6 +45,9 @@ export type FinalReviewData = {
   criticalIssues: string[];
   sampleInput: string;
   sampleOutput: string;
+  suggestedPriceCents: number;
+  suggestedPaymentType: "ONE_TIME";
+  commercialRationale: string;
 };
 
 export function escapeHtml(value: unknown): string {
@@ -281,17 +285,36 @@ export function renderFinalReview(input: {
       </div>
     </section>
     <section class="panel decide final">
-      <h2>Your decision</h2>
+      <h2>Price approval</h2>
+      <p>Blueprint: <strong>${e(data.blueprintName)}</strong></p>
+      <p>Evaluator score: <strong>${data.evaluator.overall == null ? "not scored" : data.evaluator.overall.toFixed(1)}</strong></p>
+      <p>QA result: <strong>${e(data.qa.status)}</strong> · ${data.qa.passed} passed / ${data.qa.failed} failed</p>
+      <p>Suggested price: <strong>$${data.suggestedPriceCents / 100}</strong></p>
+      <p>Suggested payment type: <strong>${e(data.suggestedPaymentType)}</strong></p>
+      <p>Commercial rationale: ${e(data.commercialRationale)}</p>
+      <fieldset class="prices">
+        <legend class="xs muted">Human-approved amount</legend>
+        ${[29, 49, 79, 99]
+          .map(
+            (dollars) =>
+              `<label><input type="radio" name="price-choice" value="${dollars}" ${dollars * 100 === data.suggestedPriceCents ? "checked" : ""}> $${dollars}</label>`,
+          )
+          .join("")}
+        <label><input type="radio" name="price-choice" value="custom"> Custom</label>
+        <input id="custom-price" inputmode="numeric" placeholder="Whole dollars" maxlength="3">
+      </fieldset>
+      <p class="xs muted">The suggestion is the agent's recommendation. Stripe Sandbox is contacted only when you click Approve product and price.</p>
       <label class="xs muted" for="final-note">Note (optional, stored in Atlas memory)</label>
-      <textarea id="final-note" rows="3" placeholder="What should change, or why this is ready for later publishing?">${e(state.final_review?.note ?? "")}</textarea>
+      <textarea id="final-note" rows="3" placeholder="What should change, or why this price is right?">${e(state.final_review?.note ?? "")}</textarea>
       <div class="buttons">
-        <button class="btn approve" data-final="APPROVED_FOR_LATER_PUBLISHING">Approve for later publishing</button>
-        <button class="btn hold" data-final="CHANGES_REQUESTED">Request changes</button>
-        <button class="btn reject" data-final="REJECTED">Reject</button>
+        <button class="btn approve" data-final="APPROVE_PRODUCT_AND_PRICE">APPROVE PRODUCT &amp; PRICE</button>
+        <button class="btn hold" data-final="CHANGES_REQUESTED">REQUEST CHANGES</button>
+        <button class="btn reject" data-final="REJECTED">REJECT</button>
       </div>
       <div class="decision-line">Decision: <span class="status" id="final-status">${e(state.final_review?.decision ?? "Waiting")}</span></div>
+      <div class="decision-line">Commerce: <span id="commerce-status">${e(state.commerce_statuses.join(" → ") || "Waiting")}</span></div>
     </section>
-    <footer class="foot">Approving here does not publish. It marks the Blueprint COMPLETED in <code>atlas-memory/candidate-history.json</code> so a person can publish it later.</footer>
+    <footer class="foot">Approving the product and price can create a Stripe Sandbox product. It does not publish, commit, push, or deploy.</footer>
   </main>
   <div id="toast" class="toast hidden"></div>`;
   return page(`Atlas Auto · Final review · ${data.blueprintName}`, body, finalScript({ token: input.token, state }));
@@ -365,16 +388,28 @@ const CONFIG = ${scriptJson(config)};
 ${SHARED_SCRIPT}
 function apply(state) {
   const el = document.getElementById('final-status');
-  if (state.final_review) { el.textContent = state.final_review.decision; el.className = 'status s-' + state.final_review.decision; }
+  if (state.final_review) {
+    const labels = { APPROVE_PRODUCT_AND_PRICE: 'APPROVE PRODUCT & PRICE' };
+    el.textContent = labels[state.final_review.decision] || state.final_review.decision;
+    el.className = 'status s-' + state.final_review.decision;
+  }
+  const commerce = document.getElementById('commerce-status');
+  if (commerce) commerce.textContent = (state.commerce_statuses || []).join(' → ') || 'Waiting';
   for (const b of document.querySelectorAll('[data-final]')) b.disabled = state.final_locked || !LIVE;
   if (state.message) showMessage(state.message);
 }
 for (const btn of document.querySelectorAll('[data-final]')) {
   btn.addEventListener('click', async () => {
     const decision = btn.getAttribute('data-final');
-    if (!confirm('Record "' + decision + '"? This does not publish, commit, push, or deploy.')) return;
+    const choice = document.querySelector('input[name="price-choice"]:checked');
+    const custom = (document.getElementById('custom-price') || {}).value || '';
+    if (decision === 'APPROVE_PRODUCT_AND_PRICE' && !choice) { toast('Choose a price first.', true); return; }
+    const confirmText = decision === 'APPROVE_PRODUCT_AND_PRICE'
+      ? 'Approve this product and price in Stripe Sandbox? This creates or reuses a test-mode product. It does not publish, commit, push, or deploy.'
+      : 'Record "' + decision + '"? This does not publish, commit, push, or deploy.';
+    if (!confirm(confirmText)) return;
     const note = document.getElementById('final-note').value || '';
-    try { apply(await post('/api/final-review', { decision, note })); toast(decision + ' recorded.'); }
+    try { apply(await post('/api/final-review', { decision, note, price_choice: choice && choice.value, custom_dollars: custom })); toast(decision + ' recorded.'); }
     catch (err) { toast(err.message, true); }
   });
 }
@@ -565,7 +600,10 @@ textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 
 .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3)}
 .decision-line{margin-top:10px;font-size:13px;color:var(--muted)}
 .status{font-weight:700;color:var(--ink)}
-.s-APPROVED,.s-APPROVED_FOR_LATER_PUBLISHING{color:var(--green)}
+.s-APPROVED,.s-APPROVED_FOR_LATER_PUBLISHING,.s-APPROVE_PRODUCT_AND_PRICE{color:var(--green)}
+.prices{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0 12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.prices label{font-weight:700}
+.prices input[type="text"],.prices input:not([type="radio"]){width:8rem;margin:0}
 .s-HOLD,.s-CHANGES_REQUESTED{color:var(--amber)}
 .s-REJECTED{color:var(--red)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 18px}

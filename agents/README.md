@@ -215,7 +215,7 @@ Atlas Auto chooses and builds one Premium Blueprint per run, with a person appro
 4. Nothing is specified or built until one candidate is approved. After that, the other buttons are locked.
 5. The **Spec Agent** (`spec.md`) writes `agent-specs/<id>.json`. The orchestrator writes `agent-tasks/<id>-premium-build.json`.
 6. The existing loop runs unchanged: `npm run agent:run -- agent-tasks/<id>-premium-build.json`.
-7. The same URL switches to a **final review** page. It shows files changed, build, QA, Evaluator score and findings, critical issues, and the sample output. The buttons are APPROVE FOR LATER PUBLISHING, REQUEST CHANGES, and REJECT. None of them publishes, commits, or pushes.
+7. The same URL switches to a **final review** page. It shows the Blueprint, QA result, Evaluator score, a suggested one-time price, and the commercial rationale. The person chooses $29, $49, $79, $99, or a custom amount. The buttons are APPROVE PRODUCT & PRICE, REQUEST CHANGES, and REJECT. Stripe Sandbox is contacted only by that approval. Nothing is published, committed, or pushed.
 
 Options:
 
@@ -236,7 +236,18 @@ Run history is committed JSON under `atlas-memory/`:
 - `runs/<run-id>/candidates.json` holds the full candidates and scores.
 - `runs/<run-id>/decisions.json` lists every APPROVE, HOLD, and REJECT click.
 - `runs/<run-id>/approval.json` is the approval Atlas Auto waits for. Writing `{"candidate_id": "...", "decision": "APPROVED"}` there by hand also continues the run.
-- `runs/<run-id>/final-review.json` is the final human decision.
+- `runs/<run-id>/final-review.json` is the final human decision. The approved amount is stored separately from the agent's suggestion.
+- `runs/<run-id>/commerce.json` records BLUEPRINT_APPROVED, PRICE_APPROVED, STRIPE_PRODUCT_CREATED, STRIPE_PRICE_CREATED, and READY_FOR_PREVIEW. PRODUCTION_APPROVED and PUBLISHED stay unset.
+- `product-registry.json` is the local Sandbox product map. It is gitignored because it holds Stripe ids. The Supabase `product_registry` table is the shared copy after its migration is applied.
+
+```bash
+npm run atlas:commerce -- --dry-run <run-id>
+npm run atlas:commerce -- --import-existing
+```
+
+The dry run prints the plan and creates nothing. `--import-existing` records the current AI Collections Assistant Sandbox price and does not create a second product.
+
+Checkout uses an ACTIVE registry row before any environment variable. `STRIPE_PRICE_AI_COLLECTIONS_ASSISTANT` is only a fallback while `ai-collections-assistant` has no registry row. Remove that variable after the product registry migration is applied and `--import-existing` reports that Supabase was updated. Until then, keep it so a machine without the gitignored local registry file can still open Checkout.
 
 Generated HTML, prompts, and raw agent output go to `agent-reports/atlas-auto/<run-id>/`. That directory is gitignored.
 
@@ -245,5 +256,5 @@ Generated HTML, prompts, and raw agent output go to `agent-reports/atlas-auto/<r
 - Runs only on `private-preview`.
 - Never commits, pushes, merges, deploys, or publishes.
 - Research, Scoring, and Spec agents are read-only ask-mode sessions. Any file they change is restored, and that step fails.
-- The Builder task is scoped to the new Blueprint's own directories. It forbids the Daily Inbox Briefing, shared navigation, content, agents, scripts, and memory. `scripts/atlas-auto/`, `scripts/run-atlas-auto.ts`, and `atlas-memory/` are always protected.
+- The Builder task is scoped to the new Blueprint's own directories. It forbids the Daily Inbox Briefing, shared navigation, content, agents, scripts, and memory. `scripts/atlas-auto/`, `scripts/atlas-commerce/`, `scripts/run-atlas-auto.ts`, `scripts/run-atlas-commerce.ts`, and `atlas-memory/` are always protected.
 - The dashboard listens on 127.0.0.1 only and requires a per-run token for every decision. The HTML copy on disk cannot record decisions.

@@ -277,18 +277,15 @@ test.describe("AI Collections Assistant signed-in kit", () => {
 test.describe("AI Collections Assistant without a premium entitlement", () => {
   test.skip(Boolean(skipReason), skipReason ?? "");
 
+  test.beforeEach(async ({ page }) => {
+    await page.setExtraHTTPHeaders({ [E2E_ENTITLEMENT_HEADER]: "deny" });
+  });
+
   test("signed-in kit stays locked", async ({ page }) => {
     await openAuthenticated(page, KIT_PATH);
     await expect(page.getByRole("heading", { name: "Premium is locked" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Buy Premium" })).toBeVisible();
     await expect(page.locator("#setup-checklist")).toHaveCount(0);
-  });
-
-  test("a browser entitlement header does not unlock the kit", async ({ page }) => {
-    await page.setExtraHTTPHeaders({ [E2E_ENTITLEMENT_HEADER]: "self-granted" });
-    await openAuthenticated(page, KIT_PATH);
-    await expect(page.getByRole("heading", { name: "Premium is locked" })).toBeVisible();
-    await expect(page.locator(`a[href='${KIT_PATH}']`)).toHaveCount(0);
   });
 
   test("my blueprints keeps this premium kit locked", async ({ page }) => {

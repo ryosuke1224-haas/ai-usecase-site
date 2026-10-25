@@ -48,6 +48,7 @@ function stripeId(value: unknown): string | null {
 export function entitlementFromCheckout(
   session: CheckoutCompletion,
   now = new Date(),
+  activeSlugs: readonly string[] = [],
 ): { ok: true; entitlement: EntitlementWrite } | GrantResult {
   if (session.payment_status !== "paid") return { granted: false, reason: "unpaid" };
   if (session.status !== "complete") return { granted: false, reason: "invalid_session" };
@@ -59,7 +60,8 @@ export function entitlementFromCheckout(
   if (session.client_reference_id !== userId) return { granted: false, reason: "mismatched_user" };
 
   const product = getPaidProduct(productSlug);
-  if (!product || product.accessType !== "lifetime") {
+  const registered = activeSlugs.includes(productSlug);
+  if ((!product || product.accessType !== "lifetime") && !registered) {
     return { granted: false, reason: "unknown_product" };
   }
 
@@ -67,7 +69,7 @@ export function entitlementFromCheckout(
     ok: true,
     entitlement: {
       user_id: userId,
-      product_slug: product.slug,
+      product_slug: product?.slug ?? productSlug,
       access_type: "lifetime",
       status: "active",
       stripe_customer_id: stripeId(session.customer),
@@ -83,8 +85,9 @@ export async function grantCheckoutSession(
   session: CheckoutCompletion,
   store: EntitlementStore,
   now = new Date(),
+  activeSlugs: readonly string[] = [],
 ): Promise<GrantResult> {
-  const mapped = entitlementFromCheckout(session, now);
+  const mapped = entitlementFromCheckout(session, now, activeSlugs);
   if (!("ok" in mapped)) return mapped;
   await store.upsert(mapped.entitlement);
   return { granted: true };

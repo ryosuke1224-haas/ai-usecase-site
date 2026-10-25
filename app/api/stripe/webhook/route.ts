@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { grantCheckoutSession, type CheckoutCompletion } from "@/src/lib/payments/entitlement";
 import { upsertEntitlement } from "@/src/lib/payments/entitlement-store";
+import { loadRegistryProducts } from "@/src/lib/payments/load-registry";
 import { getStripe } from "@/src/lib/stripe/server";
 
 export const runtime = "nodejs";
@@ -42,7 +43,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await grantCheckoutSession(session, { upsert: upsertEntitlement });
+    const products = await loadRegistryProducts();
+    const activeSlugs = products
+      .filter((item) => item.status === "ACTIVE")
+      .map((item) => item.product_slug);
+    const result = await grantCheckoutSession(session, { upsert: upsertEntitlement }, new Date(), activeSlugs);
     if (!result.granted) {
       return NextResponse.json({ received: true, granted: false });
     }

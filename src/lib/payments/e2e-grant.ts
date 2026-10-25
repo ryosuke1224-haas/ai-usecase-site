@@ -20,6 +20,17 @@ function isLocalHost(host: string): boolean {
  * Ignored unless the server process sets ATLAS_PAYMENTS_E2E=1, the secret matches,
  * and the request host is local.
  */
+/** Local tests can hide a stored Sandbox entitlement. This never grants access. */
+export function isE2eEntitlementDenied(
+  headerValue: string | null,
+  env: NodeJS.ProcessEnv = process.env,
+  host: string | null = null,
+): boolean {
+  if (env.ATLAS_PAYMENTS_E2E !== "1") return false;
+  if (!host || !isLocalHost(host)) return false;
+  return headerValue === "deny";
+}
+
 export function isE2eEntitlementGrant(
   headerValue: string | null,
   env: NodeJS.ProcessEnv = process.env,

@@ -20,7 +20,7 @@ export async function startReviewServer(options: {
   token: string;
   pages: Record<string, () => string>;
   state: () => unknown;
-  posts: Record<string, (body: Record<string, unknown>) => PostResult>;
+  posts: Record<string, (body: Record<string, unknown>) => PostResult | Promise<PostResult>>;
 }): Promise<ReviewServer> {
   const server = http.createServer((req, res) => {
     void handle(req, res).catch((error: unknown) => {
@@ -72,7 +72,7 @@ export async function startReviewServer(options: {
         return;
       }
       const body = await readBody(req);
-      const result = handler(body);
+      const result = await handler(body);
       send(res, result.status, result.body);
       return;
     }
