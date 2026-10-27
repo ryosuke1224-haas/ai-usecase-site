@@ -5,7 +5,43 @@ import { createClient } from "@/src/lib/supabase/client";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export function AuthForm({ nextPath }: { nextPath: string }) {
+export type AuthFormCopy = {
+  email: string;
+  placeholder: string;
+  continue: string;
+  sending: string;
+  sentTitle: string;
+  sentLead: string;
+  sentTail: string;
+  differentEmail: string;
+  emptyEmail: string;
+  sendFailed: string;
+  freeAccount: string;
+  sameEmail: string;
+};
+
+const englishAuthCopy: AuthFormCopy = {
+  email: "Email",
+  placeholder: "you@company.com",
+  continue: "Continue with Email",
+  sending: "Sending link…",
+  sentTitle: "Check your email",
+  sentLead: "We sent a sign-in link to ",
+  sentTail: ". Open it to finish signing in and unlock your Starter Kit.",
+  differentEmail: "Use a different email",
+  emptyEmail: "Enter your email address to continue.",
+  sendFailed: "We could not send the sign-in email. Check that Supabase is configured, then try again.",
+  freeAccount: "Free account. No credit card required.",
+  sameEmail: "Already have an account? Use the same email — we'll send a sign-in link.",
+};
+
+export function AuthForm({
+  nextPath,
+  copy = englishAuthCopy,
+}: {
+  nextPath: string;
+  copy?: AuthFormCopy;
+}) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -18,7 +54,7 @@ export function AuthForm({ nextPath }: { nextPath: string }) {
     const trimmed = email.trim();
     if (!trimmed) {
       setStatus("error");
-      setErrorMessage("Enter your email address to continue.");
+      setErrorMessage(copy.emptyEmail);
       return;
     }
 
@@ -44,20 +80,18 @@ export function AuthForm({ nextPath }: { nextPath: string }) {
       setStatus("sent");
     } catch {
       setStatus("error");
-      setErrorMessage(
-        "We could not send the sign-in email. Check that Supabase is configured, then try again.",
-      );
+      setErrorMessage(copy.sendFailed);
     }
   }
 
   if (status === "sent") {
     return (
       <div className="rounded-xl border border-border/60 bg-surface/60 px-5 py-6">
-        <p className="text-sm font-semibold text-foreground">Check your email</p>
+        <p className="text-sm font-semibold text-foreground">{copy.sentTitle}</p>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          We sent a sign-in link to{" "}
-          <span className="font-medium text-foreground">{email.trim()}</span>.
-          Open it to finish signing in and unlock your Starter Kit.
+          {copy.sentLead}
+          <span className="font-medium text-foreground">{email.trim()}</span>
+          {copy.sentTail}
         </p>
         <button
           type="button"
@@ -67,7 +101,7 @@ export function AuthForm({ nextPath }: { nextPath: string }) {
           }}
           className="mt-4 text-sm font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
         >
-          Use a different email
+          {copy.differentEmail}
         </button>
       </div>
     );
@@ -80,7 +114,7 @@ export function AuthForm({ nextPath }: { nextPath: string }) {
           htmlFor="auth-email"
           className="block text-sm font-medium text-foreground"
         >
-          Email
+          {copy.email}
         </label>
         <input
           id="auth-email"
@@ -91,7 +125,7 @@ export function AuthForm({ nextPath }: { nextPath: string }) {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           disabled={status === "sending"}
-          placeholder="you@company.com"
+          placeholder={copy.placeholder}
           className="mt-1.5 w-full rounded-lg border border-border/60 bg-card px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus-visible:ring-2 focus-visible:ring-accent"
         />
       </div>
@@ -107,15 +141,14 @@ export function AuthForm({ nextPath }: { nextPath: string }) {
         disabled={status === "sending"}
         className="flex w-full items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90 disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
-        {status === "sending" ? "Sending link…" : "Continue with Email"}
+        {status === "sending" ? copy.sending : copy.continue}
       </button>
 
       <p className="text-center text-xs text-muted">
-        Free account. No credit card required.
+        {copy.freeAccount}
       </p>
       <p className="text-center text-xs text-muted">
-        Already have an account? Use the same email — we&apos;ll send a sign-in
-        link.
+        {copy.sameEmail}
       </p>
     </form>
   );

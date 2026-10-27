@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/footer";
@@ -6,6 +7,7 @@ import { GoogleAdsConfig } from "@/components/google-ads-config";
 import { Header } from "@/components/header";
 import { ContentProvider } from "@/src/content/content-context";
 import { loadPublishedContent } from "@/src/content/load-published";
+import { isUiLocale, type UiLocale } from "@/src/lib/i18n/locale";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/site";
 import "./globals.css";
 
@@ -48,23 +50,29 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+async function requestLocale(): Promise<UiLocale | null> {
+  const value = (await headers()).get("x-atlas-locale");
+  return value && isUiLocale(value) ? value : null;
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await requestLocale();
   const content = loadPublishedContent();
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 
   return (
     <html
-      lang="en"
+      lang={locale === "ja" ? "ja" : "en"}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <ContentProvider content={content}>
-          <Header />
+          <Header locale={locale} />
           <div className="flex-1">{children}</div>
-          <Footer />
+          <Footer locale={locale} />
         </ContentProvider>
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
         {googleAdsId ? <GoogleAdsConfig adsId={googleAdsId} /> : null}

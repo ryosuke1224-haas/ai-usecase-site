@@ -48,9 +48,10 @@ export const blueprintCatalog: BlueprintDefinition[] = [
   },
 ];
 
-export function authPath(nextPath: string): string {
+export function authPath(nextPath: string, locale?: "ja" | "en"): string {
   const params = new URLSearchParams({ next: nextPath });
-  return `/auth?${params.toString()}`;
+  const base = locale ? `/${locale}/auth` : "/auth";
+  return `${base}?${params.toString()}`;
 }
 
 /**

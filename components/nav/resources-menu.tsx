@@ -63,7 +63,36 @@ const resourceLinks: ResourceLink[] = [
   },
 ];
 
-export function ResourcesMenu() {
+export function ResourcesMenu({
+  locale = null,
+  label = "Resources",
+}: {
+  locale?: "ja" | "en" | null;
+  label?: string;
+} = {}) {
+  const links = resourceLinks.flatMap((link) => {
+    if (locale !== "ja") {
+      if (!locale) return [link];
+      if (link.href === "/use-cases" || link.href === "/contact" || link.href === "/#how-it-works") {
+        const href = link.href.startsWith("/#") ? `/${locale}${link.href.slice(1)}` : `/${locale}${link.href}`;
+        return [{ ...link, href }];
+      }
+      return [link];
+    }
+    if (link.href === "/playbooks/google-ads-audit") return [];
+    const ja: Record<string, { href: string; label: string; description: string }> = {
+      "/business-areas": { href: "/ja/business-areas", label: "業務から探す", description: "営業、経理、顧客対応などの業務から見る" },
+      "/use-cases": { href: "/ja/use-cases", label: "AI活用テンプレート", description: "すぐ試せる手順" },
+      "/find-workflows": { href: "/ja/find-workflows", label: "ツールから探す", description: "使っているツールから探す" },
+      "/apis": { href: "/ja/apis", label: "API・ツール", description: "テンプレートで使うツール" },
+      "/data-sources": { href: "/ja/data-sources", label: "データソース", description: "業務で持っているデータ" },
+      "/workflow-ideas": { href: "/ja/workflow-ideas", label: "AI活用アイデア", description: "組み合わせの例" },
+      "/#how-it-works": { href: "/ja#how-it-works", label: "使い方", description: "見つけて、試して、業務で使う" },
+      "/contact": { href: "/ja/contact", label: "お問い合わせ", description: "購入とサポート" },
+    };
+    const next = ja[link.href];
+    return [next ? { ...link, ...next } : link];
+  });
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -100,7 +129,7 @@ export function ResourcesMenu() {
         onClick={() => setOpen((value) => !value)}
         className="flex items-center gap-1 rounded px-2.5 py-1.5 text-xs font-medium text-muted hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:text-sm"
       >
-        Resources
+        {label}
         <svg
           className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}
           viewBox="0 0 24 24"
@@ -118,7 +147,7 @@ export function ResourcesMenu() {
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 w-72 rounded-lg border border-border/60 bg-card py-1 shadow-lg">
           <ul>
-            {resourceLinks.map((link) => (
+            {links.map((link) => (
               <li
                 key={link.href}
                 className={link.smallScreenOnly ? "sm:hidden" : undefined}

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { localeFromPathname } from "@/src/lib/i18n/locale";
 import { updateSession } from "@/src/lib/supabase/proxy";
 
 /**
@@ -29,8 +30,11 @@ function isStaticAsset(pathname: string) {
 
 export async function proxy(request: NextRequest) {
   // Always refresh the Auth session first so protected routes see current cookies.
-  const sessionResponse = await updateSession(request);
   const { pathname } = request.nextUrl;
+  const requestHeaders = new Headers(request.headers);
+  const locale = localeFromPathname(pathname);
+  if (locale) requestHeaders.set("x-atlas-locale", locale);
+  const sessionResponse = await updateSession(request, requestHeaders);
 
   if (pathname.startsWith("/api/stripe/")) {
     return sessionResponse;

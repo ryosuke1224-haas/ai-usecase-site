@@ -6,6 +6,17 @@ import { useEffect, useRef, useState } from "react";
 import { usePublishedContent } from "@/src/content/content-context";
 import { globalSearch, type SearchResult } from "@/src/lib/discovery";
 
+function localizeSearchHref(href: string): string {
+  if (href.startsWith("/business-areas")) return href.replace("/business-areas", "/ja/business-areas");
+  if (href.startsWith("/use-cases/") || href === "/use-cases") return "/ja/use-cases";
+  if (href.startsWith("/apis")) return "/ja/apis";
+  if (href.startsWith("/data-sources")) return "/ja/data-sources";
+  if (href.startsWith("/workflow-ideas")) return "/ja/workflow-ideas";
+  if (href.startsWith("/find-workflows")) return "/ja/find-workflows";
+  if (href.startsWith("/contact")) return "/ja/contact";
+  return href;
+}
+
 const typeLabels: Record<SearchResult["type"], string> = {
   "use-case": "Use case",
   api: "API",
@@ -13,7 +24,17 @@ const typeLabels: Record<SearchResult["type"], string> = {
   workflow: "Workflow",
 };
 
-export function GlobalSearch({ className = "" }: { className?: string }) {
+export function GlobalSearch({
+  className = "",
+  locale = null,
+}: {
+  className?: string;
+  locale?: "ja" | "en" | null;
+}) {
+  const japanese = locale === "ja";
+  const labels = japanese
+    ? { "use-case": "AI活用例", api: "API", "data-source": "データ", workflow: "アイデア" }
+    : typeLabels;
   const content = usePublishedContent();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -39,7 +60,7 @@ export function GlobalSearch({ className = "" }: { className?: string }) {
     <div ref={ref} className={`relative ${className}`}>
       <input
         type="search"
-        placeholder="Search use cases, APIs, data sources..."
+        placeholder={japanese ? "AI活用例、ツール、データを探す" : "Search use cases, APIs, data sources..."}
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
@@ -48,7 +69,7 @@ export function GlobalSearch({ className = "" }: { className?: string }) {
         onFocus={() => setOpen(true)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && results[0]) {
-            router.push(results[0].href);
+            router.push(japanese ? localizeSearchHref(results[0].href) : results[0].href);
             setOpen(false);
             setQuery("");
           }
@@ -74,7 +95,7 @@ export function GlobalSearch({ className = "" }: { className?: string }) {
           {results.map((r) => (
             <li key={`${r.type}-${r.slug}`}>
               <Link
-                href={r.href}
+                href={japanese ? localizeSearchHref(r.href) : r.href}
                 onClick={() => {
                   setOpen(false);
                   setQuery("");
@@ -82,7 +103,7 @@ export function GlobalSearch({ className = "" }: { className?: string }) {
                 className="block px-4 py-2.5 hover:bg-surface"
               >
                 <span className="text-xs font-medium uppercase tracking-wider text-muted">
-                  {typeLabels[r.type]}
+                  {labels[r.type]}
                 </span>
                 <p className="text-sm font-medium">{r.title}</p>
                 <p className="text-xs text-muted line-clamp-1">{r.summary}</p>
@@ -94,7 +115,7 @@ export function GlobalSearch({ className = "" }: { className?: string }) {
 
       {open && query && results.length === 0 && (
         <p className="absolute top-full z-50 mt-1 w-full rounded-lg border border-border/60 bg-card px-4 py-3 text-sm text-muted shadow-lg">
-          No results for &ldquo;{query}&rdquo;
+          {japanese ? `「${query}」に一致するものはありません` : `No results for “${query}”`}
         </p>
       )}
     </div>

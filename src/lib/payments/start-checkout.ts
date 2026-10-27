@@ -3,7 +3,7 @@ import "server-only";
 import { getStripe } from "@/src/lib/stripe/server";
 import { buildCheckoutSessionCreateParams } from "./checkout-session";
 import { loadRegistryProducts } from "./load-registry";
-import { formatCheckoutPrice, previewCommerceScope } from "./preview-market";
+import { commerceScopeForUiLocale, formatCheckoutPrice, parseUiLocale, previewCommerceScope, type UiCommerceLocale } from "./preview-market";
 import { findRegistryMapping, resolveTrustedPriceId } from "./registry";
 
 export class CheckoutUnavailable extends Error {
@@ -12,8 +12,11 @@ export class CheckoutUnavailable extends Error {
   }
 }
 
-export async function loadPreviewPriceLabel(productSlug: string): Promise<string | null> {
-  const scope = previewCommerceScope();
+export async function loadPreviewPriceLabel(
+  productSlug: string,
+  uiLocale: UiCommerceLocale | null = null,
+): Promise<string | null> {
+  const scope = uiLocale ? commerceScopeForUiLocale(uiLocale) : previewCommerceScope();
   if (!scope) return null;
   const products = await loadRegistryProducts();
   const row = findRegistryMapping(products, { product_slug: productSlug, ...scope });
@@ -28,8 +31,10 @@ export async function createHostedCheckoutUrl(input: {
   productSlug: string;
   origin: string;
   clientPriceId?: string;
+  uiLocale?: UiCommerceLocale | null;
 }): Promise<string> {
-  const scope = previewCommerceScope();
+  const uiLocale = parseUiLocale(input.uiLocale);
+  const scope = uiLocale ? commerceScopeForUiLocale(uiLocale) : previewCommerceScope();
   if (!scope) throw new CheckoutUnavailable();
   const products = await loadRegistryProducts();
   const resolved = resolveTrustedPriceId(input.productSlug, {
@@ -53,6 +58,12 @@ export async function createHostedCheckoutUrl(input: {
     serverPriceId: resolved.priceId,
     clientPriceId: input.clientPriceId,
     registryStatus: row?.status ?? null,
+    ...(uiLocale
+      ? {
+          successPath: `/${uiLocale}/blueprints/ai-collections-assistant/checkout/success`,
+          cancelPath: `/${uiLocale}/blueprints/ai-collections-assistant`,
+        }
+      : {}),
   });
   if (!built.ok) throw new CheckoutUnavailable();
 

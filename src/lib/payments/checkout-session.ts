@@ -20,6 +20,20 @@ export type CheckoutBuildResult =
 
 const PRICE_ID = /^price_[A-Za-z0-9]+$/;
 
+const ALLOWED_RETURN_PATHS = new Set([
+  "/blueprints/ai-collections-assistant",
+  "/blueprints/ai-collections-assistant/checkout/success",
+  "/ja/blueprints/ai-collections-assistant",
+  "/ja/blueprints/ai-collections-assistant/checkout/success",
+  "/en/blueprints/ai-collections-assistant",
+  "/en/blueprints/ai-collections-assistant/checkout/success",
+]);
+
+function allowedReturnPath(path: string | undefined): string | undefined {
+  if (!path || !ALLOWED_RETURN_PATHS.has(path)) return undefined;
+  return path;
+}
+
 export function serverPriceForProduct(
   slug: string,
   env: NodeJS.ProcessEnv = process.env,
@@ -59,6 +73,8 @@ export function buildCheckoutSessionCreateParams(input: {
   serverPriceId: string | undefined;
   clientPriceId?: string;
   registryStatus?: "ACTIVE" | "DRAFT" | "ARCHIVED" | null;
+  successPath?: string;
+  cancelPath?: string;
 }): CheckoutBuildResult {
   void input.clientPriceId;
 
@@ -84,8 +100,8 @@ export function buildCheckoutSessionCreateParams(input: {
     params: {
       mode: "payment",
       line_items: [{ price, quantity: 1 }],
-      success_url: `${origin}${product?.successPath ?? `/blueprints/${input.productSlug}/checkout/success`}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}${product?.cancelPath ?? `/blueprints/${input.productSlug}`}`,
+      success_url: `${origin}${allowedReturnPath(input.successPath) ?? product?.successPath ?? `/blueprints/${input.productSlug}/checkout/success`}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}${allowedReturnPath(input.cancelPath) ?? product?.cancelPath ?? `/blueprints/${input.productSlug}`}`,
       client_reference_id: input.userId,
       ...(email ? { customer_email: email } : {}),
       metadata: {

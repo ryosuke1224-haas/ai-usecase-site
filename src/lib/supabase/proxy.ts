@@ -6,9 +6,9 @@ import { getSupabaseEnv } from "./env";
  * Refreshes the Auth session cookies on every matched request.
  * Must run in the Next.js proxy so Server Components receive a valid session.
  */
-export async function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest, requestHeaders = new Headers(request.headers)) {
   let response = NextResponse.next({
-    request,
+    request: { headers: requestHeaders },
   });
 
   const env = getSupabaseEnv();
@@ -25,8 +25,11 @@ export async function updateSession(request: NextRequest) {
         cookiesToSet.forEach(({ name, value }) => {
           request.cookies.set(name, value);
         });
+        const headers = new Headers(request.headers);
+        const locale = requestHeaders.get("x-atlas-locale");
+        if (locale) headers.set("x-atlas-locale", locale);
         response = NextResponse.next({
-          request,
+          request: { headers },
         });
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options);
