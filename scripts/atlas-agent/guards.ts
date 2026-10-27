@@ -25,6 +25,7 @@ const ALWAYS_PROTECTED = [
   "scripts/run-atlas-agent-loop.ts",
   "scripts/run-atlas-auto.ts",
   "scripts/run-atlas-commerce.ts",
+  "scripts/run-atlas-setup-preview.ts",
   "agents/research.md",
   "agents/spec.md",
 ];
@@ -33,6 +34,7 @@ const ALWAYS_PROTECTED_PREFIXES = [
   "scripts/atlas-agent/",
   "scripts/atlas-auto/",
   "scripts/atlas-commerce/",
+  "scripts/atlas-preview/",
   "atlas-memory/",
 ];
 

@@ -252,6 +252,31 @@ Checkout uses an ACTIVE registry row before any environment variable. `STRIPE_PR
 
 Preview Checkout stays on US Sandbox unless `ATLAS_COMMERCE_MARKET=JP` and `ATLAS_COMMERCE_LOCALE=ja` are set on the server. Those select the Japan Sandbox yen price and `STRIPE_SECRET_KEY_JP_SANDBOX`. Japan webhooks use `STRIPE_WEBHOOK_SECRET_JP_SANDBOX`. The US webhook secret stays `STRIPE_WEBHOOK_SECRET`. The browser cannot send a Stripe Price id.
 
+### Atlas Preview Setup
+
+One command configures the existing `private-preview` deployment for Japan Sandbox. It does not change Production, Live Stripe, or the US Sandbox mapping.
+
+First-time setup, once per machine:
+
+- Stay on `private-preview`.
+- Put `STRIPE_SECRET_KEY_JP_SANDBOX`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. That file stays gitignored. The URL must be the Atlas project `hrxqgjdatkywmcybsbgv.supabase.co`.
+- Sign in with the Vercel CLI (`vercel whoami` succeeds) and link project `ai-usecase-site`. A `VERCEL_TOKEN` is optional when that CLI session already exists. Do not commit tokens.
+- The Japan Sandbox Collections product, ¥4,900 price, and registry row already exist. This command reuses them.
+
+```bash
+npm run atlas:setup-preview -- --market JP
+npm run atlas:setup-preview -- --market JP --dry-run
+```
+
+The dry run prints the plan and modifies nothing. When Preview uses a different Supabase project, the plan says `Supabase project WOULD UPDATE`. The normal command checks local credentials, reuses or creates the Japan Sandbox webhook for `checkout.session.completed`, and writes Preview variables for branch `private-preview`. If that branch does not already use the local Atlas Supabase project, it adds a private-preview override for the URL, publishable key, and service role. It does not change Production values. It then redeploys that branch and checks that the Collections page shows ¥4,900. It stops at `READY_FOR_PAYMENT_TEST` and does not make a charge.
+
+A person still has to approve:
+
+- Production environment variables and Production deploys.
+- Any Live Stripe key, product, price, or webhook. `--environment LIVE` stops with `LIVE_STRIPE_PROVISIONING_BLOCKED`.
+- Rolling a webhook signing secret when Stripe will not return the existing one. The command stops with `WEBHOOK_SECRET_REQUIRES_ROTATION`. Roll the Japan Sandbox endpoint secret in the Stripe Dashboard, save it as `STRIPE_WEBHOOK_SECRET_JP_SANDBOX` in `.env.local`, and run the command again.
+- The Sandbox card payment itself.
+
 Generated HTML, prompts, and raw agent output go to `agent-reports/atlas-auto/<run-id>/`. That directory is gitignored.
 
 ### Safety
@@ -259,5 +284,5 @@ Generated HTML, prompts, and raw agent output go to `agent-reports/atlas-auto/<r
 - Runs only on `private-preview`.
 - Never commits, pushes, merges, deploys, or publishes.
 - Research, Scoring, and Spec agents are read-only ask-mode sessions. Any file they change is restored, and that step fails.
-- The Builder task is scoped to the new Blueprint's own directories. It forbids the Daily Inbox Briefing, shared navigation, content, agents, scripts, and memory. `scripts/atlas-auto/`, `scripts/atlas-commerce/`, `scripts/run-atlas-auto.ts`, `scripts/run-atlas-commerce.ts`, and `atlas-memory/` are always protected.
+- The Builder task is scoped to the new Blueprint's own directories. It forbids the Daily Inbox Briefing, shared navigation, content, agents, scripts, and memory. `scripts/atlas-auto/`, `scripts/atlas-commerce/`, `scripts/atlas-preview/`, `scripts/run-atlas-auto.ts`, `scripts/run-atlas-commerce.ts`, `scripts/run-atlas-setup-preview.ts`, and `atlas-memory/` are always protected.
 - The dashboard listens on 127.0.0.1 only and requires a per-run token for every decision. The HTML copy on disk cannot record decisions.
