@@ -3,6 +3,7 @@ import { agentCliExists } from "../atlas-agent/cursor-cli";
 import { buildResearchContext, loadReferenceReports } from "./context";
 import { blockingEntry, findHistory, type loadHistory } from "./memory";
 import { runReadOnlyAgent } from "./read-only-agent";
+import { activeStrategicSeeds, isActiveStrategicCandidate } from "./strategic-topics";
 import { isSameIdea, OVERALL_WEIGHTS, rankCandidates, SUMMARY_GROUPS } from "./scoring";
 import {
   candidateSchema,
@@ -16,7 +17,7 @@ import {
 } from "./types";
 
 const AGENT_TIMEOUT_MS = 15 * 60 * 1000;
-const TARGET_CANDIDATES = 5;
+export const TARGET_CANDIDATES = 5;
 const REQUESTED_CANDIDATES = 6;
 
 export type ResearchResult = {
@@ -30,11 +31,19 @@ export type ResearchResult = {
 
 type Pool = { candidate: Candidate; source: ScoredCandidate["source"] }[];
 
+export type ResearchAgentResult = { json: unknown; command?: string };
+
 export async function researchAndScore(input: {
   runId: string;
   history: ReturnType<typeof loadHistory>;
   reportDir: string;
   offline: boolean;
+  /**
+   * Production omits these and uses the Cursor agents.
+   * Tests pass them to run this same function without a live agent session.
+   */
+  researchAgent?: () => Promise<ResearchAgentResult>;
+  scoringAgent?: (candidates: Candidate[]) => Promise<ResearchAgentResult>;
 }): Promise<ResearchResult> {
   const notes: string[] = [];
   const agentCommands: string[] = [];
@@ -44,7 +53,7 @@ export async function researchAndScore(input: {
   fs.mkdirSync(input.reportDir, { recursive: true });
   fs.writeFileSync(contextPath, `${JSON.stringify(context, null, 2)}\n`);
 
-  const useAgents = !input.offline && agentCliExists();
+  const useAgents = !input.offline && (Boolean(input.researchAgent) || agentCliExists());
   if (input.offline) notes.push("Offline mode: used the reference library instead of the Research and Scoring agents.");
   else if (!useAgents) notes.push("Cursor Agent CLI not found: used the reference library.");
 
@@ -55,14 +64,16 @@ export async function researchAndScore(input: {
       console.log("Research Agent: proposing Premium Blueprint candidates (read-only Cursor Agent session)...");
       const promptPath = `${input.reportDir}/research-prompt.txt`;
       fs.writeFileSync(promptPath, researchPrompt(contextPath));
-      const { json, command } = await runReadOnlyAgent({
-        role: "research",
-        label: "Research Agent",
-        promptPath,
-        outputPath: `${input.reportDir}/research-output.txt`,
-        timeoutMs: AGENT_TIMEOUT_MS,
-      });
-      agentCommands.push(command);
+      const { json, command } = input.researchAgent
+        ? await input.researchAgent()
+        : await runReadOnlyAgent({
+            role: "research",
+            label: "Research Agent",
+            promptPath,
+            outputPath: `${input.reportDir}/research-output.txt`,
+            timeoutMs: AGENT_TIMEOUT_MS,
+          });
+      if (command) agentCommands.push(command);
       const parsed = researchOutputSchema.parse(json);
       for (const [index, raw] of parsed.candidates.entries()) {
         const result = candidateSchema.safeParse(raw);
@@ -93,6 +104,7 @@ export async function researchAndScore(input: {
     if (topUp.length > 0) notes.push(`Added ${topUp.length} reference candidate(s) because research returned fewer than 3 new ideas.`);
     pool = [...pool, ...topUp];
   }
+  pool = insertActiveStrategicSeeds(pool, input.history, filtered);
   if (pool.length === 0) {
     throw new Error("No candidates remain after removing rejected, completed, built, and approved ideas.");
   }
@@ -104,16 +116,20 @@ export async function researchAndScore(input: {
       console.log(`Scoring Agent: scoring ${pool.length} candidate(s) in a separate read-only session...`);
       const promptPath = `${input.reportDir}/scoring-prompt.txt`;
       fs.writeFileSync(promptPath, scoringPrompt(pool.map((entry) => entry.candidate)));
-      const { json, command } = await runReadOnlyAgent({
-        role: "scoring",
-        label: "Scoring Agent",
-        promptPath,
-        outputPath: `${input.reportDir}/scoring-output.txt`,
-        timeoutMs: AGENT_TIMEOUT_MS,
-      });
-      agentCommands.push(command);
+      const scoringCandidates = pool.map((entry) => entry.candidate);
+      const { json, command } = input.scoringAgent
+        ? await input.scoringAgent(scoringCandidates)
+        : await runReadOnlyAgent({
+            role: "scoring",
+            label: "Scoring Agent",
+            promptPath,
+            outputPath: `${input.reportDir}/scoring-output.txt`,
+            timeoutMs: AGENT_TIMEOUT_MS,
+          });
+      if (command) agentCommands.push(command);
       const parsed = scoringOutputSchema.parse(json);
       sheets = new Map(parsed.scores.map((sheet) => [sheet.candidate_id, sheet]));
+      fillMissingSeedSheets(pool, sheets, notes);
       const unscored = pool.filter((entry) => !hasAllCriteria(sheets.get(entry.candidate.id)));
       if (unscored.length > 0) {
         for (const entry of unscored) {
@@ -126,12 +142,17 @@ export async function researchAndScore(input: {
     } catch (error) {
       notes.push(`Scoring Agent failed, so the reference library was used for candidates and scores: ${message(error)}`);
       researchSource = "reference-library";
-      pool = dedupe(reference.map(({ candidate }) => ({ candidate, source: "reference-library" as const })), input.history, []);
+      pool = insertActiveStrategicSeeds(
+        dedupe(reference.map(({ candidate }) => ({ candidate, source: "reference-library" as const })), input.history, []),
+        input.history,
+        filtered,
+      );
       sheets = new Map();
     }
   }
   if (scoringSource === "reference-library") {
     for (const entry of reference) sheets.set(entry.candidate.id, entry.sheet);
+    fillMissingSeedSheets(pool, sheets, notes);
   }
 
   const ranked = rankCandidates(
@@ -142,17 +163,70 @@ export async function researchAndScore(input: {
       source,
     })),
   );
-  for (const extra of ranked.slice(TARGET_CANDIDATES)) {
-    filtered.push({ id: extra.id, name: extra.name, reason: `Ranked ${extra.rank}; only the top ${TARGET_CANDIDATES} are shown.` });
+  const review = reviewCandidates(ranked);
+  for (const extra of review.hidden) {
+    filtered.push({
+      id: extra.id,
+      name: extra.name,
+      reason: `Ranked ${extra.rank}; outside the top ${TARGET_CANDIDATES}.`,
+    });
   }
   return {
-    candidates: ranked.slice(0, TARGET_CANDIDATES),
+    candidates: review.shown,
     filtered,
     researchSource,
     scoringSource,
     notes,
     agentCommands,
   };
+}
+
+/** Top N by score, plus any active strategic seed that ranked outside that cutoff. Ranks and scores stay as ranked. */
+function reviewCandidates(ranked: ScoredCandidate[]): { shown: ScoredCandidate[]; hidden: ScoredCandidate[] } {
+  const shownIds = new Set(ranked.slice(0, TARGET_CANDIDATES).map((item) => item.id));
+  for (const item of ranked) {
+    if (isActiveStrategicCandidate(item.id)) shownIds.add(item.id);
+  }
+  return {
+    shown: ranked.filter((item) => shownIds.has(item.id)),
+    hidden: ranked.filter((item) => !shownIds.has(item.id)),
+  };
+}
+
+function insertActiveStrategicSeeds(
+  pool: Pool,
+  history: ReturnType<typeof loadHistory>,
+  filtered: ResearchResult["filtered"],
+): Pool {
+  const next = [...pool];
+  const ids = new Set(next.map((entry) => entry.candidate.id));
+  for (const seed of activeStrategicSeeds()) {
+    if (ids.has(seed.candidate.id)) continue;
+    const blocked = blockingEntry(history, seed.candidate);
+    if (blocked) {
+      filtered.push({
+        id: seed.candidate.id,
+        name: seed.candidate.name,
+        reason: `Matches ${blocked.name} (${blocked.status}) in history.`,
+      });
+      continue;
+    }
+    next.push({ candidate: seed.candidate, source: "reference-library" });
+    ids.add(seed.candidate.id);
+  }
+  return next;
+}
+
+function fillMissingSeedSheets(pool: Pool, sheets: Map<string, ScoreSheet>, notes: string[]): void {
+  for (const entry of pool) {
+    if (hasAllCriteria(sheets.get(entry.candidate.id))) continue;
+    const seed = activeStrategicSeeds().find((item) => item.candidate.id === entry.candidate.id);
+    if (!seed) continue;
+    sheets.set(entry.candidate.id, seed.fallbackSheet);
+    notes.push(
+      `${entry.candidate.name} had no Scoring Agent sheet, so its criterion inputs went through the normal formula. That does not set its rank or approve it.`,
+    );
+  }
 }
 
 function dedupe(pool: Pool, history: ReturnType<typeof loadHistory>, filtered: ResearchResult["filtered"]): Pool {
@@ -226,6 +300,7 @@ function researchPrompt(contextPath: string): string {
     "- Sample input and sample output must be fictional and must say nothing that implies real customer data.",
     "- Do not invent statistics, savings, or ROI. Value estimates are perception ranges, not prices.",
     "- Do not include secrets, email addresses, or real personal data.",
+    "- Active strategic seeds in the context are inserted by the orchestrator before scoring, even if you omit them. Reuse their ids if you propose them. Do not rank them.",
     "",
     "OUTPUT",
     "Print one JSON object and no other text:",

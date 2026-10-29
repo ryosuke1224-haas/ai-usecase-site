@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BusinessAreaCard } from "@/components/business-areas/business-area-card";
+import { FeaturedTopics } from "@/components/topics/featured-topics";
 import { siteCopy } from "@/src/lib/i18n/copy";
 import { isUiLocale, localizedHref } from "@/src/lib/i18n/locale";
 import { getBusinessAreaOverviews } from "@/src/lib/business-area-content";
+import { featuredTopics } from "@/src/lib/topics";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -63,6 +65,8 @@ export default async function LocaleHomePage({ params }: PageProps) {
           ))}
         </ul>
       </section>
+
+      <FeaturedTopics locale={locale} topics={featuredTopics(locale)} />
 
       <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
         <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{copy.stepsTitle}</h2>

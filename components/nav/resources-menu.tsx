@@ -63,13 +63,22 @@ const resourceLinks: ResourceLink[] = [
   },
 ];
 
-export function ResourcesMenu({
-  locale = null,
-  label = "Resources",
-}: {
-  locale?: "ja" | "en" | null;
-  label?: string;
-} = {}) {
+export function securityResourceLink(locale: "ja" | "en" | null): ResourceLink {
+  if (locale === "ja") {
+    return {
+      href: "/ja/topics/security",
+      label: "セキュリティ対策",
+      description: "何から確認するかを整理する",
+    };
+  }
+  return {
+    href: "/en/topics/security",
+    label: "Security readiness",
+    description: "What a small business can check first",
+  };
+}
+
+export function resourceMenuLinks(locale: "ja" | "en" | null = null): ResourceLink[] {
   const links = resourceLinks.flatMap((link) => {
     if (locale !== "ja") {
       if (!locale) return [link];
@@ -93,6 +102,17 @@ export function ResourcesMenu({
     const next = ja[link.href];
     return [next ? { ...link, ...next } : link];
   });
+  return [securityResourceLink(locale), ...links];
+}
+
+export function ResourcesMenu({
+  locale = null,
+  label = "Resources",
+}: {
+  locale?: "ja" | "en" | null;
+  label?: string;
+} = {}) {
+  const links = resourceMenuLinks(locale);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 

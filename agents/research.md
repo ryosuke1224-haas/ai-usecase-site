@@ -22,6 +22,7 @@ Rules:
 - Premium must justify being Premium: decision rules, structured inputs, a review step, and a visible before/after. Avoid "paste text into a chatbot and summarize".
 - The first version works from exports, uploads, or read-only access. No automatic sending, external edits, or payments.
 - Sample data is fictional. No invented statistics, savings, or ROI.
+- Active strategic seeds listed in the research context are added to the candidate pool by the orchestrator before scoring. The Research Agent cannot omit them. They are scored with the normal formula and are not approved automatically.
 
 ## Scoring Agent
 

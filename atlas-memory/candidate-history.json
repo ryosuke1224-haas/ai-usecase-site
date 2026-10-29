@@ -1,6 +1,6 @@
 {
   "schema_version": "atlas-candidate-history-v1",
-  "updated_at": "2026-10-08T06:31:37.630Z",
+  "updated_at": "2026-10-29T05:45:12.914Z",
   "candidates": [
     {
       "id": "ai-cash-flow-forecaster",
@@ -257,6 +257,30 @@
           "run_id": "20261008T055422Z-dry-run",
           "status": "PROPOSED",
           "note": "Proposed at rank 3 with overall 7.3."
+        }
+      ]
+    },
+    {
+      "id": "security-readiness-action-pack",
+      "name": "Security Readiness Action Pack",
+      "status": "PROPOSED",
+      "first_seen_at": "2026-10-29T05:45:12.914Z",
+      "updated_at": "2026-10-29T05:45:12.914Z",
+      "runs": [
+        "20261029T053802Z"
+      ],
+      "last_scores": {
+        "commercial": 5.8,
+        "atlas_fit": 6,
+        "buildability": 5.8,
+        "overall": 5.85
+      },
+      "events": [
+        {
+          "at": "2026-10-29T05:45:12.914Z",
+          "run_id": "20261029T053802Z",
+          "status": "PROPOSED",
+          "note": "Proposed at rank 4 with overall 5.85."
         }
       ]
     }

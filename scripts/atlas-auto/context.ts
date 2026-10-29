@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { previousRuns, readJson, REFERENCE_DIR, type loadHistory } from "./memory";
+import { activeStrategicSeeds } from "./strategic-topics";
 import { BLOCKING_STATUSES } from "./types";
 
 type UseCaseRecord = {
@@ -27,6 +28,7 @@ export type ResearchContext = {
   history: { id: string; name: string; status: string; last_overall: number | null }[];
   excluded_candidates: { id: string; name: string; status: string }[];
   on_hold_candidates: { id: string; name: string }[];
+  strategic_topics: { id: string; seed_id: string; name: string; active: true }[];
 };
 
 export type ReferenceReport = {
@@ -125,6 +127,12 @@ export function buildResearchContext(
     on_hold_candidates: history.candidates
       .filter((entry) => entry.status === "HOLD")
       .map((entry) => ({ id: entry.id, name: entry.name })),
+    strategic_topics: activeStrategicSeeds().map((seed) => ({
+      id: seed.id,
+      seed_id: seed.candidate.id,
+      name: seed.candidate.name,
+      active: true as const,
+    })),
   };
 }
 

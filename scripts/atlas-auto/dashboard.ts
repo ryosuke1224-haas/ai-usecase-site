@@ -1,4 +1,6 @@
+import { TARGET_CANDIDATES } from "./research";
 import { OVERALL_WEIGHTS, SUMMARY_GROUPS } from "./scoring";
+import { isActiveStrategicCandidate } from "./strategic-topics";
 import {
   CRITERIA,
   CRITERION_LABELS,
@@ -88,6 +90,11 @@ export function renderCandidateDashboard(input: {
     <div class="panel-head">
       <h2>Compare candidates</h2>
       <p class="muted">Overall = ${OVERALL_WEIGHTS.commercial * 100}% Commercial + ${OVERALL_WEIGHTS.atlas_fit * 100}% Atlas Fit + ${OVERALL_WEIGHTS.buildability * 100}% Buildability + ${OVERALL_WEIGHTS.time_to_value * 100}% Time to value. Highest score is a recommendation, not a decision.</p>
+      ${
+        candidates.some((c) => c.rank > TARGET_CANDIDATES && isActiveStrategicCandidate(c.id))
+          ? `<p class="muted xs">Strategic topic means an active research seed stays visible outside the top ${TARGET_CANDIDATES}. The badge is not a recommendation or an approval. Rank and score are unchanged.</p>`
+          : ""
+      }
     </div>
     <div class="table-wrap"><table>
       <thead><tr><th>#</th><th>Candidate</th><th>Overall</th><th>Commercial</th><th>Atlas Fit</th><th>Buildability</th><th>Setup</th><th>Automation</th><th>Decision</th></tr></thead>
@@ -96,7 +103,7 @@ export function renderCandidateDashboard(input: {
         .map(
           (c) => `<tr>
           <td><span class="rank sm">${c.rank}</span></td>
-          <td><a href="#card-${e(c.id)}">${e(c.name)}</a><div class="muted xs">${e(truncate(c.persona, 90))}</div></td>
+          <td><a href="#card-${e(c.id)}">${e(c.name)}</a>${strategicTopicBadge(c)}<div class="muted xs">${e(truncate(c.persona, 90))}</div></td>
           <td><strong class="big-num">${c.summary_scores.overall.toFixed(2)}</strong></td>
           <td>${bar(c.summary_scores.commercial, "commercial")}</td>
           <td>${bar(c.summary_scores.atlas_fit, "fit")}</td>
@@ -163,7 +170,7 @@ function candidateCard(c: ScoredCandidate, state: DashboardState): string {
     <div class="card-head">
       <div class="rank">${c.rank}</div>
       <div class="title">
-        <h3>${e(c.name)}</h3>
+        <h3>${e(c.name)}${strategicTopicBadge(c)}</h3>
         <p class="persona">${e(c.persona)}</p>
         <div class="chips">${pill(`Setup ${c.setup_difficulty}`, difficultyTone(c.setup_difficulty))}${pill(`Automation ${c.automation_potential}`, levelTone(c.automation_potential))}${pill(`Oversight ${c.human_oversight}`, "slate")}${history}${c.source === "reference-library" ? pill("Reference", "slate") : ""}</div>
       </div>
@@ -464,6 +471,11 @@ function pill(text: string, tone: string): string {
   return `<span class="pill tone-${tone}">${e(text)}</span>`;
 }
 
+function strategicTopicBadge(candidate: ScoredCandidate): string {
+  if (candidate.rank <= TARGET_CANDIDATES || !isActiveStrategicCandidate(candidate.id)) return "";
+  return `<span class="pill tone-slate strategic-topic" title="Active strategic topic kept visible for review. This is not a recommendation or an approval.">Strategic topic</span>`;
+}
+
 function stat(label: string, value: string, tone: string): string {
   return `<div class="stat tone-border-${tone}"><span>${e(label)}</span><strong>${e(value)}</strong></div>`;
 }
@@ -472,7 +484,7 @@ function section(title: string, html: string): string {
   return `<div class="section"><h4>${e(title)}</h4>${html}</div>`;
 }
 
-function statusLabel(decision: string | undefined, history: string | null): string {
+export function statusLabel(decision: string | undefined, history: string | null): string {
   if (decision) return `<span class="s-${e(decision)}">${e(decision)}</span>`;
   if (history && history !== "PROPOSED") return `Pending (previously ${e(history)})`;
   return "Pending";
@@ -567,6 +579,7 @@ td a:hover{color:var(--accent)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{background:#f1f5f9;border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:12px}
 .pill{display:inline-block;border-radius:99px;padding:2px 10px;font-size:11px;font-weight:700;letter-spacing:.03em;border:1px solid transparent}
+.strategic-topic{margin-left:8px;font-weight:600;letter-spacing:.02em;vertical-align:middle}
 .tone-green{background:#ecfdf5;color:var(--green);border-color:#a7f3d0}
 .tone-amber{background:#fffbeb;color:var(--amber);border-color:#fde68a}
 .tone-red{background:#fef2f2;color:var(--red);border-color:#fecaca}
