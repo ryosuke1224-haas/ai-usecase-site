@@ -1,0 +1,419 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "security-readiness-action-pack",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "Security Readiness Action Pack",
+  "value_proposition": "Each quarter, rank the owner's own written account inventory with skip reasons, an owner-approved severity ladder, and a closure log — without scanning, connecting, or certifying anything.",
+  "persona": "Owner of a 3-20 person salon, clinic, agency, or trades shop with no IT person. They share a POS login, still have a former bookkeeper on payroll access, and have never restored a backup.",
+  "problem": "Access, backup, and account checks are postponed until something goes wrong. The owner cannot tell which gaps matter this quarter, and a generic turn-on-MFA list does not match the accounts they actually use.",
+  "workflow": [
+    "1. The person fills the inventory worksheet with one row per business account: account, named_owner, still_with_company (yes/no), mfa (on/off), last_restore_test (a date, never, or n/a), shared_login (yes/no), holds_customer_or_money_data (yes/no), plus the as-of date. Optional: paste a user-list export they already downloaded from Google Workspace or Microsoft 365. This is an owner-typed inventory, not a scan. PERSON DECIDES: which accounts to include, how to spell former-staff names, and whether to paste an optional user list.",
+    "2. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting or uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to upload the worksheet, paste the rows as text, or not use AI for this data at all.",
+    "3. The person pastes the Quarterly Readiness Queue Prompt and their rules from the Skip Rules and Severity Ladder Worksheet, then attaches or pastes the inventory and, if they have one, last quarter's closure log.",
+    "4. AI applies skip rules before anything else. It sets aside personal-only accounts (holds_customer_or_money_data = no), accounts the owner marked out of scope, and rows missing an account name. Every skipped row is listed with its reason. Rows missing still_with_company, mfa, or holds_customer_or_money_data are listed under NEEDS YOUR CHECK and are not ranked.",
+    "5. AI applies the owner-approved severity ladder to the remaining rows. Default HIGH: former staff still listed; MFA off on an account that holds customer or money data; backup restore never tested on such an account. Default MEDIUM: shared login on an admin account. Rank HIGH then MEDIUM. Never labels the business secure, compliant, or certified.",
+    "6. AI labels CONFIRMED fields taken from the inventory, states any AI INTERPRETATION separately, and lists suggested actions. Suggested actions never include scanning, exploiting, connecting to a vendor, changing a password, or disabling an account. PERSON DECIDES: which items, up to 5 this quarter, to act on, who will do each one, and the check date.",
+    "7. The person uses the Action Review Checklist before changing anything in a real product. PERSON DECIDES: whether to turn on MFA, remove access, test a restore, or replace a shared login, and they do that work in the real product themselves. The kit changes nothing.",
+    "8. The person records each outcome in the quarterly closure log. Closed items stay in the log. Next quarter they re-run on an updated inventory with the Quarter-to-Quarter Update Prompt so HIGH items that closed stay visible if they reopen, and HIGH items still open stay ranked."
+  ],
+  "before": "The owner keeps a mental list (shared iPad, old payroll login, backups they hope exist) and never ranks or re-checks it.",
+  "after": "Each quarter the owner reviews a ranked action list tied to their own inventory, with skip and severity reasons visible, and a closure log from last quarter. They decide every change in the actual product.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/security-readiness-action-pack using a fictional four-row account inventory dated as of 2026-04-06, with no live systems attached. It shows skip rules setting aside the personal streaming account, a ranked queue of three HIGH items with CONFIRMED fields from the inventory, a fact check of the Payroll row, a mock next-quarter run as of 2026-07-06 where Payroll is closed and the bank portal MFA is still off, and an ending that states the person changes accounts in the real product. The output does not certify the company as secure. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone.",
+    "steps": [
+      "Step 1 of 6 - The inventory: show the fictional four-row inventory as a table (Business bank portal, POS admin, Payroll, Owner personal streaming) with the as-of date 2026-04-06 and the default severity ladder (HIGH: former staff still listed; HIGH: MFA off on customer-or-money data; HIGH: restore test = never on customer-or-money data; MEDIUM: shared login on an admin account). Label the table invented. State that no live system is attached.",
+      "Step 2 of 6 - Skip rules first: list the three skip rules (personal-only; owner-marked out of scope; missing account name), then show exactly 1 skipped account: Owner personal streaming with reason text containing 'personal-only' and 'holds customer or money data = no'.",
+      "Step 3 of 6 - The ranked queue: show 3 HIGH items in order (Payroll, Business bank portal, POS admin), each with a CONFIRMED line from the inventory and a severity reason. Show the sentence 'This does not certify the company as secure.' Show AI INTERPRETATION: none of these rows prove an account was misused; they only repeat what you entered. Show RECOMMENDED ACTION: pick up to 5 items, assign who will do them, and set a check date.",
+      "Step 4 of 6 - Check the facts: open the Payroll row. A 'Check facts against the inventory row' button shows three rows (still_with_company no vs no, named_owner J. Reed vs J. Reed, holds_customer_or_money_data yes vs yes), each labelled with the text 'Matches'.",
+      "Step 5 of 6 - Closure log and next quarter: show the fictional closure log after the quarter of 2026-04-06, then a mock run as of 2026-07-06. Payroll is listed as closed with text containing 'access removed on 2026-04-18'. Business bank portal is still HIGH with text containing 'MFA still off'. POS admin is still HIGH with text containing 'MFA still off'. Owner personal streaming stays skipped as personal-only.",
+      "Step 6 of 6 - You change it: state the exact sentences 'You change it in the real product. The kit changes nothing.' and 'This does not certify the company as secure.' Explain that the person turns on MFA, removes access, tests a restore, or replaces a shared login in the real product, and that nothing is scanned, disabled, or changed automatically. Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "as_of: 2026-04-06 (fictional)\nseverity: HIGH if former staff still listed, OR MFA off on customer-or-money data, OR restore test = never on customer-or-money data; MEDIUM if shared login on admin\naccount,named_owner,still_with_company,mfa,last_restore_test,shared_login,holds_customer_or_money_data\nBusiness bank portal,A. Patel,yes,off,never,no,yes\nPOS admin,shared iPad,yes,off,2026-01-12,yes,yes\nPayroll,J. Reed,no,on,n/a,no,yes\nOwner personal streaming,A. Patel,yes,off,never,no,no\n\nClosure log after quarter of 2026-04-06 (fictional, entered by the owner):\nPayroll,closed,removed access,2026-04-18\nBusiness bank portal,still open,MFA still off\nPOS admin,still open,MFA still off and shared login",
+    "sample_output": "QUARTERLY QUEUE as of 2026-04-06 (fictional; 3 HIGH, 1 skipped). This does not certify the company as secure.\n1. Payroll — J. Reed. CONFIRMED: still_with_company = no; account still listed. Severity: HIGH (former staff still listed). Suggested action for you to take in payroll: remove access. The kit does not change it.\n2. Business bank portal. CONFIRMED: MFA = off; holds customer or money data = yes; last restore test = never. Severity: HIGH (MFA off on customer-or-money data; restore test = never on customer-or-money data). Suggested action: turn on MFA in the bank portal yourself; run a restore test and record the date.\n3. POS admin. CONFIRMED: MFA = off; shared_login = yes; holds customer or money data = yes; named_owner = shared iPad. Severity: HIGH (MFA off on customer-or-money data) and MEDIUM (shared login on an admin account). Suggested action: give the POS admin a named owner and MFA; do not turn off the shared iPad login until a named login can open the POS.\nSKIPPED: Owner personal streaming (personal-only; holds customer or money data = no).\nAI INTERPRETATION: none of these rows prove an account was misused. They only repeat what you entered.\nRECOMMENDED ACTION (you decide): pick up to 5 items, assign who will do them, and set a check date. Nothing is scanned, disabled, or changed automatically.\n\nNEXT QUARTER (mock run as of 2026-07-06, using your closure log)\nCLOSED: Payroll (access removed on 2026-04-18; stays in the log).\nQueue: 1. Business bank portal, HIGH (MFA still off; restore test still never). 2. POS admin, HIGH (MFA still off) and MEDIUM (shared admin login).\nSKIPPED: Owner personal streaming (personal-only; holds customer or money data = no).\nThis does not certify the company as secure.\nRECOMMENDED ACTION: you change it in the real product; the kit changes nothing.",
+    "fictional_data_notice": "All accounts, names, and dates on this page are fictional. No real business data is used, and nothing is connected to a bank, POS, payroll, Google Workspace, Microsoft 365, or any other live system."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Quarterly Security Readiness Setup Checklist",
+      "purpose": "Step-by-step setup for the quarterly run. It covers filling the inventory columns (account, named_owner, still_with_company, mfa, last_restore_test, shared_login, holds_customer_or_money_data) and the as-of date, the optional pasted user-list export from Google Workspace or Microsoft 365, checking the AI tool's data settings before pasting or uploading, and the rule that this is an owner inventory, not a scan. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
+    },
+    {
+      "id": "queue-prompt",
+      "title": "Quarterly Readiness Queue Prompt",
+      "purpose": "Copyable prompt that applies skip rules first, applies the owner-approved severity ladder, ranks HIGH then MEDIUM, lists every skip with its reason, and labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately. It forbids scanning, connecting, changing passwords, disabling accounts, inventing MFA or backup status, and labelling the business secure, compliant, or certified."
+    },
+    {
+      "id": "next-quarter-prompt",
+      "title": "Quarter-to-Quarter Update Prompt",
+      "purpose": "Copyable prompt for the following quarter. It reads the previous closure log with the new inventory, keeps closed HIGH items in the log so they are not forgotten if they reopen, ranks HIGH items that are still open, and forbids scanning, connecting, or certifying the company as secure."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Skip Rules and Severity Ladder Worksheet",
+      "purpose": "Browser-only form where the person lists accounts to mark out of scope and confirms or turns off each default HIGH and MEDIUM rule. It generates a copyable rules block to paste with the queue prompt. Nothing is saved to Atlas."
+    },
+    {
+      "id": "closure-log-template",
+      "title": "Quarterly Closure Log Template",
+      "purpose": "Column layout (quarter_of, account, named_owner, action_taken, outcome, check_date, notes) with the allowed outcome values (closed, still open, skipped, deferred) and fictional example rows. Includes a Copy CSV button so the person can start their own spreadsheet."
+    },
+    {
+      "id": "action-review-checklist",
+      "title": "Action Review Checklist",
+      "purpose": "Interactive, session-only checklist used before changing anything in a real product. It confirms that CONFIRMED fields match the inventory row, that skip reasons are listed, that the output does not certify the company as secure, that at most 5 actions were picked with a person and a check date, and that the person will make any change in the real product themselves."
+    },
+    {
+      "id": "sample-inventory",
+      "title": "Fictional Sample Inventory",
+      "purpose": "The same four-row fictional CSV used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real account names."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling access and former-staff names in AI tools: review data settings, keep former-staff names only as the owner typed them and delete them from the AI chat after the run, do not paste passwords or MFA secrets, do not scan or test systems the owner does not own, and do not disable the only POS login until a named login works. It also states that file upload support differs by plan and that nothing is scanned, disabled, or changed automatically."
+    }
+  ],
+  "decision_rules": [
+    "Use the inventory's as-of date, not today's date. If the inventory has no as-of date, ask the person for it before building the queue.",
+    "Apply all skip rules before ranking. Skipped accounts are never ranked and never given a HIGH or MEDIUM label.",
+    "Skip any row whose holds_customer_or_money_data value is no. Show the reason 'personal-only; holds customer or money data = no'.",
+    "Skip any account the owner marked out of scope. Show the reason 'marked out of scope by you'.",
+    "Skip any row missing an account name. Show the reason 'missing an account name'.",
+    "If a remaining row is missing still_with_company, mfa, or holds_customer_or_money_data, or the same account name appears twice, do not rank it. List it under NEEDS YOUR CHECK.",
+    "Do not invent MFA status, restore-test dates, employment status, or shared-login flags. Use only values the person entered. last_restore_test = n/a is not treated as never.",
+    "Default HIGH, in this rank order within HIGH: still_with_company = no (former staff still listed); then mfa = off and holds_customer_or_money_data = yes; then last_restore_test = never and holds_customer_or_money_data = yes. An account that matches more than one HIGH rule stays one row and lists every matching reason.",
+    "Default MEDIUM: shared_login = yes on an admin account. If the same account is already HIGH, list MEDIUM as an extra reason on that HIGH row; do not create a second row.",
+    "Rank every HIGH row before any MEDIUM-only row. Never output a LOW band in this version.",
+    "Never use the words secure, compliant, certified, audit passed, or hardened as a claim about the business. Every queue must include the sentence 'This does not certify the company as secure.'",
+    "Suggested actions may only tell the person what to do themselves in the real product: remove access, turn on MFA, run a restore test and record the date, or give a shared admin login a named owner. Do not suggest a scan, a penetration test, an exploit, an OAuth connection, a password change performed by the kit, or disabling an account from the kit.",
+    "If a shared POS or admin login is flagged, the suggested action must warn the person not to turn off the shared login until a named login can open that product.",
+    "Recommend at most 5 actions this quarter. If more HIGH items remain, list them as 'not in this quarter's five; keep in the log'.",
+    "AI INTERPRETATION must state that the rows only repeat what the owner entered and do not prove that an account was misused.",
+    "On a later quarter, match closure-log entries to the new inventory by account name. Closed items stay in the log. If a closed account is still listed in the new inventory with the same HIGH reason, return it to the HIGH queue as still open. If it is gone from the inventory, list it under CLOSED and keep the log row."
+  ],
+  "human_ai_boundary": [
+    "AI applies skip rules and lists every skipped account with its reason. The person decides which accounts are personal-only or out of scope, and whether to override a skip.",
+    "AI applies the severity ladder the owner approved. The person sets the ladder and decides whether a HIGH or MEDIUM label is fair.",
+    "AI ranks the queue from the written inventory. The person decides which items, up to 5 this quarter, to act on, who will do them, and the check date.",
+    "AI suggests actions using only inventory fields. The person checks every CONFIRMED field against the inventory row before doing anything in a real product.",
+    "AI never connects to a vendor, scans a system, changes a password, disables an account, or turns on MFA. The person makes every change in the real product, or decides not to.",
+    "AI reads the closure log. Only the person records outcomes, and the log reflects what the person entered, not what AI assumed.",
+    "AI labels CONFIRMED facts (from the inventory or log), AI INTERPRETATION, and RECOMMENDED ACTION separately. The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, scanned, disabled, or paid automatically. Every page states that the person changes accounts in the real product and that the kit changes nothing.",
+    "Atlas does not connect to a bank, POS, payroll, Google Workspace, Microsoft 365, or any other vendor. It has no OAuth flow, no API call, no network scan, and does not upload the person's data to any third party.",
+    "Before pasting or uploading an inventory to an AI tool, the person is told to review that tool's data settings (such as chat history, training use, and file retention) and to keep former-staff names only as they typed them.",
+    "The kit tells the person to delete former-staff names from the AI chat after the run, and not to paste passwords, recovery codes, or MFA secrets.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to scan, probe, or test systems they do not own, and not to treat the output as a reason to do so.",
+    "Shared-login flags must not tell the person to lock out the only person who can open the POS. The suggested action is to add a named owner first.",
+    "The queue never labels the business secure, compliant, or certified. Incomplete inventories can miss HIGH items; the page says the ranking only reflects rows the owner entered.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no statistics, savings, ROI claims, prices, or checkout."
+  ],
+  "required_data_tools": [
+    "Owner inventory worksheet (template in the kit)",
+    "Optional user-list export from Google Workspace or Microsoft 365 (CSV), names of people no longer employed kept only as the owner typed them",
+    "Quarterly closure log (template in the kit)",
+    "Spreadsheet (Google Sheets or Excel)",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/security-readiness-action-pack without a session renders a page whose h1 is 'Security Readiness Action Pack', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a table with exactly 4 data rows whose account names are Business bank portal, POS admin, Payroll, and Owner personal streaming. It also shows the as-of date 2026-04-06 and the severity ladder text 'former staff still listed', 'MFA off on customer-or-money data', 'restore test = never on customer-or-money data', and 'shared login on an admin account'.",
+    "Step 2 lists exactly 1 skipped account: Owner personal streaming with reason text containing 'personal-only' and 'holds customer or money data = no'.",
+    "Step 3 lists exactly 3 queued accounts in this order: Payroll, Business bank portal, POS admin. Payroll is HIGH with text containing 'former staff still listed'. Business bank portal is HIGH with text containing 'MFA' and 'never'. POS admin is HIGH with text containing 'MFA off' and MEDIUM with text containing 'shared'.",
+    "Step 3 shows the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. It also shows the exact sentence 'This does not certify the company as secure.' The AI INTERPRETATION line states that the rows only repeat what you entered and do not prove an account was misused.",
+    "Step 4 shows the Payroll CONFIRMED line with still_with_company = no. Activating 'Check facts against the inventory row' reveals three rows (still_with_company, named_owner, holds_customer_or_money_data), each containing the text 'Matches', and the values no, J. Reed, and yes.",
+    "Step 5 shows the fictional closure log and a mock next-quarter run as of 2026-07-06. The run lists Payroll as closed with text containing 'access removed on 2026-04-18', lists Business bank portal as still HIGH with text containing 'MFA still off', lists POS admin as still HIGH with text containing 'MFA still off', and lists Owner personal streaming as skipped with text containing 'personal-only'.",
+    "Step 6 contains the exact sentences 'You change it in the real product. The kit changes nothing.' and 'This does not certify the company as secure.' and a link to /blueprints/security-readiness-action-pack/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every account name, person name, date, and MFA or restore value in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', 'per month', or a price.",
+    "Neither page contains a percentage, an hours-saved figure, or an ROI or savings claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/security-readiness-action-pack', and /sitemap.xml does not contain '/blueprints/security-readiness-action-pack'.",
+    "GET /blueprints/security-readiness-action-pack/kit without a session redirects to /auth with the query parameter next=/blueprints/security-readiness-action-pack/kit.",
+    "Security Readiness Action Pack is registered in src/lib/blueprints.ts with id and productSlug 'security-readiness-action-pack', access 'premium', href '/blueprints/security-readiness-action-pack/kit', purchaseHref '/blueprints/security-readiness-action-pack', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/security-readiness-action-pack/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'security-readiness-action-pack') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'Security Readiness Action Pack Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no Security entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Quarterly Readiness Queue Prompt is shown in a <pre> element and contains these strings: 'SKIPPED', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'Apply the skip rules before ranking', 'Do not scan', 'Do not certify', 'Do not change passwords', 'Do not disable accounts', 'former staff', 'This does not certify the company as secure'.",
+    "The Quarter-to-Quarter Update Prompt is shown in a <pre> element and contains: 'closure log', 'closed', 'still open', 'former staff', 'Do not scan', 'Do not certify'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Skip Rules and Severity Ladder Worksheet has a visible label 'Accounts to mark out of scope (one per line)', four checkboxes with visible labels 'HIGH: former staff still listed', 'HIGH: MFA off on customer-or-money data', 'HIGH: restore never tested on customer-or-money data', and 'MEDIUM: shared login on an admin account' (all checked by default), plus a 'Generate My Readiness Rules' button.",
+    "With the defaults, the generated rules block contains 'Skip personal-only accounts (holds customer or money data = no).', 'HIGH: former staff still listed.', 'HIGH: MFA off on an account that holds customer or money data.', 'HIGH: backup restore never tested on an account that holds customer or money data.', 'MEDIUM: shared login on an admin account.', 'Never label the business secure, compliant, or certified.', 'Do not scan, connect, change passwords, or disable accounts.', and 'Pick at most 5 actions this quarter.' The block has a Copy button. The block contains no 'Always skip' line.",
+    "If all three HIGH checkboxes are unchecked, the worksheet shows the error 'Turn on at least one HIGH rule.' and generates no rules block.",
+    "When 'Accounts to mark out of scope (one per line)' is empty, the generated rules block contains no 'Always skip' line. When it contains 'Owner personal streaming', the block contains 'Always skip: Owner personal streaming'.",
+    "The Quarterly Closure Log Template shows the columns quarter_of, account, named_owner, action_taken, outcome, check_date, notes and the allowed outcomes closed, still open, skipped, deferred. Its 'Copy CSV' button writes text whose first line is 'quarter_of,account,named_owner,action_taken,outcome,check_date,notes'.",
+    "The Action Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Inventory section is labelled 'Fictional' and its Copy CSV text equals the 4 account rows and header from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the Security Readiness Action Pack card as Unlocked with an Open Blueprint link to /blueprints/security-readiness-action-pack/kit.",
+    "With an authenticated session that has no Security entitlement, /my-blueprints shows the Security Readiness Action Pack card as Locked with an Available to purchase link to /blueprints/security-readiness-action-pack and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/security-readiness-action-pack/, components/premium/security-readiness-action-pack/, and src/lib/premium/security-readiness-action-pack/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/security-readiness-action-pack/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/security-readiness-action-pack renders h1 'Security Readiness Action Pack', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/security-readiness-action-pack'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/security-readiness-action-pack'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-inventory-table",
+      "description": "Step 1 table has exactly 4 data rows with account names Business bank portal, POS admin, Payroll, and Owner personal streaming, and shows '2026-04-06', 'former staff still listed', 'MFA off on customer-or-money data', 'restore test = never on customer-or-money data', and 'shared login on an admin account'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-skip-reasons",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and exactly 1 skipped item: Owner personal streaming with text containing 'personal-only' and 'holds customer or money data = no'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-queue-order-severity",
+      "description": "On step 3, the queued items appear in the DOM order Payroll, Business bank portal, POS admin, with HIGH former-staff, HIGH MFA-and-never-restore, and HIGH MFA-off plus MEDIUM shared-login. The text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible, and the exact sentence 'This does not certify the company as secure.' is visible.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-fact-check",
+      "description": "On step 4, the Payroll CONFIRMED line is visible. Clicking 'Check facts against the inventory row' reveals 3 rows (no vs no; J. Reed vs J. Reed; yes vs yes), each with the text 'Matches'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-next-quarter-run",
+      "description": "On step 5, the closure log shows Payroll closed. The mock run as of 2026-07-06 shows Payroll closed with 'access removed on 2026-04-18', Business bank portal still HIGH with 'MFA still off', POS admin still HIGH with 'MFA still off', and Owner personal streaming skipped with 'personal-only'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-changes",
+      "description": "On step 6, the exact sentences 'You change it in the real product. The kit changes nothing.' and 'This does not certify the company as secure.' are visible. A link to /blueprints/security-readiness-action-pack/kit is present with visible text mentioning sign-in and private preview. 'Next step' is absent or disabled.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\d+%|ROI|hours saved/i.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/security-readiness-action-pack/kit ends on pathname /auth with searchParams next equal to '/blueprints/security-readiness-action-pack/kit' (expectAuthNext helper).",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/security-readiness-action-pack/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/security-readiness-action-pack/kit sees h1 'Security Readiness Action Pack Premium Kit', the exact text 'Premium · Private preview', and meta robots containing 'noindex'. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, queue-prompt, next-quarter-prompt, rules-worksheet, closure-log-template, action-review-checklist, sample-inventory, and safety-guidance, each with a heading matching its kit_contents title. A table-of-contents link with href '#<id>' exists for each.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-price-or-checkout",
+      "description": "Kit page body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\d+%|ROI|hours saved/i, and the page contains no form that posts to a payment URL.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-queue-prompt-copy",
+      "description": "The queue prompt <pre> contains all required strings. Clicking its 'Copy Prompt' button changes the label to 'Copied', and navigator.clipboard.readText() equals the <pre> text.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-next-quarter-prompt-content",
+      "description": "The Quarter-to-Quarter Update Prompt <pre> contains 'closure log', 'closed', 'still open', 'former staff', 'Do not scan', and 'Do not certify'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Readiness Rules' with default values produces a block containing 'Skip personal-only accounts (holds customer or money data = no).', 'HIGH: former staff still listed.', 'HIGH: MFA off on an account that holds customer or money data.', 'HIGH: backup restore never tested on an account that holds customer or money data.', 'MEDIUM: shared login on an admin account.', 'Never label the business secure, compliant, or certified.', 'Do not scan, connect, change passwords, or disable accounts.', and 'Pick at most 5 actions this quarter.', and no 'Always skip' line.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-custom-skip",
+      "description": "Entering 'Owner personal streaming' in 'Accounts to mark out of scope (one per line)' and generating produces a block containing 'Always skip: Owner personal streaming'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Unchecking 'HIGH: former staff still listed', 'HIGH: MFA off on customer-or-money data', and 'HIGH: restore never tested on customer-or-money data' and generating shows 'Turn on at least one HIGH rule.' and no rules block.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-closure-log-copy-csv",
+      "description": "The Quarterly Closure Log Template lists the allowed outcomes closed, still open, skipped, deferred. Its 'Copy CSV' button writes clipboard text whose first line is 'quarter_of,account,named_owner,action_taken,outcome,check_date,notes'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-inventory-fictional",
+      "description": "The Fictional Sample Inventory section shows the label 'Fictional'. Its copied CSV contains the header 'account,named_owner,still_with_company,mfa,last_restore_test,shared_login,holds_customer_or_money_data' and the 4 account rows from the demo.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Action Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-entitled",
+      "description": "With an entitled authenticated session, /my-blueprints shows the Security Readiness Action Pack card with PREMIUM, Unlocked, and an Open Blueprint link to /blueprints/security-readiness-action-pack/kit.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-locked-without-entitlement",
+      "description": "With an authenticated session whose entitlement header is deny, /blueprints/security-readiness-action-pack/kit shows heading 'Premium is locked', does not render #setup-checklist, and has 0 Buy Premium buttons.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-locked",
+      "description": "With an authenticated session whose entitlement header is deny, the Security Readiness Action Pack card on /my-blueprints is Locked, the Available to purchase link points at /blueprints/security-readiness-action-pack, and there is no kit link.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "daily-inbox-still-open",
+      "description": "With an authenticated session, /my-blueprints still has Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit, including when the Security entitlement is denied.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "collections-behavior-unchanged",
+      "description": "AI Collections Assistant remaining premium, Buy Premium, checkout, and entitlement behavior is unchanged. Do not edit Collections product files or e2e/ai-collections-assistant/ to satisfy this Security spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-security-stripe-price",
+      "description": "Security is not in PAID_PRODUCTS, getPaidProduct('security-readiness-action-pack') is undefined, and Security pages show no Stripe price, checkout form, or Buy Premium button.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/security-readiness-action-pack/authenticated.spec.ts. Authenticated QA must actually reach the Security kit after automatic session refresh.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts (the only authenticated file run by the authenticated-desktop project), call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, the out-of-scope field, every HIGH/MEDIUM checkbox and the Generate button, every review-checklist checkbox, and Reset. Each shows a visible focus ring (non-'none' outline or box-shadow on :focus-visible).",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to a bank, POS, payroll, Google Workspace, Microsoft 365, or any other vendor, including OAuth flows, API calls, and network scans.",
+    "Uploading, parsing, or storing the person's real inventory or closure log on Atlas.",
+    "Changing passwords, disabling accounts, turning on MFA, running restore tests, or otherwise editing a vendor account from Atlas.",
+    "Penetration tests, vulnerability scans, exploit PoCs, security certificates, compliance attestations, or any claim that the business is secure.",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for Security. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Stripe configuration, Production, or e2e/security-readiness-action-pack/authenticated.spec.ts.",
+    "Changes to content/published/ or any published use-case page.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or closure logs to an Atlas account.",
+    "Statistics, time savings, breach-cost figures, or ROI claims."
+  ],
+  "source": {
+    "run_id": "20261029T062527Z",
+    "candidate_id": "security-readiness-action-pack",
+    "approved_at": "2026-10-29T07:26:55.069Z",
+    "approval_note": "",
+    "summary_scores": {
+      "commercial": 5.6,
+      "atlas_fit": 7.4,
+      "buildability": 7,
+      "overall": 6.41
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/security-readiness-action-pack",
+    "kit": "/blueprints/security-readiness-action-pack/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/security-readiness-action-pack/",
+    "components/premium/security-readiness-action-pack/",
+    "src/lib/premium/security-readiness-action-pack/",
+    "src/lib/blueprints.ts"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/security-readiness-action-pack and the Premium kit at /blueprints/security-readiness-action-pack/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap. Signed-in users see Security in My Blueprints through the existing Blueprint catalog.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for productSlug security-readiness-action-pack. Entitled users see the kit labelled \"Premium · Private preview\". Users without entitlement see Premium is locked. It shows no Stripe price, checkout, or Buy Premium button.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/security-readiness-action-pack/, components/premium/security-readiness-action-pack/, and src/lib/premium/security-readiness-action-pack/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, Production, or e2e/security-readiness-action-pack/authenticated.spec.ts.",
+    "e2e/security-readiness-action-pack/authenticated.spec.ts is the protected acceptance test. Do not create, skip, weaken, or rewrite it. Authenticated QA uses the automatic Playwright session refresh. If refresh fails, stop with AUTH_SESSION_REFRESH_REQUIRED.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}
