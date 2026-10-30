@@ -210,11 +210,14 @@ test.describe("AI Collections Assistant signed-in kit", () => {
       "href",
       "/blueprints/daily-inbox-briefing/starter-kit",
     );
-    await expect(page.getByRole("link", { name: "Open Blueprint" })).toHaveAttribute(
+    const card = page.getByRole("listitem").filter({
+      has: page.getByRole("heading", { level: 2, name: "AI Collections Assistant" }),
+    });
+    await expect(card.getByRole("link", { name: "Open Blueprint" })).toHaveAttribute(
       "href",
       KIT_PATH,
     );
-    await expect(page.getByText("PREMIUM", { exact: true })).toBeVisible();
+    await expect(card.getByText("PREMIUM", { exact: true })).toBeVisible();
     await expect(page.getByText("FREE STARTER", { exact: true })).toBeVisible();
   });
 
@@ -294,12 +297,15 @@ test.describe("AI Collections Assistant without a premium entitlement", () => {
       "href",
       "/blueprints/daily-inbox-briefing/starter-kit",
     );
-    await expect(page.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
+    const card = page.getByRole("listitem").filter({
+      has: page.getByRole("heading", { level: 2, name: "AI Collections Assistant" }),
+    });
+    await expect(card.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
       "href",
       DEMO_PATH,
     );
-    await expect(page.locator(`a[href='${KIT_PATH}']`)).toHaveCount(0);
-    await expect(page.getByText("Locked", { exact: true })).toBeVisible();
+    await expect(card.locator(`a[href='${KIT_PATH}']`)).toHaveCount(0);
+    await expect(card.getByText("Locked", { exact: true })).toBeVisible();
     await expect(page.getByText("Unlocked", { exact: true })).toBeVisible();
   });
 

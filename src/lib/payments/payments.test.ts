@@ -324,8 +324,10 @@ test("secret keys stay on the server and the success page cannot grant access", 
 test("daily inbox stays a free starter and collections stays premium in the catalog", () => {
   const starter = getBlueprintById("daily-inbox-briefing-starter-kit");
   const premium = getBlueprintById("ai-collections-assistant");
+  const security = getBlueprintById("security-readiness-action-pack");
   assert.ok(starter);
   assert.ok(premium);
+  assert.ok(security);
   assert.equal(starter.access, "free-authenticated");
   assert.equal(canAccessBlueprint(USER_ID, starter), true);
   assert.equal(starter.href, "/blueprints/daily-inbox-briefing/starter-kit");
@@ -334,4 +336,8 @@ test("daily inbox stays a free starter and collections stays premium in the cata
   assert.equal(canAccessBlueprint(USER_ID, premium), false);
   assert.equal(premium.href, "/blueprints/ai-collections-assistant/kit");
   assert.equal(premium.purchaseHref, "/blueprints/ai-collections-assistant");
+  assert.equal(security.access, "premium");
+  assert.equal(security.productSlug, "security-readiness-action-pack");
+  assert.equal(canAccessBlueprint(USER_ID, security), false);
+  assert.equal(getPaidProduct("security-readiness-action-pack"), undefined);
 });

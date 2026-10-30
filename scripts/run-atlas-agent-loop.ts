@@ -15,6 +15,7 @@ import { BuilderTimeoutError } from "./atlas-agent/cursor-cli";
 import { runEvaluator, type EvaluatorHookResult } from "./atlas-agent/evaluator";
 import { guardChanges } from "./atlas-agent/guards";
 import { listQaReports, readNewQaReport, type QaRunResult } from "./atlas-agent/qa-failures";
+import { prepareAuthenticatedSession } from "./atlas-qa/auth-session";
 import { redact } from "./atlas-agent/redact";
 import { runCommand } from "./atlas-agent/run-command";
 import { formatZodError, taskSchema, type QaFailure } from "./atlas-agent/schema";
@@ -100,7 +101,7 @@ async function main() {
     process.exit(2);
   }
   const task = parsed.data;
-  const session = sessionState();
+  let session = sessionState();
   const loopDirectory = path.join(
     "agent-reports",
     "loops",
@@ -138,32 +139,34 @@ async function main() {
     });
   }
 
-  if (task.requires_authenticated_qa && session !== "present") {
-    finish({
-      resultPath,
-      baseline,
-      taskPath,
-      taskId: task.id,
-      taskTitle: task.title,
-      maxIterations: task.max_iterations,
-      iterationsUsed: 0,
-      disposition: "HUMAN_REVIEW_REQUIRED",
-      unresolved: [
-        issue(
-          "authenticated-session-missing",
-          "authenticated QA",
-          session === "env-missing"
-            ? "ATLAS_QA_STORAGE_STATE is set, but that file was not found. The loop will not request a Magic Link."
-            : "The saved Playwright session is missing. Create it once with npm run qa:save-session. The loop will not request a Magic Link.",
-          "QA_FAILURE",
-        ),
-      ],
-      qa: null,
-      evaluator: null,
-      iterations: [],
-      invocation,
-      session: "missing",
-    });
+  if (task.requires_authenticated_qa) {
+    const prepared = await prepareAuthenticatedSession();
+    if (prepared.status !== "ready") {
+      finish({
+        resultPath,
+        baseline,
+        taskPath,
+        taskId: task.id,
+        taskTitle: task.title,
+        maxIterations: task.max_iterations,
+        iterationsUsed: 0,
+        disposition: "HUMAN_REVIEW_REQUIRED",
+        unresolved: [
+          issue(
+            "AUTH_SESSION_REFRESH_REQUIRED",
+            "authenticated QA",
+            prepared.reason,
+            "AUTH_SESSION_REFRESH_REQUIRED",
+          ),
+        ],
+        qa: null,
+        evaluator: null,
+        iterations: [],
+        invocation,
+        session: "missing",
+      });
+    }
+    session = "present";
   }
 
   console.log(`Atlas agent loop`);
@@ -356,15 +359,18 @@ async function main() {
     const qaCommand = await runCommand("npm run qa");
     qa = readNewQaReport(beforeReports);
     iterations[iterations.length - 1].qa_report = qa.reportPath;
+    if (qa.failures.some((item) => item.classification === "AUTH_SESSION_REFRESH_REQUIRED")) {
+      unresolved = qa.failures.filter((item) => item.classification === "AUTH_SESSION_REFRESH_REQUIRED");
+      break;
+    }
     if (task.requires_authenticated_qa && (qa.report?.tests_skipped ?? 0) > 0) {
       unresolved = [
         issue(
-          "authenticated-qa-skipped",
+          "AUTH_SESSION_REFRESH_REQUIRED",
           "authenticated QA",
-          "Signed-in tests did not run. The loop will not disable authentication or request a new Magic Link.",
-          "QA_FAILURE",
+          "AUTH_SESSION_REFRESH_REQUIRED. Signed-in tests did not run. Refresh the stored Playwright session with npm run qa:save-session.",
+          "AUTH_SESSION_REFRESH_REQUIRED",
         ),
-        ...qa.failures,
       ];
       break;
     }

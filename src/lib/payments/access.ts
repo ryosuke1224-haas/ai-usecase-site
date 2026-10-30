@@ -4,7 +4,11 @@ import { headers } from "next/headers";
 import { blueprintCatalog, type BlueprintDefinition } from "@/src/lib/blueprints";
 import { createClient } from "@/src/lib/supabase/server";
 import { E2E_ENTITLEMENT_HEADER, isE2eEntitlementDenied, isE2eEntitlementGrant } from "./e2e-grant";
-import { COLLECTIONS_PRODUCT_SLUG } from "./products";
+function premiumCatalogSlugs(): string[] {
+  return blueprintCatalog
+    .filter((item) => item.access === "premium" && item.productSlug)
+    .map((item) => item.productSlug as string);
+}
 
 export type BlueprintCard = BlueprintDefinition & { unlocked: boolean };
 
@@ -21,7 +25,9 @@ async function e2eEntitlementOverride(): Promise<"grant" | "deny" | null> {
 export async function listActiveProductSlugs(userId: string): Promise<Set<string>> {
   const slugs = new Set<string>();
   const override = await e2eEntitlementOverride();
-  if (override === "grant") slugs.add(COLLECTIONS_PRODUCT_SLUG);
+  if (override === "grant") {
+    for (const slug of premiumCatalogSlugs()) slugs.add(slug);
+  }
 
   try {
     const supabase = await createClient();
@@ -38,7 +44,9 @@ export async function listActiveProductSlugs(userId: string): Promise<Set<string
   } catch {
     // Fail closed for database access. A local test deny still applies below.
   }
-  if (override === "deny") slugs.delete(COLLECTIONS_PRODUCT_SLUG);
+  if (override === "deny") {
+    for (const slug of premiumCatalogSlugs()) slugs.delete(slug);
+  }
   return slugs;
 }
 

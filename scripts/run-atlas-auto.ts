@@ -34,6 +34,14 @@ import {
   MEMORY_DIR,
 } from "./atlas-auto/memory";
 import { researchAndScore } from "./atlas-auto/research";
+import {
+  canApproveProductAndPrice,
+  createBuilderRetryRun,
+  evaluateBuilderRetry,
+  inspectBuilderRetry,
+  persistBuilderRetry,
+  resumeBlockedMessage,
+} from "./atlas-auto/retry-builder";
 import { runAutoSelfCheck } from "./atlas-auto/self-check";
 import { startReviewServer, type ReviewServer } from "./atlas-auto/server";
 import { runSpecAgent, writeBuildTask, type BlueprintSpec } from "./atlas-auto/spec";
@@ -42,7 +50,6 @@ import { usSandboxSecret } from "./atlas-commerce/stripe-accounts";
 import { sandboxStripe } from "./atlas-commerce/stripe-adapter";
 import Stripe from "stripe";
 import {
-  canApproveCommercialRelease,
   provisionSandboxProduct,
   parseApprovedAmount,
   suggestPriceCents,
@@ -68,6 +75,7 @@ type Options = {
   offline: boolean;
   serve: boolean;
   resume: string | null;
+  retryBuilder: string | null;
 };
 
 type Session = {
@@ -88,13 +96,18 @@ async function main() {
     return;
   }
   const resumeIndex = args.indexOf("--resume");
+  const retryIndex = args.indexOf("--retry-builder");
   const options: Options = {
     dryRun: args.includes("--dry-run"),
     offline: args.includes("--offline"),
     serve: !args.includes("--no-serve"),
     resume: resumeIndex >= 0 ? args[resumeIndex + 1] ?? null : null,
+    retryBuilder: retryIndex >= 0 ? args[retryIndex + 1] ?? null : null,
   };
   if (resumeIndex >= 0 && !options.resume) fail("Usage: npm run atlas:auto -- --resume <run-id>");
+  if (retryIndex >= 0 && !options.retryBuilder) fail("Usage: npm run atlas:auto -- --retry-builder <run-id>");
+  if (options.resume && options.retryBuilder) fail("Use either --resume or --retry-builder, not both.");
+  if (options.retryBuilder && options.dryRun) fail("Builder retry is a full run. Do not combine it with --dry-run.");
 
   const branch = currentBranch();
   if (branch !== REQUIRED_BRANCH) {
@@ -104,7 +117,11 @@ async function main() {
   const baseline = captureBaseline();
   const loopsBefore = listLoopDirs();
 
-  const session = options.resume ? resumeSession(options) : await newSession(options, branch);
+  const session = options.retryBuilder
+    ? retryBuilderSession(options)
+    : options.resume
+      ? resumeSession(options)
+      : await newSession(options, branch);
   const { run } = session;
   process.on("SIGINT", () => {
     run.notes.push(`Interrupted during ${run.phase}.`);
@@ -265,7 +282,8 @@ function resumeSession(options: Options): Session {
   if (candidates.length === 0) fail(`Run ${runId} has no candidates.`);
   run.commerce = run.commerce ?? null;
   if (run.phase === "FINISHED" || run.phase === "READY_FOR_PREVIEW") {
-    fail(`Run ${runId} is already ${run.phase}.`);
+    const retry = evaluateBuilderRetry(inspectBuilderRetry(runId));
+    fail(resumeBlockedMessage(run, retry.ok));
   }
   if (run.mode === "dry-run" && !options.dryRun) {
     run.mode = "full";
@@ -293,32 +311,91 @@ function resumeSession(options: Options): Session {
   return session;
 }
 
+function retryBuilderSession(options: Options): Session {
+  const sourceId = options.retryBuilder!;
+  const inspection = inspectBuilderRetry(sourceId);
+  const eligibility = evaluateBuilderRetry(inspection);
+  if (!eligibility.ok) fail(eligibility.reason);
+  const specPath = inspection.source.spec_path!;
+  const spec = inspection.spec!;
+  const { taskPath } = writeBuildTask(spec);
+  const next = createBuilderRetryRun({
+    source: inspection.source,
+    approval: inspection.approval!,
+    specPath,
+    taskPath,
+    runId: timestamp(),
+    now: new Date().toISOString(),
+  });
+  const candidates = loadRunCandidates(sourceId);
+  persistBuilderRetry({ run: next.run, approval: next.approval, candidates });
+  console.log("Atlas Auto v1");
+  console.log(`Builder retry of ${sourceId}`);
+  console.log(`New run: ${next.run.run_id}`);
+  console.log(`Reusing approved candidate: ${inspection.approval!.candidate_name} (${inspection.approval!.candidate_id})`);
+  console.log(`Reusing Spec: ${specPath}`);
+  console.log("Research, scoring, approval, and Spec will not rerun.");
+  saveRun(next.run);
+  return {
+    run: next.run,
+    candidates,
+    token: crypto.randomBytes(24).toString("hex"),
+    ended: false,
+    message: `${inspection.approval!.candidate_name} stays approved. Atlas is retrying the Builder with the existing Spec.`,
+    finalData: null,
+    finalDecision: null,
+    server: null,
+  };
+}
+
 async function buildApproved(session: Session, approved: ScoredCandidate) {
   const { run } = session;
   const reportDir = runReportDir(run.run_id);
   const approval = readJson<CandidateDecision>(run.approval_file)!;
-  session.message = `${approved.name} approved. Writing the Blueprint spec, then running Builder → Build → QA → Evaluator. Watch the terminal; this page switches to the final review when the loop finishes.`;
+  session.message =
+    run.retry_kind === "builder"
+      ? `${approved.name} stays approved. Retrying Builder → Build → QA → Evaluator with the existing Spec. Watch the terminal; this page switches to the final review when the loop finishes.`
+      : `${approved.name} approved. Writing the Blueprint spec, then running Builder → Build → QA → Evaluator. Watch the terminal; this page switches to the final review when the loop finishes.`;
 
-  run.phase = "SPEC";
-  saveRun(run);
   let spec: BlueprintSpec;
-  try {
-    const result = await runSpecAgent({ candidate: approved, approval, runId: run.run_id, reportDir });
-    spec = result.spec;
-    run.spec_path = result.specPath;
+  if (run.retry_kind === "builder" && run.spec_path) {
+    const reused = readJson<BlueprintSpec>(run.spec_path);
+    if (!reused || reused.id !== approved.id) {
+      run.phase = "FAILED";
+      run.notes.push("Builder retry could not reuse the approved Spec.");
+      saveRun(run);
+      session.message = "The approved Spec could not be reused. Nothing was built. See the terminal.";
+      console.error(run.notes.at(-1));
+      await closeSoon(session);
+      process.exit(1);
+    }
+    spec = reused;
     const { taskPath } = writeBuildTask(spec);
+    run.spec_path = run.spec_path;
     run.task_path = taskPath;
-    console.log(`Spec: ${result.specPath}`);
+    console.log(`Reusing Spec: ${run.spec_path}`);
     console.log(`Task: ${taskPath}`);
-  } catch (error) {
-    run.phase = "FAILED";
-    run.notes.push(redact(`Spec step failed: ${error instanceof Error ? error.message : String(error)}`));
+  } else {
+    run.phase = "SPEC";
     saveRun(run);
-    session.message = "The Spec Agent failed. Nothing was built. See the terminal.";
-    console.error(run.notes.at(-1));
-    console.error(`Retry with: npm run atlas:auto -- --resume ${run.run_id}`);
-    await closeSoon(session);
-    process.exit(1);
+    try {
+      const result = await runSpecAgent({ candidate: approved, approval, runId: run.run_id, reportDir });
+      spec = result.spec;
+      run.spec_path = result.specPath;
+      const { taskPath } = writeBuildTask(spec);
+      run.task_path = taskPath;
+      console.log(`Spec: ${result.specPath}`);
+      console.log(`Task: ${taskPath}`);
+    } catch (error) {
+      run.phase = "FAILED";
+      run.notes.push(redact(`Spec step failed: ${error instanceof Error ? error.message : String(error)}`));
+      saveRun(run);
+      session.message = "The Spec Agent failed. Nothing was built. See the terminal.";
+      console.error(run.notes.at(-1));
+      console.error(`Retry with: npm run atlas:auto -- --resume ${run.run_id}`);
+      await closeSoon(session);
+      process.exit(1);
+    }
   }
 
   run.phase = "BUILD";
@@ -535,12 +612,9 @@ async function postFinalReview(session: Session, body: Record<string, unknown>) 
     return { status: 200, body: dashboardState(session) };
   }
   if (
-    !canApproveCommercialRelease({
-      disposition: session.finalData.disposition,
-      qaStatus: session.finalData.qa.status,
-    })
+    !canApproveProductAndPrice(session.finalData)
   ) {
-    return { status: 409, body: { error: "QA and the Evaluator must pass before the product and price can be approved." } };
+    return { status: 409, body: { error: "Build, QA, and Evaluator must complete successfully before the product and price can be approved." } };
   }
   const amount = parseApprovedAmount({ choice: body.price_choice, customDollars: body.custom_dollars });
   if (!amount.ok) return { status: 400, body: { error: amount.error } };
@@ -737,6 +811,7 @@ function dashboardState(session: Session): DashboardState {
       : null,
     commerce_statuses: session.run.commerce?.statuses ?? [],
     message: session.message,
+    price_approval_enabled: session.finalData ? canApproveProductAndPrice(session.finalData) : false,
   };
 }
 

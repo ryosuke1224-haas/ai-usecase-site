@@ -105,7 +105,14 @@ function failuresFromReport(report: QaReport): QaFailure[] {
       actual: split.actual,
       evidence,
       relevant_files: repoPaths(detail),
-      classification: issue.id === "build" ? "BUILD_FAILURE" : issue.id === "validate-content" ? "VALIDATION_FAILURE" : "QA_FAILURE",
+      classification:
+        issue.id === "build"
+          ? "BUILD_FAILURE"
+          : issue.id === "validate-content"
+            ? "VALIDATION_FAILURE"
+            : issue.id === "AUTH_SESSION_REFRESH_REQUIRED" || /AUTH_SESSION_REFRESH_REQUIRED/.test(detail)
+              ? "AUTH_SESSION_REFRESH_REQUIRED"
+              : "QA_FAILURE",
       severity: issue.severity === "non_blocking" ? "non_blocking" : "blocking",
     });
   });

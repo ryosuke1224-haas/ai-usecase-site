@@ -10,6 +10,7 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "qa": "tsx scripts/run-atlas-qa.ts",
     "qa:save-session": "tsx scripts/save-atlas-qa-session.ts",
+    "qa:prepare-session": "tsx scripts/atlas-qa/prepare-auth-session.ts",
     "agent:run": "tsx scripts/run-atlas-agent-loop.ts",
     "atlas:auto": "tsx scripts/run-atlas-auto.ts",
     "atlas:commerce": "tsx scripts/run-atlas-commerce.ts",

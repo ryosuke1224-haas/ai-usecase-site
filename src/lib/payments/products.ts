@@ -6,6 +6,7 @@ import {
 export { COLLECTIONS_DEMO_PATH, COLLECTIONS_KIT_PATH };
 
 export const COLLECTIONS_PRODUCT_SLUG = "ai-collections-assistant";
+export const SECURITY_READINESS_PRODUCT_SLUG = "security-readiness-action-pack";
 
 export const COLLECTIONS_SUCCESS_PATH =
   "/blueprints/ai-collections-assistant/checkout/success";

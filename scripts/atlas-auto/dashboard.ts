@@ -1,4 +1,5 @@
 import { TARGET_CANDIDATES } from "./research";
+import { canApproveProductAndPrice } from "./retry-builder";
 import { OVERALL_WEIGHTS, SUMMARY_GROUPS } from "./scoring";
 import { isActiveStrategicCandidate } from "./strategic-topics";
 import {
@@ -20,6 +21,7 @@ export type DashboardState = {
   final_review: Pick<FinalReviewDecision, "decision" | "note" | "decided_at"> | null;
   commerce_statuses: string[];
   message: string;
+  price_approval_enabled?: boolean;
 };
 
 export type FinalReviewData = {
@@ -230,6 +232,7 @@ export function renderFinalReview(input: {
 }): string {
   const { run, data, state } = input;
   const ready = data.disposition === "READY_FOR_HUMAN_REVIEW";
+  const priceReady = Boolean(state.price_approval_enabled) && canApproveProductAndPrice(data);
   const body = `
   <header class="top">
     <div class="top-inner">
@@ -293,6 +296,11 @@ export function renderFinalReview(input: {
     </section>
     <section class="panel decide final">
       <h2>Price approval</h2>
+      ${
+        priceReady
+          ? ""
+          : `<div class="notice warn">APPROVE PRODUCT &amp; PRICE stays closed until Build, QA, and Evaluator all complete successfully. This is not a recommendation to approve the unfinished product.</div>`
+      }
       <p>Blueprint: <strong>${e(data.blueprintName)}</strong></p>
       <p>Evaluator score: <strong>${data.evaluator.overall == null ? "not scored" : data.evaluator.overall.toFixed(1)}</strong></p>
       <p>QA result: <strong>${e(data.qa.status)}</strong> · ${data.qa.passed} passed / ${data.qa.failed} failed</p>
@@ -314,7 +322,7 @@ export function renderFinalReview(input: {
       <label class="xs muted" for="final-note">Note (optional, stored in Atlas memory)</label>
       <textarea id="final-note" rows="3" placeholder="What should change, or why this price is right?">${e(state.final_review?.note ?? "")}</textarea>
       <div class="buttons">
-        <button class="btn approve" data-final="APPROVE_PRODUCT_AND_PRICE">APPROVE PRODUCT &amp; PRICE</button>
+        <button class="btn approve" data-final="APPROVE_PRODUCT_AND_PRICE"${priceReady ? "" : " disabled"}>APPROVE PRODUCT &amp; PRICE</button>
         <button class="btn hold" data-final="CHANGES_REQUESTED">REQUEST CHANGES</button>
         <button class="btn reject" data-final="REJECTED">REJECT</button>
       </div>
@@ -402,7 +410,13 @@ function apply(state) {
   }
   const commerce = document.getElementById('commerce-status');
   if (commerce) commerce.textContent = (state.commerce_statuses || []).join(' → ') || 'Waiting';
-  for (const b of document.querySelectorAll('[data-final]')) b.disabled = state.final_locked || !LIVE;
+  for (const b of document.querySelectorAll('[data-final]')) {
+    if (b.getAttribute('data-final') === 'APPROVE_PRODUCT_AND_PRICE') {
+      b.disabled = state.final_locked || !LIVE || !state.price_approval_enabled;
+    } else {
+      b.disabled = state.final_locked || !LIVE;
+    }
+  }
   if (state.message) showMessage(state.message);
 }
 for (const btn of document.querySelectorAll('[data-final]')) {

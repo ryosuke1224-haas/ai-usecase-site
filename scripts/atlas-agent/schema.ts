@@ -55,6 +55,7 @@ export const qaFailureSchema = z.object({
         "TEST_PROTECTION_VIOLATION",
         "SCOPE_VIOLATION",
         "BUILDER_TIMEOUT",
+        "AUTH_SESSION_REFRESH_REQUIRED",
     ])
     .optional(),
 });

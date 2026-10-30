@@ -6,6 +6,8 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { AUTH_SESSION_REFRESH_REQUIRED } from "../e2e/support/auth-state";
+import { isAuthInfrastructureFailure, prepareAuthenticatedSession } from "./atlas-qa/auth-session";
 import { checkDailyInboxSpec } from "./check-daily-inbox-spec";
 
 type StepStatus = "pass" | "fail" | "skipped" | "blocked";
@@ -238,6 +240,7 @@ async function main() {
         };
 
   let browser: StepResult;
+  let authPrepare: Awaited<ReturnType<typeof prepareAuthenticatedSession>> | null = null;
   if (build.status !== "pass") {
     browser = {
       status: "skipped",
@@ -245,6 +248,12 @@ async function main() {
       detail: "Skipped because the build did not pass.",
     };
   } else {
+    authPrepare = await prepareAuthenticatedSession();
+    if (authPrepare.status !== "ready") {
+      console.log(AUTH_SESSION_REFRESH_REQUIRED);
+    } else if (authPrepare.refreshed) {
+      console.log("Refreshed the stored Playwright session before authenticated QA.");
+    }
     browser = await runCommand("npx playwright test");
   }
 
@@ -311,8 +320,20 @@ async function main() {
     });
   }
 
+  const authFailures = tests.filter(
+    (test) => test.status === "failed" && isAuthInfrastructureFailure(test.detail),
+  );
+  if (authPrepare?.status === "AUTH_SESSION_REFRESH_REQUIRED" || authFailures.length > 0) {
+    blocking.push({
+      id: "AUTH_SESSION_REFRESH_REQUIRED",
+      severity: "blocking",
+      title: "Authenticated Playwright session must be refreshed",
+      detail: AUTH_SESSION_REFRESH_REQUIRED,
+    });
+  }
   for (const test of tests) {
     if (test.status !== "failed") continue;
+    if (isAuthInfrastructureFailure(test.detail)) continue;
     blocking.push({
       id: `${test.project}::${test.title}`,
       severity: "blocking",
@@ -345,19 +366,13 @@ async function main() {
   );
   const humanAction: string[] = [];
   if (authSkips.length > 0) {
-    humanAction.push(
-      "Signed-in Daily Inbox Briefing checks did not run. Save a Playwright storage state with npm run qa:save-session, or set ATLAS_QA_STORAGE_STATE. Do not commit that file, tokens, passwords, or email addresses.",
-    );
-    for (const test of authSkips) {
-      humanAction.push(`Skipped ${test.project}: ${test.title}`);
-    }
-    nonBlocking.push({
-      id: "auth-session-not-configured",
-      severity: "non_blocking",
-      title: "Authenticated tests were skipped",
-      detail:
-        "Public and logged-out checks ran. Starter Kit behavior still needs a local session file before it can pass or fail.",
+    blocking.push({
+      id: "AUTH_SESSION_REFRESH_REQUIRED",
+      severity: "blocking",
+      title: "Authenticated Playwright tests did not run",
+      detail: AUTH_SESSION_REFRESH_REQUIRED,
     });
+    humanAction.push(AUTH_SESSION_REFRESH_REQUIRED);
   }
 
   const ignoredConsole = unique(tests.flatMap((test) => test.ignoredConsole));

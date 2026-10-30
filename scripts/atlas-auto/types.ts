@@ -208,6 +208,8 @@ export type RunPhase =
 export type RunRecord = {
   schema_version: "atlas-auto-run-v1";
   run_id: string;
+  parent_run_id?: string | null;
+  retry_kind?: "builder" | null;
   mode: "dry-run" | "full";
   branch: string;
   started_at: string;
