@@ -2,6 +2,7 @@ import { TARGET_CANDIDATES } from "./research";
 import { canApproveProductAndPrice } from "./retry-builder";
 import { OVERALL_WEIGHTS, SUMMARY_GROUPS } from "./scoring";
 import { isActiveStrategicCandidate } from "./strategic-topics";
+import type { SupervisorReport } from "./supervisor";
 import {
   CRITERIA,
   CRITERION_LABELS,
@@ -52,6 +53,8 @@ export type FinalReviewData = {
   suggestedPriceCents: number;
   suggestedPaymentType: "ONE_TIME";
   commercialRationale: string;
+  supervisor?: SupervisorReport | null;
+  requiresAuthenticatedQa?: boolean;
 };
 
 export function escapeHtml(value: unknown): string {
@@ -231,7 +234,7 @@ export function renderFinalReview(input: {
   token: string;
 }): string {
   const { run, data, state } = input;
-  const ready = data.disposition === "READY_FOR_HUMAN_REVIEW";
+  const ready = data.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW" || data.disposition === "READY_FOR_HUMAN_REVIEW";
   const priceReady = Boolean(state.price_approval_enabled) && canApproveProductAndPrice(data);
   const body = `
   <header class="top">
@@ -252,9 +255,22 @@ export function renderFinalReview(input: {
       ${stat("Status", data.disposition, ready ? "green" : "amber")}
       ${stat("Build", data.build, data.build === "pass" ? "green" : "red")}
       ${stat("QA", `${data.qa.status} · ${data.qa.passed} passed / ${data.qa.failed} failed / ${data.qa.skipped} skipped`, data.qa.status === "pass" ? "green" : "red")}
+      ${stat("Authenticated QA", data.supervisor?.authenticatedQa ?? (data.qa.skipped > 0 ? "fail" : data.qa.status), data.supervisor?.authenticatedQa === "pass" || (data.qa.status === "pass" && data.qa.skipped === 0) ? "green" : "red")}
       ${stat("Evaluator", data.evaluator.overall != null ? `${data.evaluator.overall.toFixed(1)} · ${data.evaluator.decision}` : data.evaluator.status, data.evaluator.decision === "PASS" ? "green" : data.evaluator.decision === "PASS_WITH_RECOMMENDATIONS" ? "amber" : "red")}
+      ${stat("AI recommendation", data.supervisor?.recommendation ?? "n/a", ready ? "green" : "amber")}
       ${stat("Iterations", `${data.iterationsUsed} of ${data.maxIterations}`, "slate")}
     </section>
+    ${
+      data.supervisor
+        ? `<section class="panel"><h2>Supervisor</h2>
+        <p>Recommendation: <strong>${e(data.supervisor.recommendation)}</strong></p>
+        <p>Build: <strong>${e(data.supervisor.build)}</strong> · QA: <strong>${data.supervisor.qaPassed} passed / ${data.supervisor.qaFailed} failed / ${data.supervisor.qaSkipped} skipped</strong> · Authenticated QA: <strong>${e(data.supervisor.authenticatedQa)}</strong></p>
+        <p>Evaluator: <strong>${e(data.supervisor.evaluatorDecision ?? "n/a")}</strong>${data.supervisor.evaluatorScore != null ? ` · ${data.supervisor.evaluatorScore.toFixed(1)}` : ""}</p>
+        <p>Blocking findings: <strong>${data.supervisor.blockingFindings}</strong> · Remaining non-blocking: <strong>${data.supervisor.nonBlockingFindings}</strong> · Recovery cycles used: <strong>${data.supervisor.recoveryCyclesUsed}</strong></p>
+        ${data.supervisor.intervention ? `<p>Intervention: <strong>${e(data.supervisor.intervention)}</strong></p>` : ""}
+        </section>`
+        : ""
+    }
     <div class="two-col">
       <section class="panel">
         <h2>Critical issues</h2>
@@ -299,7 +315,7 @@ export function renderFinalReview(input: {
       ${
         priceReady
           ? ""
-          : `<div class="notice warn">APPROVE PRODUCT &amp; PRICE stays closed until Build, QA, and Evaluator all complete successfully. This is not a recommendation to approve the unfinished product.</div>`
+          : `<div class="notice warn">APPROVE PRODUCT &amp; PRICE stays closed until the Supervisor recommends READY_FOR_HUMAN_REVIEW (Build, QA, authenticated QA, and Evaluator complete with no blocking issues). This is not a recommendation to approve the unfinished product.</div>`
       }
       <p>Blueprint: <strong>${e(data.blueprintName)}</strong></p>
       <p>Evaluator score: <strong>${data.evaluator.overall == null ? "not scored" : data.evaluator.overall.toFixed(1)}</strong></p>

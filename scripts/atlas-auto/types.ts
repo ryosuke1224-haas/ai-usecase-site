@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { SupervisorState } from "./supervisor";
 
 export const CRITERIA = [
   "smb_value",
@@ -245,6 +246,7 @@ export type RunRecord = {
   pushed: false;
   published: false;
   notes: string[];
+  supervisor?: SupervisorState;
 };
 
 export type HistoryEvent = {

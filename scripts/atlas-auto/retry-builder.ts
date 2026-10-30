@@ -44,6 +44,7 @@ export function approvedProductPresent(candidateId: string | null): boolean {
 export function previousBuildSucceeded(source: RunRecord, loop: BuilderLoopSnapshot | null): boolean {
   const disposition = loop?.disposition ?? source.loop_disposition;
   const qa = loop?.qa_result?.status;
+  if (qa === "pass" && source.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW") return true;
   if (disposition === "READY_FOR_HUMAN_REVIEW" && qa === "pass") return true;
   return false;
 }
@@ -159,11 +160,22 @@ export function persistBuilderRetry(input: {
 export function canApproveProductAndPrice(data: {
   disposition: string;
   build: string;
-  qa: { status: string };
+  qa: { status: string; skipped?: number };
   evaluator: { status: string; decision: string | null };
+  supervisor?: { recommendation?: string } | null;
 }): boolean {
+  if (
+    data.supervisor?.recommendation === "HUMAN_INTERVENTION_REQUIRED" ||
+    data.supervisor?.recommendation === "NEEDS_INTERNAL_RECOVERY"
+  ) {
+    return false;
+  }
+  const dispositionOk =
+    data.disposition === "READY_FOR_HUMAN_REVIEW" ||
+    (data.disposition === "HUMAN_REVIEW_REQUIRED" && data.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW");
+  if (!dispositionOk) return false;
+  if ((data.qa.skipped ?? 0) > 0) return false;
   return (
-    data.disposition === "READY_FOR_HUMAN_REVIEW" &&
     data.build === "pass" &&
     data.qa.status === "pass" &&
     data.evaluator.status !== "not_run" &&

@@ -8,14 +8,28 @@ import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { runEvaluator } from "./atlas-agent/evaluator";
+import { listQaReports, readNewQaReport } from "./atlas-agent/qa-failures";
 import { redact } from "./atlas-agent/redact";
 import { captureBaseline, changesSince, currentBranch, currentHead } from "./atlas-agent/workspace";
+import { prepareAuthenticatedSession } from "./atlas-qa/auth-session";
 import {
   renderCandidateDashboard,
   renderFinalReview,
   type DashboardState,
   type FinalReviewData,
 } from "./atlas-auto/dashboard";
+import { executeRecovery, runRecoveryLoop, type RecoveryDeps } from "./atlas-auto/recovery";
+import {
+  applyPlannedAction,
+  completeRecovery,
+  decideSupervisor,
+  emptySupervisorState,
+  humanFacingDisposition,
+  HUMAN_REVIEW_REQUIRED,
+  snapshotFromLoop,
+  type SupervisorSnapshot,
+} from "./atlas-auto/supervisor";
 import {
   appendDecision,
   latestDecisions,
@@ -48,10 +62,11 @@ import { runSpecAgent, writeBuildTask, type BlueprintSpec } from "./atlas-auto/s
 import {
   HUMAN_INTERVENTION_REQUIRED,
   interventionReason,
-  retryAssignmentFromCurrentFiles,
+  readAssignmentFiles,
   shouldOpenFinalReview,
   validateBuilderAssignment,
 } from "./atlas-auto/task-assignment";
+import type { AgentTask } from "./atlas-agent/schema";
 import { readMergedRegistry, saveRegistryRow } from "./atlas-commerce/save-registry";
 import { usSandboxSecret } from "./atlas-commerce/stripe-accounts";
 import { sandboxStripe } from "./atlas-commerce/stripe-adapter";
@@ -367,11 +382,12 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
   const approval = readJson<CandidateDecision>(run.approval_file)!;
   session.message =
     run.retry_kind === "builder"
-      ? `${approved.name} stays approved. Retrying Builder → Build → QA → Evaluator with the existing Spec. Watch the terminal; this page switches to the final review when the loop finishes.`
-      : `${approved.name} approved. Writing the Blueprint spec, then running Builder → Build → QA → Evaluator. Watch the terminal; this page switches to the final review when the loop finishes.`;
+      ? `${approved.name} stays approved. The Supervisor will run Builder → Build → QA → Evaluator and recover internally when it is safe. Watch the terminal; this page switches to the final review only when the product is ready.`
+      : `${approved.name} approved. Writing the Blueprint spec, then the Supervisor will run Builder → Build → QA → Evaluator and recover internally when it is safe. Watch the terminal; this page switches to the final review only when the product is ready.`;
 
   let spec: BlueprintSpec;
-  if (run.retry_kind === "builder" && run.spec_path) {
+  let task: AgentTask;
+  if (run.retry_kind === "builder" && run.spec_path && run.task_path) {
     const reused = readJson<BlueprintSpec>(run.spec_path);
     if (!reused || reused.id !== approved.id) {
       run.phase = "FAILED";
@@ -382,20 +398,13 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
       await closeSoon(session);
       process.exit(1);
     }
-    spec = reused;
-    const assignment = retryAssignmentFromCurrentFiles(run);
-    if (!assignment.ok) {
-      run.phase = "HUMAN_INTERVENTION_REQUIRED";
-      run.loop_disposition = HUMAN_INTERVENTION_REQUIRED;
-      run.notes.push(assignment.reason);
-      saveRun(run);
-      session.message = assignment.reason;
-      console.error(assignment.reason);
-      await closeSoon(session);
+    const files = readAssignmentFiles({ specPath: run.spec_path, taskPath: run.task_path });
+    if (!("spec" in files)) {
+      await escalateIntervention(session, files.reason);
       process.exit(1);
     }
-    run.spec_path = assignment.specPath;
-    run.task_path = assignment.taskPath;
+    spec = files.spec;
+    task = files.task;
     console.log(`Reusing current Spec: ${run.spec_path}`);
     console.log(`Current Task: ${run.task_path}`);
   } else {
@@ -406,17 +415,7 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
       spec = result.spec;
       run.spec_path = result.specPath;
       const generated = writeBuildTask(spec);
-      const generatedCheck = validateBuilderAssignment({ spec, task: generated.task });
-      if (!generatedCheck.ok) {
-        run.phase = "HUMAN_INTERVENTION_REQUIRED";
-        run.loop_disposition = HUMAN_INTERVENTION_REQUIRED;
-        run.notes.push(generatedCheck.reason);
-        saveRun(run);
-        session.message = generatedCheck.reason;
-        console.error(generatedCheck.reason);
-        await closeSoon(session);
-        process.exit(1);
-      }
+      task = generated.task;
       run.task_path = generated.taskPath;
       console.log(`Spec: ${result.specPath}`);
       console.log(`Task: ${generated.taskPath}`);
@@ -432,6 +431,14 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
     }
   }
 
+  const assigned = await reconcileAssignment(session, spec, task);
+  if (!assigned.ok) {
+    await escalateIntervention(session, assigned.reason);
+    process.exit(1);
+  }
+  spec = assigned.spec;
+  task = assigned.task;
+
   run.phase = "BUILD";
   run.builder_ran = true;
   saveRun(run);
@@ -444,31 +451,263 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
   run.loop_result = loopResult && fs.existsSync(loopResult) ? loopResult : null;
   if (!run.loop_result) run.notes.push(`The agent loop exited ${exitCode} without a loop-result.json.`);
 
-  session.finalData = finalReviewData(run, spec, run.loop_result);
-  const ready = shouldOpenFinalReview(session.finalData);
-  run.loop_disposition = ready ? session.finalData.disposition : HUMAN_INTERVENTION_REQUIRED;
+  let review = finalReviewData(run, spec, run.loop_result);
+  const supervised = await runRecoveryLoop({
+    snapshot: snapshotFromReview(review, spec, task, { ok: true }, loopIssues(run.loop_result)),
+    state: run.supervisor ?? emptySupervisorState(),
+    spec,
+    task,
+    specPath: run.spec_path!,
+    taskPath: run.task_path!,
+    deps: productionRecoveryDeps(run),
+  });
+  spec = supervised.spec;
+  task = supervised.task;
+  run.supervisor = supervised.state;
+  if (supervised.loopResultPath) run.loop_result = supervised.loopResultPath;
+  review = overlaySupervisorReview(finalReviewData(run, spec, run.loop_result), supervised.snapshot, supervised.decision.report);
+
+  const ready =
+    supervised.decision.recommendation === "READY_FOR_HUMAN_REVIEW" && shouldOpenFinalReview(review);
+  const human = humanFacingDisposition(supervised.decision.recommendation);
+  run.loop_disposition = ready ? HUMAN_REVIEW_REQUIRED : HUMAN_INTERVENTION_REQUIRED;
   const history = loadHistory();
   setStatus(history, {
     id: approved.id,
     name: approved.name,
-    status: session.finalData.filesChanged.length > 0 ? "BUILT" : "APPROVED",
+    status: review.filesChanged.length > 0 ? "BUILT" : "APPROVED",
     runId: run.run_id,
     note: ready
-      ? `Agent loop finished: ${session.finalData.disposition}. QA ${session.finalData.qa.status}. Evaluator ${session.finalData.evaluator.overall ?? "n/a"}.`
-      : interventionReason(session.finalData),
+      ? `${HUMAN_REVIEW_REQUIRED}. Supervisor READY_FOR_HUMAN_REVIEW. QA ${review.qa.status}. Evaluator ${review.evaluator.overall ?? "n/a"}.`
+      : interventionReason(review),
   });
   saveHistory(history);
-  if (ready) {
+  if (ready && human === HUMAN_REVIEW_REQUIRED) {
+    session.finalData = review;
     run.phase = "AWAITING_FINAL_REVIEW";
     saveRun(run);
+    console.log(HUMAN_REVIEW_REQUIRED);
+    console.log("Supervisor recommendation: READY_FOR_HUMAN_REVIEW");
     return;
   }
+  session.finalData = null;
   run.phase = "HUMAN_INTERVENTION_REQUIRED";
-  session.message = interventionReason(session.finalData);
+  session.message = interventionReason(review);
   saveRun(run);
   console.log(HUMAN_INTERVENTION_REQUIRED);
   console.log(session.message);
   console.log(`Retry Builder: npm run atlas:auto -- --retry-builder ${run.run_id}`);
+}
+
+async function reconcileAssignment(
+  session: Session,
+  spec: BlueprintSpec,
+  task: AgentTask,
+): Promise<{ ok: true; spec: BlueprintSpec; task: AgentTask } | { ok: false; reason: string }> {
+  const { run } = session;
+  let currentSpec = spec;
+  let currentTask = task;
+  let assignment = validateBuilderAssignment({ spec: currentSpec, task: currentTask });
+  if (assignment.ok) return { ok: true, spec: currentSpec, task: currentTask };
+  const snapshot = snapshotFromLoop({
+    assignment,
+    spec: currentSpec,
+    task: currentTask,
+    builderCompleted: false,
+    build: "not_run",
+    qa: { status: "not_run" },
+    evaluator: { status: "not_run", decision: null },
+  });
+  let state = run.supervisor ?? emptySupervisorState();
+  const decision = decideSupervisor(snapshot, state);
+  state = applyPlannedAction(state, decision, new Date().toISOString());
+  if (decision.action !== "REPAIR_TASK" && decision.action !== "RECONCILE_SPEC_TASK") {
+    run.supervisor = state;
+    saveRun(run);
+    return { ok: false, reason: assignment.reason };
+  }
+  const executed = await executeRecovery(
+    decision,
+    {
+      snapshot,
+      spec: currentSpec,
+      task: currentTask,
+      specPath: run.spec_path!,
+      taskPath: run.task_path!,
+    },
+    productionRecoveryDeps(run),
+  );
+  currentSpec = executed.spec;
+  currentTask = executed.task;
+  assignment = validateBuilderAssignment({ spec: currentSpec, task: currentTask });
+  run.supervisor = completeRecovery(state, executed.recovered ? "recovered" : "failed", executed.detail);
+  saveRun(run);
+  if (!assignment.ok) return { ok: false, reason: assignment.reason };
+  console.log(`Supervisor ${decision.action}: assignment is valid. Builder was not invoked during repair.`);
+  return { ok: true, spec: currentSpec, task: currentTask };
+}
+
+async function escalateIntervention(session: Session, reason: string) {
+  const { run } = session;
+  run.phase = "HUMAN_INTERVENTION_REQUIRED";
+  run.loop_disposition = HUMAN_INTERVENTION_REQUIRED;
+  run.notes.push(reason);
+  saveRun(run);
+  session.message = reason;
+  console.error(reason);
+  await closeSoon(session);
+}
+
+function loopIssues(loopResultPath: string | null): SupervisorSnapshot["issues"] {
+  const loop = loopResultPath
+    ? readJson<{ unresolved_issues?: NonNullable<SupervisorSnapshot["issues"]> }>(loopResultPath)
+    : null;
+  return loop?.unresolved_issues ?? [];
+}
+
+function snapshotFromReview(
+  data: FinalReviewData,
+  spec: BlueprintSpec,
+  task: AgentTask,
+  assignment: SupervisorSnapshot["assignment"],
+  issues?: SupervisorSnapshot["issues"],
+): SupervisorSnapshot {
+  const structured = issues && issues.length > 0 ? issues : loopIssues(data.loopResultPath);
+  return snapshotFromLoop({
+    builderCompleted: true,
+    build: data.build,
+    qa: {
+      status: data.qa.status,
+      passed: data.qa.passed,
+      failed: data.qa.failed,
+      skipped: data.qa.skipped,
+    },
+    evaluator: {
+      status: data.evaluator.status,
+      decision: data.evaluator.decision,
+      overall: data.evaluator.overall,
+    },
+    issues: structured,
+    findings: data.evaluator.findings,
+    criticalIssues: structured.length > 0 ? [] : data.criticalIssues,
+    spec,
+    task,
+    assignment,
+  });
+}
+
+function overlaySupervisorReview(
+  data: FinalReviewData,
+  snapshot: SupervisorSnapshot,
+  report: FinalReviewData["supervisor"],
+): FinalReviewData {
+  const human = report ? humanFacingDisposition(report.recommendation) : null;
+  return {
+    ...data,
+    disposition: human ?? data.disposition,
+    build: snapshot.build ?? data.build,
+    qa: {
+      ...data.qa,
+      status: snapshot.qa?.status ?? data.qa.status,
+      passed: snapshot.qa?.passed ?? data.qa.passed,
+      failed: snapshot.qa?.failed ?? data.qa.failed,
+      skipped: snapshot.qa?.skipped ?? data.qa.skipped,
+    },
+    evaluator: {
+      ...data.evaluator,
+      status: snapshot.evaluator?.status ?? data.evaluator.status,
+      decision: snapshot.evaluator?.decision ?? data.evaluator.decision,
+      overall: snapshot.evaluator?.overall ?? data.evaluator.overall,
+    },
+    criticalIssues: snapshot.criticalIssues ?? data.criticalIssues,
+    supervisor: report,
+    requiresAuthenticatedQa: data.requiresAuthenticatedQa,
+  };
+}
+
+function productionRecoveryDeps(run: RunRecord): RecoveryDeps {
+  return {
+    now: () => new Date().toISOString(),
+    prepareAuthSession: prepareAuthenticatedSession,
+    rerunQa: async (ctx) => {
+      const before = listQaReports();
+      await runInherited("npm run qa");
+      const qa = readNewQaReport(before);
+      const skipped = qa.report?.tests_skipped ?? 0;
+      const issues = qa.failures.map((failure) => ({
+        issue_id: failure.issue_id,
+        test: failure.test,
+        actual: failure.actual,
+        classification: failure.classification,
+      }));
+      if (ctx.task.requires_authenticated_qa && skipped > 0 && !issues.some((item) => item.classification === "AUTH_SESSION_REFRESH_REQUIRED")) {
+        issues.push({
+          issue_id: "AUTH_SESSION_REFRESH_REQUIRED",
+          test: "authenticated QA",
+          actual: "AUTH_SESSION_REFRESH_REQUIRED",
+          classification: "AUTH_SESSION_REFRESH_REQUIRED",
+        });
+      }
+      const qaStatus = qa.report?.status ?? "fail";
+      if (qaStatus !== "pass" || issues.length > 0) {
+        return {
+          qa: {
+            status: qaStatus,
+            passed: qa.report?.tests_passed ?? 0,
+            failed: qa.report?.tests_failed ?? 0,
+            skipped,
+          },
+          evaluator: { status: "not_run", decision: null },
+          issues,
+          criticalIssues: issues.map((issue) => `${issue.classification ?? "ISSUE"} · ${issue.test}: ${issue.actual}`),
+        };
+      }
+      const evaluator = await runEvaluator({
+        task: ctx.task,
+        taskPath: ctx.taskPath,
+        qaReportPath: qa.reportPath || "",
+        qaStatus,
+        testsPassed: qa.report?.tests_passed ?? 0,
+        testsFailed: qa.report?.tests_failed ?? 0,
+        testsSkipped: skipped,
+        builderReportPath: run.loop_result ?? "",
+        gitDiffSummary: "",
+        outputPath: `${runReportDir(run.run_id)}/supervisor-evaluator.json`,
+      });
+      return {
+        qa: {
+          status: "pass",
+          passed: qa.report?.tests_passed ?? 0,
+          failed: 0,
+          skipped: 0,
+        },
+        evaluator: {
+          status: evaluator.status,
+          decision: evaluator.decision,
+          overall: evaluator.overall_score,
+        },
+        findings: evaluator.findings,
+        issues: [],
+        criticalIssues: [],
+      };
+    },
+    rerunBuilder: async (ctx) => {
+      console.log("Supervisor rerunning Builder: npm run agent:run -- " + ctx.taskPath);
+      const before = listLoopDirs();
+      await runInherited(`npm run agent:run -- ${ctx.taskPath}`);
+      const loopDir = listLoopDirs().find(
+        (dir) => !before.includes(dir) && dir.endsWith(`-${path.basename(ctx.taskPath, ".json")}`),
+      );
+      const loopResult = loopDir ? `${LOOPS_DIR}/${loopDir}/loop-result.json` : null;
+      const path = loopResult && fs.existsSync(loopResult) ? loopResult : null;
+      const data = finalReviewData(run, ctx.spec, path);
+      return { ...snapshotFromReview(data, ctx.spec, ctx.task, { ok: true }), loopResultPath: path };
+    },
+    writeAssignment: (nextSpec, nextTask, specPath, taskPath) => {
+      writeJson(specPath, nextSpec);
+      writeJson(taskPath, nextTask);
+    },
+  };
 }
 
 async function finalReview(session: Session) {
@@ -571,6 +810,8 @@ function finalReviewData(run: RunRecord, spec: BlueprintSpec, loopResultPath: st
     suggestedPriceCents: suggestPriceCents(candidateValue(run, spec.id)),
     suggestedPaymentType: "ONE_TIME",
     commercialRationale: candidateRationale(run, spec.id),
+    requiresAuthenticatedQa: spec.qa_checks.some((check) => check.requires_auth) ?? true,
+    supervisor: run.supervisor?.last_report ?? null,
   };
 }
 

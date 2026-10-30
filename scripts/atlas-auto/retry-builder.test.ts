@@ -198,6 +198,26 @@ test("price approval stays closed until Build, QA, and Evaluator succeed", () =>
     }),
     true,
   );
+  assert.equal(
+    canApproveProductAndPrice({
+      disposition: "HUMAN_REVIEW_REQUIRED",
+      build: "pass",
+      qa: { status: "pass", skipped: 0 },
+      evaluator: { status: "executed", decision: "PASS" },
+      supervisor: { recommendation: "READY_FOR_HUMAN_REVIEW" },
+    }),
+    true,
+  );
+  assert.equal(
+    canApproveProductAndPrice({
+      disposition: "HUMAN_REVIEW_REQUIRED",
+      build: "pass",
+      qa: { status: "pass", skipped: 0 },
+      evaluator: { status: "executed", decision: "PASS" },
+      supervisor: { recommendation: "NEEDS_INTERNAL_RECOVERY" },
+    }),
+    false,
+  );
 
   const timedOut = renderFinalReview({
     run: sourceRun(),

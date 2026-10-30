@@ -4,6 +4,14 @@ import { escapeHtml } from "./dashboard";
 import { setStatus } from "./memory";
 import { isSameIdea, summarize } from "./scoring";
 import { blueprintPaths, buildTask } from "./spec";
+import {
+  classifyFailure,
+  decideSupervisor,
+  emptySupervisorState,
+  humanFacingDisposition,
+  isReadyForHumanReview,
+  snapshotFromLoop,
+} from "./supervisor";
 import { CRITERIA, type CandidateHistory, type Criterion } from "./types";
 
 function criteria(value: number, overrides: Partial<Record<Criterion, number>> = {}) {
@@ -66,11 +74,46 @@ function checkGeneratedTask() {
   assert.equal(guarded.restore.length, 4);
 }
 
+function checkSupervisorGatesHumanReview() {
+  const incomplete = snapshotFromLoop({
+    build: "pass",
+    qa: { status: "not_run" },
+    evaluator: { status: "not_run", decision: null },
+  });
+  const incompleteDecision = decideSupervisor(incomplete, emptySupervisorState());
+  assert.notEqual(humanFacingDisposition(incompleteDecision.recommendation), "HUMAN_REVIEW_REQUIRED");
+  assert.equal(isReadyForHumanReview(incomplete), false);
+  assert.equal(
+    classifyFailure(
+      snapshotFromLoop({
+        issues: [{ issue_id: "AUTH_SESSION_REFRESH_REQUIRED", classification: "AUTH_SESSION_REFRESH_REQUIRED" }],
+      }),
+    ),
+    "AUTH_SESSION_FAILURE",
+  );
+  const ready = snapshotFromLoop({
+    build: "pass",
+    qa: { status: "pass", passed: 4, failed: 0, skipped: 0 },
+    evaluator: { status: "executed", decision: "PASS", overall: 9 },
+    task: {
+      requires_authenticated_qa: true,
+      scope: ["app/"],
+      forbidden_changes: [],
+      acceptance_criteria: ["ok"],
+    },
+    assignment: { ok: true },
+  });
+  const readyDecision = decideSupervisor(ready, emptySupervisorState());
+  assert.equal(readyDecision.recommendation, "READY_FOR_HUMAN_REVIEW");
+  assert.equal(humanFacingDisposition(readyDecision.recommendation), "HUMAN_REVIEW_REQUIRED");
+}
+
 export function runAutoSelfCheck(): void {
   checkScoring();
   checkDedupe();
   checkHistoryKeepsHumanDecisions();
   checkEscaping();
   checkGeneratedTask();
+  checkSupervisorGatesHumanReview();
   console.log("Atlas Auto self-check passed.");
 }

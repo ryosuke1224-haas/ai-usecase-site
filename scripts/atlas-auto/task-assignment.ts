@@ -2,6 +2,7 @@ import { pathMatches } from "../atlas-agent/guards";
 import { formatZodError, taskSchema, type AgentTask } from "../atlas-agent/schema";
 import { readJson, writeJson } from "./memory";
 import type { BlueprintSpec } from "./spec";
+import { isReadyForHumanReview } from "./supervisor";
 import {
   existingAuthenticatedSpec,
   HUMAN_INTERVENTION_REQUIRED,
@@ -29,6 +30,13 @@ export type AssignmentError = {
 
 export type AssignmentOk = {
   ok: true;
+  spec: BlueprintSpec;
+  task: AgentTask;
+  specPath: string;
+  taskPath: string;
+};
+
+export type AssignmentFiles = {
   spec: BlueprintSpec;
   task: AgentTask;
   specPath: string;
@@ -109,6 +117,35 @@ export function validateBuilderAssignment(input: {
   return { ok: true };
 }
 
+export function readAssignmentFiles(input: {
+  specPath: string;
+  taskPath: string;
+}): AssignmentFiles | AssignmentError {
+  const spec = readJson<BlueprintSpec>(input.specPath);
+  const rawTask = readJson<unknown>(input.taskPath);
+  if (!spec || spec.schema_version !== "atlas-blueprint-spec-v1") {
+    return {
+      ok: false,
+      code: "TASK_SPEC_MISMATCH",
+      reason: `${TASK_SCOPE_CONFLICT}. Current Spec was not found at ${input.specPath}.`,
+    };
+  }
+  const parsed = taskSchema.safeParse(rawTask);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      code: "TASK_SPEC_MISMATCH",
+      reason: `${TASK_SCOPE_CONFLICT}. Current task is invalid:\n${formatZodError(parsed.error)}`,
+    };
+  }
+  return {
+    spec,
+    task: parsed.data,
+    specPath: input.specPath,
+    taskPath: input.taskPath,
+  };
+}
+
 export function loadCurrentBuilderAssignment(input: {
   specPath: string;
   taskPath: string;
@@ -162,18 +199,44 @@ export function retryAssignmentFromCurrentFiles(source: {
 export function shouldOpenFinalReview(data: {
   disposition: string;
   build: string;
-  qa: { status: string };
-  evaluator: { status: string; decision: string | null };
+  qa: { status: string; skipped?: number; passed?: number; failed?: number };
+  evaluator: { status: string; decision: string | null; overall?: number | null };
+  supervisor?: { recommendation?: string } | null;
+  requiresAuthenticatedQa?: boolean;
+  criticalIssues?: string[];
+  findings?: { severity?: string; description?: string }[];
 }): boolean {
-  return (
-    data.build === "pass" &&
-    data.qa.status === "pass" &&
-    data.evaluator.status !== "not_run" &&
-    (data.evaluator.decision === "PASS" || data.evaluator.decision === "PASS_WITH_RECOMMENDATIONS")
-  );
+  if (data.supervisor?.recommendation && data.supervisor.recommendation !== "READY_FOR_HUMAN_REVIEW") {
+    return false;
+  }
+  return isReadyForHumanReview({
+    builderCompleted: true,
+    build: data.build,
+    qa: {
+      status: data.qa.status,
+      passed: data.qa.passed ?? 0,
+      failed: data.qa.failed ?? 0,
+      skipped: data.qa.skipped ?? 0,
+    },
+    evaluator: { status: data.evaluator.status, decision: data.evaluator.decision, overall: data.evaluator.overall },
+    task: {
+      requires_authenticated_qa: data.requiresAuthenticatedQa ?? true,
+      scope: ["app/"],
+      forbidden_changes: [],
+      acceptance_criteria: ["ok"],
+    },
+    findings: data.findings,
+    criticalIssues: data.criticalIssues ?? [],
+    issues: [],
+    assignment: { ok: true },
+  });
 }
 
-export function interventionReason(data: { criticalIssues: string[]; disposition: string }): string {
-  const issue = data.criticalIssues[0] ?? data.disposition;
-  return `${HUMAN_INTERVENTION_REQUIRED}. ${issue} This is not a product/price final review. Build/QA/Evaluator did not all complete successfully.`;
+export function interventionReason(data: {
+  criticalIssues: string[];
+  disposition: string;
+  supervisor?: { intervention?: string } | null;
+}): string {
+  const issue = data.supervisor?.intervention ?? data.criticalIssues[0] ?? data.disposition;
+  return `${HUMAN_INTERVENTION_REQUIRED}. ${issue} This is not a product/price final review.`;
 }
