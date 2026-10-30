@@ -201,6 +201,7 @@ export type RunPhase =
   | "SPEC"
   | "BUILD"
   | "AWAITING_FINAL_REVIEW"
+  | "HUMAN_INTERVENTION_REQUIRED"
   | "READY_FOR_PREVIEW"
   | "FINISHED"
   | "FAILED";

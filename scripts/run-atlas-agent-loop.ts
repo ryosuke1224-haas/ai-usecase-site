@@ -290,6 +290,7 @@ async function main() {
       forbidden: task.forbidden_changes,
       permitsQaChanges: task.permits_qa_changes,
       taskPath,
+      protectedFiles: task.protected_files,
     });
     restoreFiles(baseline, guarded.restore);
     if (guarded.issues.length > 0) {

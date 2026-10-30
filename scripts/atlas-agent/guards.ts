@@ -89,10 +89,12 @@ export function guardChanges(input: {
   forbidden: string[];
   permitsQaChanges: boolean;
   taskPath: string;
+  protectedFiles?: string[];
 }): { keep: string[]; restore: string[]; issues: GuardIssue[] } {
   const keep: string[] = [];
   const restore: string[] = [];
   const issues: GuardIssue[] = [];
+  const protectedFiles = input.protectedFiles ?? [];
 
   for (const change of input.changes) {
     const file = change.path.replace(/\\/g, "/");
@@ -101,7 +103,18 @@ export function guardChanges(input: {
       issues.push(violation(file, "TEST_PROTECTION_VIOLATION", "Protected orchestration file changed."));
       continue;
     }
-    if (!input.permitsQaChanges && isQaProtected(file)) {
+    if (pathMatches(file, protectedFiles)) {
+      restore.push(file);
+      issues.push(
+        violation(
+          file,
+          "TEST_PROTECTION_VIOLATION",
+          "Protected test file changed. The Builder cannot weaken, skip, rewrite, or remove assertions from this file.",
+        ),
+      );
+      continue;
+    }
+    if (!input.permitsQaChanges && isQaProtected(file) && !pathMatches(file, input.scope)) {
       restore.push(file);
       issues.push(
         violation(

@@ -45,6 +45,13 @@ import {
 import { runAutoSelfCheck } from "./atlas-auto/self-check";
 import { startReviewServer, type ReviewServer } from "./atlas-auto/server";
 import { runSpecAgent, writeBuildTask, type BlueprintSpec } from "./atlas-auto/spec";
+import {
+  HUMAN_INTERVENTION_REQUIRED,
+  interventionReason,
+  retryAssignmentFromCurrentFiles,
+  shouldOpenFinalReview,
+  validateBuilderAssignment,
+} from "./atlas-auto/task-assignment";
 import { readMergedRegistry, saveRegistryRow } from "./atlas-commerce/save-registry";
 import { usSandboxSecret } from "./atlas-commerce/stripe-accounts";
 import { sandboxStripe } from "./atlas-commerce/stripe-adapter";
@@ -201,7 +208,11 @@ async function main() {
   }
 
   await buildApproved(session, approved);
-  await finalReview(session);
+  if (session.run.phase === "AWAITING_FINAL_REVIEW" && session.finalData) {
+    await finalReview(session);
+    return;
+  }
+  await closeSoon(session);
 }
 
 async function newSession(options: Options, branch: string): Promise<Session> {
@@ -281,7 +292,7 @@ function resumeSession(options: Options): Session {
   const candidates = loadRunCandidates(runId);
   if (candidates.length === 0) fail(`Run ${runId} has no candidates.`);
   run.commerce = run.commerce ?? null;
-  if (run.phase === "FINISHED" || run.phase === "READY_FOR_PREVIEW") {
+  if (run.phase === "FINISHED" || run.phase === "READY_FOR_PREVIEW" || run.phase === "HUMAN_INTERVENTION_REQUIRED") {
     const retry = evaluateBuilderRetry(inspectBuilderRetry(runId));
     fail(resumeBlockedMessage(run, retry.ok));
   }
@@ -316,9 +327,10 @@ function retryBuilderSession(options: Options): Session {
   const inspection = inspectBuilderRetry(sourceId);
   const eligibility = evaluateBuilderRetry(inspection);
   if (!eligibility.ok) fail(eligibility.reason);
-  const specPath = inspection.source.spec_path!;
-  const spec = inspection.spec!;
-  const { taskPath } = writeBuildTask(spec);
+  const assignment = retryAssignmentFromCurrentFiles(inspection.source);
+  if (!assignment.ok) fail(assignment.reason);
+  const specPath = assignment.specPath;
+  const taskPath = assignment.taskPath;
   const next = createBuilderRetryRun({
     source: inspection.source,
     approval: inspection.approval!,
@@ -333,8 +345,9 @@ function retryBuilderSession(options: Options): Session {
   console.log(`Builder retry of ${sourceId}`);
   console.log(`New run: ${next.run.run_id}`);
   console.log(`Reusing approved candidate: ${inspection.approval!.candidate_name} (${inspection.approval!.candidate_id})`);
-  console.log(`Reusing Spec: ${specPath}`);
-  console.log("Research, scoring, approval, and Spec will not rerun.");
+  console.log(`Reusing current Spec: ${specPath}`);
+  console.log(`Reusing current Task: ${taskPath}`);
+  console.log("Research, scoring, approval, and Spec will not rerun. Parent-run task snapshots are not restored.");
   saveRun(next.run);
   return {
     run: next.run,
@@ -370,11 +383,21 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
       process.exit(1);
     }
     spec = reused;
-    const { taskPath } = writeBuildTask(spec);
-    run.spec_path = run.spec_path;
-    run.task_path = taskPath;
-    console.log(`Reusing Spec: ${run.spec_path}`);
-    console.log(`Task: ${taskPath}`);
+    const assignment = retryAssignmentFromCurrentFiles(run);
+    if (!assignment.ok) {
+      run.phase = "HUMAN_INTERVENTION_REQUIRED";
+      run.loop_disposition = HUMAN_INTERVENTION_REQUIRED;
+      run.notes.push(assignment.reason);
+      saveRun(run);
+      session.message = assignment.reason;
+      console.error(assignment.reason);
+      await closeSoon(session);
+      process.exit(1);
+    }
+    run.spec_path = assignment.specPath;
+    run.task_path = assignment.taskPath;
+    console.log(`Reusing current Spec: ${run.spec_path}`);
+    console.log(`Current Task: ${run.task_path}`);
   } else {
     run.phase = "SPEC";
     saveRun(run);
@@ -382,10 +405,21 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
       const result = await runSpecAgent({ candidate: approved, approval, runId: run.run_id, reportDir });
       spec = result.spec;
       run.spec_path = result.specPath;
-      const { taskPath } = writeBuildTask(spec);
-      run.task_path = taskPath;
+      const generated = writeBuildTask(spec);
+      const generatedCheck = validateBuilderAssignment({ spec, task: generated.task });
+      if (!generatedCheck.ok) {
+        run.phase = "HUMAN_INTERVENTION_REQUIRED";
+        run.loop_disposition = HUMAN_INTERVENTION_REQUIRED;
+        run.notes.push(generatedCheck.reason);
+        saveRun(run);
+        session.message = generatedCheck.reason;
+        console.error(generatedCheck.reason);
+        await closeSoon(session);
+        process.exit(1);
+      }
+      run.task_path = generated.taskPath;
       console.log(`Spec: ${result.specPath}`);
-      console.log(`Task: ${taskPath}`);
+      console.log(`Task: ${generated.taskPath}`);
     } catch (error) {
       run.phase = "FAILED";
       run.notes.push(redact(`Spec step failed: ${error instanceof Error ? error.message : String(error)}`));
@@ -411,18 +445,30 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
   if (!run.loop_result) run.notes.push(`The agent loop exited ${exitCode} without a loop-result.json.`);
 
   session.finalData = finalReviewData(run, spec, run.loop_result);
-  run.loop_disposition = session.finalData.disposition;
+  const ready = shouldOpenFinalReview(session.finalData);
+  run.loop_disposition = ready ? session.finalData.disposition : HUMAN_INTERVENTION_REQUIRED;
   const history = loadHistory();
   setStatus(history, {
     id: approved.id,
     name: approved.name,
     status: session.finalData.filesChanged.length > 0 ? "BUILT" : "APPROVED",
     runId: run.run_id,
-    note: `Agent loop finished: ${session.finalData.disposition}. QA ${session.finalData.qa.status}. Evaluator ${session.finalData.evaluator.overall ?? "n/a"}.`,
+    note: ready
+      ? `Agent loop finished: ${session.finalData.disposition}. QA ${session.finalData.qa.status}. Evaluator ${session.finalData.evaluator.overall ?? "n/a"}.`
+      : interventionReason(session.finalData),
   });
   saveHistory(history);
-  run.phase = "AWAITING_FINAL_REVIEW";
+  if (ready) {
+    run.phase = "AWAITING_FINAL_REVIEW";
+    saveRun(run);
+    return;
+  }
+  run.phase = "HUMAN_INTERVENTION_REQUIRED";
+  session.message = interventionReason(session.finalData);
   saveRun(run);
+  console.log(HUMAN_INTERVENTION_REQUIRED);
+  console.log(session.message);
+  console.log(`Retry Builder: npm run atlas:auto -- --retry-builder ${run.run_id}`);
 }
 
 async function finalReview(session: Session) {

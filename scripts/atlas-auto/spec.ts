@@ -2,6 +2,12 @@ import fs from "node:fs";
 import { z } from "zod";
 import { formatZodError, taskSchema, type AgentTask } from "../atlas-agent/schema";
 import { writeJson } from "./memory";
+import {
+  existingAuthenticatedSpec,
+  scopeForbiddenOverlap,
+  specRequiresCatalogListing,
+  staleAcceptanceCriteria,
+} from "./task-paths";
 import { runReadOnlyAgent } from "./read-only-agent";
 import type { CandidateDecision, ScoredCandidate } from "./types";
 
@@ -83,13 +89,13 @@ export function taskId(candidateId: string): string {
 function constraints(id: string): string[] {
   const p = blueprintPaths(id);
   return [
-    `Private preview only. The guided demo lives at ${p.demoUrl} and the Premium kit at ${p.kitUrl}. Both pages set robots noindex and are not linked from the homepage, header navigation, or My Blueprints.`,
-    `The Premium kit requires sign-in with requireUser from src/lib/auth.ts, the same pattern as app/blueprints/daily-inbox-briefing/starter-kit/page.tsx. It is labelled "Premium · Private preview". It shows no price, checkout, or claim that it can be bought today.`,
+    `Private preview only. The guided demo lives at ${p.demoUrl} and the Premium kit at ${p.kitUrl}. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.`,
+    `The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled "Premium · Private preview". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.`,
     "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
     "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
     "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
-    `New code lives only in ${p.route}, ${p.components}, ${p.lib}, and ${p.tests}. Do not edit shared components, src/lib/blueprints.ts, content/published/, or anything for the Daily Inbox Briefing.`,
-    `Playwright tests live in ${p.tests}. Public tests use any *.spec.ts name except authenticated*. Signed-in kit tests go in ${p.tests}authenticated.spec.ts so they use the saved session. Do not edit or skip existing tests.`,
+    `Product files live in ${p.route}, ${p.components}, and ${p.lib}. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.`,
+    `${p.tests}authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.`,
     "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors.",
   ];
 }
@@ -145,8 +151,68 @@ export function writeBuildTask(spec: BlueprintSpec): { task: AgentTask; taskPath
   return { task, taskPath };
 }
 
-export function buildTask(spec: Pick<BlueprintSpec, "id" | "name" | "kit_contents" | "acceptance_criteria">): AgentTask {
+const DEFAULT_FORBIDDEN = [
+  "app/blueprints/daily-inbox-briefing/",
+  "app/my-blueprints/",
+  "app/page.tsx",
+  "app/layout.tsx",
+  "components/starter-kit/",
+  "components/nav/",
+  "components/header.tsx",
+  "src/lib/starter-kit/",
+  "src/lib/blueprints.ts",
+  "src/lib/auth.ts",
+  "src/lib/supabase/",
+  "src/lib/payments/",
+  "content/",
+  "e2e/daily-inbox-briefing/",
+  "e2e/support/",
+  "e2e/global-setup.ts",
+  "agent-specs/",
+  "agent-tasks/",
+  "agents/",
+  "atlas-memory/",
+  "scripts/",
+  "playwright.config.ts",
+  "next.config.ts",
+  "proxy.ts",
+  "package.json",
+  "package-lock.json",
+];
+
+export function buildTask(
+  spec: Pick<BlueprintSpec, "id" | "name" | "kit_contents" | "acceptance_criteria"> & {
+    allowed_paths?: string[];
+    qa_checks?: BlueprintSpec["qa_checks"];
+  },
+): AgentTask {
   const paths = blueprintPaths(spec.id);
+  const scope = spec.allowed_paths?.length
+    ? [...spec.allowed_paths]
+    : [paths.route, paths.components, paths.lib, paths.tests];
+  const publicSpec = `${paths.tests}public.spec.ts`;
+  if (fs.existsSync(publicSpec) && !scope.some((item) => item.replace(/\\/g, "/").replace(/\/$/, "") === publicSpec.replace(/\/$/, ""))) {
+    if (!scope.some((item) => publicSpec.startsWith(item.replace(/\\/g, "/")))) {
+      scope.push(publicSpec);
+    }
+  }
+  const forbidden_changes = DEFAULT_FORBIDDEN.filter((item) => scopeForbiddenOverlap(scope, [item]).length === 0);
+  const extras = [
+    `The guided demo at ${paths.demoUrl} renders without sign-in on desktop and a phone-sized viewport, uses only fictional data, and says so.`,
+    `The kit at ${paths.kitUrl} requires sign-in, is labelled Premium · Private preview, and shows no price, checkout, or purchase claim.`,
+    "Both pages set robots noindex and are not linked from the homepage, header, or sitemap.",
+    "Confirmed facts, AI interpretation, and recommended actions are labelled separately, and every external action stays with the person.",
+    "The Daily Inbox Briefing, its Starter Kit, and its tests are unchanged.",
+  ];
+  const acceptance_criteria = [...spec.acceptance_criteria, ...extras].filter((item, index, all) => all.indexOf(item) === index);
+  const catalogSpec = {
+    allowed_paths: spec.allowed_paths ?? [],
+    acceptance_criteria: spec.acceptance_criteria,
+  };
+  const filteredCriteria = specRequiresCatalogListing(catalogSpec)
+    ? acceptance_criteria.filter((item) => staleAcceptanceCriteria([item]).length === 0)
+    : acceptance_criteria;
+  const protectedAuth = existingAuthenticatedSpec(spec.id);
   const raw = {
     schema_version: "atlas-agent-task-v1",
     id: taskId(spec.id),
@@ -155,49 +221,16 @@ export function buildTask(spec: Pick<BlueprintSpec, "id" | "name" | "kit_content
       `Build the Premium Blueprint described in ${paths.spec}. Read that spec, agents/standards.md, and AGENTS.md first.`,
       `Create the public guided demo at ${paths.demoUrl} and the signed-in Premium kit at ${paths.kitUrl}.`,
       `Kit contents: ${spec.kit_contents.map((item) => item.title).join("; ")}.`,
-      "Follow every entry in the spec's constraints list. Add Playwright coverage for the spec's qa_checks.",
+      "Follow every entry in the spec's constraints list.",
       "Do not commit, push, merge, deploy, or publish.",
     ].join("\n"),
     target_use_case: spec.id,
-    scope: [paths.route, paths.components, paths.lib, paths.tests],
-    acceptance_criteria: [
-      ...spec.acceptance_criteria,
-      `The guided demo at ${paths.demoUrl} renders without sign-in on desktop and a phone-sized viewport, uses only fictional data, and says so.`,
-      `The kit at ${paths.kitUrl} requires sign-in, is labelled Premium · Private preview, and shows no price, checkout, or purchase claim.`,
-      "Both pages set robots noindex and are not linked from the homepage, header, or My Blueprints.",
-      "Confirmed facts, AI interpretation, and recommended actions are labelled separately, and every external action stays with the person.",
-      `New Playwright tests exist only under ${paths.tests}, cover the public demo and the signed-in kit, and no existing test is changed or skipped.`,
-      "The Daily Inbox Briefing, its Starter Kit, and its tests are unchanged.",
-    ],
-    forbidden_changes: [
-      "app/blueprints/daily-inbox-briefing/",
-      "app/my-blueprints/",
-      "app/page.tsx",
-      "app/layout.tsx",
-      "components/starter-kit/",
-      "components/nav/",
-      "components/header.tsx",
-      "src/lib/starter-kit/",
-      "src/lib/blueprints.ts",
-      "src/lib/auth.ts",
-      "src/lib/supabase/",
-      "content/",
-      "e2e/daily-inbox-briefing/",
-      "e2e/support/",
-      "e2e/global-setup.ts",
-      "agent-specs/",
-      "agent-tasks/",
-      "agents/",
-      "atlas-memory/",
-      "scripts/",
-      "playwright.config.ts",
-      "next.config.ts",
-      "proxy.ts",
-      "package.json",
-      "package-lock.json",
-    ],
-    permits_qa_changes: true,
-    requires_authenticated_qa: true,
+    scope,
+    acceptance_criteria: filteredCriteria,
+    forbidden_changes,
+    protected_files: protectedAuth ? [protectedAuth] : [],
+    permits_qa_changes: !protectedAuth,
+    requires_authenticated_qa: spec.qa_checks?.some((check) => check.requires_auth) ?? true,
     product_changes_required: true,
     max_iterations: 3,
     evaluation_targets: [paths.spec, paths.route, paths.components, paths.lib, paths.tests],

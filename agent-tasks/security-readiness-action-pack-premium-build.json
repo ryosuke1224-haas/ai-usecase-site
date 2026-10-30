@@ -2,13 +2,14 @@
   "schema_version": "atlas-agent-task-v1",
   "id": "security-readiness-action-pack-premium-build",
   "title": "Build the Security Readiness Action Pack Premium Blueprint (private preview)",
-  "objective": "Implement the Premium Blueprint described in agent-specs/security-readiness-action-pack.json. Read that spec, agents/standards.md, and AGENTS.md first.\nKeep the public guided demo at /blueprints/security-readiness-action-pack and the signed-in Premium kit at /blueprints/security-readiness-action-pack/kit.\nRegister Security Readiness Action Pack in src/lib/blueprints.ts as access premium, using requireUser and hasActiveEntitlement. Do not add a Stripe price or a PAID_PRODUCTS entry.\nDo not create or rewrite Playwright tests. e2e/security-readiness-action-pack/authenticated.spec.ts is read-only. Authenticated QA uses the automatic Playwright session refresh.\nDo not change Daily Inbox or Collections behavior. Do not commit, push, merge, deploy, or publish.",
+  "objective": "Implement the Premium Blueprint described in agent-specs/security-readiness-action-pack.json. Read that spec, agents/standards.md, and AGENTS.md first.\nKeep the public guided demo at /blueprints/security-readiness-action-pack and the signed-in Premium kit at /blueprints/security-readiness-action-pack/kit.\nRegister Security Readiness Action Pack in src/lib/blueprints.ts as access premium, using requireUser and hasActiveEntitlement. Do not add a Stripe price or a PAID_PRODUCTS entry.\nDo not create or rewrite Playwright tests. e2e/security-readiness-action-pack/authenticated.spec.ts is read-only. Public tests may be updated at e2e/security-readiness-action-pack/public.spec.ts. Authenticated QA uses the automatic Playwright session refresh.\nDo not change Daily Inbox or Collections behavior. Do not commit, push, merge, deploy, or publish.",
   "target_use_case": "security-readiness-action-pack",
   "scope": [
     "app/blueprints/security-readiness-action-pack/",
     "components/premium/security-readiness-action-pack/",
     "src/lib/premium/security-readiness-action-pack/",
-    "src/lib/blueprints.ts"
+    "src/lib/blueprints.ts",
+    "e2e/security-readiness-action-pack/public.spec.ts"
   ],
   "acceptance_criteria": [
     "GET /blueprints/security-readiness-action-pack without a session renders a page whose h1 is 'Security Readiness Action Pack', with a visible 'Private preview' label.",
@@ -74,7 +75,6 @@
     "content/",
     "e2e/daily-inbox-briefing/",
     "e2e/ai-collections-assistant/",
-    "e2e/security-readiness-action-pack/",
     "e2e/support/",
     "e2e/global-setup.ts",
     "agent-specs/",
@@ -87,6 +87,9 @@
     "proxy.ts",
     "package.json",
     "package-lock.json"
+  ],
+  "protected_files": [
+    "e2e/security-readiness-action-pack/authenticated.spec.ts"
   ],
   "permits_qa_changes": false,
   "requires_authenticated_qa": true,

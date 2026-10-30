@@ -60,6 +60,7 @@ function checkGeneratedTask() {
     forbidden: task.forbidden_changes,
     permitsQaChanges: task.permits_qa_changes,
     taskPath: paths.task,
+    protectedFiles: task.protected_files,
   });
   assert.deepEqual(guarded.keep, [`${paths.route}page.tsx`, `${paths.tests}public.spec.ts`]);
   assert.equal(guarded.restore.length, 4);

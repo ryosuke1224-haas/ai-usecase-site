@@ -14,6 +14,7 @@ export const taskSchema = z.object({
   scope: z.array(repoPath).min(1),
   acceptance_criteria: z.array(z.string().min(1)).min(1),
   forbidden_changes: z.array(repoPath),
+  protected_files: z.array(repoPath).default([]),
   permits_qa_changes: z.boolean().default(false),
   requires_authenticated_qa: z.boolean(),
   max_iterations: z.number().int().min(1).max(3),

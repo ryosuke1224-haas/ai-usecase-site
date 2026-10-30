@@ -24,6 +24,31 @@ function checkScopeKeepsDocumentation() {
   assert.deepEqual(result.restore, []);
 }
 
+function checkProtectedFileIsReadOnlyEvenWhenDirectoryIsInScope() {
+  const result = guardChanges({
+    changes: [
+      {
+        path: "e2e/sample/authenticated.spec.ts",
+        before: "expect(true)",
+        after: "expect(true); expect(1)",
+      },
+      {
+        path: "e2e/sample/public.spec.ts",
+        before: "expect(true)",
+        after: "expect(true); expect(2)",
+      },
+    ],
+    scope: ["e2e/sample/", "app/blueprints/sample/"],
+    forbidden: ["e2e/daily-inbox-briefing/"],
+    permitsQaChanges: false,
+    taskPath,
+    protectedFiles: ["e2e/sample/authenticated.spec.ts"],
+  });
+  assert.deepEqual(result.keep, ["e2e/sample/public.spec.ts"]);
+  assert.equal(result.restore[0], "e2e/sample/authenticated.spec.ts");
+  assert.equal(result.issues[0]?.classification, "TEST_PROTECTION_VIOLATION");
+}
+
 function checkTestEditIsRestored() {
   const result = guardChanges({
     changes: [
@@ -155,6 +180,7 @@ function checkBuilderTimeoutContract() {
 
 export function runAgentLoopSelfCheck(): void {
   checkScopeKeepsDocumentation();
+  checkProtectedFileIsReadOnlyEvenWhenDirectoryIsInScope();
   checkTestEditIsRestored();
   checkOutOfScopeProductFileIsRestored();
   checkTaskFileIsAlwaysProtected();

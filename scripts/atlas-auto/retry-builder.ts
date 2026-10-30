@@ -77,6 +77,9 @@ export function evaluateBuilderRetry(
 }
 
 export function resumeBlockedMessage(run: RunRecord, retryEligible: boolean): string {
+  if (run.phase === "HUMAN_INTERVENTION_REQUIRED" && retryEligible) {
+    return `Run ${run.run_id} needs HUMAN_INTERVENTION_REQUIRED, not a product/price final review. To retry the Builder: npm run atlas:auto -- --retry-builder ${run.run_id}`;
+  }
   if (run.phase !== "FINISHED" && run.phase !== "READY_FOR_PREVIEW") {
     return `Run ${run.run_id} cannot be resumed from ${run.phase}.`;
   }
