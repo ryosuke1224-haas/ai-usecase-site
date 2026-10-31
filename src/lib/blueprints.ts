@@ -46,6 +46,17 @@ export const blueprintCatalog: BlueprintDefinition[] = [
     summary:
       "A weekly collections queue you review yourself before anything is sent.",
   },
+  {
+    id: "security-readiness-action-pack",
+    title: "Security Readiness Action Pack",
+    badge: "PREMIUM",
+    href: "/blueprints/security-readiness-action-pack/kit",
+    purchaseHref: "/blueprints/security-readiness-action-pack",
+    productSlug: "security-readiness-action-pack",
+    access: "premium",
+    summary:
+      "A quarterly readiness queue you review yourself. The kit does not scan, certify, or change accounts.",
+  },
 ];
 
 export function authPath(nextPath: string, locale?: "ja" | "en"): string {
