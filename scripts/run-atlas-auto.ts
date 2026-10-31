@@ -58,6 +58,7 @@ import {
   persistBuilderRetry,
   resumeBlockedMessage,
 } from "./atlas-auto/retry-builder";
+import { loadAtlasLocalEnv } from "./atlas-auto/local-env";
 import { runAutoSelfCheck } from "./atlas-auto/self-check";
 import { startReviewServer, type ReviewServer } from "./atlas-auto/server";
 import { runSpecAgent, writeBuildTask, type BlueprintSpec } from "./atlas-auto/spec";
@@ -115,6 +116,7 @@ type Session = {
 };
 
 async function main() {
+  loadAtlasLocalEnv();
   const args = process.argv.slice(2).filter((arg) => arg !== "--");
   if (args.includes("--self-check")) {
     runAutoSelfCheck();

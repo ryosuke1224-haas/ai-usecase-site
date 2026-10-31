@@ -5,9 +5,9 @@
  * without creating another Stripe Product.
  * This script never commits, pushes, deploys, or publishes.
  */
-import fs from "node:fs";
 import Stripe from "stripe";
 import { currentBranch } from "./atlas-agent/workspace";
+import { loadAtlasLocalEnv } from "./atlas-auto/local-env";
 import { loadRun, loadRunCandidates, readJson, runMemoryDir } from "./atlas-auto/memory";
 import type { FinalReviewDecision } from "./atlas-auto/types";
 import {
@@ -35,20 +35,6 @@ import {
 import { findRegistryMapping, PREVIEW_PRICE_SCOPE, type RegistryProduct } from "../src/lib/payments/registry";
 
 const COLLECTIONS_SLUG = "ai-collections-assistant";
-
-function loadLocalEnv(): void {
-  const file = ".env.local";
-  if (!fs.existsSync(file)) return;
-  for (const line of fs.readFileSync(file, "utf8").split(/\r?\n/)) {
-    const match = /^([A-Z0-9_]+)=(.*)$/.exec(line.trim());
-    if (!match || process.env[match[1]]) continue;
-    let value = match[2].trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-    process.env[match[1]] = value;
-  }
-}
 
 function fail(message: string): never {
   console.error(message);
@@ -284,7 +270,7 @@ async function provisionJapanSandbox(flags: Record<string, string>): Promise<voi
 
 async function main() {
   if (currentBranch() !== "private-preview") fail("Atlas Commerce only runs on private-preview.");
-  loadLocalEnv();
+  loadAtlasLocalEnv();
   const args = process.argv.slice(2).filter((arg) => arg !== "--");
   if (args[0] === "--import-existing") {
     await importExisting();

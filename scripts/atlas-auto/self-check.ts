@@ -15,6 +15,7 @@ import {
   snapshotFromLoop,
   supervisorUserFacingLines,
 } from "./supervisor";
+import { loadAtlasLocalEnv } from "./local-env";
 import { dryRunSecurityRetryAssignment } from "./orchestration";
 import { CRITERIA, type CandidateHistory, type Criterion } from "./types";
 
@@ -164,7 +165,15 @@ export function runAutoSelfCheck(): void {
   checkGeneratedTask();
   checkSupervisorGatesHumanReview();
   checkSecurityRetryDryRun();
+  checkLocalEnvLoaderDoesNotReturnSecrets();
   console.log("Atlas Auto self-check passed.");
+}
+
+function checkLocalEnvLoaderDoesNotReturnSecrets() {
+  const loaded = loadAtlasLocalEnv();
+  assert.equal(Object.keys(loaded).join(","), "loadedFileNames");
+  assert.equal(JSON.stringify(loaded).includes("sk_"), false);
+  assert.equal(JSON.stringify(loaded).includes("rk_"), false);
 }
 
 function checkSecurityRetryDryRun() {
