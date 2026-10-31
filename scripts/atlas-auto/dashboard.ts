@@ -1,4 +1,5 @@
 import { canonicalFinalReviewStatus } from "./final-review-status";
+import { isPostApprovalStatus } from "./product-price-approval";
 import { TARGET_CANDIDATES } from "./research";
 import { canApproveProductAndPrice } from "./retry-builder";
 import { OVERALL_WEIGHTS, SUMMARY_GROUPS } from "./scoring";
@@ -235,8 +236,8 @@ export function renderFinalReview(input: {
   token: string;
 }): string {
   const { run, data, state } = input;
-  const status = canonicalFinalReviewStatus(data);
-  const ready = data.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW";
+  const status = isPostApprovalStatus(run.status) ? run.status! : canonicalFinalReviewStatus(data);
+  const ready = data.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW" || isPostApprovalStatus(run.status);
   const review = { ...data, disposition: status };
   const priceReady = Boolean(state.price_approval_enabled) && canApproveProductAndPrice(review);
   const body = `
@@ -271,6 +272,15 @@ export function renderFinalReview(input: {
         <p>Evaluator: <strong>${e(data.supervisor.evaluatorDecision ?? "n/a")}</strong>${data.supervisor.evaluatorScore != null ? ` · ${data.supervisor.evaluatorScore.toFixed(1)}` : ""}</p>
         <p>Blocking findings: <strong>${data.supervisor.blockingFindings}</strong> · Remaining non-blocking: <strong>${data.supervisor.nonBlockingFindings}</strong> · Recovery cycles used: <strong>${data.supervisor.recoveryCyclesUsed}</strong></p>
         ${data.supervisor.intervention ? `<p>Intervention: <strong>${e(data.supervisor.intervention)}</strong></p>` : ""}
+        </section>`
+        : ""
+    }
+    ${
+      run.human_decision || run.price_approval || run.commerce_result
+        ? `<section class="panel"><h2>Product and price approval</h2>
+        <p>Human decision: <strong>${e(run.human_decision?.action ?? "none")}</strong></p>
+        <p>Price approval: <strong>${run.price_approval ? `$${run.price_approval.amount_cents / 100} ${run.price_approval.currency.toUpperCase()} ${run.price_approval.payment_type}` : "none"}</strong></p>
+        <p>Commerce result: <strong>${e(run.commerce_result?.status ?? "none")}</strong>${run.commerce_result?.code ? ` · ${e(run.commerce_result.code)}` : ""}</p>
         </section>`
         : ""
     }

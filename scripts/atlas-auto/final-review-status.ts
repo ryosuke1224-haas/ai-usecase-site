@@ -1,4 +1,5 @@
 import { HUMAN_INTERVENTION_REQUIRED } from "./task-paths";
+import { isPostApprovalStatus } from "./product-price-approval";
 import { HUMAN_REVIEW_REQUIRED, type SupervisorReport } from "./supervisor";
 import type { RunRecord } from "./types";
 
@@ -51,6 +52,7 @@ export function persistCanonicalFinalReviewStatus(
   data: { disposition: string },
 ): void {
   run.loop_disposition = data.disposition;
+  if (isPostApprovalStatus(run.status)) return;
   run.status = data.disposition;
 }
 

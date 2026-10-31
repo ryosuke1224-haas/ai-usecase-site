@@ -56,6 +56,12 @@ import {
   planFinalReviewResume,
 } from "./atlas-auto/final-review-status";
 import {
+  executeProductPriceApproval,
+  formatApprovalCli,
+  planProductPriceResume,
+  reconcileCompletedApproval,
+} from "./atlas-auto/product-price-approval";
+import {
   canApproveProductAndPrice,
   createBuilderRetryRun,
   evaluateBuilderRetry,
@@ -77,14 +83,13 @@ import {
 } from "./atlas-auto/task-assignment";
 import type { AgentTask } from "./atlas-agent/schema";
 import { readMergedRegistry, saveRegistryRow } from "./atlas-commerce/save-registry";
-import { usSandboxSecret } from "./atlas-commerce/stripe-accounts";
+import { selectProvisioningAccount } from "./atlas-commerce/stripe-accounts";
 import { sandboxStripe } from "./atlas-commerce/stripe-adapter";
 import Stripe from "stripe";
 import {
   provisionSandboxProduct,
   parseApprovedAmount,
   suggestPriceCents,
-  type SandboxStripe,
 } from "../src/lib/payments/provision";
 import {
   CANDIDATE_DECISIONS,
@@ -155,6 +160,7 @@ async function main() {
       ? resumeSession(options)
       : await newSession(options, branch);
   const { run } = session;
+  if (options.resume && (await finishProductPriceResume(session, options))) return;
   process.on("SIGINT", () => {
     run.notes.push(`Interrupted during ${run.phase}.`);
     saveRun(run);
@@ -316,10 +322,14 @@ function resumeSession(options: Options): Session {
   if (!run) fail(`Run not found: ${runMemoryDir(runId)}/run.json`);
   const candidates = loadRunCandidates(runId);
   if (candidates.length === 0) fail(`Run ${runId} has no candidates.`);
-  run.commerce = run.commerce ?? null;
+  run.commerce = run.commerce ?? readJson<CommerceRecord>(`${runMemoryDir(runId)}/commerce.json`);
+  const storedFinal = readJson<FinalReviewDecision>(`${runMemoryDir(runId)}/final-review.json`);
+  const commercePlan = planProductPriceResume(run, storedFinal);
   if (run.phase === "FINISHED" || run.phase === "READY_FOR_PREVIEW" || run.phase === "HUMAN_INTERVENTION_REQUIRED") {
-    const retry = evaluateBuilderRetry(inspectBuilderRetry(runId));
-    fail(resumeBlockedMessage(run, retry.ok));
+    if (commercePlan.kind !== "already_complete" && commercePlan.kind !== "commerce_retry") {
+      const retry = evaluateBuilderRetry(inspectBuilderRetry(runId));
+      fail(resumeBlockedMessage(run, retry.ok));
+    }
   }
   if (run.mode === "dry-run" && !options.dryRun) {
     run.mode = "full";
@@ -334,15 +344,17 @@ function resumeSession(options: Options): Session {
     ended: false,
     message: "",
     finalData: null,
-    finalDecision: null,
+    finalDecision: storedFinal,
     server: null,
   };
-  if (run.phase === "AWAITING_FINAL_REVIEW" && run.loop_result && run.spec_path) {
+  if (run.loop_result && run.spec_path) {
     const spec = readJson<BlueprintSpec>(run.spec_path);
-    const plan = planFinalReviewResume(run);
-    if (spec && plan.reuseExistingResults) {
+    const reviewPlan = planFinalReviewResume(run);
+    if (spec && (reviewPlan.reuseExistingResults || commercePlan.kind === "commerce_retry" || commercePlan.kind === "already_complete")) {
       session.finalData = applyCanonicalFinalReview(finalReviewData(run, spec, run.loop_result));
-      persistCanonicalFinalReviewStatus(run, session.finalData);
+      if (commercePlan.kind !== "commerce_retry" && commercePlan.kind !== "already_complete") {
+        persistCanonicalFinalReviewStatus(run, session.finalData);
+      }
     }
   }
   console.log("Atlas Auto v1");
@@ -744,11 +756,17 @@ async function finalReview(session: Session) {
   const decision = await waitForFinalDecision(session);
   run.final_review_decision = decision.decision;
   run.final_review_file = `${runMemoryDir(run.run_id)}/final-review.json`;
-  run.phase = run.commerce?.statuses.includes("READY_FOR_PREVIEW") ? "READY_FOR_PREVIEW" : "FINISHED";
+  if (decision.decision !== "APPROVE_PRODUCT_AND_PRICE") {
+    run.phase = "FINISHED";
+  }
   saveRun(run);
   fs.writeFileSync(file, renderFinalReview({ run, data, state: dashboardState(session), token: "" }));
-  console.log(`Final review: ${decision.decision}`);
-  console.log("Committed: false. Pushed: false. Published: false.");
+  if (decision.decision === "APPROVE_PRODUCT_AND_PRICE") {
+    for (const line of formatApprovalCli(run)) console.log(line);
+  } else {
+    console.log(`Final review: ${decision.decision}`);
+    console.log("Committed: false. Pushed: false. Published: false.");
+  }
   await closeSoon(session);
 }
 
@@ -926,77 +944,68 @@ async function postFinalReview(session: Session, body: Record<string, unknown>) 
   return { status: 200, body: dashboardState(session) };
 }
 
+function productionApprovalDeps(): Parameters<typeof executeProductPriceApproval>[0]["deps"] {
+  return {
+    now: () => new Date().toISOString(),
+    selectAccount: selectProvisioningAccount,
+    provision: provisionSandboxProduct,
+    readRegistry: readMergedRegistry,
+    saveRegistry: saveRegistryRow,
+    createStripe: (key) => sandboxStripe(new Stripe(key)),
+    persistRun: (next) => {
+      if (next.commerce) writeJson(`${runMemoryDir(next.run_id)}/commerce.json`, next.commerce);
+      saveRun(next);
+    },
+  };
+}
+
+async function finishProductPriceResume(session: Session, options: Options): Promise<boolean> {
+  const storedFinal = readJson<FinalReviewDecision>(`${runMemoryDir(session.run.run_id)}/final-review.json`);
+  const plan = planProductPriceResume(session.run, storedFinal);
+  if (plan.kind === "already_complete") {
+    reconcileCompletedApproval(session.run, storedFinal);
+    if (session.run.commerce) writeJson(`${runMemoryDir(session.run.run_id)}/commerce.json`, session.run.commerce);
+    saveRun(session.run);
+    for (const line of formatApprovalCli(session.run)) console.log(line);
+    return true;
+  }
+  if (plan.kind !== "commerce_retry" || plan.amountCents == null || !session.finalData) return false;
+  const result = await executeProductPriceApproval({
+    run: session.run,
+    data: session.finalData,
+    cents: plan.amountCents,
+    note: storedFinal?.note ?? "",
+    dryRun: options.dryRun,
+    deps: productionApprovalDeps(),
+  });
+  recordFinalDecision(session, "APPROVE_PRODUCT_AND_PRICE", storedFinal?.note ?? "", plan.amountCents);
+  session.message = result.ok
+    ? result.reused
+      ? "Price approval reused the existing Sandbox product. Nothing was published, committed, or pushed."
+      : "Price approved. Stripe Sandbox product and price are recorded. Ready for preview."
+    : result.error;
+  for (const line of formatApprovalCli(session.run)) console.log(line);
+  return true;
+}
+
 async function approveProductAndPrice(
   session: Session,
   approvedCents: number,
   note: string,
 ): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
-  const data = session.finalData!;
-  const existing =
-    (await readMergedRegistry()).find(
-      (item) =>
-        item.product_slug === data.candidateId &&
-        item.market === "US" &&
-        item.locale === "en" &&
-        item.currency === "usd" &&
-        item.stripe_environment === "SANDBOX",
-    ) ?? null;
-  const key = usSandboxSecret();
-  const stripe: SandboxStripe = {
-    async findProductBySlug() {
-      throw new Error("Stripe lookup was not configured.");
-    },
-    async findPrice() {
-      throw new Error("Stripe lookup was not configured.");
-    },
-    async createProduct() {
-      throw new Error("Stripe create was not configured.");
-    },
-    async createPrice() {
-      throw new Error("Stripe create was not configured.");
-    },
-  };
-  const sandboxKey = key.startsWith("sk_test_") || key.startsWith("rk_test_");
-  const client = session.run.mode === "dry-run" || !sandboxKey ? stripe : sandboxStripe(new Stripe(key));
-  const result = await provisionSandboxProduct({
-    humanApproved: true,
-    stripeKey: session.run.mode === "dry-run" ? key : key,
+  const result = await executeProductPriceApproval({
+    run: session.run,
+    data: session.finalData!,
+    cents: approvedCents,
+    note,
     dryRun: session.run.mode === "dry-run",
-    slug: data.candidateId,
-    name: data.blueprintName,
-    approvedAmountCents: approvedCents,
-    suggestedAmountCents: data.suggestedPriceCents,
-    rationale: data.commercialRationale,
-    existing,
-    stripe: client,
+    deps: productionApprovalDeps(),
   });
-  if (!result.ok) {
-    return {
-      ok: false,
-      status: result.code === "LIVE_STRIPE_PROVISIONING_BLOCKED" ? 409 : 503,
-      error: result.code,
-    };
-  }
-  if (result.row) await saveRegistryRow(result.row);
-  const commerce: CommerceRecord = {
-    schema_version: "atlas-commerce-v1",
-    run_id: session.run.run_id,
-    product_slug: data.candidateId,
-    product_name: data.blueprintName,
-    suggested_price_cents: data.suggestedPriceCents,
-    approved_price_cents: approvedCents,
-    payment_type: "ONE_TIME",
-    stripe_environment: "SANDBOX",
-    statuses: result.statuses,
-    provisioning: result.dryRun ? "not_started" : result.reused ? "reused" : "created",
-    committed: false,
-    pushed: false,
-    published: false,
-    decided_at: new Date().toISOString(),
-  };
-  writeJson(`${runMemoryDir(session.run.run_id)}/commerce.json`, commerce);
-  session.run.commerce = commerce;
   recordFinalDecision(session, "APPROVE_PRODUCT_AND_PRICE", note, approvedCents);
+  if (!result.ok) {
+    session.message = result.error;
+    return result;
+  }
   session.message = result.dryRun
     ? "Price approved for this dry run. Stripe was not called. Nothing was published, committed, or pushed."
     : result.reused

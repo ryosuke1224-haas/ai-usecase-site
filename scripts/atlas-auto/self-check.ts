@@ -10,6 +10,10 @@ import {
   canonicalFinalReviewStatus,
   isContradictoryFinalReview,
 } from "./final-review-status";
+import {
+  planProductPriceResume,
+  recoverApprovedAmountCents,
+} from "./product-price-approval";
 import { canApproveProductAndPrice } from "./retry-builder";
 import { setStatus, writeJson } from "./memory";
 import { isSameIdea, summarize } from "./scoring";
@@ -178,7 +182,47 @@ export function runAutoSelfCheck(): void {
   checkLocalEnvLoaderDoesNotReturnSecrets();
   checkAtomicJsonWrite();
   checkFinalReviewStatusInvariant();
+  checkProductPriceApprovalRecovery();
   console.log("Atlas Auto self-check passed.");
+}
+
+function checkProductPriceApprovalRecovery() {
+  assert.equal(
+    recoverApprovedAmountCents({
+      finalReview: { decision: "APPROVE_PRODUCT_AND_PRICE", approved_price_cents: 4900 },
+    }),
+    4900,
+  );
+  assert.equal(recoverApprovedAmountCents({}), null);
+  const plan = planProductPriceResume(
+    {
+      phase: "READY_FOR_PREVIEW",
+      status: "HUMAN_REVIEW_REQUIRED",
+      final_review_decision: "APPROVE_PRODUCT_AND_PRICE",
+      commerce: {
+        schema_version: "atlas-commerce-v1",
+        run_id: "r",
+        product_slug: "security-readiness-action-pack",
+        product_name: "Security",
+        suggested_price_cents: 4900,
+        approved_price_cents: 4900,
+        payment_type: "ONE_TIME",
+        stripe_environment: "SANDBOX",
+        statuses: ["READY_FOR_PREVIEW"],
+        provisioning: "created",
+        committed: false,
+        pushed: false,
+        published: false,
+        decided_at: "t",
+      },
+    },
+    { decision: "APPROVE_PRODUCT_AND_PRICE", approved_price_cents: 4900 },
+  );
+  assert.equal(plan.kind, "already_complete");
+  assert.equal(plan.invokeBuilder, false);
+  assert.equal(plan.invokeQa, false);
+  assert.equal(plan.invokeEvaluator, false);
+  assert.equal(plan.invokeStripe, false);
 }
 
 function checkFinalReviewStatusInvariant() {

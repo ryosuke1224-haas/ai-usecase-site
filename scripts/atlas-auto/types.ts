@@ -238,8 +238,30 @@ export type RunRecord = {
   task_path: string | null;
   loop_result: string | null;
   loop_disposition: string | null;
-  /** Canonical human-facing Final Review status. Never PENDING_SUPERVISOR with READY_FOR_HUMAN_REVIEW. */
+  /** Canonical human-facing run status. After product/price approval this is PRICE_APPROVED or READY_FOR_PREVIEW. */
   status?: string | null;
+  human_decision?: {
+    action: "APPROVE_PRODUCT_AND_PRICE";
+    decided_at: string;
+    note: string;
+  } | null;
+  price_approval?: {
+    amount_cents: number;
+    currency: "usd";
+    payment_type: "ONE_TIME";
+    market: "US";
+  } | null;
+  commerce_result?: {
+    status: "provisioned" | "reused" | "failed" | "not_started";
+    product_slug: string;
+    market: "US";
+    environment: "SANDBOX";
+    currency: "usd";
+    amount_cents: number;
+    payment_type: "ONE_TIME";
+    registry_mapping: "written" | "reused" | "missing" | "unchanged";
+    code?: string;
+  } | null;
   final_review_file: string | null;
   final_review_decision: FinalDecisionValue | null;
   commerce: CommerceRecord | null;
