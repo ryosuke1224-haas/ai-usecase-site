@@ -8,6 +8,7 @@ import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { redactChildHumanStatusLine } from "./atlas-agent/loop-status";
 import { runEvaluator } from "./atlas-agent/evaluator";
 import { listQaReports, readNewQaReport } from "./atlas-agent/qa-failures";
 import { redact } from "./atlas-agent/redact";
@@ -28,6 +29,7 @@ import {
   humanFacingDisposition,
   HUMAN_REVIEW_REQUIRED,
   snapshotFromLoop,
+  supervisorUserFacingLines,
   type SupervisorSnapshot,
 } from "./atlas-auto/supervisor";
 import {
@@ -63,6 +65,7 @@ import {
   HUMAN_INTERVENTION_REQUIRED,
   interventionReason,
   readAssignmentFiles,
+  retryAssignmentFromCurrentFiles,
   shouldOpenFinalReview,
   validateBuilderAssignment,
 } from "./atlas-auto/task-assignment";
@@ -486,16 +489,14 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
     session.finalData = review;
     run.phase = "AWAITING_FINAL_REVIEW";
     saveRun(run);
-    console.log(HUMAN_REVIEW_REQUIRED);
-    console.log("Supervisor recommendation: READY_FOR_HUMAN_REVIEW");
+    for (const line of supervisorUserFacingLines(supervised.decision)) console.log(line);
     return;
   }
   session.finalData = null;
   run.phase = "HUMAN_INTERVENTION_REQUIRED";
   session.message = interventionReason(review);
   saveRun(run);
-  console.log(HUMAN_INTERVENTION_REQUIRED);
-  console.log(session.message);
+  for (const line of supervisorUserFacingLines(supervised.decision)) console.log(line);
   console.log(`Retry Builder: npm run atlas:auto -- --retry-builder ${run.run_id}`);
 }
 
@@ -558,7 +559,7 @@ async function escalateIntervention(session: Session, reason: string) {
   await closeSoon(session);
 }
 
-function loopIssues(loopResultPath: string | null): SupervisorSnapshot["issues"] {
+function loopIssues(loopResultPath: string | null): NonNullable<SupervisorSnapshot["issues"]> {
   const loop = loopResultPath
     ? readJson<{ unresolved_issues?: NonNullable<SupervisorSnapshot["issues"]> }>(loopResultPath)
     : null;
@@ -698,10 +699,10 @@ function productionRecoveryDeps(run: RunRecord): RecoveryDeps {
       const loopDir = listLoopDirs().find(
         (dir) => !before.includes(dir) && dir.endsWith(`-${path.basename(ctx.taskPath, ".json")}`),
       );
-      const loopResult = loopDir ? `${LOOPS_DIR}/${loopDir}/loop-result.json` : null;
-      const path = loopResult && fs.existsSync(loopResult) ? loopResult : null;
-      const data = finalReviewData(run, ctx.spec, path);
-      return { ...snapshotFromReview(data, ctx.spec, ctx.task, { ok: true }), loopResultPath: path };
+      const nextLoop = loopDir ? `${LOOPS_DIR}/${loopDir}/loop-result.json` : null;
+      const loopResultPath = nextLoop && fs.existsSync(nextLoop) ? nextLoop : null;
+      const data = finalReviewData(run, ctx.spec, loopResultPath);
+      return { ...snapshotFromReview(data, ctx.spec, ctx.task, { ok: true }), loopResultPath };
     },
     writeAssignment: (nextSpec, nextTask, specPath, taskPath) => {
       writeJson(specPath, nextSpec);
@@ -782,7 +783,7 @@ function finalReviewData(run: RunRecord, spec: BlueprintSpec, loopResultPath: st
     specPath: run.spec_path ?? "",
     taskPath: run.task_path ?? "",
     loopResultPath,
-    disposition: loop?.disposition ?? "HUMAN_REVIEW_REQUIRED",
+    disposition: "PENDING_SUPERVISOR",
     iterationsUsed: loop?.iterations_used ?? 0,
     maxIterations: loop?.max_iterations ?? 3,
     filesChanged: loop?.files_changed ?? [],
@@ -1184,7 +1185,31 @@ async function closeSoon(session: Session) {
 
 function runInherited(command: string): Promise<number> {
   return new Promise((resolve) => {
-    const child = spawn(command, { cwd: process.cwd(), shell: true, stdio: "inherit", env: process.env });
+    const child = spawn(command, {
+      cwd: process.cwd(),
+      shell: true,
+      stdio: ["inherit", "pipe", "pipe"],
+      env: { ...process.env, ATLAS_SUPERVISOR_MANAGED: "1" },
+    });
+    const forward = (stream: NodeJS.ReadableStream | null, dest: NodeJS.WriteStream) => {
+      if (!stream) return;
+      let leftover = "";
+      stream.on("data", (chunk: Buffer) => {
+        const parts = (leftover + chunk.toString()).split(/\r?\n/);
+        leftover = parts.pop() ?? "";
+        for (const line of parts) {
+          const kept = redactChildHumanStatusLine(line);
+          if (kept !== null) dest.write(`${kept}\n`);
+        }
+      });
+      stream.on("end", () => {
+        if (!leftover) return;
+        const kept = redactChildHumanStatusLine(leftover);
+        if (kept !== null) dest.write(kept);
+      });
+    };
+    forward(child.stdout, process.stdout);
+    forward(child.stderr, process.stderr);
     child.on("close", (code) => resolve(code ?? 1));
     child.on("error", () => resolve(1));
   });

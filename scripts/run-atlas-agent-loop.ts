@@ -19,6 +19,12 @@ import { prepareAuthenticatedSession } from "./atlas-qa/auth-session";
 import { redact } from "./atlas-agent/redact";
 import { runCommand } from "./atlas-agent/run-command";
 import { formatZodError, taskSchema, type QaFailure } from "./atlas-agent/schema";
+import {
+  formatEvaluatorUserLine,
+  formatLoopUserFacingLines,
+  loopStatusFromResult,
+  type LoopStatus,
+} from "./atlas-agent/loop-status";
 import { runAgentLoopSelfCheck } from "./atlas-agent/self-check";
 import {
   captureBaseline,
@@ -67,6 +73,7 @@ type LoopResult = {
   fallback_used: boolean;
   authenticated_session: "reused" | "not_required" | "missing";
   loop_report: string;
+  loop_status: LoopStatus;
 };
 
 const REQUIRED_BRANCH = "private-preview";
@@ -496,11 +503,17 @@ function finish(input: {
     fallback_used: input.invocation === "documentation-fallback",
     authenticated_session: input.session,
     loop_report: input.resultPath,
+    loop_status: loopStatusFromResult({
+      disposition: input.disposition,
+      qaStatus: input.qa?.report?.status ?? (input.qa ? "fail" : "not_run"),
+      evaluatorStatus: input.evaluator?.status,
+      issues: input.unresolved,
+    }),
   };
   fs.mkdirSync(path.dirname(input.resultPath), { recursive: true });
   fs.writeFileSync(input.resultPath, `${JSON.stringify(result, null, 2)}\n`);
   console.log("");
-  console.log(result.disposition);
+  for (const line of formatLoopUserFacingLines(result.loop_status)) console.log(line);
   console.log(`Iterations used: ${result.iterations_used} of ${result.max_iterations}`);
   console.log(`Files changed by the loop: ${result.files_changed.join(", ") || "(none)"}`);
   if (result.qa_result) {
@@ -512,11 +525,11 @@ function finish(input: {
   console.log(`Builder command: ${result.builder_command || "(none)"}`);
   console.log(`Fallback used: ${result.fallback_used}`);
   console.log(
-    `Evaluator: ${result.evaluator_result?.status ?? "not_run"}` +
-      (result.evaluator_result?.decision ? ` ${result.evaluator_result.decision}` : "") +
-      (result.evaluator_result?.overall_score != null
-        ? ` overall ${result.evaluator_result.overall_score}`
-        : ""),
+    formatEvaluatorUserLine({
+      status: result.evaluator_result?.status,
+      decision: result.evaluator_result?.decision,
+      overall: result.evaluator_result?.overall_score,
+    }),
   );
   if (result.evaluator_result?.evaluator_command) {
     console.log(`Evaluator command: ${result.evaluator_result.evaluator_command}`);

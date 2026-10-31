@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { DEFAULT_BUILDER_TIMEOUT_MS } from "./cursor-cli";
 import { decideEvaluation } from "./evaluator";
+import {
+  formatEvaluatorUserLine,
+  formatLoopUserFacingLines,
+  isSupervisorManaged,
+  loopStatusFromResult,
+  redactChildHumanStatusLine,
+} from "./loop-status";
 import { guardChanges } from "./guards";
 import { qaFailureSchema, taskSchema } from "./schema";
 
@@ -178,6 +185,27 @@ function checkBuilderTimeoutContract() {
   assert.equal(parsed.classification, "BUILDER_TIMEOUT");
 }
 
+function checkLoopDoesNotEmitHumanReviewRequired() {
+  const failed = loopStatusFromResult({
+    disposition: "HUMAN_REVIEW_REQUIRED",
+    qaStatus: "not_run",
+    evaluatorStatus: "not_run",
+  });
+  assert.equal(failed, "FAILED");
+  const lines = formatLoopUserFacingLines(failed);
+  assert.deepEqual(lines, ["Loop status: FAILED"]);
+  assert.equal(lines.join("\n").includes("HUMAN_REVIEW_REQUIRED"), false);
+  assert.equal(loopStatusFromResult({ disposition: "READY_FOR_HUMAN_REVIEW" }), "COMPLETED");
+  assert.equal(isSupervisorManaged({ ATLAS_SUPERVISOR_MANAGED: "1" }), true);
+  assert.equal(redactChildHumanStatusLine("HUMAN_REVIEW_REQUIRED"), null);
+  assert.equal(
+    formatEvaluatorUserLine({ status: "executed", decision: "HUMAN_REVIEW_REQUIRED" }).includes(
+      "HUMAN_REVIEW_REQUIRED",
+    ),
+    false,
+  );
+}
+
 export function runAgentLoopSelfCheck(): void {
   checkScopeKeepsDocumentation();
   checkProtectedFileIsReadOnlyEvenWhenDirectoryIsInScope();
@@ -187,5 +215,6 @@ export function runAgentLoopSelfCheck(): void {
   checkIterationCap();
   checkEvaluatorDecisions();
   checkBuilderTimeoutContract();
+  checkLoopDoesNotEmitHumanReviewRequired();
   console.log("Agent loop self-check passed.");
 }

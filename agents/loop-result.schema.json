@@ -91,6 +91,9 @@
     "authenticated_session": {
       "enum": ["reused", "not_required", "missing"]
     },
-    "loop_report": { "type": "string" }
+    "loop_report": { "type": "string" },
+    "loop_status": {
+      "enum": ["COMPLETED", "FAILED", "BLOCKED", "RECOVERY_REQUIRED"]
+    }
   }
 }

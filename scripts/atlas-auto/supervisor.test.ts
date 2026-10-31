@@ -2,15 +2,24 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { AgentTask } from "../atlas-agent/schema";
 import {
+  formatLoopUserFacingLines,
+  isSupervisorManaged,
+  loopStatusFromResult,
+  redactChildHumanStatusLine,
+} from "../atlas-agent/loop-status";
+import {
   applyPlannedAction,
   classifyFailure,
+  countHumanStatusToken,
   decideSupervisor,
   emptySupervisorState,
+  HUMAN_REVIEW_REQUIRED,
   humanFacingDisposition,
   isReadyForHumanReview,
   routeRecovery,
   SUPERVISOR_LIMITS,
   snapshotFromLoop,
+  supervisorUserFacingLines,
   type SupervisorSnapshot,
   type SupervisorState,
 } from "./supervisor";
@@ -456,4 +465,139 @@ test("ready path does not increment recovery counters", () => {
   assert.equal(next.cycles_used, 0);
   assert.equal(next.history.length, 0);
   assert.equal(next.recommendation, "READY_FOR_HUMAN_REVIEW");
+});
+
+function managedOutput(loopInput: Parameters<typeof loopStatusFromResult>[0], snapshot: SupervisorSnapshot) {
+  const loopStatus = loopStatusFromResult(loopInput);
+  const decision = decide(snapshot);
+  const lines = [...formatLoopUserFacingLines(loopStatus), ...supervisorUserFacingLines(decision)];
+  const text = lines.join("\n");
+  return { loopStatus, decision, lines, text };
+}
+
+test("A. build failure in supervisor.ts is orchestration, not a Security product defect", () => {
+  const snapshot = snapshotFromLoop({
+    builderCompleted: true,
+    build: "fail",
+    qa: { status: "not_run" },
+    evaluator: { status: "not_run", decision: null },
+    issues: [
+      {
+        issue_id: "build",
+        test: "npm run build",
+        actual: "Type error: scripts/atlas-auto/supervisor.ts",
+        classification: "BUILD_FAILURE",
+        relevant_files: ["scripts/atlas-auto/supervisor.ts"],
+      },
+    ],
+    task: task(),
+    spec: spec(),
+  });
+  const output = managedOutput({ disposition: "HUMAN_REVIEW_REQUIRED", qaStatus: "not_run", evaluatorStatus: "not_run" }, snapshot);
+  assert.equal(output.decision.classification, "ORCHESTRATION_FAILURE");
+  assert.equal(output.decision.invokeBuilder, false);
+  assert.equal(output.decision.recommendation, "HUMAN_INTERVENTION_REQUIRED");
+  assert.equal(countHumanStatusToken(output.text, HUMAN_REVIEW_REQUIRED), 0);
+  assert.equal(countHumanStatusToken(output.text, HUMAN_INTERVENTION_REQUIRED), 1);
+  assert.equal(output.loopStatus, "FAILED");
+});
+
+test("B. QA not_run / Evaluator not_run never prints HUMAN_REVIEW_REQUIRED", () => {
+  const output = managedOutput(
+    { disposition: "HUMAN_REVIEW_REQUIRED", qaStatus: "not_run", evaluatorStatus: "not_run" },
+    snapshotFromLoop({
+      build: "pass",
+      qa: { status: "not_run" },
+      evaluator: { status: "not_run", decision: null },
+      task: task(),
+      spec: spec(),
+      assignment: { ok: true },
+    }),
+  );
+  assert.equal(countHumanStatusToken(output.text, HUMAN_REVIEW_REQUIRED), 0);
+  assert.ok(!output.lines.includes(HUMAN_REVIEW_REQUIRED));
+});
+
+test("C. Supervisor-managed unsuccessful loop returns structured status only", () => {
+  const output = managedOutput(
+    {
+      disposition: "HUMAN_REVIEW_REQUIRED",
+      qaStatus: "not_run",
+      evaluatorStatus: "not_run",
+      issues: [{ classification: "BUILD_FAILURE", issue_id: "build" }],
+    },
+    snapshotFromLoop({
+      build: "fail",
+      qa: { status: "not_run" },
+      evaluator: { status: "not_run", decision: null },
+      issues: [{ issue_id: "build", classification: "BUILD_FAILURE", actual: "Type error in kit page" }],
+      task: task(),
+    }),
+  );
+  assert.equal(output.loopStatus, "FAILED");
+  assert.deepEqual(formatLoopUserFacingLines(output.loopStatus), ["Loop status: FAILED"]);
+  assert.equal(countHumanStatusToken(formatLoopUserFacingLines(output.loopStatus).join("\n"), HUMAN_REVIEW_REQUIRED), 0);
+  assert.ok(output.decision.recommendation === "NEEDS_INTERNAL_RECOVERY" || output.decision.recommendation === "HUMAN_INTERVENTION_REQUIRED");
+  assert.equal(humanFacingDisposition(output.decision.recommendation) === HUMAN_REVIEW_REQUIRED, false);
+});
+
+test("D. successful full run emits exactly one HUMAN_REVIEW_REQUIRED after READY_FOR_HUMAN_REVIEW", () => {
+  const output = managedOutput(
+    { disposition: "READY_FOR_HUMAN_REVIEW", qaStatus: "pass", evaluatorStatus: "executed" },
+    readySnapshot(),
+  );
+  assert.equal(output.loopStatus, "COMPLETED");
+  assert.equal(output.decision.recommendation, "READY_FOR_HUMAN_REVIEW");
+  assert.equal(countHumanStatusToken(output.text, HUMAN_REVIEW_REQUIRED), 1);
+  assert.equal(countHumanStatusToken(output.text, HUMAN_INTERVENTION_REQUIRED), 0);
+  assert.equal(output.lines[0], "Loop status: COMPLETED");
+  assert.equal(output.lines[1], HUMAN_REVIEW_REQUIRED);
+});
+
+test("E. failed run emits exactly one HUMAN_INTERVENTION_REQUIRED and zero HUMAN_REVIEW_REQUIRED", () => {
+  const output = managedOutput(
+    { disposition: "HUMAN_REVIEW_REQUIRED", qaStatus: "not_run", evaluatorStatus: "not_run" },
+    snapshotFromLoop({
+      build: "not_run",
+      qa: { status: "not_run" },
+      evaluator: { status: "not_run", decision: null },
+      task: task(),
+    }),
+  );
+  assert.equal(output.decision.recommendation, "HUMAN_INTERVENTION_REQUIRED");
+  assert.equal(countHumanStatusToken(output.text, HUMAN_INTERVENTION_REQUIRED), 1);
+  assert.equal(countHumanStatusToken(output.text, HUMAN_REVIEW_REQUIRED), 0);
+});
+
+test("lower agent loop does not own final human disposition when Supervisor-managed", () => {
+  assert.equal(isSupervisorManaged({ ATLAS_SUPERVISOR_MANAGED: "1" }), true);
+  const child = [
+    "Atlas agent loop",
+    "HUMAN_REVIEW_REQUIRED",
+    "Loop status: FAILED",
+    "Evaluator: executed HUMAN_REVIEW_REQUIRED",
+  ]
+    .map((line) => redactChildHumanStatusLine(line))
+    .filter((line): line is string => line !== null);
+  assert.equal(child.includes("HUMAN_REVIEW_REQUIRED"), false);
+  const output = managedOutput(
+    { disposition: "HUMAN_REVIEW_REQUIRED", qaStatus: "not_run", evaluatorStatus: "not_run" },
+    snapshotFromLoop({
+      build: "fail",
+      qa: { status: "not_run" },
+      evaluator: { status: "not_run", decision: null },
+      issues: [
+        {
+          issue_id: "build",
+          classification: "BUILD_FAILURE",
+          actual: "Type error: scripts/atlas-auto/supervisor.ts",
+          relevant_files: ["scripts/atlas-auto/supervisor.ts"],
+        },
+      ],
+      task: task(),
+    }),
+  );
+  assert.equal(output.decision.invokeBuilder, false);
+  assert.equal(countHumanStatusToken([...child, ...output.lines].join("\n"), HUMAN_REVIEW_REQUIRED), 0);
+  assert.equal(countHumanStatusToken(output.text, "HUMAN_INTERVENTION_REQUIRED"), 1);
 });
