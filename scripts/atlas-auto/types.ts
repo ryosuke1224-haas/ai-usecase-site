@@ -238,6 +238,8 @@ export type RunRecord = {
   task_path: string | null;
   loop_result: string | null;
   loop_disposition: string | null;
+  /** Canonical human-facing Final Review status. Never PENDING_SUPERVISOR with READY_FOR_HUMAN_REVIEW. */
+  status?: string | null;
   final_review_file: string | null;
   final_review_decision: FinalDecisionValue | null;
   commerce: CommerceRecord | null;

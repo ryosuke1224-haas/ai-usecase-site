@@ -51,6 +51,11 @@ import {
 } from "./atlas-auto/memory";
 import { researchAndScore } from "./atlas-auto/research";
 import {
+  applyCanonicalFinalReview,
+  persistCanonicalFinalReviewStatus,
+  planFinalReviewResume,
+} from "./atlas-auto/final-review-status";
+import {
   canApproveProductAndPrice,
   createBuilderRetryRun,
   evaluateBuilderRetry,
@@ -334,7 +339,11 @@ function resumeSession(options: Options): Session {
   };
   if (run.phase === "AWAITING_FINAL_REVIEW" && run.loop_result && run.spec_path) {
     const spec = readJson<BlueprintSpec>(run.spec_path);
-    if (spec) session.finalData = finalReviewData(run, spec, run.loop_result);
+    const plan = planFinalReviewResume(run);
+    if (spec && plan.reuseExistingResults) {
+      session.finalData = applyCanonicalFinalReview(finalReviewData(run, spec, run.loop_result));
+      persistCanonicalFinalReviewStatus(run, session.finalData);
+    }
   }
   console.log("Atlas Auto v1");
   console.log(`Resuming run: ${runId} (${run.phase})`);
@@ -470,12 +479,16 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
   task = supervised.task;
   run.supervisor = supervised.state;
   if (supervised.loopResultPath) run.loop_result = supervised.loopResultPath;
-  review = overlaySupervisorReview(finalReviewData(run, spec, run.loop_result), supervised.snapshot, supervised.decision.report);
+  review = applyCanonicalFinalReview(
+    overlaySupervisorReview(finalReviewData(run, spec, run.loop_result), supervised.snapshot, supervised.decision.report),
+  );
 
   const ready =
     supervised.decision.recommendation === "READY_FOR_HUMAN_REVIEW" && shouldOpenFinalReview(review);
   const human = humanFacingDisposition(supervised.decision.recommendation);
-  run.loop_disposition = ready ? HUMAN_REVIEW_REQUIRED : HUMAN_INTERVENTION_REQUIRED;
+  persistCanonicalFinalReviewStatus(run, {
+    disposition: ready && human === HUMAN_REVIEW_REQUIRED ? HUMAN_REVIEW_REQUIRED : HUMAN_INTERVENTION_REQUIRED,
+  });
   const history = loadHistory();
   setStatus(history, {
     id: approved.id,
@@ -553,7 +566,7 @@ async function reconcileAssignment(
 async function escalateIntervention(session: Session, reason: string) {
   const { run } = session;
   run.phase = "HUMAN_INTERVENTION_REQUIRED";
-  run.loop_disposition = HUMAN_INTERVENTION_REQUIRED;
+  persistCanonicalFinalReviewStatus(run, { disposition: HUMAN_INTERVENTION_REQUIRED });
   run.notes.push(reason);
   saveRun(run);
   session.message = reason;
@@ -605,7 +618,7 @@ function overlaySupervisorReview(
   report: FinalReviewData["supervisor"],
 ): FinalReviewData {
   const human = report ? humanFacingDisposition(report.recommendation) : null;
-  return {
+  return applyCanonicalFinalReview({
     ...data,
     disposition: human ?? data.disposition,
     build: snapshot.build ?? data.build,
@@ -625,7 +638,7 @@ function overlaySupervisorReview(
     criticalIssues: snapshot.criticalIssues ?? data.criticalIssues,
     supervisor: report,
     requiresAuthenticatedQa: data.requiresAuthenticatedQa,
-  };
+  });
 }
 
 function productionRecoveryDeps(run: RunRecord): RecoveryDeps {
@@ -779,7 +792,7 @@ function finalReviewData(run: RunRecord, spec: BlueprintSpec, loopResultPath: st
       .map((finding) => `Evaluator ${finding.severity} · ${finding.id}: ${finding.description}`),
   ];
   if (!loop) critical.unshift("The agent loop did not produce a loop-result.json.");
-  return {
+  return applyCanonicalFinalReview({
     blueprintName: spec.name,
     candidateId: spec.id,
     specPath: run.spec_path ?? "",
@@ -815,7 +828,7 @@ function finalReviewData(run: RunRecord, spec: BlueprintSpec, loopResultPath: st
     commercialRationale: candidateRationale(run, spec.id),
     requiresAuthenticatedQa: spec.qa_checks.some((check) => check.requires_auth) ?? true,
     supervisor: run.supervisor?.last_report ?? null,
-  };
+  });
 }
 
 function candidateValue(run: RunRecord, candidateId: string): string {

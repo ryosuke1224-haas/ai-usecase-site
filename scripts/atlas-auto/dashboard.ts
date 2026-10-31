@@ -1,3 +1,4 @@
+import { canonicalFinalReviewStatus } from "./final-review-status";
 import { TARGET_CANDIDATES } from "./research";
 import { canApproveProductAndPrice } from "./retry-builder";
 import { OVERALL_WEIGHTS, SUMMARY_GROUPS } from "./scoring";
@@ -234,8 +235,10 @@ export function renderFinalReview(input: {
   token: string;
 }): string {
   const { run, data, state } = input;
+  const status = canonicalFinalReviewStatus(data);
   const ready = data.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW";
-  const priceReady = Boolean(state.price_approval_enabled) && canApproveProductAndPrice(data);
+  const review = { ...data, disposition: status };
+  const priceReady = Boolean(state.price_approval_enabled) && canApproveProductAndPrice(review);
   const body = `
   <header class="top">
     <div class="top-inner">
@@ -244,7 +247,7 @@ export function renderFinalReview(input: {
         <h1>${e(data.blueprintName)}</h1>
         <p class="sub">Run <code>${e(run.run_id)}</code> · candidate <code>${e(data.candidateId)}</code> · branch <code>${e(run.branch)}</code></p>
       </div>
-      <div>${pill(data.disposition, ready ? "green" : "amber")}</div>
+      <div>${pill(status, ready ? "green" : "amber")}</div>
     </div>
   </header>
   <main>
@@ -252,7 +255,7 @@ export function renderFinalReview(input: {
     <div class="notice ok hidden" id="state-message"></div>
     <div class="notice error hidden" id="file-mode">This page was opened from disk. Open the localhost URL printed by <code>npm run atlas:auto</code> to record a decision.</div>
     <section class="stats">
-      ${stat("Status", data.disposition, ready ? "green" : "amber")}
+      ${stat("Status", status, ready ? "green" : "amber")}
       ${stat("Build", data.build, data.build === "pass" ? "green" : "red")}
       ${stat("QA", `${data.qa.status} · ${data.qa.passed} passed / ${data.qa.failed} failed / ${data.qa.skipped} skipped`, data.qa.status === "pass" ? "green" : "red")}
       ${stat("Authenticated QA", data.supervisor?.authenticatedQa ?? (data.qa.skipped > 0 ? "fail" : data.qa.status), data.supervisor?.authenticatedQa === "pass" || (data.qa.status === "pass" && data.qa.skipped === 0) ? "green" : "red")}

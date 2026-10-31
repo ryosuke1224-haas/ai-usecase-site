@@ -4,6 +4,13 @@ import os from "node:os";
 import { guardChanges } from "../atlas-agent/guards";
 import { escapeHtml } from "./dashboard";
 import { ATOMIC_WRITE_FAILED, writeAtomicJson } from "./atomic-write";
+import {
+  PENDING_SUPERVISOR,
+  applyCanonicalFinalReview,
+  canonicalFinalReviewStatus,
+  isContradictoryFinalReview,
+} from "./final-review-status";
+import { canApproveProductAndPrice } from "./retry-builder";
 import { setStatus, writeJson } from "./memory";
 import { isSameIdea, summarize } from "./scoring";
 import { blueprintPaths, buildTask } from "./spec";
@@ -170,7 +177,25 @@ export function runAutoSelfCheck(): void {
   checkSecurityRetryDryRun();
   checkLocalEnvLoaderDoesNotReturnSecrets();
   checkAtomicJsonWrite();
+  checkFinalReviewStatusInvariant();
   console.log("Atlas Auto self-check passed.");
+}
+
+function checkFinalReviewStatusInvariant() {
+  const ready = {
+    disposition: PENDING_SUPERVISOR,
+    build: "pass",
+    qa: { status: "pass", skipped: 0 },
+    evaluator: { status: "executed", decision: "PASS" },
+    supervisor: { recommendation: "READY_FOR_HUMAN_REVIEW" },
+  };
+  assert.equal(isContradictoryFinalReview(ready), true);
+  const fixed = applyCanonicalFinalReview(ready);
+  assert.equal(fixed.disposition, HUMAN_REVIEW_REQUIRED);
+  assert.equal(isContradictoryFinalReview(fixed), false);
+  assert.equal(canonicalFinalReviewStatus(fixed), HUMAN_REVIEW_REQUIRED);
+  assert.equal(canApproveProductAndPrice({ ...ready, disposition: PENDING_SUPERVISOR }), false);
+  assert.equal(canApproveProductAndPrice({ ...ready, disposition: HUMAN_REVIEW_REQUIRED }), true);
 }
 
 function checkAtomicJsonWrite() {

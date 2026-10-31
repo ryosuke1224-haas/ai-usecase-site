@@ -205,7 +205,17 @@ test("price approval stays closed until Build, QA, and Evaluator succeed", () =>
       evaluator: { status: "executed", decision: "PASS_WITH_RECOMMENDATIONS" },
       supervisor: { recommendation: "READY_FOR_HUMAN_REVIEW" },
     }),
-    true,
+    false,
+  );
+  assert.equal(
+    canApproveProductAndPrice({
+      disposition: "PENDING_SUPERVISOR",
+      build: "pass",
+      qa: { status: "pass" },
+      evaluator: { status: "executed", decision: "PASS" },
+      supervisor: { recommendation: "READY_FOR_HUMAN_REVIEW" },
+    }),
+    false,
   );
   assert.equal(
     canApproveProductAndPrice({

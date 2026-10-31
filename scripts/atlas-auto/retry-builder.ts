@@ -164,6 +164,7 @@ export function canApproveProductAndPrice(data: {
   evaluator: { status: string; decision: string | null };
   supervisor?: { recommendation?: string } | null;
 }): boolean {
+  if (data.disposition !== "HUMAN_REVIEW_REQUIRED") return false;
   if (data.supervisor?.recommendation !== "READY_FOR_HUMAN_REVIEW") return false;
   if ((data.qa.skipped ?? 0) > 0) return false;
   return (
