@@ -137,7 +137,7 @@ export async function runSpecAgent(input: {
       summary_scores: candidate.summary_scores,
     },
     routes: { guided_demo: paths.demoUrl, kit: paths.kitUrl },
-    allowed_paths: [paths.route, paths.components, paths.lib, paths.tests],
+    allowed_paths: [paths.route, paths.components, paths.lib, "src/lib/blueprints.ts", paths.tests],
     constraints: constraints(candidate.id),
   };
   writeJson(paths.spec, spec);

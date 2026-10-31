@@ -234,7 +234,7 @@ export function renderFinalReview(input: {
   token: string;
 }): string {
   const { run, data, state } = input;
-  const ready = data.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW" || data.disposition === "READY_FOR_HUMAN_REVIEW";
+  const ready = data.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW";
   const priceReady = Boolean(state.price_approval_enabled) && canApproveProductAndPrice(data);
   const body = `
   <header class="top">

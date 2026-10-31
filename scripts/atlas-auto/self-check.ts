@@ -6,12 +6,16 @@ import { isSameIdea, summarize } from "./scoring";
 import { blueprintPaths, buildTask } from "./spec";
 import {
   classifyFailure,
+  countHumanStatusToken,
   decideSupervisor,
   emptySupervisorState,
+  HUMAN_REVIEW_REQUIRED,
   humanFacingDisposition,
   isReadyForHumanReview,
   snapshotFromLoop,
+  supervisorUserFacingLines,
 } from "./supervisor";
+import { dryRunSecurityRetryAssignment } from "./orchestration";
 import { CRITERIA, type CandidateHistory, type Criterion } from "./types";
 
 function criteria(value: number, overrides: Partial<Record<Criterion, number>> = {}) {
@@ -106,6 +110,50 @@ function checkSupervisorGatesHumanReview() {
   const readyDecision = decideSupervisor(ready, emptySupervisorState());
   assert.equal(readyDecision.recommendation, "READY_FOR_HUMAN_REVIEW");
   assert.equal(humanFacingDisposition(readyDecision.recommendation), "HUMAN_REVIEW_REQUIRED");
+  const failedLines = supervisorUserFacingLines(incompleteDecision).join("\n");
+  assert.equal(countHumanStatusToken(failedLines, HUMAN_REVIEW_REQUIRED), 0);
+  const readyLines = supervisorUserFacingLines(readyDecision).join("\n");
+  assert.equal(countHumanStatusToken(readyLines, HUMAN_REVIEW_REQUIRED), 1);
+  assert.equal(
+    classifyFailure(
+      snapshotFromLoop({
+        build: "fail",
+        issues: [
+          {
+            issue_id: "build",
+            classification: "BUILD_FAILURE",
+            actual: "Type error in scripts/atlas-auto/supervisor.ts",
+            relevant_files: ["scripts/atlas-auto/supervisor.ts"],
+          },
+        ],
+      }),
+    ),
+    "ORCHESTRATION_FAILURE",
+  );
+  assert.equal(
+    classifyFailure(
+      snapshotFromLoop({
+        issues: [
+          {
+            issue_id: "AUTH_SESSION_REFRESH_REQUIRED",
+            classification: "AUTH_SESSION_REFRESH_REQUIRED",
+          },
+        ],
+        qa: { status: "not_run" },
+      }),
+    ),
+    "AUTH_SESSION_FAILURE",
+  );
+  const unexpectedSecret = decideSupervisor(
+    snapshotFromLoop({
+      issues: [{ issue_id: "secret-file-modified", classification: "SCOPE_VIOLATION" }],
+      qa: { status: "not_run" },
+    }),
+    emptySupervisorState(),
+  );
+  assert.equal(unexpectedSecret.classification, "ORCHESTRATION_FAILURE");
+  assert.equal(unexpectedSecret.recommendation, "HUMAN_INTERVENTION_REQUIRED");
+  assert.equal(unexpectedSecret.invokeBuilder, false);
 }
 
 export function runAutoSelfCheck(): void {
@@ -115,5 +163,17 @@ export function runAutoSelfCheck(): void {
   checkEscaping();
   checkGeneratedTask();
   checkSupervisorGatesHumanReview();
+  checkSecurityRetryDryRun();
   console.log("Atlas Auto self-check passed.");
+}
+
+function checkSecurityRetryDryRun() {
+  const dry = dryRunSecurityRetryAssignment();
+  assert.equal(dry.ok, true);
+  assert.equal(dry.specLoaded, true);
+  assert.equal(dry.taskLoaded, true);
+  assert.deepEqual(dry.scopeForbiddenConflict, []);
+  assert.equal(dry.protectedAuthReadOnly, true);
+  assert.equal(dry.sessionRefreshTripsSecretGuard, false);
+  assert.equal(dry.incompleteOpensFinalReview, false);
 }

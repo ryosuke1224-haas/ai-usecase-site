@@ -27,6 +27,11 @@ import {
 } from "./atlas-agent/loop-status";
 import { runAgentLoopSelfCheck } from "./atlas-agent/self-check";
 import {
+  adoptTrustedAuthSession,
+  blockUnexpectedSecretChanges,
+  SECRET_FILE_BLOCKING_MESSAGE,
+} from "./atlas-agent/secret-guard";
+import {
   captureBaseline,
   changesSince,
   currentBranch,
@@ -71,7 +76,7 @@ type LoopResult = {
   builder_invocation: BuilderInvocation | "unavailable";
   builder_command: string;
   fallback_used: boolean;
-  authenticated_session: "reused" | "not_required" | "missing";
+  authenticated_session: "reused" | "refreshed" | "not_required" | "missing";
   loop_report: string;
   loop_status: LoopStatus;
 };
@@ -116,7 +121,7 @@ async function main() {
   );
   fs.mkdirSync(loopDirectory, { recursive: true });
   const resultPath = `${loopDirectory.replace(/\\/g, "/")}/loop-result.json`;
-  const baseline = captureBaseline();
+  let baseline = captureBaseline();
   let invocation: BuilderInvocation | "unavailable" = "unavailable";
   try {
     invocation = resolveBuilderInvocation(task);
@@ -135,7 +140,7 @@ async function main() {
           "builder-unavailable",
           "Builder",
           error instanceof Error ? error.message : "Builder is not available.",
-          "QA_FAILURE",
+          "BUILD_INFRA_FAILURE",
         ),
       ],
       qa: null,
@@ -146,9 +151,15 @@ async function main() {
     });
   }
 
+  let authSession: LoopResult["authenticated_session"] = task.requires_authenticated_qa
+    ? session === "present"
+      ? "reused"
+      : "missing"
+    : "not_required";
   if (task.requires_authenticated_qa) {
     const prepared = await prepareAuthenticatedSession();
-    if (prepared.status !== "ready") {
+    const adopted = adoptTrustedAuthSession(baseline, prepared);
+    if (adopted.status === "AUTH_SESSION_FAILURE") {
       finish({
         resultPath,
         baseline,
@@ -162,7 +173,7 @@ async function main() {
           issue(
             "AUTH_SESSION_REFRESH_REQUIRED",
             "authenticated QA",
-            prepared.reason,
+            adopted.reason,
             "AUTH_SESSION_REFRESH_REQUIRED",
           ),
         ],
@@ -172,6 +183,31 @@ async function main() {
         invocation,
         session: "missing",
       });
+    }
+    if (adopted.status === "unexpected_secret_change") {
+      finish({
+        resultPath,
+        baseline,
+        taskPath,
+        taskId: task.id,
+        taskTitle: task.title,
+        maxIterations: task.max_iterations,
+        iterationsUsed: 0,
+        disposition: "HUMAN_REVIEW_REQUIRED",
+        unresolved: [
+          issue("secret-file-modified", "secrets", SECRET_FILE_BLOCKING_MESSAGE, "SCOPE_VIOLATION"),
+        ],
+        qa: null,
+        evaluator: null,
+        iterations: [],
+        invocation,
+        session: "missing",
+      });
+    }
+    baseline = adopted.baseline;
+    authSession = adopted.session;
+    if (adopted.adopted) {
+      console.log("Authenticated session: refreshed. Trusted infrastructure mutation adopted. Secret contents were not logged.");
     }
     session = "present";
   }
@@ -243,7 +279,7 @@ async function main() {
           "builder-failed",
           "Builder",
           error instanceof Error ? error.message : "Builder failed.",
-          "QA_FAILURE",
+          "BUILD_INFRA_FAILURE",
         ),
       ];
       break;
@@ -279,12 +315,13 @@ async function main() {
       ];
       break;
     }
-    if (restoreSecrets(baseline).length > 0) {
+    const secretCheck = blockUnexpectedSecretChanges(baseline);
+    if (secretCheck.blocked) {
       unresolved = [
         issue(
           "secret-file-modified",
           "secrets",
-          "A local secret or session file changed and was restored. The loop does not read or print those files.",
+          secretCheck.message,
           "SCOPE_VIOLATION",
         ),
       ];
@@ -376,7 +413,7 @@ async function main() {
         issue(
           "AUTH_SESSION_REFRESH_REQUIRED",
           "authenticated QA",
-          "AUTH_SESSION_REFRESH_REQUIRED. Signed-in tests did not run. Refresh the stored Playwright session with npm run qa:save-session.",
+          "AUTH_SESSION_REFRESH_REQUIRED. Signed-in tests did not run after trusted session preparation.",
           "AUTH_SESSION_REFRESH_REQUIRED",
         ),
       ];
@@ -425,7 +462,7 @@ async function main() {
             evaluator.status === "write_violation" ? "EVALUATOR_WRITE_VIOLATION" : "evaluator-review",
             "Evaluator",
             evaluator.reason,
-            "QA_FAILURE",
+            evaluator.status === "write_violation" ? "SCOPE_VIOLATION" : "EVALUATOR_REJECTED",
           ),
         ];
       }
@@ -450,7 +487,7 @@ async function main() {
     evaluator,
     iterations,
     invocation,
-    session: session === "present" ? "reused" : session === "env-missing" ? "missing" : task.requires_authenticated_qa ? "missing" : "not_required",
+    session: authSession,
   });
 }
 

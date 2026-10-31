@@ -70,6 +70,7 @@ export type IssueSnapshot = {
   actual?: string;
   classification?: string;
   severity?: string;
+  relevant_files?: string[];
 };
 
 export type EvaluatorFinding = {
@@ -163,8 +164,12 @@ export function classifyFailure(snapshot: SupervisorSnapshot): FailureCategory {
     return "AUTH_SESSION_FAILURE";
   }
   if (hasIssue(snapshot, "TASK_SCOPE_CONFLICT")) return "TASK_SCOPE_CONFLICT";
-  if (hasIssue(snapshot, "BUILDER_TIMEOUT")) return "BUILD_INFRA_FAILURE";
+  if (builderConnectionIssue(snapshot)) return "BUILD_INFRA_FAILURE";
+  if (hasIssue(snapshot, "BUILDER_TIMEOUT") || hasIssue(snapshot, "BUILD_INFRA_FAILURE")) return "BUILD_INFRA_FAILURE";
   if (secretFileIssue(snapshot)) return "ORCHESTRATION_FAILURE";
+  if (evaluatorWriteIssue(snapshot)) return "ORCHESTRATION_FAILURE";
+  if (orchestrationBuild(snapshot)) return "ORCHESTRATION_FAILURE";
+  if (evaluatorRejected(snapshot)) return "EVALUATOR_REJECTED";
   if (qaInfraIssue(snapshot)) return "QA_INFRA_FAILURE";
   if (hasIssue(snapshot, "SCOPE_VIOLATION") || hasIssue(snapshot, "VALIDATION_FAILURE")) return "PRODUCT_DEFECT";
   if (hasIssue(snapshot, "BUILD_FAILURE") && infraBuild(snapshot)) return "BUILD_INFRA_FAILURE";
@@ -203,7 +208,7 @@ export function routeRecovery(
     case "TASK_SPEC_MISMATCH":
       return "RECONCILE_SPEC_TASK";
     case "BUILD_INFRA_FAILURE":
-      return "RERUN_BUILDER";
+      return builderProcessRetry(snapshot) ? "RERUN_BUILDER" : "ESCALATE";
     case "EVALUATOR_REJECTED":
       return evaluatorActionable(snapshot) ? "RERUN_BUILDER" : "ESCALATE";
     case "ORCHESTRATION_FAILURE":
@@ -242,7 +247,7 @@ export function decideSupervisor(snapshot: SupervisorSnapshot, state: Supervisor
   }
   const classification = classifyFailure(snapshot);
   const action = routeRecovery(classification, state, snapshot);
-  if (action === "ESCALATE" || (classification === "ORCHESTRATION_FAILURE" && action === "ESCALATE")) {
+  if (action === "ESCALATE") {
     const intervention = interventionFor(classification, state);
     return decision(snapshot, state, {
       classification,
@@ -309,6 +314,26 @@ export function humanFacingDisposition(
   if (recommendation === "READY_FOR_HUMAN_REVIEW") return HUMAN_REVIEW_REQUIRED;
   if (recommendation === "HUMAN_INTERVENTION_REQUIRED") return HUMAN_INTERVENTION_REQUIRED;
   return null;
+}
+
+export function supervisorUserFacingLines(decision: SupervisorDecision): string[] {
+  if (decision.recommendation === "READY_FOR_HUMAN_REVIEW") {
+    return [HUMAN_REVIEW_REQUIRED, "Supervisor recommendation: READY_FOR_HUMAN_REVIEW"];
+  }
+  if (decision.recommendation === "HUMAN_INTERVENTION_REQUIRED") {
+    return [HUMAN_INTERVENTION_REQUIRED, decision.intervention ?? "unknown orchestration failure"];
+  }
+  return [];
+}
+
+export function countHumanStatusToken(
+  text: string,
+  token: typeof HUMAN_REVIEW_REQUIRED | typeof HUMAN_INTERVENTION_REQUIRED,
+): number {
+  if (token === HUMAN_REVIEW_REQUIRED) {
+    return text.match(/(?<!READY_FOR_)HUMAN_REVIEW_REQUIRED/g)?.length ?? 0;
+  }
+  return text.match(/HUMAN_INTERVENTION_REQUIRED/g)?.length ?? 0;
 }
 
 export function mergeSnapshot(base: SupervisorSnapshot, patch: Partial<SupervisorSnapshot>): SupervisorSnapshot {
@@ -390,6 +415,42 @@ function hasIssue(snapshot: SupervisorSnapshot, classification: string): boolean
 
 function secretFileIssue(snapshot: SupervisorSnapshot): boolean {
   return (snapshot.issues ?? []).some((issue) => issue.issue_id === "secret-file-modified");
+}
+
+function builderConnectionIssue(snapshot: SupervisorSnapshot): boolean {
+  return (snapshot.issues ?? []).some(
+    (issue) => issue.issue_id === "builder-unavailable" || issue.issue_id === "builder-failed",
+  );
+}
+
+function evaluatorWriteIssue(snapshot: SupervisorSnapshot): boolean {
+  return (snapshot.issues ?? []).some((issue) => issue.issue_id === "EVALUATOR_WRITE_VIOLATION");
+}
+
+function evaluatorRejected(snapshot: SupervisorSnapshot): boolean {
+  if (hasIssue(snapshot, "EVALUATOR_REJECTED")) return true;
+  return (snapshot.issues ?? []).some((issue) => issue.issue_id === "evaluator-review");
+}
+
+function builderProcessRetry(snapshot: SupervisorSnapshot): boolean {
+  if (builderConnectionIssue(snapshot)) return false;
+  return hasIssue(snapshot, "BUILDER_TIMEOUT");
+}
+
+function orchestrationBuild(snapshot: SupervisorSnapshot): boolean {
+  const text = [
+    ...(snapshot.issues ?? []).flatMap((issue) => [
+      issue.actual ?? "",
+      issue.test ?? "",
+      ...(issue.relevant_files ?? []),
+    ]),
+    ...(snapshot.criticalIssues ?? []),
+  ].join("\n");
+  return (
+    /scripts\/atlas-(?:auto|agent|preview|commerce)\//.test(text) ||
+    /scripts\/run-atlas-(?:auto|agent-loop|qa)\.ts/.test(text) ||
+    /(?:^|[\\/\s`'"(])supervisor\.ts\b/.test(text)
+  );
 }
 
 function qaInfraIssue(snapshot: SupervisorSnapshot): boolean {
@@ -482,9 +543,14 @@ function interventionFor(classification: FailureCategory, state: SupervisorState
   if (classification === "AUTH_SESSION_FAILURE" || classification === "QA_INFRA_FAILURE") {
     return "QA infrastructure unavailable";
   }
+  if (classification === "BUILD_INFRA_FAILURE") {
+    return state.infra_retries >= SUPERVISOR_LIMITS.maxBuildInfraRetries
+      ? "recovery exhausted"
+      : "Builder infrastructure unavailable";
+  }
   if (classification === "EVALUATOR_REJECTED") return "evaluator requires strategic decision";
   if (classification === "ORCHESTRATION_FAILURE") return "unknown orchestration failure";
   if (state.cycles_used >= SUPERVISOR_LIMITS.maxTotalCycles) return "recovery exhausted";
-  if (classification === "PRODUCT_DEFECT" || classification === "BUILD_INFRA_FAILURE") return "recovery exhausted";
+  if (classification === "PRODUCT_DEFECT") return "recovery exhausted";
   return "unknown orchestration failure";
 }

@@ -185,6 +185,39 @@ test("classifies structured failures without parsing prose", () => {
   );
 });
 
+test("trusted session refresh is not classified as a secret-file SCOPE_VIOLATION", () => {
+  const snapshot = snapshotFromLoop({
+    builderCompleted: true,
+    build: "pass",
+    qa: { status: "pass", passed: 4, failed: 0, skipped: 0 },
+    evaluator: { status: "executed", decision: "PASS" },
+    issues: [],
+    task: task(),
+    spec: spec(),
+    assignment: { ok: true },
+  });
+  assert.equal(
+    (snapshot.issues ?? []).some((issue) => issue.issue_id === "secret-file-modified"),
+    false,
+  );
+  assert.equal(classifyFailure(snapshot), "NONE");
+  assert.notEqual(classifyFailure(snapshot), "PRODUCT_DEFECT");
+});
+
+test("unexpected secret mutation requires human intervention", () => {
+  const decision = decide(
+    snapshotFromLoop({
+      issues: [{ issue_id: "secret-file-modified", classification: "SCOPE_VIOLATION" }],
+      qa: { status: "not_run" },
+      task: task(),
+    }),
+  );
+  assert.equal(decision.classification, "ORCHESTRATION_FAILURE");
+  assert.equal(decision.recommendation, "HUMAN_INTERVENTION_REQUIRED");
+  assert.equal(decision.invokeBuilder, false);
+  assert.equal(decision.ready, false);
+});
+
 test("A. expired Playwright session routes to auth recovery without Builder", () => {
   const decision = decide(
     snapshotFromLoop({

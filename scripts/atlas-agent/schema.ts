@@ -57,6 +57,8 @@ export const qaFailureSchema = z.object({
         "SCOPE_VIOLATION",
         "BUILDER_TIMEOUT",
         "AUTH_SESSION_REFRESH_REQUIRED",
+        "EVALUATOR_REJECTED",
+        "BUILD_INFRA_FAILURE",
     ])
     .optional(),
 });

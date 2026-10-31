@@ -164,16 +164,7 @@ export function canApproveProductAndPrice(data: {
   evaluator: { status: string; decision: string | null };
   supervisor?: { recommendation?: string } | null;
 }): boolean {
-  if (
-    data.supervisor?.recommendation === "HUMAN_INTERVENTION_REQUIRED" ||
-    data.supervisor?.recommendation === "NEEDS_INTERNAL_RECOVERY"
-  ) {
-    return false;
-  }
-  const dispositionOk =
-    data.disposition === "READY_FOR_HUMAN_REVIEW" ||
-    (data.disposition === "HUMAN_REVIEW_REQUIRED" && data.supervisor?.recommendation === "READY_FOR_HUMAN_REVIEW");
-  if (!dispositionOk) return false;
+  if (data.supervisor?.recommendation !== "READY_FOR_HUMAN_REVIEW") return false;
   if ((data.qa.skipped ?? 0) > 0) return false;
   return (
     data.build === "pass" &&

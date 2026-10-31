@@ -225,6 +225,15 @@ test("final review stays closed unless Build, QA, and Evaluator complete", () =>
       build: "pass",
       qa: { status: "pass", skipped: 0 },
       evaluator: { status: "executed", decision: "PASS_WITH_RECOMMENDATIONS" },
+    }),
+    false,
+  );
+  assert.equal(
+    shouldOpenFinalReview({
+      disposition: "READY_FOR_HUMAN_REVIEW",
+      build: "pass",
+      qa: { status: "pass", skipped: 0 },
+      evaluator: { status: "executed", decision: "PASS_WITH_RECOMMENDATIONS" },
       supervisor: { recommendation: "READY_FOR_HUMAN_REVIEW" },
     }),
     true,

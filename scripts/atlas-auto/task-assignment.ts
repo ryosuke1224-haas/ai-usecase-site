@@ -206,7 +206,7 @@ export function shouldOpenFinalReview(data: {
   criticalIssues?: string[];
   findings?: { severity?: string; description?: string }[];
 }): boolean {
-  if (data.supervisor?.recommendation && data.supervisor.recommendation !== "READY_FOR_HUMAN_REVIEW") {
+  if (data.supervisor?.recommendation !== "READY_FOR_HUMAN_REVIEW") {
     return false;
   }
   return isReadyForHumanReview({

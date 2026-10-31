@@ -8,8 +8,14 @@ import {
   loopStatusFromResult,
   redactChildHumanStatusLine,
 } from "./loop-status";
+import { adoptTrustedAuthSession, blockUnexpectedSecretChanges } from "./secret-guard";
 import { guardChanges } from "./guards";
 import { qaFailureSchema, taskSchema } from "./schema";
+import {
+  TRUSTED_AUTH_SESSION_FILE,
+  type Baseline,
+  type WorkspaceIo,
+} from "./workspace";
 
 const taskPath = "agent-tasks/v1-loop-dry-run.json";
 
@@ -216,5 +222,37 @@ export function runAgentLoopSelfCheck(): void {
   checkEvaluatorDecisions();
   checkBuilderTimeoutContract();
   checkLoopDoesNotEmitHumanReviewRequired();
+  checkTrustedSessionRefreshIsNotAScopeViolation();
   console.log("Agent loop self-check passed.");
+}
+
+function checkTrustedSessionRefreshIsNotAScopeViolation() {
+  const store = new Map<string, Buffer | null>([
+    [TRUSTED_AUTH_SESSION_FILE, Buffer.from("before")],
+  ]);
+  const io: WorkspaceIo = {
+    readBytes: (file) => (store.has(file) ? store.get(file)! : null),
+    writeBytes: (file, bytes) => {
+      store.set(file, bytes);
+    },
+  };
+  const started: Baseline = {
+    head: "h",
+    branch: "private-preview",
+    files: new Map(),
+    secrets: new Map([[TRUSTED_AUTH_SESSION_FILE, Buffer.from("before")]]),
+  };
+  store.set(TRUSTED_AUTH_SESSION_FILE, Buffer.from("after-refresh"));
+  const adopted = adoptTrustedAuthSession(
+    started,
+    { status: "ready", path: TRUSTED_AUTH_SESSION_FILE, refreshed: true },
+    io,
+  );
+  assert.equal(adopted.status, "continue");
+  if (adopted.status !== "continue") return;
+  assert.equal(blockUnexpectedSecretChanges(adopted.baseline, io).blocked, false);
+  store.set(TRUSTED_AUTH_SESSION_FILE, Buffer.from("builder-change"));
+  const blocked = blockUnexpectedSecretChanges(adopted.baseline, io);
+  assert.equal(blocked.blocked, true);
+  assert.equal(store.get(TRUSTED_AUTH_SESSION_FILE)?.toString(), "after-refresh");
 }

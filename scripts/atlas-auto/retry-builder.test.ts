@@ -164,16 +164,15 @@ test("Builder retry is refused without approval, without a Spec, or after a succ
     ).ok,
     false,
   );
-  assert.match(
-    evaluateBuilderRetry(
-      inspection({
-        source: sourceRun({ loop_disposition: "READY_FOR_HUMAN_REVIEW" }),
-        loop: { disposition: "READY_FOR_HUMAN_REVIEW", qa_result: { status: "pass" } },
-        productPresent: true,
-      }),
-    ).reason,
-    /overwrite/,
+  const overwrite = evaluateBuilderRetry(
+    inspection({
+      source: sourceRun({ loop_disposition: "READY_FOR_HUMAN_REVIEW" }),
+      loop: { disposition: "READY_FOR_HUMAN_REVIEW", qa_result: { status: "pass" } },
+      productPresent: true,
+    }),
   );
+  assert.equal(overwrite.ok, false);
+  if (!overwrite.ok) assert.match(overwrite.reason, /overwrite/);
 });
 
 test("price approval stays closed until Build, QA, and Evaluator succeed", () => {
@@ -195,6 +194,16 @@ test("price approval stays closed until Build, QA, and Evaluator succeed", () =>
       build: "pass",
       qa: { status: "pass" },
       evaluator: { status: "executed", decision: "PASS_WITH_RECOMMENDATIONS" },
+    }),
+    false,
+  );
+  assert.equal(
+    canApproveProductAndPrice({
+      disposition: "READY_FOR_HUMAN_REVIEW",
+      build: "pass",
+      qa: { status: "pass" },
+      evaluator: { status: "executed", decision: "PASS_WITH_RECOMMENDATIONS" },
+      supervisor: { recommendation: "READY_FOR_HUMAN_REVIEW" },
     }),
     true,
   );

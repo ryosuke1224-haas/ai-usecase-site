@@ -89,7 +89,7 @@
     "builder_command": { "type": "string" },
     "fallback_used": { "type": "boolean" },
     "authenticated_session": {
-      "enum": ["reused", "not_required", "missing"]
+      "enum": ["reused", "refreshed", "not_required", "missing"]
     },
     "loop_report": { "type": "string" },
     "loop_status": {

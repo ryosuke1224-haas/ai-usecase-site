@@ -17,12 +17,18 @@ const IGNORED_PREFIXES = [
 ];
 
 const SECRET_FILES = [".env", ".env.local", ".env.development", ".env.production", ".env.test"];
+export const TRUSTED_AUTH_SESSION_FILE = "agent-secrets/playwright-storage-state.json";
 
 export type Baseline = {
   head: string;
   branch: string;
   files: Map<string, Buffer | null>;
   secrets: Map<string, Buffer | null>;
+};
+
+export type WorkspaceIo = {
+  readBytes(file: string): Buffer | null;
+  writeBytes(file: string, bytes: Buffer | null): void;
 };
 
 export function git(args: string[], encoding: "utf8" | "buffer" = "utf8"): string | Buffer {
@@ -91,14 +97,82 @@ export function restoreFiles(baseline: Baseline, files: string[]): void {
   }
 }
 
-export function restoreSecrets(baseline: Baseline): string[] {
+export function restoreSecrets(baseline: Baseline, io: WorkspaceIo = defaultIo): string[] {
   const restored: string[] = [];
   for (const [file, before] of baseline.secrets) {
-    if (sameBytes(before, readBytes(file))) continue;
-    writeBytes(file, before);
+    if (sameBytes(before, io.readBytes(file))) continue;
+    io.writeBytes(file, before);
     restored.push(file);
   }
   return restored;
+}
+
+export function secretFingerprint(file: string, io: WorkspaceIo = defaultIo): string | null {
+  return hashSecretBytes(io.readBytes(file));
+}
+
+export function hashSecretBytes(bytes: Buffer | null): string | null {
+  if (!bytes) return null;
+  return crypto.createHash("sha256").update(bytes).digest("hex");
+}
+
+export function isTrustedAuthSessionFile(file: string): boolean {
+  const normalized = file.replace(/\\/g, "/");
+  const candidate = safeResolve(normalized);
+  if (!candidate) return false;
+  const allowed = [safeResolve(TRUSTED_AUTH_SESSION_FILE)];
+  const env = process.env.ATLAS_QA_STORAGE_STATE?.trim();
+  if (env) {
+    const fromEnv = safeResolve(env);
+    if (fromEnv && path.basename(fromEnv) === "playwright-storage-state.json") allowed.push(fromEnv);
+  }
+  return allowed.some((item) => item !== null && sameResolvedPath(item, candidate));
+}
+
+/** Adopt a session file rewritten by trusted prepareAuthenticatedSession(). Not a directory whitelist. */
+export function acceptTrustedSecretFile(
+  baseline: Baseline,
+  file: string,
+  io: WorkspaceIo = defaultIo,
+): Baseline {
+  const normalized = file.replace(/\\/g, "/");
+  if (!isTrustedAuthSessionFile(normalized)) {
+    throw new Error("Trusted secret adoption is limited to the Playwright authenticated session file.");
+  }
+  const secrets = new Map(baseline.secrets);
+  secrets.set(normalized, io.readBytes(normalized));
+  return { ...baseline, secrets };
+}
+
+export function repoRelativeSecretPath(absOrRel: string): string {
+  const normalized = absOrRel.replace(/\\/g, "/");
+  const root = path.resolve(process.cwd()).replace(/\\/g, "/");
+  const abs = path.resolve(normalized).replace(/\\/g, "/");
+  if (sameResolvedPath(abs, root)) return "";
+  if (startsWithResolvedPath(abs, `${root}/`)) return abs.slice(root.length + 1);
+  return normalized.replace(/^\.\//, "");
+}
+
+const defaultIo: WorkspaceIo = {
+  readBytes,
+  writeBytes,
+};
+
+function safeResolve(file: string): string | null {
+  const root = path.resolve(process.cwd());
+  const abs = path.resolve(root, file.replace(/\\/g, "/"));
+  if (abs !== root && !startsWithResolvedPath(abs, root + path.sep)) return null;
+  return abs;
+}
+
+function sameResolvedPath(left: string, right: string): boolean {
+  return process.platform === "win32" ? left.toLowerCase() === right.toLowerCase() : left === right;
+}
+
+function startsWithResolvedPath(value: string, prefix: string): boolean {
+  return process.platform === "win32"
+    ? value.toLowerCase().startsWith(prefix.toLowerCase())
+    : value.startsWith(prefix);
 }
 
 export function diffSummary(baseline: Baseline, files: string[]): string {
