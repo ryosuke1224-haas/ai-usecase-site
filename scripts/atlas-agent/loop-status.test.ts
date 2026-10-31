@@ -22,6 +22,7 @@ test("Supervisor-managed lower loop never owns HUMAN_REVIEW_REQUIRED", () => {
   assert.equal(failed.join("\n").includes("HUMAN_REVIEW_REQUIRED"), false);
   assert.equal(redactChildHumanStatusLine("HUMAN_REVIEW_REQUIRED"), null);
   assert.equal(redactChildHumanStatusLine("READY_FOR_HUMAN_REVIEW"), null);
+  assert.equal(redactChildHumanStatusLine("BATCH_HUMAN_REVIEW_REQUIRED"), "BATCH_HUMAN_REVIEW_REQUIRED");
   assert.equal(redactChildHumanStatusLine("Loop status: FAILED"), "Loop status: FAILED");
   assert.equal(
     redactChildHumanStatusLine("Evaluator: executed HUMAN_REVIEW_REQUIRED"),

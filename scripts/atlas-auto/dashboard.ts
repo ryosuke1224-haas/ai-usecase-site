@@ -364,6 +364,10 @@ export function renderFinalReview(input: {
   return page(`Atlas Auto · Final review · ${data.blueprintName}`, body, finalScript({ token: input.token, state }));
 }
 
+export function wrapDashboardPage(title: string, body: string, script: string): string {
+  return page(title, body, script);
+}
+
 function page(title: string, body: string, script: string): string {
   return `<!doctype html>
 <html lang="en">

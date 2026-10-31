@@ -31,6 +31,15 @@ import {
 } from "./supervisor";
 import { loadAtlasLocalEnv } from "./local-env";
 import { dryRunSecurityRetryAssignment } from "./orchestration";
+import {
+  BATCH_CANARY_CHECKPOINT,
+  BATCH_HUMAN_REVIEW_REQUIRED,
+  CANARY_CHECKPOINT,
+  canEnterBatchReview,
+  createBatch,
+  parseBatchCli,
+  shouldPauseForCanary,
+} from "./batch";
 import { CRITERIA, type CandidateHistory, type Criterion } from "./types";
 
 function criteria(value: number, overrides: Partial<Record<Criterion, number>> = {}) {
@@ -183,7 +192,37 @@ export function runAutoSelfCheck(): void {
   checkAtomicJsonWrite();
   checkFinalReviewStatusInvariant();
   checkProductPriceApprovalRecovery();
+  checkBatchReviewMode();
   console.log("Atlas Auto self-check passed.");
+}
+
+function checkBatchReviewMode() {
+  assert.equal(parseBatchCli([]).batchSize, null);
+  assert.equal(parseBatchCli([]).canarySuccessCount, null);
+  assert.equal(parseBatchCli(["--batch", "8"]).batchSize, 8);
+  assert.equal(parseBatchCli(["--batch", "8"]).canarySuccessCount, null);
+  assert.equal(parseBatchCli(["--batch", "8", "--canary", "2"]).canarySuccessCount, 2);
+  assert.match(parseBatchCli(["--canary", "2"]).error ?? "", /--batch/);
+  const incomplete = {
+    disposition: HUMAN_REVIEW_REQUIRED,
+    build: "fail",
+    qa: { status: "fail", passed: 0, failed: 1, skipped: 0, report: null },
+    evaluator: { status: "not_run", decision: null, overall: null, reason: "", reportPath: null, scores: [], findings: [] },
+    supervisor: { recommendation: "HUMAN_INTERVENTION_REQUIRED", blockingFindings: 1, authenticatedQa: "fail" },
+    requiresAuthenticatedQa: true,
+    criticalIssues: ["fail"],
+  };
+  assert.equal(canEnterBatchReview(incomplete as never), false);
+  const batch = createBatch({ batchId: "self-check", requestedSuccessCount: 8, now: "t" });
+  assert.notEqual(batch.phase, BATCH_HUMAN_REVIEW_REQUIRED);
+  assert.notEqual(batch.phase, CANARY_CHECKPOINT);
+  assert.equal(batch.canary_success_count, null);
+  assert.equal(shouldPauseForCanary(batch), false);
+  assert.equal(batch.stripe_invoked_during_build, false);
+  const canary = createBatch({ batchId: "self-check-canary", requestedSuccessCount: 8, canarySuccessCount: 2, now: "t" });
+  assert.equal(canary.canary_success_count, 2);
+  assert.equal(canary.canary_passed, false);
+  assert.notEqual(BATCH_CANARY_CHECKPOINT, BATCH_HUMAN_REVIEW_REQUIRED);
 }
 
 function checkProductPriceApprovalRecovery() {

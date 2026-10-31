@@ -49,7 +49,7 @@ import {
   writeJson,
   MEMORY_DIR,
 } from "./atlas-auto/memory";
-import { researchAndScore } from "./atlas-auto/research";
+import { researchAndScore, TARGET_CANDIDATES } from "./atlas-auto/research";
 import {
   applyCanonicalFinalReview,
   persistCanonicalFinalReviewStatus,
@@ -72,6 +72,25 @@ import {
 import { loadAtlasLocalEnv } from "./atlas-auto/local-env";
 import { runAutoSelfCheck } from "./atlas-auto/self-check";
 import { startReviewServer, type ReviewServer } from "./atlas-auto/server";
+import {
+  BATCH_HUMAN_REVIEW_REQUIRED,
+  CANARY_CHECKPOINT,
+  EXISTING_COMPLETED_PRODUCT,
+  SECURITY_COMPLETED_RUN_ID,
+  additionalSuccessCount,
+  batchUserFacingLines,
+  createBatch,
+  executeBatchBuild,
+  executeBatchSubmit,
+  loadBatch,
+  loadBatchCandidates,
+  parseBatchCli,
+  saveBatch,
+  saveBatchCandidates,
+  type BatchHumanDecision,
+  type BatchRecord,
+} from "./atlas-auto/batch";
+import { parseBatchDecisionBody, renderBatchReview, type BatchDashboardState } from "./atlas-auto/batch-dashboard";
 import { runSpecAgent, writeBuildTask, type BlueprintSpec } from "./atlas-auto/spec";
 import {
   HUMAN_INTERVENTION_REQUIRED,
@@ -112,6 +131,9 @@ type Options = {
   serve: boolean;
   resume: string | null;
   retryBuilder: string | null;
+  batchSize: number | null;
+  resumeBatchId: string | null;
+  canarySuccessCount: number | null;
 };
 
 type Session = {
@@ -134,17 +156,32 @@ async function main() {
   }
   const resumeIndex = args.indexOf("--resume");
   const retryIndex = args.indexOf("--retry-builder");
+  const batchCli = parseBatchCli(args);
+  if (batchCli.error) fail(batchCli.error);
   const options: Options = {
     dryRun: args.includes("--dry-run"),
     offline: args.includes("--offline"),
     serve: !args.includes("--no-serve"),
     resume: resumeIndex >= 0 ? args[resumeIndex + 1] ?? null : null,
     retryBuilder: retryIndex >= 0 ? args[retryIndex + 1] ?? null : null,
+    batchSize: batchCli.batchSize,
+    resumeBatchId: batchCli.resumeBatchId,
+    canarySuccessCount: batchCli.canarySuccessCount,
   };
   if (resumeIndex >= 0 && !options.resume) fail("Usage: npm run atlas:auto -- --resume <run-id>");
   if (retryIndex >= 0 && !options.retryBuilder) fail("Usage: npm run atlas:auto -- --retry-builder <run-id>");
   if (options.resume && options.retryBuilder) fail("Use either --resume or --retry-builder, not both.");
   if (options.retryBuilder && options.dryRun) fail("Builder retry is a full run. Do not combine it with --dry-run.");
+  if ((options.batchSize || options.resumeBatchId) && (options.resume || options.retryBuilder)) {
+    fail("Batch mode cannot be combined with --resume or --retry-builder.");
+  }
+  if ((options.batchSize || options.resumeBatchId) && options.dryRun) {
+    fail("Batch mode is a full supervised build. Do not combine it with --dry-run.");
+  }
+  if (options.batchSize || options.resumeBatchId) {
+    await runBatchCli(options);
+    return;
+  }
 
   const branch = currentBranch();
   if (branch !== REQUIRED_BRANCH) {
@@ -402,7 +439,11 @@ function retryBuilderSession(options: Options): Session {
   };
 }
 
-async function buildApproved(session: Session, approved: ScoredCandidate) {
+async function buildApproved(
+  session: Session,
+  approved: ScoredCandidate,
+  opts: { collectForBatch?: boolean } = {},
+): Promise<{ ready: boolean; review: FinalReviewData | null; classification: import("./atlas-auto/supervisor").FailureCategory | "NONE" }> {
   const { run } = session;
   const reportDir = runReportDir(run.run_id);
   const approval = readJson<CandidateDecision>(run.approval_file)!;
@@ -421,11 +462,13 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
       saveRun(run);
       session.message = "The approved Spec could not be reused. Nothing was built. See the terminal.";
       console.error(run.notes.at(-1));
+      if (opts.collectForBatch) return { ready: false, review: null, classification: "ORCHESTRATION_FAILURE" };
       await closeSoon(session);
       process.exit(1);
     }
     const files = readAssignmentFiles({ specPath: run.spec_path, taskPath: run.task_path });
     if (!("spec" in files)) {
+      if (opts.collectForBatch) return { ready: false, review: null, classification: "TASK_SPEC_MISMATCH" };
       await escalateIntervention(session, files.reason);
       process.exit(1);
     }
@@ -451,6 +494,7 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
       saveRun(run);
       session.message = "The Spec Agent failed. Nothing was built. See the terminal.";
       console.error(run.notes.at(-1));
+      if (opts.collectForBatch) return { ready: false, review: null, classification: "ORCHESTRATION_FAILURE" };
       console.error(`Retry with: npm run atlas:auto -- --resume ${run.run_id}`);
       await closeSoon(session);
       process.exit(1);
@@ -459,6 +503,7 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
 
   const assigned = await reconcileAssignment(session, spec, task);
   if (!assigned.ok) {
+    if (opts.collectForBatch) return { ready: false, review: null, classification: "TASK_SPEC_MISMATCH" };
     await escalateIntervention(session, assigned.reason);
     process.exit(1);
   }
@@ -516,15 +561,20 @@ async function buildApproved(session: Session, approved: ScoredCandidate) {
     session.finalData = review;
     run.phase = "AWAITING_FINAL_REVIEW";
     saveRun(run);
-    for (const line of supervisorUserFacingLines(supervised.decision)) console.log(line);
-    return;
+    if (!opts.collectForBatch) {
+      for (const line of supervisorUserFacingLines(supervised.decision)) console.log(line);
+    }
+    return { ready: true, review, classification: "NONE" };
   }
   session.finalData = null;
   run.phase = "HUMAN_INTERVENTION_REQUIRED";
   session.message = interventionReason(review);
   saveRun(run);
-  for (const line of supervisorUserFacingLines(supervised.decision)) console.log(line);
-  console.log(`Retry Builder: npm run atlas:auto -- --retry-builder ${run.run_id}`);
+  if (!opts.collectForBatch) {
+    for (const line of supervisorUserFacingLines(supervised.decision)) console.log(line);
+    console.log(`Retry Builder: npm run atlas:auto -- --retry-builder ${run.run_id}`);
+  }
+  return { ready: false, review, classification: supervised.decision.classification };
 }
 
 async function reconcileAssignment(
@@ -1242,6 +1292,289 @@ function runInherited(command: string): Promise<number> {
 function listLoopDirs(): string[] {
   if (!fs.existsSync(LOOPS_DIR)) return [];
   return fs.readdirSync(LOOPS_DIR, { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+}
+
+async function runBatchCli(options: Options) {
+  const now = () => new Date().toISOString();
+  const existing = options.resumeBatchId ? loadBatch(options.resumeBatchId) : null;
+  if (options.resumeBatchId && !existing) fail(`Batch not found: atlas-memory/batches/${options.resumeBatchId}/batch.json`);
+  let batch =
+    existing ??
+    createBatch({
+      batchId: `batch-${timestamp()}`,
+      requestedSuccessCount: options.batchSize ?? 8,
+      canarySuccessCount: options.canarySuccessCount,
+      now: now(),
+    });
+  let candidates = options.resumeBatchId ? loadBatchCandidates(batch.batch_id) : [];
+  saveBatch(batch);
+  console.log("Atlas Auto batch mode");
+  console.log(`Batch: ${batch.batch_id}`);
+  console.log(`Requested additional successes: ${batch.requested_success_count}`);
+  if (batch.canary_success_count && !batch.canary_passed && batch.phase !== CANARY_CHECKPOINT) {
+    console.log(`Canary checkpoint after ${batch.canary_success_count} additional products.`);
+  }
+  console.log("Builders run sequentially. Stripe is not contacted during the build phase.");
+  process.on("SIGINT", () => {
+    batch.notes.push(`Interrupted during ${batch.phase}.`);
+    saveBatch(batch);
+    console.log(`\nStopped. Resume later with: npm run atlas:auto -- --resume-batch ${batch.batch_id}`);
+    process.exit(130);
+  });
+
+  const built = await executeBatchBuild({
+    batch,
+    candidates,
+    deps: {
+      now,
+      persist: (next) => {
+        batch = next;
+        saveBatch(next);
+      },
+      persistCandidates: (next) => {
+        candidates = next;
+        saveBatchCandidates(batch.batch_id, next);
+      },
+      loadSecurityRun: () => loadRun(SECURITY_COMPLETED_RUN_ID),
+      research: async (needed) => {
+        const history = loadHistory();
+        const result = await researchAndScore({
+          runId: batch.batch_id,
+          history,
+          reportDir: runReportDir(batch.batch_id),
+          offline: options.offline,
+          displayLimit: Math.max(TARGET_CANDIDATES, needed),
+          requestedCandidates: Math.max(6, needed + 2),
+        });
+        for (const note of result.notes) console.log(`Note: ${note}`);
+        return result.candidates;
+      },
+      buildCandidate: (candidate) => buildCandidateForBatch(candidate, batch.batch_id),
+    },
+  });
+  batch = built.batch;
+  candidates = built.candidates;
+  saveBatch(batch);
+  saveBatchCandidates(batch.batch_id, candidates);
+
+  for (const line of batchUserFacingLines(batch)) console.log(line);
+  if (batch.phase === CANARY_CHECKPOINT) {
+    return;
+  }
+  if (batch.phase === "STOPPED_INFRASTRUCTURE") {
+    console.log("Batch stopped because shared Atlas infrastructure failed. Fix the infrastructure, then resume.");
+    console.log(`Resume: npm run atlas:auto -- --resume-batch ${batch.batch_id}`);
+    return;
+  }
+  if (batch.phase !== BATCH_HUMAN_REVIEW_REQUIRED && batch.phase !== "SUBMITTED") {
+    console.log(
+      `Batch paused with ${additionalSuccessCount(batch)} of ${batch.requested_success_count} additional products ready.`,
+    );
+    console.log(`Resume: npm run atlas:auto -- --resume-batch ${batch.batch_id}`);
+    return;
+  }
+
+  const file = `${runReportDir(batch.batch_id)}/batch-review.html`;
+  const writeDashboard = () => {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, renderBatchReview({ batch, state: batchDashboardState(batch, ""), token: "" }));
+    batch.dashboard_file = file;
+    saveBatch(batch);
+  };
+  writeDashboard();
+  console.log("Atlas batch review ready:");
+  if (!options.serve) {
+    console.log(file);
+    console.log(`Resume the dashboard with: npm run atlas:auto -- --resume-batch ${batch.batch_id}`);
+    return;
+  }
+
+  const token = crypto.randomBytes(24).toString("hex");
+  let message = "";
+  let submitted = batch.phase === "SUBMITTED";
+  const server = await startReviewServer({
+    token,
+    pages: {
+      "/": () => renderBatchReview({ batch, state: batchDashboardState(batch, message), token }),
+    },
+    state: () => batchDashboardState(batch, message),
+    posts: {
+      "/api/batch-decision": (body) => {
+        const parsed = parseBatchDecisionBody(body, now());
+        if (!parsed.ok) return { status: 400, body: { error: parsed.error } };
+        if (batch.completed.find((item) => item.candidate_id === parsed.decision.candidate_id)?.status === EXISTING_COMPLETED_PRODUCT && parsed.decision.decision === "APPROVE") {
+          batch.human_decisions = [...batch.human_decisions.filter((item) => item.candidate_id !== parsed.decision.candidate_id), parsed.decision];
+          saveBatch(batch);
+          return { status: 200, body: batchDashboardState(batch, "Existing completed product recorded. Stripe will not be duplicated.") };
+        }
+        batch.human_decisions = [...batch.human_decisions.filter((item) => item.candidate_id !== parsed.decision.candidate_id), parsed.decision];
+        saveBatch(batch);
+        return { status: 200, body: batchDashboardState(batch, `${parsed.decision.decision} recorded. Stripe is not contacted until you submit.`) };
+      },
+      "/api/batch-submit": async () => {
+        if (submitted && batch.phase === "SUBMITTED") {
+          const replay = await executeBatchSubmit({
+            batch,
+            decisions: batch.human_decisions,
+            deps: { now, persist: (next) => { batch = next; saveBatch(next); }, provision: provisionBatchProduct },
+          });
+          batch = replay.batch;
+          message = "Batch submit is idempotent. Already-provisioned products were reused.";
+          writeDashboard();
+          return { status: 200, body: batchDashboardState(batch, message) };
+        }
+        const result = await executeBatchSubmit({
+          batch,
+          decisions: batch.human_decisions,
+          deps: { now, persist: (next) => { batch = next; saveBatch(next); }, provision: provisionBatchProduct },
+        });
+        batch = result.batch;
+        submitted = true;
+        message = `Batch submitted. Provisioned: ${result.provisioned.length}. Skipped: ${result.skipped.length}.`;
+        writeDashboard();
+        return { status: 200, body: batchDashboardState(batch, message) };
+      },
+    },
+  });
+  batch.dashboard_url = server.url;
+  saveBatch(batch);
+  console.log(server.url);
+  console.log(`Dashboard file: ${file}`);
+  await waitForBatchSubmit(() => submitted);
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await server.close();
+}
+
+function batchDashboardState(batch: BatchRecord, message: string): BatchDashboardState {
+  return {
+    phase: batch.phase,
+    locked: batch.phase === "SUBMITTED",
+    message,
+    decisions: Object.fromEntries(
+      batch.human_decisions.map((item) => [item.candidate_id, item]),
+    ),
+    commerce: Object.fromEntries(batch.commerce_results.map((item) => [item.candidate_id, item.status])),
+  };
+}
+
+async function buildCandidateForBatch(candidate: ScoredCandidate, batchId: string) {
+  const runId = `${timestamp()}-${candidate.id}`.replace(/[^a-z0-9-]+/gi, "-").slice(0, 72);
+  const run: RunRecord = {
+    schema_version: "atlas-auto-run-v1",
+    run_id: runId,
+    parent_run_id: batchId,
+    mode: "full",
+    branch: currentBranch(),
+    started_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    phase: "SPEC",
+    research_source: null,
+    scoring_source: null,
+    research_notes: [`Batch ${batchId} sequential build of ${candidate.name}.`],
+    candidates: [{ id: candidate.id, name: candidate.name, rank: candidate.rank, ...candidate.summary_scores }],
+    filtered_candidates: [],
+    dashboard_file: null,
+    dashboard_url: null,
+    approval_file: `${runMemoryDir(runId)}/approval.json`,
+    approved_candidate_id: candidate.id,
+    spec_path: null,
+    task_path: null,
+    loop_result: null,
+    loop_disposition: null,
+    final_review_file: null,
+    final_review_decision: null,
+    commerce: null,
+    builder_ran: false,
+    committed: false,
+    pushed: false,
+    published: false,
+    notes: ["Batch collect: product-level HUMAN_REVIEW_REQUIRED is not emitted."],
+  };
+  writeJson(`${runMemoryDir(runId)}/candidates.json`, [candidate]);
+  const approval: CandidateDecision = {
+    schema_version: "atlas-auto-decision-v1",
+    run_id: runId,
+    candidate_id: candidate.id,
+    candidate_name: candidate.name,
+    decision: "APPROVED",
+    note: `Approved internally for batch ${batchId}. Final human review is deferred to the batch dashboard.`,
+    decided_at: new Date().toISOString(),
+    source: "file",
+  };
+  writeJson(run.approval_file, approval);
+  saveRun(run);
+  const session: Session = {
+    run,
+    candidates: [candidate],
+    token: "",
+    ended: false,
+    message: "",
+    finalData: null,
+    finalDecision: null,
+    server: null,
+  };
+  console.log(`Batch building sequentially: ${candidate.name}`);
+  const outcome = await buildApproved(session, candidate, { collectForBatch: true });
+  return {
+    candidate_id: candidate.id,
+    name: candidate.name,
+    source_run_id: runId,
+    review: outcome.review ?? {
+      blueprintName: candidate.name,
+      candidateId: candidate.id,
+      specPath: run.spec_path ?? "",
+      taskPath: run.task_path ?? "",
+      loopResultPath: run.loop_result,
+      disposition: "HUMAN_INTERVENTION_REQUIRED",
+      iterationsUsed: 0,
+      maxIterations: 3,
+      filesChanged: [],
+      validate: "not_run",
+      build: "not_run",
+      qa: { status: "not_run", passed: 0, failed: 0, skipped: 0, report: null },
+      evaluator: { status: "not_run", decision: null, overall: null, reason: "Build did not complete.", reportPath: null, scores: [], findings: [] },
+      criticalIssues: [outcome.classification],
+      sampleInput: candidate.sample_input,
+      sampleOutput: candidate.sample_output,
+      suggestedPriceCents: 4900,
+      suggestedPaymentType: "ONE_TIME" as const,
+      commercialRationale: candidate.why_pay,
+    },
+    classification: outcome.classification,
+    rebuilt: false,
+  };
+}
+
+async function provisionBatchProduct(decision: BatchHumanDecision, product: import("./atlas-auto/batch").BatchProduct) {
+  if (product.status === EXISTING_COMPLETED_PRODUCT || product.candidate_id === "security-readiness-action-pack") {
+    return { candidate_id: product.candidate_id, status: "reused" as const };
+  }
+  const child = loadRun(product.source_run_id ?? "");
+  if (!child || !decision.amount_cents) return { candidate_id: product.candidate_id, status: "skipped" as const, code: "MISSING_RUN" };
+  const spec = child.spec_path ? readJson<BlueprintSpec>(child.spec_path) : null;
+  if (!spec) return { candidate_id: product.candidate_id, status: "failed" as const, code: "MISSING_SPEC" };
+  const review = finalReviewData(child, spec, child.loop_result);
+  const result = await executeProductPriceApproval({
+    run: child,
+    data: review,
+    cents: decision.amount_cents,
+    note: decision.note,
+    dryRun: false,
+    deps: productionApprovalDeps(),
+  });
+  if (!result.ok) return { candidate_id: product.candidate_id, status: "failed" as const, code: result.error };
+  return { candidate_id: product.candidate_id, status: result.reused ? "reused" as const : "provisioned" as const };
+}
+
+function waitForBatchSubmit(isSubmitted: () => boolean): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setInterval(() => {
+      if (isSubmitted()) {
+        clearInterval(timer);
+        resolve();
+      }
+    }, 1000);
+  });
 }
 
 function timestamp(): string {

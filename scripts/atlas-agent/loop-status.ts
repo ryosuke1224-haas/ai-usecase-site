@@ -40,8 +40,8 @@ export function redactChildHumanStatusLine(line: string): string | null {
   const trimmed = line.trim();
   if (trimmed === "HUMAN_REVIEW_REQUIRED" || trimmed === "READY_FOR_HUMAN_REVIEW") return null;
   if (trimmed === "HUMAN_INTERVENTION_REQUIRED") return null;
-  if (/(?<!READY_FOR_)HUMAN_REVIEW_REQUIRED/.test(line)) {
-    return line.replace(/(?<!READY_FOR_)HUMAN_REVIEW_REQUIRED/g, "internal");
+  if (/(?<!READY_FOR_|BATCH_)HUMAN_REVIEW_REQUIRED/.test(line)) {
+    return line.replace(/(?<!READY_FOR_|BATCH_)HUMAN_REVIEW_REQUIRED/g, "internal");
   }
   return line;
 }

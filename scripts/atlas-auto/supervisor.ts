@@ -331,7 +331,7 @@ export function countHumanStatusToken(
   token: typeof HUMAN_REVIEW_REQUIRED | typeof HUMAN_INTERVENTION_REQUIRED,
 ): number {
   if (token === HUMAN_REVIEW_REQUIRED) {
-    return text.match(/(?<!READY_FOR_)HUMAN_REVIEW_REQUIRED/g)?.length ?? 0;
+    return text.match(/(?<!READY_FOR_|BATCH_)HUMAN_REVIEW_REQUIRED/g)?.length ?? 0;
   }
   return text.match(/HUMAN_INTERVENTION_REQUIRED/g)?.length ?? 0;
 }

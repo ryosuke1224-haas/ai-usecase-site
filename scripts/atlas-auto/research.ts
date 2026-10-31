@@ -38,6 +38,8 @@ export async function researchAndScore(input: {
   history: ReturnType<typeof loadHistory>;
   reportDir: string;
   offline: boolean;
+  displayLimit?: number;
+  requestedCandidates?: number;
   /**
    * Production omits these and uses the Cursor agents.
    * Tests pass them to run this same function without a live agent session.
@@ -45,6 +47,8 @@ export async function researchAndScore(input: {
   researchAgent?: () => Promise<ResearchAgentResult>;
   scoringAgent?: (candidates: Candidate[]) => Promise<ResearchAgentResult>;
 }): Promise<ResearchResult> {
+  const displayLimit = input.displayLimit ?? TARGET_CANDIDATES;
+  const requestedCandidates = input.requestedCandidates ?? REQUESTED_CANDIDATES;
   const notes: string[] = [];
   const agentCommands: string[] = [];
   const filtered: ResearchResult["filtered"] = [];
@@ -63,7 +67,7 @@ export async function researchAndScore(input: {
     try {
       console.log("Research Agent: proposing Premium Blueprint candidates (read-only Cursor Agent session)...");
       const promptPath = `${input.reportDir}/research-prompt.txt`;
-      fs.writeFileSync(promptPath, researchPrompt(contextPath));
+      fs.writeFileSync(promptPath, researchPrompt(contextPath, requestedCandidates));
       const { json, command } = input.researchAgent
         ? await input.researchAgent()
         : await runReadOnlyAgent({
@@ -163,12 +167,12 @@ export async function researchAndScore(input: {
       source,
     })),
   );
-  const review = reviewCandidates(ranked);
+  const review = reviewCandidates(ranked, displayLimit);
   for (const extra of review.hidden) {
     filtered.push({
       id: extra.id,
       name: extra.name,
-      reason: `Ranked ${extra.rank}; outside the top ${TARGET_CANDIDATES}.`,
+      reason: `Ranked ${extra.rank}; outside the top ${displayLimit}.`,
     });
   }
   return {
@@ -182,8 +186,11 @@ export async function researchAndScore(input: {
 }
 
 /** Top N by score, plus any active strategic seed that ranked outside that cutoff. Ranks and scores stay as ranked. */
-function reviewCandidates(ranked: ScoredCandidate[]): { shown: ScoredCandidate[]; hidden: ScoredCandidate[] } {
-  const shownIds = new Set(ranked.slice(0, TARGET_CANDIDATES).map((item) => item.id));
+function reviewCandidates(
+  ranked: ScoredCandidate[],
+  displayLimit = TARGET_CANDIDATES,
+): { shown: ScoredCandidate[]; hidden: ScoredCandidate[] } {
+  const shownIds = new Set(ranked.slice(0, displayLimit).map((item) => item.id));
   for (const item of ranked) {
     if (isActiveStrategicCandidate(item.id)) shownIds.add(item.id);
   }
@@ -273,13 +280,13 @@ function hasAllCriteria(sheet: ScoreSheet | undefined): sheet is ScoreSheet {
   return Boolean(sheet) && CRITERIA.every((key) => typeof sheet!.criteria[key] === "number");
 }
 
-function researchPrompt(contextPath: string): string {
+function researchPrompt(contextPath: string, requestedCandidates = REQUESTED_CANDIDATES): string {
   return [
     "You are the Atlas Research Agent. Follow agents/research.md and agents/standards.md.",
     "This is a read-only session. Inspect files. Do not edit, create, or delete anything.",
     "",
     "GOAL",
-    `Propose ${REQUESTED_CANDIDATES} strong Premium Blueprint candidates for small and medium businesses (SMBs).`,
+    `Propose ${requestedCandidates} strong Premium Blueprint candidates for small and medium businesses (SMBs).`,
     "A separate Scoring Agent will score them. Do not score or rank them yourself.",
     "",
     "INSPECT FIRST",
