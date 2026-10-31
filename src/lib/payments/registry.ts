@@ -1,5 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import { writeAtomicJson } from "../../../scripts/atlas-auto/atomic-write";
+import type { EnvMap } from "../env-map";
 
 export const REGISTRY_PATH = path.join("atlas-memory", "product-registry.json");
 export const REGISTRY_SCHEMA = "atlas-product-registry-v1";
@@ -105,11 +107,8 @@ export function readRegistryFile(file = REGISTRY_PATH): RegistryProduct[] {
 }
 
 export function writeRegistryFile(products: RegistryProduct[], file = REGISTRY_PATH): void {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
   const body: RegistryFile = { schema_version: REGISTRY_SCHEMA, products };
-  const temp = `${file}.tmp`;
-  fs.writeFileSync(temp, `${JSON.stringify(body, null, 2)}\n`);
-  fs.renameSync(temp, file);
+  writeAtomicJson(file, body);
 }
 
 export function mergeRegistryProducts(
@@ -166,7 +165,7 @@ export function resolveTrustedPriceId(
   slug: string,
   options: {
     products: Array<Partial<RegistryProduct>>;
-    env?: NodeJS.ProcessEnv;
+    env?: EnvMap;
     legacyPriceEnv?: string;
     legacySlug?: string;
     market?: MarketCode;

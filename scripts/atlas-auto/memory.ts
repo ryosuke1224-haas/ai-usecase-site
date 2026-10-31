@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import path from "node:path";
+import { writeAtomicJson } from "./atomic-write";
 import { isSameIdea } from "./scoring";
 import {
   BLOCKING_STATUSES,
@@ -32,10 +32,7 @@ export function readJson<T>(file: string): T | null {
 }
 
 export function writeJson(file: string, value: unknown): void {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  const temp = `${file}.tmp`;
-  fs.writeFileSync(temp, `${JSON.stringify(value, null, 2)}\n`);
-  fs.renameSync(temp, file);
+  writeAtomicJson(file, value);
 }
 
 export function loadHistory(): CandidateHistory {

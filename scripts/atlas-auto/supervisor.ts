@@ -166,7 +166,7 @@ export function classifyFailure(snapshot: SupervisorSnapshot): FailureCategory {
   if (hasIssue(snapshot, "TASK_SCOPE_CONFLICT")) return "TASK_SCOPE_CONFLICT";
   if (builderConnectionIssue(snapshot)) return "BUILD_INFRA_FAILURE";
   if (hasIssue(snapshot, "BUILDER_TIMEOUT") || hasIssue(snapshot, "BUILD_INFRA_FAILURE")) return "BUILD_INFRA_FAILURE";
-  if (secretFileIssue(snapshot)) return "ORCHESTRATION_FAILURE";
+  if (hasIssue(snapshot, "ATOMIC_WRITE_FAILED") || secretFileIssue(snapshot)) return "ORCHESTRATION_FAILURE";
   if (evaluatorWriteIssue(snapshot)) return "ORCHESTRATION_FAILURE";
   if (orchestrationBuild(snapshot)) return "ORCHESTRATION_FAILURE";
   if (evaluatorRejected(snapshot)) return "EVALUATOR_REJECTED";

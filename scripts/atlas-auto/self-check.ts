@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
 import { guardChanges } from "../atlas-agent/guards";
 import { escapeHtml } from "./dashboard";
-import { setStatus } from "./memory";
+import { ATOMIC_WRITE_FAILED, writeAtomicJson } from "./atomic-write";
+import { setStatus, writeJson } from "./memory";
 import { isSameIdea, summarize } from "./scoring";
 import { blueprintPaths, buildTask } from "./spec";
 import {
@@ -166,7 +169,34 @@ export function runAutoSelfCheck(): void {
   checkSupervisorGatesHumanReview();
   checkSecurityRetryDryRun();
   checkLocalEnvLoaderDoesNotReturnSecrets();
+  checkAtomicJsonWrite();
   console.log("Atlas Auto self-check passed.");
+}
+
+function checkAtomicJsonWrite() {
+  const file = `${os.tmpdir().replace(/\\/g, "/")}/atlas-atomic-self-check.json`;
+  writeJson(file, { ok: true });
+  assert.equal(JSON.parse(fs.readFileSync(file, "utf8")).ok, true);
+  const io = {
+    mkdirSync() {},
+    writeFileSync() {},
+    renameSync() {
+      throw Object.assign(new Error("EPERM"), { code: "EPERM" });
+    },
+    unlinkSync() {},
+    existsSync() {
+      return true;
+    },
+    readdirSync() {
+      return [];
+    },
+  };
+  assert.throws(() => writeAtomicJson("run.json", { secret: "nope" }, io, { sleep() {} }), (error: unknown) => {
+    assert.ok(error instanceof Error);
+    assert.equal(error.message.includes(ATOMIC_WRITE_FAILED), true);
+    assert.equal(error.message.includes("nope"), false);
+    return true;
+  });
 }
 
 function checkLocalEnvLoaderDoesNotReturnSecrets() {
