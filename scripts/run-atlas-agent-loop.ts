@@ -113,6 +113,7 @@ async function main() {
     process.exit(2);
   }
   const task = parsed.data;
+  process.env.ATLAS_QA_PRODUCT = task.target_use_case;
   let session = sessionState();
   const loopDirectory = path.join(
     "agent-reports",

@@ -106,11 +106,13 @@ export async function runSpecAgent(input: {
   approval: CandidateDecision;
   runId: string;
   reportDir: string;
+  specPath?: string;
   specAgent?: () => Promise<{ json: unknown; command?: string }>;
   sleep?: (ms: number) => Promise<void>;
 }): Promise<{ spec: BlueprintSpec; specPath: string; command: string }> {
   const { candidate } = input;
   const paths = blueprintPaths(candidate.id);
+  const specPath = input.specPath ?? paths.spec;
   const promptPath = `${input.reportDir}/spec-prompt.txt`;
   fs.mkdirSync(input.reportDir, { recursive: true });
   fs.writeFileSync(promptPath, specPrompt(candidate));
@@ -151,8 +153,8 @@ export async function runSpecAgent(input: {
     allowed_paths: [paths.route, paths.components, paths.lib, "src/lib/blueprints.ts", paths.tests],
     constraints: constraints(candidate.id),
   };
-  writeJson(paths.spec, spec);
-  return { spec, specPath: paths.spec, command };
+  writeJson(specPath, spec);
+  return { spec, specPath, command };
 }
 
 export function writeBuildTask(spec: BlueprintSpec): { task: AgentTask; taskPath: string } {

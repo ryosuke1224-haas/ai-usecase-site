@@ -83,7 +83,9 @@ export type EvaluatorFinding = {
 export type SupervisorSnapshot = {
   assignment?: AssignmentError | { ok: true };
   spec?: Pick<BlueprintSpec, "acceptance_criteria" | "allowed_paths" | "qa_checks">;
-  task?: Pick<AgentTask, "requires_authenticated_qa" | "scope" | "forbidden_changes" | "acceptance_criteria">;
+  task?: Pick<AgentTask, "requires_authenticated_qa" | "scope" | "forbidden_changes" | "acceptance_criteria"> & {
+    target_use_case?: string;
+  };
   builderCompleted?: boolean;
   build?: string;
   qa?: { status: string; passed?: number; failed?: number; skipped?: number };
@@ -170,6 +172,13 @@ export function classifyFailure(snapshot: SupervisorSnapshot): FailureCategory {
   if (hasIssue(snapshot, "BUILD_INFRA_FAILURE")) return "BUILD_INFRA_FAILURE";
   if (hasIssue(snapshot, "ATOMIC_WRITE_FAILED") || secretFileIssue(snapshot)) return "ORCHESTRATION_FAILURE";
   if (evaluatorWriteIssue(snapshot)) return "ORCHESTRATION_FAILURE";
+  if (hasIssue(snapshot, "REQUIRED_SHARED_SPEC_MISSING") || missingProductSpecId(snapshot) === "daily-inbox-briefing") {
+    return "QA_INFRA_FAILURE";
+  }
+  const missingSpec = missingProductSpecId(snapshot);
+  if (missingSpec) {
+    return missingSpec === snapshot.task?.target_use_case ? "TASK_SPEC_MISMATCH" : "PRODUCT_DEFECT";
+  }
   if (orchestrationBuild(snapshot)) return "ORCHESTRATION_FAILURE";
   if (evaluatorRejected(snapshot)) return "EVALUATOR_REJECTED";
   if (qaInfraIssue(snapshot)) return "QA_INFRA_FAILURE";
@@ -459,15 +468,38 @@ function orchestrationBuild(snapshot: SupervisorSnapshot): boolean {
   );
 }
 
+function snapshotIssueText(snapshot: SupervisorSnapshot): string {
+  return [
+    ...(snapshot.issues ?? []).flatMap((issue) => [
+      issue.issue_id ?? "",
+      issue.actual ?? "",
+      issue.test ?? "",
+      ...(issue.relevant_files ?? []),
+    ]),
+    ...(snapshot.criticalIssues ?? []),
+  ].join("\n");
+}
+
+export function missingProductSpecId(snapshot: SupervisorSnapshot): string | null {
+  const text = snapshotIssueText(snapshot);
+  const match = text.match(/agent-specs[/\\]([a-z0-9-]+)\.json/i);
+  if (!match) return null;
+  if (!/ENOENT|no such file|Product spec missing|Current product spec missing|REQUIRED_SHARED_SPEC_MISSING/i.test(text)) {
+    return null;
+  }
+  return match[1];
+}
+
 function qaInfraIssue(snapshot: SupervisorSnapshot): boolean {
-  const text = (snapshot.issues ?? []).map((issue) => `${issue.actual ?? ""} ${issue.test ?? ""}`).join(" ");
-  return /playwright browsers|webServer|ECONNREFUSED|Executable doesn't exist/i.test(text);
+  const text = snapshotIssueText(snapshot);
+  if (missingProductSpecId(snapshot) && missingProductSpecId(snapshot) !== "daily-inbox-briefing") return false;
+  return /playwright browsers|webServer|ECONNREFUSED|Executable doesn't exist|REQUIRED_SHARED_SPEC_MISSING/i.test(text);
 }
 
 function infraBuild(snapshot: SupervisorSnapshot): boolean {
-  const text = [...(snapshot.issues ?? []).map((issue) => issue.actual ?? ""), ...(snapshot.criticalIssues ?? [])].join(
-    " ",
-  );
+  const text = snapshotIssueText(snapshot);
+  const missing = missingProductSpecId(snapshot);
+  if (missing && missing !== "daily-inbox-briefing") return false;
   return /ECONNREFUSED|ENOENT|timed out|timeout|webServer|playwright/i.test(text);
 }
 

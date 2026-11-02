@@ -1,6 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
 import { expect, type Locator, type Page } from "@playwright/test";
+import { loadProductSpec } from "../support/product-spec";
 
 export const DEMO_PATH = "/blueprints/security-readiness-action-pack";
 export const KIT_PATH = "/blueprints/security-readiness-action-pack/kit";
@@ -18,16 +17,7 @@ type ReadinessSpec = {
 };
 
 export function loadReadinessSpec(): ReadinessSpec {
-  const specPath = path.join(
-    process.cwd(),
-    "agent-specs",
-    "security-readiness-action-pack.json",
-  );
-  const spec = JSON.parse(fs.readFileSync(specPath, "utf8")) as ReadinessSpec;
-  if (spec.id !== "security-readiness-action-pack") {
-    throw new Error("Unexpected use case spec id");
-  }
-  return spec;
+  return loadProductSpec<ReadinessSpec>("security-readiness-action-pack");
 }
 
 /**

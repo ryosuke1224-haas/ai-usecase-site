@@ -635,6 +635,76 @@ test("lower agent loop does not own final human disposition when Supervisor-mana
   assert.equal(countHumanStatusToken(output.text, "HUMAN_INTERVENTION_REQUIRED"), 1);
 });
 
+test("unrelated product spec ENOENT is not shared QA or build infrastructure", () => {
+  const snapshot = snapshotFromLoop({
+    build: "pass",
+    qa: { status: "fail", failed: 1 },
+    issues: [
+      {
+        issue_id: "playwright-runner",
+        test: "e2e/ai-expense-watchdog/helpers.ts",
+        actual: "ENOENT: no such file or directory, open 'agent-specs/ai-expense-watchdog.json'",
+        classification: "QA_FAILURE",
+      },
+    ],
+    task: { ...task(), target_use_case: "no-show-recovery-assistant" },
+  });
+  assert.equal(classifyFailure(snapshot), "PRODUCT_DEFECT");
+  assert.notEqual(classifyFailure(snapshot), "QA_INFRA_FAILURE");
+  assert.notEqual(classifyFailure(snapshot), "BUILD_INFRA_FAILURE");
+  assert.notEqual(classifyFailure(snapshot), "ORCHESTRATION_FAILURE");
+});
+
+test("current product spec missing is a spec mismatch, not a batch infrastructure stop", () => {
+  const snapshot = snapshotFromLoop({
+    build: "pass",
+    qa: { status: "fail" },
+    issues: [
+      {
+        issue_id: "PRODUCT_SPEC_MISSING",
+        test: "npm run qa",
+        actual: "Current product spec missing: agent-specs/no-show-recovery-assistant.json",
+        classification: "QA_FAILURE",
+      },
+    ],
+    task: { ...task(), target_use_case: "no-show-recovery-assistant" },
+  });
+  assert.equal(classifyFailure(snapshot), "TASK_SPEC_MISMATCH");
+});
+
+test("missing Daily Inbox spec is shared QA infrastructure", () => {
+  const snapshot = snapshotFromLoop({
+    qa: { status: "fail" },
+    issues: [
+      {
+        issue_id: "REQUIRED_SHARED_SPEC_MISSING",
+        test: "npm run qa",
+        actual: "Required shared spec missing: agent-specs/daily-inbox-briefing.json",
+        classification: "QA_FAILURE",
+      },
+    ],
+    task: task(),
+  });
+  assert.equal(classifyFailure(snapshot), "QA_INFRA_FAILURE");
+});
+
+test("product-spec ENOENT inside a build failure is not BUILD_INFRA_FAILURE", () => {
+  const snapshot = snapshotFromLoop({
+    build: "fail",
+    issues: [
+      {
+        issue_id: "build",
+        test: "npm run qa",
+        actual: "ENOENT: no such file or directory, open 'agent-specs/ai-expense-watchdog.json'",
+        classification: "BUILD_FAILURE",
+        relevant_files: ["scripts/run-atlas-qa.ts", "e2e/ai-expense-watchdog/helpers.ts"],
+      },
+    ],
+    task: { ...task(), target_use_case: "no-show-recovery-assistant" },
+  });
+  assert.equal(classifyFailure(snapshot), "PRODUCT_DEFECT");
+});
+
 test("one Builder timeout is retried and is not a shared infrastructure stop", () => {
   const snapshot = snapshotFromLoop({
     issues: [{ issue_id: "BUILDER_TIMEOUT", classification: "BUILDER_TIMEOUT", actual: "BUILDER_TIMEOUT" }],

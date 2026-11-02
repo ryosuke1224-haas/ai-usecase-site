@@ -112,6 +112,8 @@ function failuresFromReport(report: QaReport): QaFailure[] {
             ? "VALIDATION_FAILURE"
             : issue.id === "AUTH_SESSION_REFRESH_REQUIRED" || /AUTH_SESSION_REFRESH_REQUIRED/.test(detail)
               ? "AUTH_SESSION_REFRESH_REQUIRED"
+              : issue.id === "REQUIRED_SHARED_SPEC_MISSING" || issue.id === "PRODUCT_SPEC_MISSING"
+                ? "QA_FAILURE"
               : "QA_FAILURE",
       severity: issue.severity === "non_blocking" ? "non_blocking" : "blocking",
     });

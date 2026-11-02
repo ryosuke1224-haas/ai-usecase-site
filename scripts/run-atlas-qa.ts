@@ -7,6 +7,13 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { AUTH_SESSION_REFRESH_REQUIRED } from "../e2e/support/auth-state";
+import {
+  currentAtlasQaProduct,
+  currentProductSpecIssues,
+  missingProductSpecIds,
+  productSpecRelativePath,
+  requiredSharedSpecIssues,
+} from "../e2e/support/product-spec";
 import { isAuthInfrastructureFailure, prepareAuthenticatedSession } from "./atlas-qa/auth-session";
 import { checkDailyInboxSpec } from "./check-daily-inbox-spec";
 
@@ -239,6 +246,16 @@ async function main() {
           detail: "Skipped because content validation or the spec contract failed.",
         };
 
+  const specPreflight = [...requiredSharedSpecIssues(), ...currentProductSpecIssues()];
+  const skippedProducts = missingProductSpecIds(currentAtlasQaProduct());
+  if (skippedProducts.length > 0) {
+    console.log(
+      `Atlas QA: skipping product suites whose specs are missing: ${skippedProducts
+        .map((id) => productSpecRelativePath(id))
+        .join(", ")}`,
+    );
+  }
+
   let browser: StepResult;
   let authPrepare: Awaited<ReturnType<typeof prepareAuthenticatedSession>> | null = null;
   if (build.status !== "pass") {
@@ -246,6 +263,12 @@ async function main() {
       status: "skipped",
       duration_ms: 0,
       detail: "Skipped because the build did not pass.",
+    };
+  } else if (specPreflight.length > 0) {
+    browser = {
+      status: "fail",
+      duration_ms: 0,
+      detail: specPreflight.join("\n"),
     };
   } else {
     authPrepare = await prepareAuthenticatedSession();
@@ -309,6 +332,18 @@ async function main() {
       severity: "blocking",
       title: "Production build failed",
       detail: build.detail,
+    });
+  }
+  for (const detail of specPreflight) {
+    blocking.push({
+      id: detail.includes("Required shared spec missing")
+        ? "REQUIRED_SHARED_SPEC_MISSING"
+        : "PRODUCT_SPEC_MISSING",
+      severity: "blocking",
+      title: detail.includes("Required shared spec missing")
+        ? "Required shared spec missing"
+        : "Current product spec missing",
+      detail,
     });
   }
   for (const message of playwrightErrors) {

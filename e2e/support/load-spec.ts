@@ -1,5 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
+import { loadProductSpec } from "./product-spec";
 
 export type DemoTool = {
   key: "chatgpt" | "claude" | "gemini";
@@ -78,16 +77,7 @@ export type DailyInboxSpec = {
 };
 
 export function loadUseCaseSpec(): DailyInboxSpec {
-  const specPath = path.join(
-    process.cwd(),
-    "agent-specs",
-    "daily-inbox-briefing.json",
-  );
-  const spec = JSON.parse(fs.readFileSync(specPath, "utf8")) as DailyInboxSpec;
-  if (spec.id !== "daily-inbox-briefing") {
-    throw new Error("Unexpected use case spec id");
-  }
-  return spec;
+  return loadProductSpec<DailyInboxSpec>("daily-inbox-briefing");
 }
 
 export function resourcePath(spec: DailyInboxSpec, slug: string): string {

@@ -1,9 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 import { storageStatePath } from "./e2e/support/auth-state";
 import { E2E_ENTITLEMENT_SECRET } from "./e2e/support/payments-e2e";
+import { playwrightIgnoreForMissingSpecs } from "./e2e/support/product-spec";
 
 const baseURL = "http://localhost:3100";
 const storageState = storageStatePath();
+const missingProductSuite = playwrightIgnoreForMissingSpecs();
+const missingProductIgnore = missingProductSuite ? [missingProductSuite] : [];
 
 function serverEnv(): Record<string, string> {
   const env: Record<string, string> = {};
@@ -44,17 +47,18 @@ export default defineConfig({
   projects: [
     {
       name: "desktop",
-      testIgnore: /authenticated.*\.spec\.ts/,
+      testIgnore: [/authenticated.*\.spec\.ts/, ...missingProductIgnore],
       use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "mobile",
-      testIgnore: /authenticated.*\.spec\.ts/,
+      testIgnore: [/authenticated.*\.spec\.ts/, ...missingProductIgnore],
       use: { ...devices["Pixel 5"] },
     },
     {
       name: "authenticated-desktop",
       testMatch: /authenticated\.spec\.ts/,
+      testIgnore: missingProductIgnore,
       use: {
         ...devices["Desktop Chrome"],
         ...(storageState ? { storageState } : {}),
@@ -64,6 +68,7 @@ export default defineConfig({
     {
       name: "authenticated-mobile",
       testMatch: /authenticated-mobile\.spec\.ts/,
+      testIgnore: missingProductIgnore,
       use: {
         ...devices["Pixel 5"],
         ...(storageState ? { storageState } : {}),

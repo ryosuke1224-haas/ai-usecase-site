@@ -1,6 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
 import { expect, type Locator, type Page } from "@playwright/test";
+import { loadProductSpec } from "../support/product-spec";
 
 export const DEMO_PATH = "/blueprints/ai-collections-assistant";
 export const KIT_PATH = "/blueprints/ai-collections-assistant/kit";
@@ -19,16 +18,7 @@ type CollectionsSpec = {
 };
 
 export function loadCollectionsSpec(): CollectionsSpec {
-  const specPath = path.join(
-    process.cwd(),
-    "agent-specs",
-    "ai-collections-assistant.json",
-  );
-  const spec = JSON.parse(fs.readFileSync(specPath, "utf8")) as CollectionsSpec;
-  if (spec.id !== "ai-collections-assistant") {
-    throw new Error("Unexpected use case spec id");
-  }
-  return spec;
+  return loadProductSpec<CollectionsSpec>("ai-collections-assistant");
 }
 
 /**

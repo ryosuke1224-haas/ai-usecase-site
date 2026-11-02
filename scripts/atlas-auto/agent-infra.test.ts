@@ -170,6 +170,9 @@ test("Research Agent timeout then fallback library continues", async () => {
 
 test("Spec Agent ECONNABORTED then succeeds", async () => {
   const reportDir = fs.mkdtempSync(path.join(os.tmpdir(), "atlas-spec-retry-"));
+  const specPath = path.join(reportDir, "ai-expense-watchdog.json");
+  const liveSpecPath = "agent-specs/ai-expense-watchdog.json";
+  const liveBefore = fs.existsSync(liveSpecPath) ? fs.readFileSync(liveSpecPath, "utf8") : null;
   let attempts = 0;
   const result = await runSpecAgent({
     candidate: {
@@ -196,6 +199,7 @@ test("Spec Agent ECONNABORTED then succeeds", async () => {
     },
     runId: "r",
     reportDir,
+    specPath,
     sleep: async () => {},
     specAgent: async () => {
       attempts += 1;
@@ -205,8 +209,11 @@ test("Spec Agent ECONNABORTED then succeeds", async () => {
   });
   assert.equal(attempts, 2);
   assert.equal(result.spec.id, "ai-expense-watchdog");
+  assert.equal(result.specPath, specPath);
+  assert.equal(fs.existsSync(specPath), true);
+  const liveAfter = fs.existsSync(liveSpecPath) ? fs.readFileSync(liveSpecPath, "utf8") : null;
+  assert.equal(liveAfter, liveBefore);
   fs.rmSync(reportDir, { recursive: true, force: true });
-  fs.rmSync("agent-specs/ai-expense-watchdog.json", { force: true });
 });
 
 test("Spec Agent ECONNABORTED exhausts retries", async () => {
