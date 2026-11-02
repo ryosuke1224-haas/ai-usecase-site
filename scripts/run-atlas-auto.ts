@@ -4,11 +4,13 @@
  * existing Builder/Build/QA/Evaluator loop → Final human review.
  * This script never commits, pushes, merges, deploys, or publishes.
  */
-import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { restoreAbandonedCandidateFromGit } from "./atlas-agent/candidate-cleanup";
+import { clearSharedFileBaseline } from "./atlas-agent/shared-file-cleanup";
 import { redactChildHumanStatusLine } from "./atlas-agent/loop-status";
+import { runManagedShell } from "./atlas-agent/process-lifecycle";
 import { runEvaluator } from "./atlas-agent/evaluator";
 import { listQaReports, readNewQaReport } from "./atlas-agent/qa-failures";
 import { redact } from "./atlas-agent/redact";
@@ -69,6 +71,7 @@ import {
   persistBuilderRetry,
   resumeBlockedMessage,
 } from "./atlas-auto/retry-builder";
+import { classifyAgentInfra } from "./atlas-auto/agent-retry";
 import { loadAtlasLocalEnv } from "./atlas-auto/local-env";
 import { runAutoSelfCheck } from "./atlas-auto/self-check";
 import { startReviewServer, type ReviewServer } from "./atlas-auto/server";
@@ -443,7 +446,11 @@ async function buildApproved(
   session: Session,
   approved: ScoredCandidate,
   opts: { collectForBatch?: boolean } = {},
-): Promise<{ ready: boolean; review: FinalReviewData | null; classification: import("./atlas-auto/supervisor").FailureCategory | "NONE" }> {
+): Promise<{
+  ready: boolean;
+  review: FinalReviewData | null;
+  classification: import("./atlas-auto/supervisor").FailureCategory | import("./atlas-auto/agent-retry").AgentInfraCode | "NONE";
+}> {
   const { run } = session;
   const reportDir = runReportDir(run.run_id);
   const approval = readJson<CandidateDecision>(run.approval_file)!;
@@ -494,7 +501,7 @@ async function buildApproved(
       saveRun(run);
       session.message = "The Spec Agent failed. Nothing was built. See the terminal.";
       console.error(run.notes.at(-1));
-      if (opts.collectForBatch) return { ready: false, review: null, classification: "ORCHESTRATION_FAILURE" };
+      if (opts.collectForBatch) return { ready: false, review: null, classification: classifyAgentInfra("spec", error) };
       console.error(`Retry with: npm run atlas:auto -- --resume ${run.run_id}`);
       await closeSoon(session);
       process.exit(1);
@@ -540,6 +547,26 @@ async function buildApproved(
     overlaySupervisorReview(finalReviewData(run, spec, run.loop_result), supervised.snapshot, supervised.decision.report),
   );
 
+  let classification: import("./atlas-auto/supervisor").FailureCategory | import("./atlas-auto/agent-retry").AgentInfraCode | "NONE" =
+    supervised.decision.classification;
+  if (!supervised.decision.ready && classification === "BUILDER_TIMEOUT" && opts.collectForBatch) {
+    const cleanup = restoreAbandonedCandidateFromGit(spec.id, { scope: spec.allowed_paths ?? task.scope });
+    if (cleanup.restored.length > 0) {
+      console.log(
+        `Restored ${cleanup.restored.length} timed-out ${spec.id} file(s). Completed products were left untouched.`,
+      );
+    }
+    if (cleanup.unsafe) {
+      console.log(
+        cleanup.reason ??
+          "Timed-out candidate files could not be isolated safely. Stopping the batch before the next product.",
+      );
+      classification = "ORCHESTRATION_FAILURE";
+    }
+  }
+  if (supervised.decision.ready) {
+    clearSharedFileBaseline(spec.id);
+  }
   const ready =
     supervised.decision.recommendation === "READY_FOR_HUMAN_REVIEW" && shouldOpenFinalReview(review);
   const human = humanFacingDisposition(supervised.decision.recommendation);
@@ -574,7 +601,7 @@ async function buildApproved(
     for (const line of supervisorUserFacingLines(supervised.decision)) console.log(line);
     console.log(`Retry Builder: npm run atlas:auto -- --retry-builder ${run.run_id}`);
   }
-  return { ready: false, review, classification: supervised.decision.classification };
+  return { ready: false, review, classification };
 }
 
 async function reconcileAssignment(
@@ -1258,34 +1285,13 @@ async function closeSoon(session: Session) {
 }
 
 function runInherited(command: string): Promise<number> {
-  return new Promise((resolve) => {
-    const child = spawn(command, {
-      cwd: process.cwd(),
-      shell: true,
-      stdio: ["inherit", "pipe", "pipe"],
-      env: { ...process.env, ATLAS_SUPERVISOR_MANAGED: "1" },
-    });
-    const forward = (stream: NodeJS.ReadableStream | null, dest: NodeJS.WriteStream) => {
-      if (!stream) return;
-      let leftover = "";
-      stream.on("data", (chunk: Buffer) => {
-        const parts = (leftover + chunk.toString()).split(/\r?\n/);
-        leftover = parts.pop() ?? "";
-        for (const line of parts) {
-          const kept = redactChildHumanStatusLine(line);
-          if (kept !== null) dest.write(`${kept}\n`);
-        }
-      });
-      stream.on("end", () => {
-        if (!leftover) return;
-        const kept = redactChildHumanStatusLine(leftover);
-        if (kept !== null) dest.write(kept);
-      });
-    };
-    forward(child.stdout, process.stdout);
-    forward(child.stderr, process.stderr);
-    child.on("close", (code) => resolve(code ?? 1));
-    child.on("error", () => resolve(1));
+  const destFor = (dest: "stdout" | "stderr") => (dest === "stderr" ? process.stderr : process.stdout);
+  return runManagedShell(command, { ...process.env, ATLAS_SUPERVISOR_MANAGED: "1" }, {
+    stdio: ["inherit", "pipe", "pipe"],
+    onLine: (line, dest) => {
+      const kept = redactChildHumanStatusLine(line);
+      if (kept !== null) destFor(dest).write(`${kept}\n`);
+    },
   });
 }
 

@@ -3,6 +3,13 @@ import { writeJson, readJson } from "./memory";
 import { isSameIdea } from "./scoring";
 import { shouldOpenFinalReview } from "./task-assignment";
 import type { FinalReviewData } from "./dashboard";
+import {
+  AGENT_CONNECTION_FAILURE,
+  AGENT_PROCESS_FAILURE,
+  RESEARCH_AGENT_TIMEOUT,
+  SPEC_AGENT_TIMEOUT,
+  type AgentInfraCode,
+} from "./agent-retry";
 import type { FailureCategory } from "./supervisor";
 import type { CommerceRecord, RunRecord, ScoredCandidate } from "./types";
 
@@ -21,6 +28,10 @@ export const SHARED_INFRA_FAILURES = new Set([
   "ORCHESTRATION_FAILURE",
   "QA_INFRA_FAILURE",
   "BUILD_INFRA_FAILURE",
+  RESEARCH_AGENT_TIMEOUT,
+  SPEC_AGENT_TIMEOUT,
+  AGENT_CONNECTION_FAILURE,
+  AGENT_PROCESS_FAILURE,
 ]);
 
 /** Tracked across candidates. Immediate stop stays limited to SHARED_INFRA_FAILURES. */
@@ -142,7 +153,7 @@ export type BatchBuildResult = {
   name: string;
   source_run_id: string;
   review: FinalReviewData;
-  classification: FailureCategory | "NONE";
+  classification: FailureCategory | AgentInfraCode | "NONE";
   rebuilt: boolean;
 };
 
@@ -448,13 +459,13 @@ export function applyBuildOutcome(
     updated_at: now,
   };
   if (isSharedInfrastructureFailure(result.classification)) {
-    next.failed = [
-      ...next.failed,
-      { candidate_id: candidate.id, name: candidate.name, reason: "Shared Atlas infrastructure failed.", classification: result.classification },
-    ];
     next.infrastructure_failures = recordInfra(next.infrastructure_failures, candidate.id, result.classification, now);
     next.phase = "STOPPED_INFRASTRUCTURE";
-    next.current_candidate_id = null;
+    next.current_candidate_id = candidate.id;
+    next.notes = [
+      ...next.notes,
+      `Shared infrastructure ${result.classification} during ${candidate.name}. Candidate was not marked failed and will retry from this stage on resume.`,
+    ];
     return { batch: next, stop: true, humanReviewRequired: false, stripeInvoked: false };
   }
   const product = productFromBuild({ candidate, result });
@@ -480,8 +491,38 @@ export function applyBuildOutcome(
 }
 
 export function nextQueuedCandidate(batch: BatchRecord, candidates: ScoredCandidate[]): ScoredCandidate | null {
+  if (batch.current_candidate_id && !isSettled(batch, batch.current_candidate_id)) {
+    const current = candidates.find((item) => item.id === batch.current_candidate_id);
+    if (current) return current;
+  }
   const id = batch.candidate_queue.find((item) => !isSettled(batch, item));
   return candidates.find((item) => item.id === id) ?? null;
+}
+
+/** Shared-infra stops must not consume a candidate. Older batches may have. */
+export function restoreStoppedInfrastructureCandidate(batch: BatchRecord, now: string): BatchRecord {
+  const lastInfra = [...(batch.infrastructure_failures ?? [])]
+    .reverse()
+    .find((item) => isSharedInfrastructureFailure(item.classification));
+  const currentStillOpen =
+    batch.current_candidate_id && !batch.completed.some((item) => item.candidate_id === batch.current_candidate_id)
+      ? batch.current_candidate_id
+      : null;
+  const consumedInfraFailure = batch.failed.find((item) => isSharedInfrastructureFailure(item.classification));
+  const candidateId = currentStillOpen ?? lastInfra?.candidate_id ?? consumedInfraFailure?.candidate_id ?? null;
+  return {
+    ...batch,
+    phase: "BUILDING",
+    current_candidate_id: candidateId,
+    failed: candidateId ? batch.failed.filter((item) => item.candidate_id !== candidateId) : batch.failed,
+    notes: [
+      ...batch.notes,
+      candidateId
+        ? `Resumed after STOPPED_INFRASTRUCTURE. Retrying ${candidateId} from the failed stage.`
+        : "Resumed after STOPPED_INFRASTRUCTURE.",
+    ],
+    updated_at: now,
+  };
 }
 
 export function additionalSuccessCount(batch: BatchRecord): number {
@@ -499,7 +540,11 @@ export function planBatchResume(batch: BatchRecord): {
       .filter((item) => item.status === READY_FOR_BATCH_REVIEW || item.status === EXISTING_COMPLETED_PRODUCT)
       .map((item) => item.candidate_id),
     invokeStripe: false,
-    continueBuilding: batch.phase === "BUILDING" || batch.phase === "SELECTING" || batch.phase === CANARY_CHECKPOINT,
+    continueBuilding:
+      batch.phase === "BUILDING" ||
+      batch.phase === "SELECTING" ||
+      batch.phase === CANARY_CHECKPOINT ||
+      batch.phase === "STOPPED_INFRASTRUCTURE",
     openDashboard: batch.phase === BATCH_HUMAN_REVIEW_REQUIRED || batch.phase === "SUBMITTED",
   };
 }
@@ -657,6 +702,10 @@ export async function executeBatchBuild(input: {
       notes: [...batch.notes, "Resumed from CANARY_CHECKPOINT. Original target is unchanged."],
       updated_at: now(),
     };
+    input.deps.persist(batch);
+  }
+  if (batch.phase === "STOPPED_INFRASTRUCTURE") {
+    batch = restoreStoppedInfrastructureCandidate(batch, now());
     input.deps.persist(batch);
   }
 

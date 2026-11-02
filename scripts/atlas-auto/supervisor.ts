@@ -18,6 +18,7 @@ export type FailureCategory =
   | "NONE"
   | "PRODUCT_DEFECT"
   | "BUILD_INFRA_FAILURE"
+  | "BUILDER_TIMEOUT"
   | "AUTH_SESSION_FAILURE"
   | "QA_INFRA_FAILURE"
   | "TEST_PROTECTION_VIOLATION"
@@ -164,8 +165,9 @@ export function classifyFailure(snapshot: SupervisorSnapshot): FailureCategory {
     return "AUTH_SESSION_FAILURE";
   }
   if (hasIssue(snapshot, "TASK_SCOPE_CONFLICT")) return "TASK_SCOPE_CONFLICT";
+  if (hasIssue(snapshot, "BUILDER_TIMEOUT")) return "BUILDER_TIMEOUT";
   if (builderConnectionIssue(snapshot)) return "BUILD_INFRA_FAILURE";
-  if (hasIssue(snapshot, "BUILDER_TIMEOUT") || hasIssue(snapshot, "BUILD_INFRA_FAILURE")) return "BUILD_INFRA_FAILURE";
+  if (hasIssue(snapshot, "BUILD_INFRA_FAILURE")) return "BUILD_INFRA_FAILURE";
   if (hasIssue(snapshot, "ATOMIC_WRITE_FAILED") || secretFileIssue(snapshot)) return "ORCHESTRATION_FAILURE";
   if (evaluatorWriteIssue(snapshot)) return "ORCHESTRATION_FAILURE";
   if (orchestrationBuild(snapshot)) return "ORCHESTRATION_FAILURE";
@@ -207,6 +209,8 @@ export function routeRecovery(
     case "STALE_SPEC":
     case "TASK_SPEC_MISMATCH":
       return "RECONCILE_SPEC_TASK";
+    case "BUILDER_TIMEOUT":
+      return "RERUN_BUILDER";
     case "BUILD_INFRA_FAILURE":
       return builderProcessRetry(snapshot) ? "RERUN_BUILDER" : "ESCALATE";
     case "EVALUATOR_REJECTED":
@@ -290,7 +294,9 @@ export function applyPlannedAction(state: SupervisorState, decision: SupervisorD
   }
   if (decision.classification === "EVALUATOR_REJECTED") next.evaluator_rebuilds += 1;
   if (decision.classification === "TEST_PROTECTION_VIOLATION") next.protected_test_violations += 1;
-  if (decision.classification === "BUILD_INFRA_FAILURE") next.infra_retries += 1;
+  if (decision.classification === "BUILD_INFRA_FAILURE" || decision.classification === "BUILDER_TIMEOUT") {
+    next.infra_retries += 1;
+  }
   next.history.push({
     at,
     classification: decision.classification,
@@ -527,7 +533,10 @@ function limitsExhausted(state: SupervisorState, classification: FailureCategory
     return true;
   }
   if (classification === "TEST_PROTECTION_VIOLATION" && state.protected_test_violations >= 1) return true;
-  if (classification === "BUILD_INFRA_FAILURE" && state.infra_retries >= SUPERVISOR_LIMITS.maxBuildInfraRetries) {
+  if (
+    (classification === "BUILD_INFRA_FAILURE" || classification === "BUILDER_TIMEOUT") &&
+    state.infra_retries >= SUPERVISOR_LIMITS.maxBuildInfraRetries
+  ) {
     return true;
   }
   return false;
@@ -542,6 +551,11 @@ function interventionFor(classification: FailureCategory, state: SupervisorState
   }
   if (classification === "AUTH_SESSION_FAILURE" || classification === "QA_INFRA_FAILURE") {
     return "QA infrastructure unavailable";
+  }
+  if (classification === "BUILDER_TIMEOUT") {
+    return state.infra_retries >= SUPERVISOR_LIMITS.maxBuildInfraRetries
+      ? "Builder timeout retries exhausted; skip this candidate"
+      : "Builder timed out; retry the same candidate";
   }
   if (classification === "BUILD_INFRA_FAILURE") {
     return state.infra_retries >= SUPERVISOR_LIMITS.maxBuildInfraRetries

@@ -256,10 +256,14 @@ async function main() {
       builderCommand = invoked.command;
     } catch (error) {
       if (error instanceof BuilderTimeoutError) {
-        restoreSecrets(baseline);
-        const kept = changesSince(baseline).map((change) => change.path);
+        try {
+          restoreSecrets(baseline);
+        } catch {
+          // Secret restore must not block the timeout result.
+        }
+        const kept = safeChangedFiles(baseline);
         console.log(
-          "BUILDER_TIMEOUT. Partial product changes were kept. The loop will not start another Builder attempt.",
+          "BUILDER_TIMEOUT. Partial product changes were kept for a bounded Supervisor retry of this candidate. The loop will not start another Builder attempt.",
         );
         unresolved = [
           {
@@ -507,7 +511,7 @@ function finish(input: {
   invocation: BuilderInvocation | "unavailable";
   session: LoopResult["authenticated_session"];
 }): never {
-  const files = changesSince(input.baseline).map((change) => change.path);
+  const files = safeChangedFiles(input.baseline);
   const result: LoopResult = {
     schema_version: "atlas-agent-loop-v1",
     disposition: input.disposition,
@@ -532,7 +536,7 @@ function finish(input: {
         },
     unresolved_issues: input.unresolved.map(redactIssue),
     evaluator_result: input.evaluator,
-    git_diff_summary: redact(diffSummary(input.baseline, files)),
+    git_diff_summary: safeDiffSummary(input.baseline, files),
     committed: false,
     iterations: input.iterations,
     builder_invocation: input.invocation,
@@ -608,6 +612,22 @@ function sessionState(): "present" | "missing" | "env-missing" {
   return fs.existsSync(path.join("agent-secrets", "playwright-storage-state.json"))
     ? "present"
     : "missing";
+}
+
+function safeChangedFiles(baseline: Baseline): string[] {
+  try {
+    return changesSince(baseline).map((change) => change.path);
+  } catch {
+    return [];
+  }
+}
+
+function safeDiffSummary(baseline: Baseline, files: string[]): string {
+  try {
+    return redact(diffSummary(baseline, files));
+  } catch (error) {
+    return error instanceof Error ? error.message : "git diff timed out";
+  }
 }
 
 function changeKey(changes: { path: string; after: string | null }[]): string {

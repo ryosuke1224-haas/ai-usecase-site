@@ -31,13 +31,18 @@ export type WorkspaceIo = {
   writeBytes(file: string, bytes: Buffer | null): void;
 };
 
+export const GIT_COMMAND_TIMEOUT_MS = 8_000;
+
 export function git(args: string[], encoding: "utf8" | "buffer" = "utf8"): string | Buffer {
   const result = spawnSync("git", args, {
     cwd: process.cwd(),
     encoding,
     windowsHide: true,
+    timeout: GIT_COMMAND_TIMEOUT_MS,
+    killSignal: "SIGKILL",
   });
   if (result.error) throw result.error;
+  if (result.signal) throw new Error(`git ${args[0] ?? "command"} timed out`);
   if (result.status !== 0) {
     const stderr = Buffer.isBuffer(result.stderr)
       ? result.stderr.toString("utf8")
@@ -71,6 +76,19 @@ export function captureBaseline(): Baseline {
     files,
     secrets,
   };
+}
+
+export function dirtyWorkspacePaths(): string[] {
+  return statusPaths().filter((file) => !isIgnoredWorkspacePath(file));
+}
+
+export function restorePathsToHead(files: string[]): string[] {
+  const restored: string[] = [];
+  for (const file of files) {
+    writeBytes(file, readHeadBytes(file));
+    restored.push(file);
+  }
+  return restored;
 }
 
 export function changesSince(baseline: Baseline): FileChange[] {
@@ -194,6 +212,8 @@ export function diffSummary(baseline: Baseline, files: string[]): string {
       cwd: process.cwd(),
       encoding: "utf8",
       windowsHide: true,
+      timeout: GIT_COMMAND_TIMEOUT_MS,
+      killSignal: "SIGKILL",
     });
     const text = (stat.stdout || "").trim();
     lines.push(text || `${file} | changed`);
@@ -259,6 +279,8 @@ function readHeadBytes(file: string): Buffer | null {
   const result = spawnSync("git", ["show", `HEAD:${file}`], {
     cwd: process.cwd(),
     windowsHide: true,
+    timeout: GIT_COMMAND_TIMEOUT_MS,
+    killSignal: "SIGKILL",
   });
   if (result.status !== 0) return null;
   return result.stdout;

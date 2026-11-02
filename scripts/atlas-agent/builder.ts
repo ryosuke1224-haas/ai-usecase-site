@@ -4,6 +4,7 @@ import { agentCliExists, builderTimeoutMs, cursorAgentLaunch, runCursorAgent } f
 import type { AgentTask, BuilderReport, QaFailure } from "./schema";
 import { assertBuilderReportShape } from "./schema";
 import { tail } from "./redact";
+import { candidateIdFromTask, captureSharedFileBaseline } from "./shared-file-cleanup";
 
 export type BuilderInvocation = "command" | "cursor-agent" | "documentation-fallback";
 
@@ -80,6 +81,10 @@ export async function invokeBuilder(input: {
   fs.mkdirSync(path.dirname(input.reportPath), { recursive: true });
   fs.writeFileSync(input.requestPath, `${JSON.stringify(input.request, null, 2)}\n`);
   writeBuilderPrompt(input.request, input.promptPath);
+  captureSharedFileBaseline({
+    candidateId: candidateIdFromTask(input.request.task),
+    scope: input.request.task.scope,
+  });
   if (input.invocation === "documentation-fallback") {
     const report = assertBuilderReportShape(runDocumentationBuilder(input.request));
     fs.writeFileSync(input.reportPath, `${JSON.stringify(report, null, 2)}\n`);

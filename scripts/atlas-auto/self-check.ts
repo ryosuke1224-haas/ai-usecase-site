@@ -31,12 +31,24 @@ import {
 } from "./supervisor";
 import { loadAtlasLocalEnv } from "./local-env";
 import { dryRunSecurityRetryAssignment } from "./orchestration";
+import { CLEANUP_DEADLINE_MS, elapsedDisplay } from "../atlas-agent/cursor-cli";
+import { isSafeCandidateOwnedPath } from "../atlas-agent/candidate-cleanup";
+import { revertBlueprintCatalogDelta } from "../atlas-agent/shared-file-cleanup";
+import { looksLikeBuilderTimeoutLog } from "../atlas-agent/process-lifecycle";
+import {
+  AGENT_CONNECTION_FAILURE,
+  RESEARCH_AGENT_TIMEOUT,
+  SPEC_AGENT_TIMEOUT,
+  classifyAgentInfra,
+  isTransientAgentError,
+} from "./agent-retry";
 import {
   BATCH_CANARY_CHECKPOINT,
   BATCH_HUMAN_REVIEW_REQUIRED,
   CANARY_CHECKPOINT,
   canEnterBatchReview,
   createBatch,
+  isSharedInfrastructureFailure,
   parseBatchCli,
   shouldPauseForCanary,
 } from "./batch";
@@ -193,7 +205,47 @@ export function runAutoSelfCheck(): void {
   checkFinalReviewStatusInvariant();
   checkProductPriceApprovalRecovery();
   checkBatchReviewMode();
+  checkAgentInfraRecovery();
+  checkBuilderTimeoutHang();
   console.log("Atlas Auto self-check passed.");
+}
+
+function checkAgentInfraRecovery() {
+  assert.equal(elapsedDisplay(11 * 60_000 + 35_000), "11m 35s");
+  assert.notEqual(elapsedDisplay(11 * 60_000 + 35_000), "306m 26s");
+  const aborted = Object.assign(new Error("write ECONNABORTED"), { code: "ECONNABORTED" });
+  assert.equal(isTransientAgentError(aborted), true);
+  assert.equal(classifyAgentInfra("research", aborted), AGENT_CONNECTION_FAILURE);
+  assert.equal(classifyAgentInfra("spec", aborted), AGENT_CONNECTION_FAILURE);
+  assert.equal(classifyAgentInfra("research", new Error("RESEARCH_AGENT_TIMEOUT. The Research Agent exceeded 15 minutes")), RESEARCH_AGENT_TIMEOUT);
+  assert.notEqual(RESEARCH_AGENT_TIMEOUT, "BUILDER_TIMEOUT");
+  assert.notEqual(SPEC_AGENT_TIMEOUT, "BUILDER_TIMEOUT");
+}
+
+function checkBuilderTimeoutHang() {
+  assert.equal(CLEANUP_DEADLINE_MS, 5_000);
+  assert.equal(looksLikeBuilderTimeoutLog("BUILDER_TIMEOUT"), true);
+  assert.equal(isSharedInfrastructureFailure("BUILDER_TIMEOUT"), false);
+  assert.equal(classifyFailure(snapshotFromLoop({
+    issues: [{ issue_id: "BUILDER_TIMEOUT", classification: "BUILDER_TIMEOUT", actual: "BUILDER_TIMEOUT" }],
+  })), "BUILDER_TIMEOUT");
+  assert.equal(isSafeCandidateOwnedPath("app/blueprints/no-show-recovery-assistant/page.tsx", "no-show-recovery-assistant"), true);
+  assert.equal(isSafeCandidateOwnedPath("app/blueprints/google-ads-performance-coach/page.tsx", "no-show-recovery-assistant"), false);
+  assert.equal(isSafeCandidateOwnedPath("src/lib/blueprints.ts", "no-show-recovery-assistant"), false);
+  const catalog = (rows: string) =>
+    `export const blueprintCatalog: BlueprintDefinition[] = [\n${rows}\n];\n`;
+  const security = `  { id: "security-readiness-action-pack", title: "Security" }`;
+  const abandoned = `  { id: "no-show-recovery-assistant", title: "No-show" }`;
+  const reverted = revertBlueprintCatalogDelta(
+    catalog(security),
+    catalog(`${security},\n${abandoned}`),
+    "no-show-recovery-assistant",
+  );
+  assert.equal("ambiguous" in reverted, false);
+  if (!("ambiguous" in reverted)) {
+    assert.equal(reverted.text.includes("no-show-recovery-assistant"), false);
+    assert.equal(reverted.text.includes("security-readiness-action-pack"), true);
+  }
 }
 
 function checkBatchReviewMode() {

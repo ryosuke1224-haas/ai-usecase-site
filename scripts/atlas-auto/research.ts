@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { agentCliExists } from "../atlas-agent/cursor-cli";
+import { classifyAgentInfra, withTransientAgentRetry } from "./agent-retry";
 import { buildResearchContext, loadReferenceReports } from "./context";
 import { blockingEntry, findHistory, type loadHistory } from "./memory";
 import { runReadOnlyAgent } from "./read-only-agent";
@@ -46,6 +47,7 @@ export async function researchAndScore(input: {
    */
   researchAgent?: () => Promise<ResearchAgentResult>;
   scoringAgent?: (candidates: Candidate[]) => Promise<ResearchAgentResult>;
+  sleep?: (ms: number) => Promise<void>;
 }): Promise<ResearchResult> {
   const displayLimit = input.displayLimit ?? TARGET_CANDIDATES;
   const requestedCandidates = input.requestedCandidates ?? REQUESTED_CANDIDATES;
@@ -68,15 +70,21 @@ export async function researchAndScore(input: {
       console.log("Research Agent: proposing Premium Blueprint candidates (read-only Cursor Agent session)...");
       const promptPath = `${input.reportDir}/research-prompt.txt`;
       fs.writeFileSync(promptPath, researchPrompt(contextPath, requestedCandidates));
-      const { json, command } = input.researchAgent
-        ? await input.researchAgent()
-        : await runReadOnlyAgent({
-            role: "research",
-            label: "Research Agent",
-            promptPath,
-            outputPath: `${input.reportDir}/research-output.txt`,
-            timeoutMs: AGENT_TIMEOUT_MS,
-          });
+      const { json, command } = await withTransientAgentRetry({
+        role: "research",
+        label: "Research Agent",
+        sleep: input.sleep,
+        run: () =>
+          input.researchAgent
+            ? input.researchAgent()
+            : runReadOnlyAgent({
+                role: "research",
+                label: "Research Agent",
+                promptPath,
+                outputPath: `${input.reportDir}/research-output.txt`,
+                timeoutMs: AGENT_TIMEOUT_MS,
+              }),
+      });
       if (command) agentCommands.push(command);
       const parsed = researchOutputSchema.parse(json);
       for (const [index, raw] of parsed.candidates.entries()) {
@@ -90,8 +98,12 @@ export async function researchAndScore(input: {
       researchSource = "research-agent";
       console.log(`Research Agent returned ${pool.length} valid candidate(s).`);
     } catch (error) {
-      notes.push(`Research Agent failed, so the reference library was used: ${message(error)}`);
+      const code = classifyAgentInfra("research", error);
+      notes.push(
+        `Research Agent failed (${code}), so the reference library was used: ${message(error)}`,
+      );
       pool = [];
+      researchSource = "reference-library";
     }
   }
 
@@ -121,15 +133,21 @@ export async function researchAndScore(input: {
       const promptPath = `${input.reportDir}/scoring-prompt.txt`;
       fs.writeFileSync(promptPath, scoringPrompt(pool.map((entry) => entry.candidate)));
       const scoringCandidates = pool.map((entry) => entry.candidate);
-      const { json, command } = input.scoringAgent
-        ? await input.scoringAgent(scoringCandidates)
-        : await runReadOnlyAgent({
-            role: "scoring",
-            label: "Scoring Agent",
-            promptPath,
-            outputPath: `${input.reportDir}/scoring-output.txt`,
-            timeoutMs: AGENT_TIMEOUT_MS,
-          });
+      const { json, command } = await withTransientAgentRetry({
+        role: "scoring",
+        label: "Scoring Agent",
+        sleep: input.sleep,
+        run: () =>
+          input.scoringAgent
+            ? input.scoringAgent(scoringCandidates)
+            : runReadOnlyAgent({
+                role: "scoring",
+                label: "Scoring Agent",
+                promptPath,
+                outputPath: `${input.reportDir}/scoring-output.txt`,
+                timeoutMs: AGENT_TIMEOUT_MS,
+              }),
+      });
       if (command) agentCommands.push(command);
       const parsed = scoringOutputSchema.parse(json);
       sheets = new Map(parsed.scores.map((sheet) => [sheet.candidate_id, sheet]));
@@ -144,7 +162,9 @@ export async function researchAndScore(input: {
       if (pool.length === 0) throw new Error("Scoring Agent did not return a complete score sheet for any candidate.");
       scoringSource = "scoring-agent";
     } catch (error) {
-      notes.push(`Scoring Agent failed, so the reference library was used for candidates and scores: ${message(error)}`);
+      notes.push(
+        `Scoring Agent failed (${classifyAgentInfra("scoring", error)}), so the reference library was used for candidates and scores: ${message(error)}`,
+      );
       researchSource = "reference-library";
       pool = insertActiveStrategicSeeds(
         dedupe(reference.map(({ candidate }) => ({ candidate, source: "reference-library" as const })), input.history, []),

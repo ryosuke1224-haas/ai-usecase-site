@@ -1,6 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import { cursorAgentLaunch, runCursorAgent, type CursorAgentRole } from "../atlas-agent/cursor-cli";
+import {
+  cursorAgentLaunch,
+  elapsedDisplay,
+  runCursorAgent,
+  type CursorAgentRole,
+} from "../atlas-agent/cursor-cli";
 import { redact, tail } from "../atlas-agent/redact";
 import { captureBaseline, changesSince, restoreFiles, restoreSecrets } from "../atlas-agent/workspace";
 
@@ -27,14 +32,13 @@ export async function runReadOnlyAgent(input: {
     "Print only the JSON object.",
   ].join(" ");
   const launch = cursorAgentLaunch(assignment, input.role);
-  const started = Date.now();
+  const started = performance.now();
   const heartbeat = setInterval(() => {
-    const seconds = Math.round((Date.now() - started) / 1000);
-    console.log(`  ${input.label} still working (${Math.floor(seconds / 60)}m ${seconds % 60}s)`);
+    console.log(`  ${input.label} still working (${elapsedDisplay(performance.now() - started)})`);
   }, 30_000);
   let result: { status: number | null; stdout: string; stderr: string };
   try {
-    result = await runCursorAgent(launch, process.env, input.timeoutMs, { echo: false });
+    result = await runCursorAgent(launch, process.env, input.timeoutMs, { echo: false, role: input.role });
   } finally {
     clearInterval(heartbeat);
   }

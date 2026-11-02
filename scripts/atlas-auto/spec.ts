@@ -8,6 +8,7 @@ import {
   specRequiresCatalogListing,
   staleAcceptanceCriteria,
 } from "./task-paths";
+import { withTransientAgentRetry } from "./agent-retry";
 import { runReadOnlyAgent } from "./read-only-agent";
 import type { CandidateDecision, ScoredCandidate } from "./types";
 
@@ -105,6 +106,8 @@ export async function runSpecAgent(input: {
   approval: CandidateDecision;
   runId: string;
   reportDir: string;
+  specAgent?: () => Promise<{ json: unknown; command?: string }>;
+  sleep?: (ms: number) => Promise<void>;
 }): Promise<{ spec: BlueprintSpec; specPath: string; command: string }> {
   const { candidate } = input;
   const paths = blueprintPaths(candidate.id);
@@ -112,12 +115,20 @@ export async function runSpecAgent(input: {
   fs.mkdirSync(input.reportDir, { recursive: true });
   fs.writeFileSync(promptPath, specPrompt(candidate));
   console.log("Spec Agent: writing the structured Blueprint spec (read-only Cursor Agent session)...");
-  const { json, command } = await runReadOnlyAgent({
+  const { json, command } = await withTransientAgentRetry({
     role: "spec",
     label: "Spec Agent",
-    promptPath,
-    outputPath: `${input.reportDir}/spec-output.txt`,
-    timeoutMs: AGENT_TIMEOUT_MS,
+    sleep: input.sleep,
+    run: () =>
+      input.specAgent
+        ? input.specAgent()
+        : runReadOnlyAgent({
+            role: "spec",
+            label: "Spec Agent",
+            promptPath,
+            outputPath: `${input.reportDir}/spec-output.txt`,
+            timeoutMs: AGENT_TIMEOUT_MS,
+          }),
   });
   const parsed = agentSpecSchema.safeParse(json);
   if (!parsed.success) {

@@ -173,7 +173,7 @@ test("classifies structured failures without parsing prose", () => {
         issues: [{ issue_id: "BUILDER_TIMEOUT", classification: "BUILDER_TIMEOUT", actual: "BUILDER_TIMEOUT" }],
       }),
     ),
-    "BUILD_INFRA_FAILURE",
+    "BUILDER_TIMEOUT",
   );
   assert.equal(
     classifyFailure(
@@ -633,4 +633,20 @@ test("lower agent loop does not own final human disposition when Supervisor-mana
   assert.equal(output.decision.invokeBuilder, false);
   assert.equal(countHumanStatusToken([...child, ...output.lines].join("\n"), HUMAN_REVIEW_REQUIRED), 0);
   assert.equal(countHumanStatusToken(output.text, "HUMAN_INTERVENTION_REQUIRED"), 1);
+});
+
+test("one Builder timeout is retried and is not a shared infrastructure stop", () => {
+  const snapshot = snapshotFromLoop({
+    issues: [{ issue_id: "BUILDER_TIMEOUT", classification: "BUILDER_TIMEOUT", actual: "BUILDER_TIMEOUT" }],
+  });
+  assert.equal(classifyFailure(snapshot), "BUILDER_TIMEOUT");
+  const first = decide(snapshot);
+  assert.equal(first.action, "RERUN_BUILDER");
+  assert.equal(first.recommendation, "NEEDS_INTERNAL_RECOVERY");
+  const afterRetry = applyPlannedAction(emptySupervisorState(), first, "t0");
+  assert.equal(afterRetry.infra_retries, 1);
+  const exhausted = decide(snapshot, afterRetry);
+  assert.equal(exhausted.action, "ESCALATE");
+  assert.equal(exhausted.recommendation, "HUMAN_INTERVENTION_REQUIRED");
+  assert.match(exhausted.intervention ?? "", /skip this candidate/);
 });

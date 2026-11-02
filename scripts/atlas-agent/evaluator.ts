@@ -129,6 +129,7 @@ export async function runEvaluator(input: {
         ATLAS_EVALUATOR_OUTPUT: outputPath,
       },
       20 * 60 * 1000,
+      { role: "evaluator" },
     );
     const secretChanges = restoreSecrets(snapshot);
     const changed = changesSince(snapshot).filter((change) => !isLoopOutput(change.path));

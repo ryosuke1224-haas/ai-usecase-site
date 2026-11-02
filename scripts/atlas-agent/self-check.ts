@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { DEFAULT_BUILDER_TIMEOUT_MS } from "./cursor-cli";
+import { CLEANUP_DEADLINE_MS, DEFAULT_BUILDER_TIMEOUT_MS } from "./cursor-cli";
 import { decideEvaluation } from "./evaluator";
 import {
   formatEvaluatorUserLine,
@@ -178,6 +178,7 @@ function checkEvaluatorDecisions() {
 
 function checkBuilderTimeoutContract() {
   assert.equal(DEFAULT_BUILDER_TIMEOUT_MS, 15 * 60 * 1000);
+  assert.equal(CLEANUP_DEADLINE_MS, 5_000);
   const parsed = qaFailureSchema.parse({
     issue_id: "BUILDER_TIMEOUT",
     test: "Builder",

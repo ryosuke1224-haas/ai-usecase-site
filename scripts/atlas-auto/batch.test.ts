@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { SPEC_AGENT_TIMEOUT } from "./agent-retry";
 import { countHumanStatusToken, HUMAN_REVIEW_REQUIRED } from "./supervisor";
 import { candidateSchema, CRITERIA, type Criterion, type RunRecord, type ScoredCandidate } from "./types";
 import type { FinalReviewData } from "./dashboard";
@@ -21,8 +22,10 @@ import {
   executeBatchSubmit,
   formatCanaryCheckpoint,
   importCompletedSecurity,
+  isSharedInfrastructureFailure,
   parseBatchCli,
   planBatchResume,
+  restoreStoppedInfrastructureCandidate,
   selectBatchCandidates,
   type BatchDeps,
   type BatchHumanDecision,
@@ -756,4 +759,214 @@ test("batch mode without --canary still opens review at the full target", async 
   assert.equal(additionalSuccessCount(result.batch), 8);
   assert.equal(harness.built.length, 8);
   assert.equal(result.batch.phase === CANARY_CHECKPOINT, false);
+});
+
+test("Spec Agent connection failure stops infrastructure without consuming the candidate", async () => {
+  const pool = candidates(8);
+  const ready = new Set(pool.slice(0, 2).map((item) => item.id));
+  const harness = deps({
+    candidates: pool,
+    build: async (candidate) => ({
+      candidate_id: candidate.id,
+      name: candidate.name,
+      source_run_id: `run-${candidate.id}`,
+      review: ready.has(candidate.id) ? readyReview(candidate.id, candidate.name) : failedReview(candidate.id, candidate.name),
+      classification: ready.has(candidate.id) ? "NONE" : SPEC_AGENT_TIMEOUT,
+      rebuilt: false,
+    }),
+  });
+  const started = createBatch({
+    batchId: "batch-20261031T062745Z",
+    requestedSuccessCount: 8,
+    canarySuccessCount: 2,
+    now: "t",
+  });
+  const canary = await executeBatchBuild({ batch: started, candidates: pool, deps: harness.deps });
+  assert.equal(canary.batch.phase, CANARY_CHECKPOINT);
+  assert.equal(additionalSuccessCount(canary.batch), 2);
+  const stopped = await executeBatchBuild({ batch: canary.batch, candidates: pool, deps: harness.deps });
+  assert.equal(stopped.batch.phase, "STOPPED_INFRASTRUCTURE");
+  assert.equal(stopped.batch.failed.length, 0);
+  assert.equal(stopped.batch.current_candidate_id, pool[2]!.id);
+  assert.equal(stopped.batch.requested_success_count, 8);
+  assert.equal(additionalSuccessCount(stopped.batch), 2);
+  const firstTwo = pool.slice(0, 2).map((item) => item.id);
+  assert.equal(harness.built.filter((id) => firstTwo.includes(id)).length, 2);
+
+  let specAttempts = 0;
+  const resumeHarness = deps({
+    candidates: pool,
+    security: null,
+    build: async (candidate) => {
+      if (firstTwo.includes(candidate.id)) throw new Error("completed Canary products must not be rebuilt");
+      if (candidate.id === pool[2]!.id) specAttempts += 1;
+      return {
+        candidate_id: candidate.id,
+        name: candidate.name,
+        source_run_id: `run-${candidate.id}`,
+        review: readyReview(candidate.id, candidate.name),
+        classification: "NONE",
+        rebuilt: false,
+      };
+    },
+  });
+  const resumed = await executeBatchBuild({ batch: stopped.batch, candidates: pool, deps: resumeHarness.deps });
+  assert.equal(specAttempts, 1);
+  assert.equal(resumed.batch.batch_id, "batch-20261031T062745Z");
+  assert.equal(resumed.batch.requested_success_count, 8);
+  assert.equal(additionalSuccessCount(resumed.batch), 8);
+  assert.equal(resumed.batch.phase, BATCH_HUMAN_REVIEW_REQUIRED);
+  assert.equal(resumeHarness.built.includes(pool[0]!.id), false);
+  assert.equal(resumeHarness.built.includes(pool[2]!.id), true);
+});
+
+test("resume retries the same Spec candidate even if an older batch consumed it as failed", async () => {
+  const ads = scored("google-ads-performance-coach", "Google Ads Performance Coach");
+  const quote = scored("quote-request-assistant", "Quote Request Assistant");
+  const expense = scored("ai-expense-watchdog", "AI Expense Watchdog");
+  const rest = candidates(8).filter((item) => ![ads.id, quote.id, expense.id].includes(item.id)).slice(0, 5);
+  const pool = [ads, quote, expense, ...rest];
+  const canaryHarness = deps({
+    candidates: pool,
+    build: async (candidate) => ({
+      candidate_id: candidate.id,
+      name: candidate.name,
+      source_run_id: `run-${candidate.id}`,
+      review: readyReview(candidate.id, candidate.name),
+      classification: "NONE",
+      rebuilt: false,
+    }),
+  });
+  const canary = await executeBatchBuild({
+    batch: createBatch({
+      batchId: "batch-20261031T062745Z",
+      requestedSuccessCount: 8,
+      canarySuccessCount: 2,
+      now: "t",
+    }),
+    candidates: pool,
+    deps: canaryHarness.deps,
+  });
+  assert.equal(canary.batch.phase, CANARY_CHECKPOINT);
+  const completedIds = canary.batch.completed
+    .filter((item) => item.status === READY_FOR_BATCH_REVIEW)
+    .map((item) => item.candidate_id);
+  const persisted = {
+    ...canary.batch,
+    phase: "STOPPED_INFRASTRUCTURE" as const,
+    canary_passed: true,
+    current_candidate_id: null,
+    failed: [
+      {
+        candidate_id: expense.id,
+        name: expense.name,
+        reason: "Shared Atlas infrastructure failed.",
+        classification: "ORCHESTRATION_FAILURE",
+      },
+    ],
+    infrastructure_failures: [
+      { candidate_id: expense.id, classification: "ORCHESTRATION_FAILURE", at: "2026-10-31T12:31:11.435Z" },
+    ],
+    candidate_queue: [...canary.batch.candidate_queue.filter((id) => id !== expense.id), expense.id, ...rest.map((item) => item.id)],
+  };
+  const restored = restoreStoppedInfrastructureCandidate(persisted, "resume");
+  assert.equal(restored.current_candidate_id, expense.id);
+  assert.equal(restored.failed.some((item) => item.candidate_id === expense.id), false);
+  assert.equal(restored.requested_success_count, 8);
+
+  const resumeHarness = deps({
+    candidates: pool,
+    security: null,
+    build: async (candidate) => {
+      if (completedIds.includes(candidate.id)) {
+        throw new Error("completed Canary products must not be rebuilt");
+      }
+      return {
+        candidate_id: candidate.id,
+        name: candidate.name,
+        source_run_id: `run-${candidate.id}`,
+        review: readyReview(candidate.id, candidate.name),
+        classification: "NONE",
+        rebuilt: false,
+      };
+    },
+  });
+  const resumed = await executeBatchBuild({ batch: persisted, candidates: pool, deps: resumeHarness.deps });
+  assert.equal(resumeHarness.built[0], expense.id);
+  assert.equal(resumed.batch.batch_id, "batch-20261031T062745Z");
+  assert.equal(resumed.batch.requested_success_count, 8);
+  assert.equal(additionalSuccessCount(resumed.batch), 8);
+  assert.equal(resumed.batch.failed.some((item) => item.candidate_id === expense.id), false);
+  assert.equal(completedIds.every((id) => !resumeHarness.built.includes(id)), true);
+});
+
+test("one Builder timeout does not stop the entire batch", async () => {
+  assert.equal(isSharedInfrastructureFailure("BUILDER_TIMEOUT"), false);
+  const pool = candidates(3);
+  const harness = deps({
+    candidates: pool,
+    build: async (candidate) => ({
+      candidate_id: candidate.id,
+      name: candidate.name,
+      source_run_id: `run-${candidate.id}`,
+      review: candidate.id === pool[0]!.id ? failedReview(candidate.id, candidate.name) : readyReview(candidate.id, candidate.name),
+      classification: candidate.id === pool[0]!.id ? "BUILDER_TIMEOUT" : "NONE",
+      rebuilt: false,
+    }),
+  });
+  const result = await executeBatchBuild({
+    batch: createBatch({ batchId: "batch-builder-timeout", requestedSuccessCount: 3, now: "t" }),
+    candidates: pool,
+    deps: harness.deps,
+  });
+  assert.notEqual(result.batch.phase, "STOPPED_INFRASTRUCTURE");
+  assert.equal(result.batch.failed.length, 1);
+  assert.equal(result.batch.failed[0]?.candidate_id, pool[0]!.id);
+  assert.equal(result.batch.failed[0]?.classification, "BUILDER_TIMEOUT");
+  assert.equal(additionalSuccessCount(result.batch), 2);
+  assert.equal(harness.built.length, 3);
+});
+
+test("resume after Builder timeout keeps target 8 and completed Canary products", async () => {
+  const pool = candidates(9);
+  const ready = new Set(pool.slice(0, 2).map((item) => item.id));
+  const timedOut = pool[2]!.id;
+  let pastCanary = false;
+  const harness = deps({
+    candidates: pool,
+    build: async (candidate) => {
+      const timeout = pastCanary && candidate.id === timedOut;
+      return {
+        candidate_id: candidate.id,
+        name: candidate.name,
+        source_run_id: `run-${candidate.id}`,
+        review: timeout ? failedReview(candidate.id, candidate.name) : readyReview(candidate.id, candidate.name),
+        classification: timeout ? "BUILDER_TIMEOUT" : "NONE",
+        rebuilt: false,
+      };
+    },
+  });
+  const canary = await executeBatchBuild({
+    batch: createBatch({
+      batchId: "batch-20261031T062745Z",
+      requestedSuccessCount: 8,
+      canarySuccessCount: 2,
+      now: "t",
+    }),
+    candidates: pool,
+    deps: harness.deps,
+  });
+  assert.equal(canary.batch.phase, CANARY_CHECKPOINT);
+  pastCanary = true;
+  const afterTimeout = await executeBatchBuild({ batch: canary.batch, candidates: pool, deps: harness.deps });
+  assert.notEqual(afterTimeout.batch.phase, "STOPPED_INFRASTRUCTURE");
+  assert.equal(afterTimeout.batch.failed.some((item) => item.candidate_id === timedOut), true);
+  assert.equal(afterTimeout.batch.requested_success_count, 8);
+  assert.equal(additionalSuccessCount(afterTimeout.batch), 8);
+  assert.equal(harness.built.filter((id) => ready.has(id)).length, 2);
+
+  const resume = planBatchResume(afterTimeout.batch);
+  assert.equal(resume.skipRebuildIds.includes(pool[0]!.id), true);
+  assert.equal(resume.skipRebuildIds.includes(pool[1]!.id), true);
+  assert.equal(afterTimeout.batch.batch_id, "batch-20261031T062745Z");
 });
