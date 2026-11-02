@@ -11,7 +11,7 @@ import {
   type AgentInfraCode,
 } from "./agent-retry";
 import type { FailureCategory } from "./supervisor";
-import type { CommerceRecord, RunRecord, ScoredCandidate } from "./types";
+import { candidateSchema, CRITERIA, type Criterion, type CommerceRecord, type RunRecord, type ScoredCandidate } from "./types";
 
 export const BATCH_HUMAN_REVIEW_REQUIRED = "BATCH_HUMAN_REVIEW_REQUIRED";
 export const BATCH_CANARY_CHECKPOINT = "BATCH_CANARY_CHECKPOINT";
@@ -490,13 +490,44 @@ export function applyBuildOutcome(
   return finalizeIfReady(next, now);
 }
 
-export function nextQueuedCandidate(batch: BatchRecord, candidates: ScoredCandidate[]): ScoredCandidate | null {
+/** Consumed for batch progression only after a successful or failed terminal record. */
+export function isBatchCandidateSettled(batch: BatchRecord, candidateId: string): boolean {
+  return isSettled(batch, candidateId);
+}
+
+/** Interrupted current candidate that `--resume-batch` must retry before Research. */
+export function interruptedBatchCandidateId(batch: BatchRecord): string | null {
   if (batch.current_candidate_id && !isSettled(batch, batch.current_candidate_id)) {
-    const current = candidates.find((item) => item.id === batch.current_candidate_id);
-    if (current) return current;
+    return batch.current_candidate_id;
   }
+  return null;
+}
+
+export function unsettledBatchQueueIds(batch: BatchRecord): string[] {
+  return batch.candidate_queue.filter((id) => !isSettled(batch, id));
+}
+
+/**
+ * Research fills an empty unsettled queue after the interrupted candidate is
+ * resolved. History BUILT / source-on-disk must not trigger Research first.
+ */
+export function batchShouldResearch(batch: BatchRecord): boolean {
+  if (batch.requested_success_count - additionalSuccessCount(batch) <= 0) return false;
+  if (interruptedBatchCandidateId(batch)) return false;
+  if (unsettledBatchQueueIds(batch).length > 0) return false;
+  return true;
+}
+
+export function resolveQueuedCandidate(id: string, candidates: ScoredCandidate[]): ScoredCandidate {
+  return candidates.find((item) => item.id === id) ?? stubScoredCandidate(id);
+}
+
+export function nextQueuedCandidate(batch: BatchRecord, candidates: ScoredCandidate[]): ScoredCandidate | null {
+  const interrupted = interruptedBatchCandidateId(batch);
+  if (interrupted) return resolveQueuedCandidate(interrupted, candidates);
   const id = batch.candidate_queue.find((item) => !isSettled(batch, item));
-  return candidates.find((item) => item.id === id) ?? null;
+  if (!id) return null;
+  return resolveQueuedCandidate(id, candidates);
 }
 
 /** Shared-infra stops must not consume a candidate. Older batches may have. */
@@ -536,6 +567,8 @@ export function planBatchResume(batch: BatchRecord): {
   openDashboard: boolean;
 } {
   return {
+    // Only successful batch-terminal products are skipped. Source on disk or
+    // candidate-history BUILT is not batch success and must not skip resume.
     skipRebuildIds: batch.completed
       .filter((item) => item.status === READY_FOR_BATCH_REVIEW || item.status === EXISTING_COMPLETED_PRODUCT)
       .map((item) => item.candidate_id),
@@ -737,10 +770,16 @@ export async function executeBatchBuild(input: {
       input.deps.persist(batch);
       break;
     }
-    if (plan.skipRebuildIds.includes(next.id) || batch.completed.some((item) => item.candidate_id === next.id)) {
+    const interrupted = interruptedBatchCandidateId(batch);
+    const alreadySucceeded = plan.skipRebuildIds.includes(next.id) || batch.completed.some((item) => item.candidate_id === next.id);
+    // History BUILT / source on disk must not skip the interrupted current candidate.
+    if (alreadySucceeded && next.id !== interrupted) {
       batch = { ...batch, current_candidate_id: batch.candidate_queue.find((id) => !isSettled(batch, id)) ?? null, updated_at: now() };
       input.deps.persist(batch);
       continue;
+    }
+    if (!candidates.some((item) => item.id === next.id)) {
+      candidates = [...candidates, next];
     }
     batch = { ...batch, phase: "BUILDING", current_candidate_id: next.id, updated_at: now() };
     input.deps.persist(batch);
@@ -813,6 +852,9 @@ async function ensureCandidateQueue(
   deps: BatchDeps,
 ): Promise<{ batch: BatchRecord; candidates: ScoredCandidate[] }> {
   const remaining = batch.requested_success_count - additionalSuccessCount(batch);
+  if (remaining <= 0 || !batchShouldResearch(batch)) {
+    return { batch, candidates };
+  }
   const skip = [
     ...batch.completed.map((item) => item.candidate_id),
     ...batch.failed.map((item) => item.candidate_id),
@@ -882,6 +924,44 @@ function isSettled(batch: BatchRecord, candidateId: string): boolean {
     batch.completed.some((item) => item.candidate_id === candidateId) ||
     batch.failed.some((item) => item.candidate_id === candidateId)
   );
+}
+
+function stubScoredCandidate(id: string): ScoredCandidate {
+  const name = id
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
+    .join(" ");
+  const label = name || id;
+  const criteria = Object.fromEntries(CRITERIA.map((key) => [key, 0])) as Record<Criterion, number>;
+  return {
+    ...candidateSchema.parse({
+      id,
+      name: label,
+      persona: "A small-business operator.",
+      problem: `${label} is queued for batch resume.`,
+      workflow: ["Collect an export.", "Apply the rules.", "The owner reviews."],
+      before: "Manual work.",
+      after: "Structured review.",
+      required_data_tools: ["CSV export"],
+      why_pay: "Queued by the batch.",
+      setup_difficulty: "EASY",
+      automation_potential: "LOW",
+      human_oversight: "HIGH",
+      major_risks: ["The owner skips the review."],
+      estimated_premium_value: "About $49 one-time.",
+      sample_input: "fictional",
+      sample_output: "fictional",
+      guided_demo: "fictional demo",
+      related_catalog_slugs: [id.split("-")[0] ?? id],
+      novelty_note: label,
+    }),
+    rank: 0,
+    scores: { criteria, rationale: {}, summary: "" },
+    summary_scores: { commercial: 0, atlas_fit: 0, buildability: 0, overall: 0 },
+    history_status: null,
+    source: "reference-library",
+  };
 }
 
 function businessArea(candidate: { name: string; related_catalog_slugs?: string[] }): string {

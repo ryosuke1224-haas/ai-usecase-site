@@ -15,6 +15,7 @@ import {
   SECURITY_PRODUCT_ID,
   additionalSuccessCount,
   applyBuildOutcome,
+  batchShouldResearch,
   batchUserFacingLines,
   canEnterBatchReview,
   createBatch,
@@ -22,13 +23,16 @@ import {
   executeBatchSubmit,
   formatCanaryCheckpoint,
   importCompletedSecurity,
+  interruptedBatchCandidateId,
   isSharedInfrastructureFailure,
+  nextQueuedCandidate,
   parseBatchCli,
   planBatchResume,
   restoreStoppedInfrastructureCandidate,
   selectBatchCandidates,
   type BatchDeps,
   type BatchHumanDecision,
+  type BatchProduct,
   type BatchRecord,
 } from "./batch";
 
@@ -237,19 +241,59 @@ function candidates(count = 3): ScoredCandidate[] {
   return NAMES.slice(0, count).map(([id, name], index) => scored(id, name, 8.2 - index * 0.1));
 }
 
+function completedProduct(candidate: ScoredCandidate, status: BatchProduct["status"] = READY_FOR_BATCH_REVIEW): BatchProduct {
+  const review = readyReview(candidate.id, candidate.name);
+  return {
+    candidate_id: candidate.id,
+    name: candidate.name,
+    source_run_id: `run-${candidate.id}`,
+    status,
+    imported: status === EXISTING_COMPLETED_PRODUCT,
+    business_area: candidate.related_catalog_slugs?.[0] ?? candidate.name,
+    problem: candidate.problem,
+    persona: candidate.persona,
+    workflow: candidate.workflow.join(" "),
+    positioning: "Premium",
+    evaluator_score: review.evaluator.overall,
+    evaluator_decision: review.evaluator.decision,
+    dimensions: {
+      clarity: 8.5,
+      actionability: 8.5,
+      smb_relevance: 8.5,
+      ai_literacy: 8.5,
+      safety: 8.5,
+      setup_usability: 8.5,
+      human_ai_boundary: 8.5,
+    },
+    build: "pass",
+    qa: review.qa,
+    authenticated_qa: "pass",
+    blocking_findings: 0,
+    non_blocking_findings: 1,
+    suggested_price_cents: 4900,
+    suggested_payment_type: "ONE_TIME",
+    commercial_rationale: candidate.why_pay,
+    preview_route: `/blueprints/${candidate.id}`,
+    relative_recommendation: null,
+  };
+}
+
 function deps(input: {
   candidates: ScoredCandidate[];
   build?: (candidate: ScoredCandidate) => Promise<Parameters<BatchDeps["buildCandidate"]> extends never ? never : Awaited<ReturnType<BatchDeps["buildCandidate"]>>>;
   security?: RunRecord | null;
   provision?: BatchDeps["provision"];
-}): { deps: BatchDeps; built: string[]; provisioned: string[]; batches: BatchRecord[] } {
+  research?: BatchDeps["research"];
+}): { deps: BatchDeps; built: string[]; provisioned: string[]; batches: BatchRecord[]; researched: number[] } {
   const built: string[] = [];
   const provisioned: string[] = [];
   const batches: BatchRecord[] = [];
+  const researched: number[] = [];
   return {
     built,
     provisioned,
     batches,
+    researched,
     deps: {
       now: () => "2026-10-31T12:00:00.000Z",
       persist: (batch) => {
@@ -257,7 +301,11 @@ function deps(input: {
       },
       persistCandidates: () => {},
       loadSecurityRun: () => input.security ?? null,
-      research: async () => input.candidates,
+      research: async (needed) => {
+        researched.push(needed);
+        if (input.research) return input.research(needed);
+        return input.candidates;
+      },
       buildCandidate: async (candidate) => {
         built.push(candidate.id);
         if (input.build) return input.build(candidate);
@@ -969,4 +1017,177 @@ test("resume after Builder timeout keeps target 8 and completed Canary products"
   assert.equal(resume.skipRebuildIds.includes(pool[0]!.id), true);
   assert.equal(resume.skipRebuildIds.includes(pool[1]!.id), true);
   assert.equal(afterTimeout.batch.batch_id, "batch-20261031T062745Z");
+});
+
+test("resume STOPPED_INFRASTRUCTURE retries current candidate even if history is BUILT", async () => {
+  const current = scored("no-show-recovery-assistant", "No-Show Recovery Assistant");
+  current.history_status = "BUILT";
+  const finished = [
+    scored("google-ads-performance-coach", "Google Ads Performance Coach"),
+    scored("quote-request-assistant", "Quote Request Assistant"),
+    scored("ai-expense-watchdog", "AI Expense Watchdog"),
+  ];
+  const later = scored("unbilled-work-review-queue", "Unbilled Work Review Queue");
+  const pool = [...finished, current, later];
+  const batch: BatchRecord = {
+    ...createBatch({ batchId: "batch-20261031T062745Z", requestedSuccessCount: 4, now: "t" }),
+    phase: "STOPPED_INFRASTRUCTURE",
+    current_candidate_id: current.id,
+    candidate_queue: [...finished.map((item) => item.id), current.id, later.id],
+    completed: finished.map((item) => completedProduct(item)),
+    infrastructure_failures: [{ candidate_id: current.id, classification: "ORCHESTRATION_FAILURE", at: "t" }],
+  };
+  assert.equal(batchShouldResearch(batch), false);
+  assert.equal(interruptedBatchCandidateId(batch), current.id);
+  assert.equal(planBatchResume(batch).skipRebuildIds.includes(current.id), false);
+  assert.equal(nextQueuedCandidate(batch, pool)?.id, current.id);
+
+  const harness = deps({
+    candidates: pool,
+    research: async () => {
+      throw new Error("No candidates remain after removing rejected, completed, built, and approved ideas.");
+    },
+    build: async (candidate) => {
+      if (finished.some((item) => item.id === candidate.id)) {
+        throw new Error("completed batch candidates must not be rebuilt");
+      }
+      return {
+        candidate_id: candidate.id,
+        name: candidate.name,
+        source_run_id: `run-${candidate.id}`,
+        review: readyReview(candidate.id, candidate.name),
+        classification: "NONE",
+        rebuilt: false,
+      };
+    },
+  });
+  const result = await executeBatchBuild({ batch, candidates: pool, deps: harness.deps });
+  assert.equal(harness.researched.length, 0);
+  assert.equal(harness.built[0], current.id);
+  assert.equal(harness.built.includes(finished[0]!.id), false);
+  assert.equal(result.batch.completed.some((item) => item.candidate_id === current.id), true);
+});
+
+test("resume after completed candidate does not rebuild it", async () => {
+  const finished = scored("google-ads-performance-coach", "Google Ads Performance Coach");
+  const next = scored("quote-request-assistant", "Quote Request Assistant");
+  const pool = [finished, next];
+  const batch: BatchRecord = {
+    ...createBatch({ batchId: "batch-resume-completed", requestedSuccessCount: 2, now: "t" }),
+    phase: "BUILDING",
+    current_candidate_id: next.id,
+    candidate_queue: [finished.id, next.id],
+    completed: [completedProduct(finished)],
+  };
+  const harness = deps({
+    candidates: pool,
+    research: async () => {
+      throw new Error("Research must not run while a queued candidate remains");
+    },
+    build: async (candidate) => {
+      if (candidate.id === finished.id) throw new Error("completed candidate must not be rebuilt");
+      return {
+        candidate_id: candidate.id,
+        name: candidate.name,
+        source_run_id: `run-${candidate.id}`,
+        review: readyReview(candidate.id, candidate.name),
+        classification: "NONE",
+        rebuilt: false,
+      };
+    },
+  });
+  const result = await executeBatchBuild({ batch, candidates: pool, deps: harness.deps });
+  assert.equal(harness.researched.length, 0);
+  assert.deepEqual(harness.built, [next.id]);
+  assert.equal(result.batch.completed.some((item) => item.candidate_id === finished.id), true);
+  assert.equal(result.batch.completed.some((item) => item.candidate_id === next.id), true);
+});
+
+test("resume with no interrupted candidate may invoke Research Agent", async () => {
+  const finished = [
+    scored("google-ads-performance-coach", "Google Ads Performance Coach"),
+    scored("quote-request-assistant", "Quote Request Assistant"),
+    scored("ai-expense-watchdog", "AI Expense Watchdog"),
+  ];
+  const fresh = [
+    scored("unbilled-work-review-queue", "Unbilled Work Review Queue"),
+    scored("ai-customer-response-assistant", "AI Customer Response Assistant"),
+  ];
+  const batch: BatchRecord = {
+    ...createBatch({ batchId: "batch-resume-research", requestedSuccessCount: 5, now: "t" }),
+    phase: "BUILDING",
+    current_candidate_id: null,
+    candidate_queue: finished.map((item) => item.id),
+    completed: finished.map((item) => completedProduct(item)),
+  };
+  assert.equal(interruptedBatchCandidateId(batch), null);
+  assert.equal(batchShouldResearch(batch), true);
+
+  const harness = deps({
+    candidates: finished,
+    research: async () => fresh,
+    build: async (candidate) => {
+      if (finished.some((item) => item.id === candidate.id)) {
+        throw new Error("completed candidate must not be rebuilt");
+      }
+      return {
+        candidate_id: candidate.id,
+        name: candidate.name,
+        source_run_id: `run-${candidate.id}`,
+        review: readyReview(candidate.id, candidate.name),
+        classification: "NONE",
+        rebuilt: false,
+      };
+    },
+  });
+  const result = await executeBatchBuild({ batch, candidates: finished, deps: harness.deps });
+  assert.ok(harness.researched.length >= 1);
+  assert.ok(fresh.some((item) => harness.built.includes(item.id)));
+  assert.equal(
+    result.batch.completed.some((item) => fresh.some((candidate) => candidate.id === item.candidate_id)),
+    true,
+  );
+});
+
+test("stopped candidate with source present continues QA instead of being dropped", async () => {
+  const current = scored("no-show-recovery-assistant", "No-Show Recovery Assistant");
+  current.history_status = "BUILT";
+  const finished = scored("ai-expense-watchdog", "AI Expense Watchdog");
+  const pool = [finished, current];
+  const batch: BatchRecord = {
+    ...createBatch({ batchId: "batch-source-present", requestedSuccessCount: 2, now: "t" }),
+    phase: "STOPPED_INFRASTRUCTURE",
+    current_candidate_id: current.id,
+    candidate_queue: [finished.id, current.id],
+    completed: [completedProduct(finished)],
+    infrastructure_failures: [{ candidate_id: current.id, classification: "ORCHESTRATION_FAILURE", at: "t" }],
+    notes: ["Product source already exists; QA and evaluation did not finish."],
+  };
+  assert.equal(planBatchResume(batch).skipRebuildIds.includes(current.id), false);
+  assert.equal(nextQueuedCandidate(batch, []).id, current.id);
+
+  let evaluated = false;
+  const harness = deps({
+    candidates: pool,
+    research: async () => {
+      throw new Error("No candidates remain after removing rejected, completed, built, and approved ideas.");
+    },
+    build: async (candidate) => {
+      evaluated = true;
+      return {
+        candidate_id: candidate.id,
+        name: candidate.name,
+        source_run_id: `run-${candidate.id}`,
+        review: readyReview(candidate.id, candidate.name),
+        classification: "NONE",
+        rebuilt: false,
+      };
+    },
+  });
+  const result = await executeBatchBuild({ batch, candidates: pool, deps: harness.deps });
+  assert.equal(harness.researched.length, 0);
+  assert.equal(evaluated, true);
+  assert.equal(harness.built[0], current.id);
+  assert.equal(result.batch.failed.some((item) => item.candidate_id === current.id), false);
+  assert.equal(result.batch.completed.some((item) => item.candidate_id === current.id), true);
 });
