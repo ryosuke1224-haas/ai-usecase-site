@@ -255,7 +255,7 @@ const english: SiteCopy = {
   },
   blueprints: {
     title: "My Blueprints",
-    body: "Free Starter Kits stay unlocked. Paid blueprints stay locked until a confirmed payment is recorded for your account.",
+    body: "Free Starter Kits stay unlocked. Premium private-preview kits open when an entitlement is recorded for your account. Kits without checkout are not available to purchase yet.",
     signedIn: (email) => `Signed in as ${email}`,
     unlocked: "Unlocked",
     locked: "Locked",
@@ -276,7 +276,8 @@ const english: SiteCopy = {
   kit: {
     lockedEyebrow: "Premium · Private preview",
     lockedTitle: "Premium is locked",
-    lockedBody: "Your Atlas account is signed in. This Blueprint opens after Stripe confirms a one-time payment for this account.",
+    lockedBody:
+      "Your Atlas account is signed in. This Premium kit is a private preview. There is currently no checkout. Access is granted by entitlement for this private preview.",
     back: "Back to the guided demo",
     openEyebrow: "Premium · Private preview",
     openTitle: "AI Collections Assistant Premium Kit",

@@ -271,7 +271,7 @@ test.describe("Security Readiness Action Pack without a premium entitlement", ()
     const card = page.getByRole("listitem").filter({
       has: page.getByRole("heading", { level: 2, name: "Security Readiness Action Pack" }),
     });
-    await expect(card.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
+    await expect(card.getByRole("link", { name: "Private preview" })).toHaveAttribute(
       "href",
       DEMO_PATH,
     );

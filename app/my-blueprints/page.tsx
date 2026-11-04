@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireUser } from "@/src/lib/auth";
 import { MY_BLUEPRINTS_PATH } from "@/src/lib/blueprints";
 import { listBlueprintCards, type BlueprintCard } from "@/src/lib/payments/access";
+import { lockedBlueprintCtaLabel } from "@/src/lib/premium/shared/catalog-cta";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ function cardAction(blueprint: BlueprintCard): { href: string; label: string } {
   }
   return {
     href: blueprint.purchaseHref ?? MY_BLUEPRINTS_PATH,
-    label: "Available to purchase",
+    label: lockedBlueprintCtaLabel(blueprint.productSlug),
   };
 }
 
@@ -35,8 +36,9 @@ export default async function MyBlueprintsPage() {
         My Blueprints
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        Free Starter Kits stay unlocked. Paid blueprints stay locked until a
-        confirmed payment is recorded for your account.
+        Free Starter Kits stay unlocked. Premium private-preview kits open when
+        an entitlement is recorded for your account. Kits without checkout are
+        not available to purchase yet.
       </p>
       <p className="mt-2 text-xs text-muted">
         Signed in as {user.email ?? "your Atlas account"}
