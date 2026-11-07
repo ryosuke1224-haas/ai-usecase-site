@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { noShowCopy } from "@/src/lib/premium/no-show-recovery-assistant/copy";
 import {
   BookingsStep,
   ConfirmAttendanceStep,
@@ -13,22 +15,30 @@ import { FOCUS_RING, PRIMARY_BUTTON, SECONDARY_BUTTON } from "./styles";
 import { HydrationStatus } from "../shared/hydration-status";
 import { useHydrated } from "./use-hydrated";
 
-const STEPS: { title: string; Content: ComponentType }[] = [
-  { title: "The day's bookings", Content: BookingsStep },
-  { title: "CONFIRM ATTENDANCE FIRST", Content: ConfirmAttendanceStep },
-  { title: "Draft with real open slots", Content: DraftStep },
-  { title: "Check the facts", Content: FactCheckStep },
-  { title: "Repeat no-shows need a policy decision", Content: RepeatPolicyStep },
-  { title: "You review and send", Content: YouReviewAndSendStep },
+const STEP_COMPONENTS: ComponentType<{ locale: UiLocale; pathLocale: UiLocale | null }>[] = [
+  BookingsStep,
+  ConfirmAttendanceStep,
+  DraftStep,
+  FactCheckStep,
+  RepeatPolicyStep,
+  YouReviewAndSendStep,
 ];
 
-export function GuidedDemo() {
+export function GuidedDemo({
+  locale = "en",
+  pathLocale = null,
+}: {
+  locale?: UiLocale;
+  pathLocale?: UiLocale | null;
+}) {
+  const copy = noShowCopy(locale);
   const [index, setIndex] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const movedByUser = useRef(false);
   const hydrated = useHydrated();
-  const total = STEPS.length;
-  const { title, Content } = STEPS[index];
+  const total = STEP_COMPONENTS.length;
+  const title = copy.stepTitles[index] ?? "";
+  const Content = STEP_COMPONENTS[index] ?? BookingsStep;
 
   useEffect(() => {
     if (movedByUser.current) headingRef.current?.focus();
@@ -40,10 +50,10 @@ export function GuidedDemo() {
   }
 
   return (
-    <section aria-label="Guided demo" className="min-w-0 rounded-2xl border border-border/60 bg-surface/50 p-4 sm:p-6">
+    <section aria-label={copy.demoAria} className="min-w-0 rounded-2xl border border-border/60 bg-surface/50 p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p aria-live="polite" className="text-sm font-semibold text-foreground">
-          Step {index + 1} of {total}
+          {copy.stepLabel(index + 1, total)}
         </p>
         <HydrationStatus hydrated={hydrated} />
         <div className="flex flex-wrap gap-2">
@@ -53,7 +63,7 @@ export function GuidedDemo() {
             onClick={() => goTo(index - 1)}
             disabled={!hydrated || index === 0}
           >
-            Previous step
+            {copy.previousStep}
           </button>
           <button
             type="button"
@@ -61,19 +71,18 @@ export function GuidedDemo() {
             onClick={() => goTo(index + 1)}
             disabled={!hydrated || index === total - 1}
           >
-            Next step
+            {copy.nextStep}
           </button>
         </div>
       </div>
       <div aria-hidden="true" className="mt-3 grid grid-cols-6 gap-1">
-        {STEPS.map((step, stepIndex) => (
+        {copy.stepTitles.map((stepTitle, stepIndex) => (
           <span
-            key={step.title}
+            key={stepTitle}
             className={`h-1.5 rounded-full ${stepIndex <= index ? "bg-accent" : "bg-border"}`}
           />
         ))}
       </div>
-
       <div className="mt-6">
         <h2
           ref={headingRef}
@@ -83,7 +92,7 @@ export function GuidedDemo() {
           {title}
         </h2>
         <div className="mt-4">
-          <Content />
+          <Content locale={locale} pathLocale={pathLocale} />
         </div>
       </div>
     </section>

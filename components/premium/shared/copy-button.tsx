@@ -8,10 +8,18 @@ import { useHydrated } from "./use-hydrated";
 type CopyButtonProps = {
   text: string;
   label: string;
+  copiedLabel?: string;
+  errorLabel?: string;
   className?: string;
 };
 
-export function CopyButton({ text, label, className = "" }: CopyButtonProps) {
+export function CopyButton({
+  text,
+  label,
+  copiedLabel = "Copied",
+  errorLabel = "Could not copy automatically. Select the text above and copy it manually.",
+  className = "",
+}: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const resetTimer = useRef<number | null>(null);
@@ -33,9 +41,7 @@ export function CopyButton({ text, label, className = "" }: CopyButtonProps) {
       resetTimer.current = window.setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
-      setError(
-        "Could not copy automatically. Select the text above and copy it manually.",
-      );
+      setError(errorLabel);
     }
   }
 
@@ -48,7 +54,7 @@ export function CopyButton({ text, label, className = "" }: CopyButtonProps) {
         disabled={!hydrated}
         className={PRIMARY_BUTTON}
       >
-        {copied ? "Copied" : label}
+        {copied ? copiedLabel : label}
       </button>
       {error ? (
         <p role="alert" className="mt-2 text-xs text-amber-800 dark:text-amber-300">

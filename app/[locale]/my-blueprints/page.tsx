@@ -4,7 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/src/lib/auth";
 import { authPath } from "@/src/lib/blueprints";
 import { siteCopy } from "@/src/lib/i18n/copy";
-import { collectionsPaths, isUiLocale, localizedHref } from "@/src/lib/i18n/locale";
+import { japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
+import { collectionsPaths, isUiLocale, localizedHref, noShowPaths } from "@/src/lib/i18n/locale";
 import { listBlueprintCards, type BlueprintCard } from "@/src/lib/payments/access";
 
 export const dynamic = "force-dynamic";
@@ -19,13 +20,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 function cardAction(blueprint: BlueprintCard, locale: "ja" | "en"): { href: string; label: string } {
   const copy = siteCopy(locale).blueprints;
-  const paths = collectionsPaths(locale);
   if (blueprint.unlocked && blueprint.access === "free-authenticated") {
     return {
       href: locale === "ja" ? "/ja/use-cases/ai-daily-inbox-briefing" : blueprint.href,
       label: copy.openStarter,
     };
   }
+  if (blueprint.id === "no-show-recovery-assistant") {
+    const paths = noShowPaths(locale);
+    if (blueprint.unlocked) return { href: paths.kit, label: copy.openBlueprint };
+    return { href: paths.demo, label: locale === "ja" ? "プライベートプレビュー" : "Private preview" };
+  }
+  const paths = collectionsPaths(locale);
   if (blueprint.unlocked) return { href: paths.kit, label: copy.openBlueprint };
   return { href: paths.demo, label: copy.purchase };
 }
@@ -58,13 +64,19 @@ export default async function LocaleMyBlueprintsPage({ params }: PageProps) {
                   {blueprint.unlocked ? copy.unlocked : copy.locked}
                 </span>
               </div>
-              <h2 className="mt-3 text-lg font-semibold tracking-tight">{blueprint.title}</h2>
+              <h2 className="mt-3 text-lg font-semibold tracking-tight">
+                {locale === "ja" && blueprint.id === "no-show-recovery-assistant"
+                  ? japaneseUseCase(blueprint.id)?.title ?? blueprint.title
+                  : blueprint.title}
+              </h2>
               <p className="mt-1 text-sm leading-relaxed text-muted">
                 {locale === "ja" && blueprint.id === "daily-inbox-briefing-starter-kit"
                   ? "受信メールを短く整理する無料テンプレートです。"
                   : locale === "ja" && blueprint.id === "ai-collections-assistant"
                     ? "遅れている入金を週ごとに確認し、送る文面は自分で決めるテンプレートです。"
-                    : blueprint.summary}
+                    : locale === "ja" && blueprint.id === "no-show-recovery-assistant"
+                      ? japaneseUseCase(blueprint.id)?.summary ?? blueprint.summary
+                      : blueprint.summary}
               </p>
               <div className="mt-4">
                 <Link href={action.href} className="inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:opacity-90">

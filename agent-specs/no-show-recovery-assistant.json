@@ -1,0 +1,157 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "no-show-recovery-assistant",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "No-show Recovery Assistant",
+  "value_proposition": "Confirm a missed appointment from one day's booking export, then draft one rebooking message with real open slots. A person reviews and sends. Nothing is sent automatically.",
+  "persona": "A clinic, salon, fitness studio, or consultant with several no-shows a month.",
+  "problem": "Missed appointments are lost the same day, and the rebooking message usually never gets sent. SMS consent and email consent are easy to mix up.",
+  "workflow": [
+    "Write recovery rules, including statuses that are never a no-show and the repeat threshold.",
+    "Export one day's bookings and matching open slots. Remove phone numbers, email addresses, and card numbers.",
+    "Run the Confirm Attendance Prompt. Draft only when status is no_show. Skip attended and cancelled rows.",
+    "Paste the Rebooking Draft Prompt only after attendance is confirmed. Draft SMS only when sms_consent is yes and contact_pref is sms.",
+    "The person checks every confirmed field, then sends from their own tool or decides not to."
+  ],
+  "before": "Staff mean to follow up on no-shows but rarely do, and slots stay empty.",
+  "after": "Each confirmed miss gets one specific rebooking draft, or a visible reason not to draft, and a person decides what is sent.",
+  "guided_demo": {
+    "summary": "A public six-step walkthrough of one fictional booking day. It skips attended and cancelled rows, drafts one SMS for a consented no-show, holds sms_consent no, and flags a repeat no-show. Nothing is sent automatically.",
+    "steps": [
+      "Show the fictional booking export and open slots, including the rule that email consent does not imply SMS consent.",
+      "Confirm attendance first. Skip attended and cancelled rows with reasons.",
+      "Draft one SMS from the Rebooking Draft Prompt using real open slots. Do not draft SMS when sms_consent is no.",
+      "Check confirmed fields against the booking row.",
+      "Flag the repeat no-show for a person to decide. Do not auto-draft it.",
+      "State that the person reviews and sends, and that nothing is sent automatically."
+    ],
+    "sample_input": "time,client,service,status,contact_pref,sms_consent,prior_no_shows\n10:00,J. Rivera,Cut & color,no_show,sms,yes,0\n11:30,A. Chen,Consult,attended,email,no,0\n13:00,M. Ortiz,Cut,cancelled,email,no,1\n15:00,R. Kim,Color,no_show,email,no,0\n16:30,L. Brooks,Cut & color,no_show,sms,yes,2\n\nservice,when\nCut & color,Thu 14:00\nCut & color,Fri 09:30\nConsult,Thu 11:00",
+    "sample_output": "CONFIRMED: J. Rivera missed 10:00 Cut & color. sms_consent = yes. contact_pref = sms.\nDRAFT (SMS, not sent): Hi J., we missed you today. Would Thu 14:00 or Fri 09:30 work for Cut & color?\nNEEDS YOUR CHECK: R. Kim has sms_consent = no. Email consent does not imply SMS consent. Do not draft SMS.\nFLAG FOR POLICY: L. Brooks reaches the repeat threshold. No recovery draft until a person decides.\nNothing is sent automatically. You review and send.",
+    "fictional_data_notice": "The bookings, clients, and open slots on this page are fictional. Nothing here is a real customer, and nothing is sent automatically."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "No-show Recovery Setup Checklist",
+      "purpose": "Setup steps that name the Rebooking Draft Prompt and say to paste it only after attendance is confirmed."
+    },
+    {
+      "id": "attendance-prompt",
+      "title": "Confirm Attendance Prompt",
+      "purpose": "Copyable prompt that confirms attendance before any draft and treats sms_consent no the same as missing SMS consent."
+    },
+    {
+      "id": "rebooking-draft-prompt",
+      "title": "Rebooking Draft Prompt",
+      "purpose": "Copyable prompt that drafts one rebooking message with real open slots and does not treat email consent as SMS consent."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Consent and Repeat Policy Worksheet",
+      "purpose": "Browser-only worksheet for the repeat threshold, never-a-no-show statuses, and clients to skip."
+    },
+    {
+      "id": "recovery-log-template",
+      "title": "Recovery Log Template",
+      "purpose": "CSV columns for a recovery log, including a fictional row that was drafted and not sent."
+    },
+    {
+      "id": "action-review-checklist",
+      "title": "Send Review Checklist",
+      "purpose": "Session-only checklist used before a person sends. Nothing is sent automatically."
+    },
+    {
+      "id": "sample-bookings",
+      "title": "Fictional Sample Booking Export",
+      "purpose": "The fictional booking export used in the guided demo, including a row with email contact and sms_consent no."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Data-handling and consent rules, including that a person approves every message and nothing is sent automatically."
+    }
+  ],
+  "decision_rules": [
+    "Draft only when the booking row status is no_show.",
+    "Never draft for attended.",
+    "Never treat cancelled as a no-show unless the owner removes it from the never-a-no-show list.",
+    "SMS draft only when sms_consent is yes and contact_pref is sms. sms_consent no and a missing sms_consent both mean do not draft SMS.",
+    "Email consent does not imply SMS consent.",
+    "Offer only open slots that match the missed service.",
+    "Flag repeat no-shows at the owner's threshold instead of drafting.",
+    "Nothing is sent automatically. A person reviews and sends."
+  ],
+  "human_ai_boundary": [
+    "AI confirms attendance from the export. The person decides whether a no_show row is actually a miss.",
+    "AI drafts a message only after the consent and slot rules pass. The person approves every message before it goes out.",
+    "AI flags repeat no-shows. The person decides the policy.",
+    "AI never sends, books, cancels, or charges."
+  ],
+  "safety": [
+    "Nothing is sent automatically. You review and send. The kit changes nothing.",
+    "Email consent does not imply SMS consent.",
+    "Do not send SMS when sms_consent is no or missing.",
+    "All demo and sample data is fictional.",
+    "The pages contain no prices or checkout."
+  ],
+  "required_data_tools": [
+    "One day's booking export with time, client, service, status, contact_pref, sms_consent, and prior_no_shows",
+    "Open slots that name the service and time"
+  ],
+  "acceptance_criteria": [
+    "The public demo and premium kit are noindex.",
+    "The kit requires sign-in and an entitlement. Locked accounts see Premium is locked and no checkout.",
+    "Setup names the Rebooking Draft Prompt.",
+    "sms_consent no is handled the same as missing SMS consent, and email consent is not treated as SMS consent.",
+    "Nothing is sent automatically, and a person approves every message."
+  ],
+  "qa_checks": [
+    {
+      "id": "public-demo",
+      "description": "Logged-out demo loads, stays noindex, and walks through attendance, consent, and human send.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "japanese-demo",
+      "description": "Japanese demo uses 確認済み, 要確認, AIの解釈, 推奨アクション, and プライベートプレビュー.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-auth",
+      "description": "Logged-out kit access returns to auth and keeps the next path.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-entitled",
+      "description": "Entitled kit copies prompts and generates rules that keep the consent boundary.",
+      "viewport": "both",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Stripe, pricing, checkout, and payment logic",
+    "Live connections to Calendly, Square, Acuity, Google Calendar, Twilio, SMS, or email"
+  ],
+  "routes": {
+    "guided_demo": "/blueprints/no-show-recovery-assistant",
+    "kit": "/blueprints/no-show-recovery-assistant/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/no-show-recovery-assistant/",
+    "app/[locale]/blueprints/no-show-recovery-assistant/",
+    "components/premium/no-show-recovery-assistant/",
+    "src/lib/premium/no-show-recovery-assistant/",
+    "src/lib/blueprints.ts",
+    "src/lib/i18n/locale.ts"
+  ],
+  "constraints": [
+    "Private preview only. English routes stay unprefixed. Japanese routes use /ja/blueprints/no-show-recovery-assistant and /ja/blueprints/no-show-recovery-assistant/kit. Both set robots noindex.",
+    "The kit requires sign-in and hasActiveEntitlement for no-show-recovery-assistant. There is no checkout on this product.",
+    "Keep code identifiers, the slug, and column keys unchanged.",
+    "Nothing is sent automatically. A person approves every message."
+  ]
+}

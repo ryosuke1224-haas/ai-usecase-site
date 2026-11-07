@@ -57,6 +57,17 @@ export const blueprintCatalog: BlueprintDefinition[] = [
     summary:
       "A quarterly readiness queue you review yourself. The kit does not scan, certify, or change accounts.",
   },
+  {
+    id: "no-show-recovery-assistant",
+    title: "No-show Recovery Assistant",
+    badge: "PREMIUM",
+    href: "/blueprints/no-show-recovery-assistant/kit",
+    purchaseHref: "/blueprints/no-show-recovery-assistant",
+    productSlug: "no-show-recovery-assistant",
+    access: "premium",
+    summary:
+      "A same-day rebooking draft you review yourself. Nothing is sent automatically.",
+  },
 ];
 
 export function authPath(nextPath: string, locale?: "ja" | "en"): string {

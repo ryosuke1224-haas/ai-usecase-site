@@ -33,3 +33,12 @@ export function collectionsPaths(locale: UiLocale | null): {
     success: `${prefix}/blueprints/ai-collections-assistant/checkout/success`,
   };
 }
+
+/** Unprefixed paths stay English. `/ja` and `/en` use the same blueprint slug. */
+export function noShowPaths(locale: UiLocale | null): { demo: string; kit: string } {
+  const prefix = locale ? `/${locale}` : "";
+  return {
+    demo: `${prefix}/blueprints/no-show-recovery-assistant`,
+    kit: `${prefix}/blueprints/no-show-recovery-assistant/kit`,
+  };
+}
