@@ -117,7 +117,9 @@ export function RecoveryLogTemplateSection({ locale }: { locale: UiLocale }) {
           ))}
         </ul>
       </div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted">{copy.fictionalExample}</p>
+      <p className={`text-xs font-semibold text-muted ${locale === "ja" ? "" : "uppercase tracking-wider"}`}>
+        {copy.fictionalExample}
+      </p>
       <DataTable label={copy.logTableLabel} columns={table.columns} monospaceHeader rows={table.rows} />
       <CopyButton text={copy.recoveryLogCsv} label={copy.copyCsv} copiedLabel={copy.copied} errorLabel={copy.copyFailed} />
     </KitSection>
@@ -143,7 +145,9 @@ export function SampleBookingsSection({ locale }: { locale: UiLocale }) {
   const slots = csvTable(slotsCsv ?? "");
   return (
     <KitSection id="sample-bookings" title={section?.title ?? "sample-bookings"}>
-      <p className="inline-flex items-center rounded-md bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+      <p
+        className={`inline-flex items-center rounded-md bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-900 dark:text-amber-200 ${locale === "ja" ? "" : "uppercase tracking-wider"}`}
+      >
         {copy.fictionalBadge}
       </p>
       <p className={BODY}>{section?.intro}</p>

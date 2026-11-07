@@ -15,7 +15,9 @@ export function NoShowPublicView({
   const copy = noShowCopy(locale);
   return (
     <div className={PAGE}>
-      <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-accent">
+      <p
+        className={`inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold text-accent ${locale === "ja" ? "" : "uppercase tracking-wider"}`}
+      >
         {copy.publicEyebrow}
       </p>
       <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{copy.publicTitle}</h1>

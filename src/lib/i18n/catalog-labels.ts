@@ -231,7 +231,7 @@ const useCases: Record<string, { title: string; summary: string }> = {
   },
   "no-show-recovery-assistant": {
     title: "無断キャンセルの再予約",
-    summary: "来なかった予約を見つけ、翌日までに再予約を案内する文面を作ります。",
+    summary: "来なかった予約を確認し、空いている枠で再予約の文面を下書きします。送るかどうかは自分で決めます。",
   },
   "quote-request-assistant": {
     title: "見積依頼の整理",

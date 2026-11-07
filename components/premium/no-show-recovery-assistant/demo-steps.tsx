@@ -95,7 +95,9 @@ export function DraftStep({ locale }: { locale: UiLocale; pathLocale: UiLocale |
     <div className="space-y-5">
       <p className={BODY}>{demo.step3Lead}</p>
       <blockquote className={`${CARD} border-l-4 border-l-accent`}>
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted">{demo.draftLabel}</p>
+        <p className={`text-xs font-semibold text-muted ${locale === "ja" ? "" : "uppercase tracking-wider"}`}>
+          {demo.draftLabel}
+        </p>
         <p className="mt-2 text-sm leading-relaxed text-foreground">{demo.draftText}</p>
       </blockquote>
       <p className="text-sm leading-relaxed text-foreground">
@@ -150,7 +152,7 @@ export function RepeatPolicyStep({ locale }: { locale: UiLocale; pathLocale: UiL
     <div className="space-y-5">
       <p className={BODY}>{demo.step5Lead}</p>
       <p className={`${CARD} text-sm leading-relaxed text-foreground`}>
-        <span className="font-semibold">{demo.policyLabel}. </span>
+        <span className="font-semibold">{locale === "ja" ? `${demo.policyLabel}：` : `${demo.policyLabel}. `}</span>
         {demo.policyDetail}
       </p>
       <p className="text-sm leading-relaxed text-foreground">

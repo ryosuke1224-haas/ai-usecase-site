@@ -18,7 +18,7 @@ test.describe("No-show Recovery Assistant Japanese signed-in kit", () => {
   });
 
   test("Japanese kit names the prompt, consent rule, and human send boundary", async ({ page }) => {
-    await expect(page.getByRole("heading", { level: 1, name: "無断キャンセルの再予約 プレミアムキット" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "無断キャンセル再予約のプレミアムキット" })).toBeVisible();
     await expect(page.getByText("プライベートプレビュー", { exact: true })).toBeVisible();
     await expect(page.locator("#setup-checklist")).toContainText("Rebooking Draft Prompt");
     await expect(page.locator("#rebooking-draft-prompt")).toContainText("メールの同意は SMS の同意を意味しません");

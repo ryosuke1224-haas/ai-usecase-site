@@ -35,7 +35,9 @@ export function NoShowKitView({
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground">{copy.planDifferenceNotice}</p>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground">{copy.sessionOnlyNotice}</p>
       <nav aria-label={copy.kitNavLabel} className="mt-8 rounded-2xl border border-border/60 bg-surface p-4 sm:p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">{copy.inThisKit}</h2>
+        <h2 className={`text-sm font-semibold text-muted ${locale === "ja" ? "" : "uppercase tracking-wider"}`}>
+          {copy.inThisKit}
+        </h2>
         <ol className="mt-3 grid gap-1.5 sm:grid-cols-2">
           {copy.sections.map((section, index) => (
             <li key={section.id}>

@@ -40,7 +40,7 @@ const KIND_LABELS: Record<UiLocale, Record<FactKind, string>> = {
 export function FactLabel({ kind, locale = "en" }: { kind: FactKind; locale?: UiLocale }) {
   return (
     <span
-      className={`mr-1.5 inline-block rounded border px-1.5 py-0.5 align-middle text-[10px] font-bold tracking-wider ${KIND_STYLES[kind]}`}
+      className={`mr-1.5 inline-block rounded border px-1.5 py-0.5 align-middle font-bold ${locale === "ja" ? "text-xs" : "text-[10px] tracking-wider"} ${KIND_STYLES[kind]}`}
     >
       {KIND_LABELS[locale][kind]}
     </span>
