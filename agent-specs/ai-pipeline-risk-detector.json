@@ -1,0 +1,461 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "ai-pipeline-risk-detector",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "Stalled Deal Rescue Queue",
+  "value_proposition": "Turn an open-deals export into a skip-ruled stall queue ranked by amount, with recovery notes that may use only export fields — the owner reviews and acts from their own CRM or email, and the kit never sends or writes back.",
+  "persona": "Owner or sales lead at a 5-30 person agency, consultancy, or B2B service firm who keeps 10-40 open deals in HubSpot, Pipedrive, or a spreadsheet and only notices silent deals at month end.",
+  "problem": "Open deals sit in a stage with no next step and no recent activity. The owner assumes no news is fine until the close date passes, then the amount disappears from the forecast.",
+  "workflow": [
+    "1. The person writes stall limits and skip rules before any queue: days-in-stage limit, days-since-activity limit, owner minimum amount, statuses that are never chased (default closed-won, closed-lost, on-hold), and deals to always skip. PERSON DECIDES: the limits, the minimum, and which statuses or deals never enter the chase list.",
+    "2. The person exports open deals as CSV with deal name, amount, stage, days in current stage, last activity date, next step, close date, and status, plus the export's as-of date. They open last week's outcome log. PERSON DECIDES: which columns to keep. Remove emails, phone numbers, and any columns the workflow does not need. This is an export review, not a live HubSpot, Pipedrive, Salesforce, or email connection.",
+    "3. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting or uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to paste the rows as text, upload a file, or not use AI for this data at all.",
+    "4. The person pastes the Stall Queue Prompt and their rules from the Stall Limits and Skip Rules Worksheet, then attaches or pastes the export and the outcome log.",
+    "5. AI runs SKIP RULES FIRST. It sets aside closed-won, closed-lost, owner-marked on-hold, amounts below the owner's minimum, rows missing deal name or amount, and deals on the always-skip list. Every skipped row is listed with its reason. PERSON DECIDES: whether a below-minimum or on-hold deal should still be reviewed.",
+    "6. AI applies owner stall rules to remaining open rows: days in stage over the stage limit, or last activity older than the activity limit as of the export date, or next step blank. It ranks stalled deals by amount, largest first. Rows that are not stalled are listed as skipped with the reason 'not stalled under your rules'. PERSON DECIDES: whether a flagged row is actually stalled before any chase.",
+    "7. For each queued deal, AI cites only export fields as CONFIRMED and drafts one recovery note using only deal name, amount, stage, and last activity date. It does not invent a contact, objection, or deadline. It labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately. PERSON DECIDES: whether each recommended action happens.",
+    "8. The person uses the Recovery Note Review Checklist and checks every CONFIRMED number against the export row. PERSON DECIDES: edit and send from their own email, update the next step in their own CRM, hold, or mark lost. The Blueprint never sends and never writes a CRM field. Outcomes (moved, still stalled, lost, on hold) go in the outcome log and feed next week's run."
+  ],
+  "before": "The owner scrolls the pipeline when a report is due, pokes whichever deal they remember, and finds out a large one went quiet weeks ago.",
+  "after": "Each week the owner reviews a stall queue with visible skip reasons, evidence cited from the export, and ready-to-edit recovery notes. Last week's on-hold and lost deals stay out of the chase list.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/ai-pipeline-risk-detector using a fictional four-row deal export dated as of 2026-05-11, with stall limits of 14 days in stage or 14 days since activity or blank next step, and a fictional owner minimum of $500. SKIP RULES FIRST skips Birchwood (below $500) and sets aside Pell & Co as not stalled. The ranked stall queue lists Northgate Clinic ($8,400) then Harbor Lane ($1,500), with CONFIRMED dates from the export and field-limited drafts. A fact-check shows Matches. Next week's outcome log keeps Harbor Lane skipped after it is marked on-hold. The demo ends on the owner sending. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone. Every deal, amount, and date is invented. No live HubSpot, Pipedrive, Salesforce, or email connection is attached.",
+    "steps": [
+      "Step 1 of 6 - The export: show the fictional 4-row deal table (Northgate Clinic website rebuild, Pell & Co monthly books, Harbor Lane discovery, Birchwood retainers) with as_of 2026-05-11, owner_minimum 500, and stall_if days_in_stage > 14 OR last_activity more than 14 days before as_of OR next_step blank. Label the table invented. State that no live HubSpot, Pipedrive, Salesforce, CRM, or email account is attached.",
+      "Step 2 of 6 - Skip rules first: show the exact heading 'SKIP RULES FIRST'. List Birchwood retainers as SKIPPED with text containing '$400' and '$500'. List Pell & Co monthly books as SKIPPED with text containing '2026-05-09', 'next step', and 'not stalled'. Show that closed-won, closed-lost, and on-hold are also skip rules even when this export has no such row.",
+      "Step 3 of 6 - The ranked stall queue: show exactly 2 queued rows, Northgate Clinic website rebuild first then Harbor Lane discovery, ranked by amount largest first. Show CONFIRMED text containing 'Northgate Clinic', '8400' or '$8,400', 'proposal', '21', and '2026-04-18'. Show the draft 'Checking in on the $8,400 website rebuild proposal last touched April 18. Is this still useful to discuss?'. Show CONFIRMED text for Harbor Lane containing '1500' or '$1,500', 'qualified', '45', and '2026-03-20'. Show the draft 'The Harbor Lane discovery item for $1,500 has had no recorded activity since March 20. Should we close this out or set a next step?'. Show the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. Show AI INTERPRETATION text containing 'do not prove' and 'lost interest'. Show the exact sentence 'Do not invent a contact, objection, or deadline.'",
+      "Step 4 of 6 - Check the numbers: open the Northgate Clinic draft. A 'Check numbers against the export row' button shows three rows (amount $8,400 vs 8400, last activity 2026-04-18 vs 2026-04-18, days in stage 21 vs 21), each labelled with the text 'Matches'.",
+      "Step 5 of 6 - Next week's log: show the fictional outcome log for the week of 2026-05-11 with Harbor Lane discovery outcome on_hold and Northgate Clinic outcome still_stalled. Show a mock run as of 2026-05-18. Harbor Lane is SKIPPED with text containing 'on_hold' or 'on-hold'. Pell & Co and Birchwood stay skipped for the same reasons as step 2. Show the sentence 'Logged on-hold deals are not chased again.'",
+      "Step 6 of 6 - You send it: state the exact sentences 'You send it. Nothing is sent or written to the CRM.' and 'Do not invent a contact, objection, or deadline.' Explain that the person edits and sends from their own email or updates the next step in their own CRM, or decides not to, and that nothing is sent, edited, cancelled, or paid automatically. Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "as_of: 2026-05-11 (fictional)\nowner_minimum: 500\nstall_if: days_in_stage > 14 OR last_activity more than 14 days before as_of OR next_step blank\ndeal,amount,stage,days_in_stage,last_activity,next_step,status\nNorthgate Clinic website rebuild,8400,proposal,21,2026-04-18,,open\nPell & Co monthly books,2400,negotiation,9,2026-05-09,call Tue,open\nHarbor Lane discovery,1500,qualified,45,2026-03-20,,open\nBirchwood retainers,400,proposal,30,2026-04-01,,open\n\nOutcome log after week of 2026-05-11 (fictional, entered by the owner):\nweek_of,deal,amount,action_taken,outcome,notes\n2026-05-11,Northgate Clinic website rebuild,8400,drafted_not_sent,still_stalled,owner will chase next week\n2026-05-11,Harbor Lane discovery,1500,held,on_hold,buyer asked to pause\n2026-05-11,Pell & Co monthly books,2400,skipped,skipped_not_stalled,\n2026-05-11,Birchwood retainers,400,skipped,skipped_below_minimum,",
+    "sample_output": "SKIP RULES FIRST\nSTALL QUEUE as of 2026-05-11 (fictional; 2 to review, 2 skipped)\n1. Northgate Clinic website rebuild, $8,400, proposal, 21 days in stage. CONFIRMED: last activity 2026-04-18; next step blank. Draft: 'Checking in on the $8,400 website rebuild proposal last touched April 18. Is this still useful to discuss?'\n2. Harbor Lane discovery, $1,500, qualified, 45 days in stage. CONFIRMED: last activity 2026-03-20; next step blank. Draft: 'The Harbor Lane discovery item for $1,500 has had no recorded activity since March 20. Should we close this out or set a next step?'\nSKIPPED: Pell & Co monthly books (last activity 2026-05-09 and next step present; not stalled under your rules).\nSKIPPED: Birchwood retainers (amount $400 is below your $500 minimum).\nAI INTERPRETATION: none of these rows prove the buyer lost interest; they only show missing activity or a missing next step in the export.\nRECOMMENDED ACTION (you decide): edit and send from your own email, or update the next step in your CRM yourself. You send it. Nothing is sent or written to the CRM. Do not invent a contact, objection, or deadline.\n\nNEXT WEEK (mock run as of 2026-05-18, using your outcome log)\n1. Northgate Clinic website rebuild still queued (outcome still_stalled).\nSKIPPED: Harbor Lane discovery (logged on_hold).\nSKIPPED: Pell & Co monthly books (not stalled under your rules).\nSKIPPED: Birchwood retainers (amount $400 is below your $500 minimum).\nLogged on-hold deals are not chased again.",
+    "fictional_data_notice": "All deals, company names, amounts, stages, activity dates, and dates on this page are fictional. No real customer or pipeline data is used, and nothing is connected to HubSpot, Pipedrive, Salesforce, email, or any other live system."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Stall Queue Setup Checklist",
+      "purpose": "Step-by-step setup for the weekly run. It covers writing stall limits and the owner minimum, exporting open deals as CSV with deal name, amount, stage, days in stage, last activity, next step, close date, status, and as-of date, removing emails and phone numbers, opening last week's outcome log, checking the AI tool's data settings before pasting or uploading, and the rule that this is an export review, not a live HubSpot, Pipedrive, or Salesforce connection. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
+    },
+    {
+      "id": "stall-queue-prompt",
+      "title": "Stall Queue Prompt",
+      "purpose": "Copyable prompt that runs SKIP RULES FIRST, lists every skip with its reason, applies owner stall rules, ranks remaining deals by amount largest first, drafts recovery notes using only deal name, amount, stage, and last activity date, and labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately. It forbids inventing a contact, objection, or deadline, sending email, and writing CRM fields."
+    },
+    {
+      "id": "next-week-prompt",
+      "title": "Week-to-Week Outcome Log Prompt",
+      "purpose": "Copyable prompt for the following week. It reads the previous outcome log with the new export, skips rows whose log outcome is lost or on_hold, keeps still_stalled and moved rows labelled from the log, and forbids sending or writing CRM fields."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Stall Limits and Skip Rules Worksheet",
+      "purpose": "Browser-only form where the person sets the days-in-stage limit, days-since-activity limit, owner minimum amount, statuses that are never chased, and deals to always skip. It generates a copyable rules block to paste with the prompts. Nothing is saved to Atlas."
+    },
+    {
+      "id": "outcome-log-template",
+      "title": "Outcome Log Template",
+      "purpose": "Column layout (week_of, deal, amount, action_taken, outcome, notes) with allowed outcome values moved, still_stalled, lost, on_hold, skipped_not_stalled, skipped_below_minimum, skipped_closed, and the fictional Harbor Lane on_hold and Northgate still_stalled rows from the guided demo. Includes a Copy CSV button so the person can start their own spreadsheet."
+    },
+    {
+      "id": "recovery-review-checklist",
+      "title": "Recovery Note Review Checklist",
+      "purpose": "Interactive, session-only checklist used before contacting anyone. It confirms that SKIP RULES FIRST ran, that every skip has a reason, that remaining rows are amount-ranked largest first, that CONFIRMED amounts and dates match the export row, that labels are separate, that the draft uses only deal name, amount, stage, and last activity, that no contact or objection was invented, that a stall flag was not treated as proof the deal is dead, and that the person will send or update the CRM themselves."
+    },
+    {
+      "id": "sample-deal-export",
+      "title": "Fictional Sample Deal Export",
+      "purpose": "The same fictional four-row deal CSV used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real pipeline data."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling CRM exports in AI tools: review data settings, remove emails and phone numbers, do not paste passwords or payment details, do not invent a contact or objection, do not treat a stall flag as proof the deal is dead, and do not chase deals logged as lost or on-hold. It also states that file upload support differs by plan and that nothing is sent or written to the CRM automatically."
+    }
+  ],
+  "decision_rules": [
+    "Write SKIP RULES FIRST and apply it before stall scoring, ranking, or drafting any recovery note.",
+    "Skip any row whose status is closed-won, closed-lost, or on-hold (or any status on the owner's never-chase list). Show the reason 'status <status>'.",
+    "Skip any row whose amount is below the owner's minimum. Show the reason 'amount $<amount> is below your $<minimum> minimum'.",
+    "Skip any row missing deal name or amount. Show the reason 'missing deal name or amount' under NEEDS YOUR CHECK, not in the queue.",
+    "Skip any deal on the owner's always-skip list. Show the reason 'on your always-skip list'.",
+    "A remaining open deal is stalled when days_in_stage exceeds the owner's stage limit, or last_activity is older than the activity limit as of the export as_of date, or next_step is blank. Show which stall condition matched.",
+    "If a remaining open deal is not stalled under those rules, skip it with the reason 'not stalled under your rules'.",
+    "Rank stalled deals by amount, largest first. If two deals share an amount, older last_activity first.",
+    "Recovery notes may state only deal name, amount, stage, and last activity date from the export row. Do not invent a contact name, email, phone, objection, deadline, or competitor.",
+    "A stall flag is CONFIRMED missing activity or a missing next step in the export. It is not proof the buyer lost interest. That caution is AI INTERPRETATION.",
+    "Do not invent a 0-100 risk score. Use only the owner's written stall rules.",
+    "The draft is a draft only. Do not send it. Do not edit a CRM field. Suggest an outcome-log row; the person adds it.",
+    "On a later run, start from a new export and the current outcome log. Skip rows whose log outcome is lost or on_hold."
+  ],
+  "human_ai_boundary": [
+    "AI applies skip rules and lists every skipped row with its reason. The person decides whether a below-minimum or on-hold deal should still be reviewed.",
+    "AI applies owner stall rules and ranks by amount. The person decides whether a flagged row is actually stalled before any chase.",
+    "AI drafts recovery notes using only export fields. The person checks every number against the export row, edits the wording, and approves it.",
+    "AI labels a stall as missing activity, not as proof the deal is dead. The person decides whether to chase, hold, or mark lost.",
+    "AI never sends email and never writes a CRM field. The person sends from their own email or updates the next step in their own CRM, or decides not to.",
+    "AI reads the outcome log. Only the person records outcomes, and the log reflects what the person entered, not what AI assumed.",
+    "The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, or paid automatically. Every page states that the person sends it, and that nothing is sent or written to the CRM.",
+    "Atlas does not connect to HubSpot, Pipedrive, Salesforce, email, or any other vendor. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before pasting or uploading exports to an AI tool, the person is told to review that tool's data settings (such as chat history, training use, and file retention) and to remove emails, phone numbers, and other columns the workflow does not need.",
+    "The kit tells the person not to paste account passwords, payment card numbers, or bank details into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to invent a contact, objection, or deadline, not to treat a stall flag as proof the deal is dead, and not to chase deals logged as lost or on-hold.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no statistics, win-rate claims, savings, ROI claims, prices, or checkout. The only dollar figures are the fictional deal amounts and the fictional $500 minimum."
+  ],
+  "required_data_tools": [
+    "CRM or spreadsheet export of open deals (CSV) with deal name, amount, stage, days in stage, last activity date, next step, close date, and status",
+    "Owner-set stall limits (days in stage, days since activity) and owner minimum amount",
+    "Outcome log spreadsheet, started from the kit's Outcome Log Template",
+    "The owner's own email or CRM for any follow-up",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings; rows can be pasted as text instead."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/ai-pipeline-risk-detector without a session renders a page whose h1 is 'Stalled Deal Rescue Queue', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a table with exactly 4 data rows whose deal names are Northgate Clinic website rebuild, Pell & Co monthly books, Harbor Lane discovery, and Birchwood retainers. It also shows the as-of date 2026-05-11, the minimum $500, and stall limits of 14.",
+    "Step 2 shows the exact heading 'SKIP RULES FIRST'. Birchwood retainers is SKIPPED with text containing '$400' and '$500'. Pell & Co monthly books is SKIPPED with text containing '2026-05-09', 'next step', and 'not stalled'.",
+    "Step 3 lists exactly 2 queued rows, Northgate Clinic website rebuild first then Harbor Lane discovery. It shows CONFIRMED text containing 'Northgate Clinic', '8400' or '$8,400', 'proposal', '21', and '2026-04-18'. It shows the draft text 'Checking in on the $8,400 website rebuild proposal last touched April 18. Is this still useful to discuss?'. It shows CONFIRMED text containing 'Harbor Lane', '1500' or '$1,500', 'qualified', '45', and '2026-03-20'. It shows the draft text 'The Harbor Lane discovery item for $1,500 has had no recorded activity since March 20. Should we close this out or set a next step?'. It shows the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. AI INTERPRETATION contains 'do not prove' and 'lost interest'. It shows the exact sentence 'Do not invent a contact, objection, or deadline.'.",
+    "Step 4 shows the Northgate Clinic draft. Activating 'Check numbers against the export row' reveals three rows (amount, last activity, days in stage), each containing the text 'Matches', and the values 8400 or $8,400, 2026-04-18, and 21.",
+    "Step 5 shows the fictional outcome log with Harbor Lane on_hold and Northgate still_stalled, and a mock next-week run as of 2026-05-18. The run lists Harbor Lane as skipped with text containing 'on_hold' or 'on-hold', and shows 'Logged on-hold deals are not chased again.'.",
+    "Step 6 contains the exact sentences 'You send it. Nothing is sent or written to the CRM.' and 'Do not invent a contact, objection, or deadline.' and a link to /blueprints/ai-pipeline-risk-detector/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every deal name, amount, stage, days-in-stage value, last activity date, next step, and status in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', or 'per month'. The only dollar figures are the fictional deal amounts and the fictional $500 minimum.",
+    "Neither page contains a percentage, a win-rate figure, an hours-saved figure, or an ROI or savings claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/ai-pipeline-risk-detector', and /sitemap.xml does not contain '/blueprints/ai-pipeline-risk-detector'.",
+    "GET /blueprints/ai-pipeline-risk-detector/kit without a session redirects to /auth with the query parameter next=/blueprints/ai-pipeline-risk-detector/kit.",
+    "Stalled Deal Rescue Queue is registered in src/lib/blueprints.ts with id and productSlug 'ai-pipeline-risk-detector', title 'Stalled Deal Rescue Queue', access 'premium', href '/blueprints/ai-pipeline-risk-detector/kit', purchaseHref '/blueprints/ai-pipeline-risk-detector', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/ai-pipeline-risk-detector/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'ai-pipeline-risk-detector') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'Stalled Deal Rescue Queue Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no Stalled Deal Rescue Queue entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Stall Queue Prompt is shown in a <pre> element and contains these strings: 'SKIP RULES FIRST', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'days_in_stage', 'last_activity', 'next_step', 'Do not invent', 'Do not send', 'Nothing is sent or written to the CRM'.",
+    "The Week-to-Week Outcome Log Prompt is shown in a <pre> element and contains: 'outcome log', 'on_hold', 'lost', 'still_stalled', 'Do not send', 'Nothing is sent or written to the CRM'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Stall Limits and Skip Rules Worksheet has a visible label 'Days in stage limit' whose default value is '14', a visible label 'Days since activity limit' whose default value is '14', a visible label 'Owner minimum amount (USD)' whose default value is '500', a visible label 'Statuses that are never chased (one per line)' whose default value includes 'closed-won', 'closed-lost', and 'on-hold', a visible label 'Deals to always skip (one per line)', plus a 'Generate My Stall Rules' button.",
+    "With the defaults, the generated rules block contains 'Skip closed-won, closed-lost, and on-hold.', 'Skip amounts below $500.', 'A deal is stalled when days_in_stage exceeds 14, or last_activity is older than 14 days before as_of, or next_step is blank.', 'Rank stalled deals by amount, largest first.', 'Recovery notes may use only deal name, amount, stage, and last activity date.', 'Do not invent a contact, objection, or deadline.', 'A stall flag does not prove the buyer lost interest.', and 'You send it. Nothing is sent or written to the CRM.' The block has a Copy button. The block contains no 'Always skip' line.",
+    "If the days-in-stage limit or days-since-activity limit is empty, 0, or negative, the worksheet shows the error 'Enter a stall limit of 1 or more.' and generates no rules block.",
+    "If the owner-minimum field is empty, whitespace only, or negative, the worksheet shows the error 'Enter a minimum amount of 0 or more.' and generates no rules block.",
+    "When 'Deals to always skip (one per line)' is empty, the generated rules block contains no 'Always skip' line. When it contains 'Harbor Lane discovery', the block contains 'Always skip: Harbor Lane discovery'.",
+    "When 'Statuses that are never chased (one per line)' contains 'closed-won', 'closed-lost', and 'on-hold' on separate lines, the generated rules block contains 'Skip closed-won; closed-lost; on-hold.' or equivalent listing of those three statuses.",
+    "The Outcome Log Template shows the columns week_of, deal, amount, action_taken, outcome, notes. Its 'Copy CSV' button writes text whose first line is 'week_of,deal,amount,action_taken,outcome,notes' and whose Harbor Lane row contains '2026-05-11', 'Harbor Lane discovery', and 'on_hold'.",
+    "The Recovery Note Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Deal Export section is labelled 'Fictional' and its Copy CSV text equals the deal,amount,stage,days_in_stage,last_activity,next_step,status rows and header from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the Stalled Deal Rescue Queue card as Unlocked with an Open Blueprint link to /blueprints/ai-pipeline-risk-detector/kit.",
+    "With an authenticated session that has no Stalled Deal Rescue Queue entitlement, /my-blueprints shows the Stalled Deal Rescue Queue card as Locked with an Available to purchase link to /blueprints/ai-pipeline-risk-detector and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged. Security Readiness Action Pack, Google Ads Performance Coach, Quote Request Assistant, AI Expense Watchdog, No-show Recovery Assistant, Unbilled Work Review Queue, and On-brand Reply Review Queue entitlement and locked or unlocked card behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/ai-pipeline-risk-detector/, components/premium/ai-pipeline-risk-detector/, and src/lib/premium/ai-pipeline-risk-detector/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/ai-pipeline-risk-detector/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/ai-pipeline-risk-detector renders h1 'Stalled Deal Rescue Queue', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/ai-pipeline-risk-detector'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/ai-pipeline-risk-detector'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-export-table",
+      "description": "Step 1 table has exactly 4 data rows named Northgate Clinic website rebuild, Pell & Co monthly books, Harbor Lane discovery, and Birchwood retainers, and the page shows '2026-05-11', '$500', and '14'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-skip-reasons",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and the exact heading 'SKIP RULES FIRST'. Birchwood is SKIPPED with '$400' and '$500'. Pell & Co is SKIPPED with '2026-05-09', 'next step', and 'not stalled'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-queue-labels",
+      "description": "On step 3, exactly two queued rows are visible with Northgate first then Harbor Lane. CONFIRMED contains 'Northgate Clinic', '8400' or '$8,400', 'proposal', '21', and '2026-04-18'. The Northgate draft contains 'Checking in on the $8,400 website rebuild proposal last touched April 18'. The Harbor Lane draft contains '$1,500' and 'March 20'. The exact sentence 'Do not invent a contact, objection, or deadline.' is visible. The text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible. AI INTERPRETATION contains 'do not prove' and 'lost interest'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-fact-check",
+      "description": "On step 4, the Northgate Clinic draft is visible. Clicking 'Check numbers against the export row' reveals 3 rows (amount, last activity, days in stage), each with the text 'Matches', and values including 8400 or $8,400, 2026-04-18, and 21.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-outcome-log",
+      "description": "On step 5, Harbor Lane is skipped with 'on_hold' or 'on-hold', Northgate is still_stalled or still queued, and the page shows 'Logged on-hold deals are not chased again.'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-sends",
+      "description": "On step 6, the exact sentences 'You send it. Nothing is sent or written to the CRM.' and 'Do not invent a contact, objection, or deadline.' are visible. A link to /blueprints/ai-pipeline-risk-detector/kit is present with visible text mentioning sign-in and private preview. 'Next step' is absent or disabled.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\d+%|ROI|hours saved|win[- ]?rate/i. Dollar figures may appear only as fictional deal amounts and the fictional $500 minimum.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/ai-pipeline-risk-detector/kit ends on pathname /auth with searchParams next equal to '/blueprints/ai-pipeline-risk-detector/kit' (expectAuthNext helper).",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/ai-pipeline-risk-detector/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/ai-pipeline-risk-detector/kit sees h1 'Stalled Deal Rescue Queue Premium Kit', the exact text 'Premium · Private preview', and meta robots containing 'noindex'. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, stall-queue-prompt, next-week-prompt, rules-worksheet, outcome-log-template, recovery-review-checklist, sample-deal-export, and safety-guidance, each with a heading matching its kit_contents title. A table-of-contents link with href '#<id>' exists for each.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-price-or-checkout",
+      "description": "Kit page body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\d+%|ROI|hours saved|win[- ]?rate/i, and the page contains no form that posts to a payment URL. Dollar figures may appear only as fictional deal amounts and the fictional $500 minimum.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-stall-queue-prompt-copy",
+      "description": "The stall-queue-prompt <pre> contains 'SKIP RULES FIRST', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'days_in_stage', 'last_activity', 'next_step', 'Do not invent', 'Do not send', and 'Nothing is sent or written to the CRM'. Clicking its 'Copy Prompt' button changes the label to 'Copied', and navigator.clipboard.readText() equals the <pre> text.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-next-week-prompt-content",
+      "description": "The Week-to-Week Outcome Log Prompt <pre> contains 'outcome log', 'on_hold', 'lost', 'still_stalled', 'Do not send', and 'Nothing is sent or written to the CRM'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Stall Rules' with default values produces a block containing 'Skip closed-won, closed-lost, and on-hold.' or the three statuses, 'Skip amounts below $500.', stall limits of 14, 'Rank stalled deals by amount, largest first.', 'Do not invent a contact, objection, or deadline.', 'A stall flag does not prove the buyer lost interest.', and 'You send it. Nothing is sent or written to the CRM.', and no 'Always skip' line.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-custom-skip",
+      "description": "Entering 'Harbor Lane discovery' in 'Deals to always skip (one per line)' and generating produces a block containing 'Always skip: Harbor Lane discovery'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Clearing 'Days in stage limit' and generating shows 'Enter a stall limit of 1 or more.' and no rules block. Setting the owner minimum to empty shows 'Enter a minimum amount of 0 or more.' and no rules block.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-outcome-log-copy-csv",
+      "description": "The Outcome Log Template lists columns week_of, deal, amount, action_taken, outcome, notes. Its 'Copy CSV' button writes clipboard text whose first line is 'week_of,deal,amount,action_taken,outcome,notes' and that contains 'Harbor Lane discovery', '2026-05-11', and 'on_hold'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-deals-fictional",
+      "description": "The Fictional Sample Deal Export section shows the label 'Fictional'. Its copied CSV contains the header 'deal,amount,stage,days_in_stage,last_activity,next_step,status' and the Northgate Clinic, Pell & Co, Harbor Lane, and Birchwood rows from the demo.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Recovery Note Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-entitled",
+      "description": "With an entitled authenticated session, /my-blueprints shows the Stalled Deal Rescue Queue card with PREMIUM, Unlocked, and an Open Blueprint link to /blueprints/ai-pipeline-risk-detector/kit.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-locked-without-entitlement",
+      "description": "With an authenticated session whose entitlement header is deny, /blueprints/ai-pipeline-risk-detector/kit shows heading 'Premium is locked', does not render #setup-checklist, and has 0 Buy Premium buttons.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-locked",
+      "description": "With an authenticated session whose entitlement header is deny, the Stalled Deal Rescue Queue card on /my-blueprints is Locked, the Available to purchase link points at /blueprints/ai-pipeline-risk-detector, and there is no kit link.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "daily-inbox-still-open",
+      "description": "With an authenticated session, /my-blueprints still has Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit, including when the Stalled Deal Rescue Queue entitlement is denied.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "collections-behavior-unchanged",
+      "description": "AI Collections Assistant remaining premium, Buy Premium, checkout, and entitlement behavior is unchanged. Do not edit Collections product files or e2e/ai-collections-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "security-behavior-unchanged",
+      "description": "Security Readiness Action Pack remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Security product files or e2e/security-readiness-action-pack/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "google-ads-behavior-unchanged",
+      "description": "Google Ads Performance Coach remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Google Ads product files or e2e/google-ads-performance-coach/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "quote-request-behavior-unchanged",
+      "description": "Quote Request Assistant remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Quote Request product files or e2e/quote-request-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "expense-watchdog-behavior-unchanged",
+      "description": "AI Expense Watchdog remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Expense Watchdog product files or e2e/ai-expense-watchdog/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-show-behavior-unchanged",
+      "description": "No-show Recovery Assistant remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit No-show product files or e2e/no-show-recovery-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "unbilled-behavior-unchanged",
+      "description": "Unbilled Work Review Queue remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Unbilled product files or e2e/unbilled-work-review-queue/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "customer-response-behavior-unchanged",
+      "description": "On-brand Reply Review Queue remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Customer Response product files or e2e/ai-customer-response-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-pipeline-stripe-price",
+      "description": "Stalled Deal Rescue Queue is not in PAID_PRODUCTS, getPaidProduct('ai-pipeline-risk-detector') is undefined, and its pages show no Stripe price, checkout form, or Buy Premium button.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/ai-pipeline-risk-detector/authenticated.spec.ts. Authenticated QA must actually reach the kit after automatic session refresh.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts (the only authenticated file run by the authenticated-desktop project), call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, the days-in-stage field, the days-since-activity field, the owner-minimum field, the never-chase statuses field, the always-skip field, the Generate button, every review-checklist checkbox, and Reset. Each shows a visible focus ring (non-'none' outline or box-shadow on :focus-visible).",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to HubSpot, Pipedrive, Salesforce, email, or any other vendor, including OAuth flows, API calls, webhooks, and automated sends or CRM writes.",
+    "Uploading, parsing, or storing the person's real deal files on Atlas.",
+    "Sending email, updating CRM fields, editing stages, or marking deals won or lost from Atlas.",
+    "A made-up 0-100 deal risk score. This version uses only owner-written stall and skip rules.",
+    "Chasing overdue invoices. That is AI Collections Assistant.",
+    "Qualifying inbound quote requests. That is Quote Request Assistant.",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for Stalled Deal Rescue Queue. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Security Readiness Action Pack behavior, Google Ads Performance Coach behavior, Quote Request Assistant behavior, AI Expense Watchdog behavior, No-show Recovery Assistant behavior, Unbilled Work Review Queue behavior, On-brand Reply Review Queue behavior, Stripe configuration, Production, or e2e/ai-pipeline-risk-detector/authenticated.spec.ts.",
+    "Changes to content/published/, /use-cases/ai-pipeline-risk-detector, or Japanese catalog labels.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or outcome-log rows to an Atlas account.",
+    "Statistics, win-rate claims, time-saved claims, or ROI claims.",
+    "Inventing a contact, objection, or deadline, or treating a stall flag as proof the deal is dead."
+  ],
+  "source": {
+    "run_id": "20261104T064919Z-ai-pipeline-risk-detector",
+    "candidate_id": "ai-pipeline-risk-detector",
+    "approved_at": "2026-11-04T06:49:19.961Z",
+    "approval_note": "Approved internally for batch batch-20261031T062745Z. Final human review is deferred to the batch dashboard.",
+    "summary_scores": {
+      "commercial": 6.6,
+      "atlas_fit": 7.8,
+      "buildability": 7.7,
+      "overall": 7.32
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/ai-pipeline-risk-detector",
+    "kit": "/blueprints/ai-pipeline-risk-detector/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/ai-pipeline-risk-detector/",
+    "components/premium/ai-pipeline-risk-detector/",
+    "src/lib/premium/ai-pipeline-risk-detector/",
+    "src/lib/blueprints.ts",
+    "e2e/ai-pipeline-risk-detector/"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/ai-pipeline-risk-detector and the Premium kit at /blueprints/ai-pipeline-risk-detector/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled \"Premium · Private preview\". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/ai-pipeline-risk-detector/, components/premium/ai-pipeline-risk-detector/, and src/lib/premium/ai-pipeline-risk-detector/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.",
+    "e2e/ai-pipeline-risk-detector/authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}

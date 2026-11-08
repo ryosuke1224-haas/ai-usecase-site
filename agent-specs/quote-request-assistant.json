@@ -1,0 +1,430 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "quote-request-assistant",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "Quote Request Assistant",
+  "value_proposition": "Paste a quote request, extract labelled scope against the owner's written qualification rules, and get a draft acknowledgment — the owner prices and sends.",
+  "persona": "A contractor, home-service business, agency, or custom shop getting about 5-30 quote requests a week.",
+  "problem": "Quote requests arrive in inconsistent formats. Staff reconstruct scope from messy form and email text before anyone can price the job.",
+  "workflow": [
+    "1. The person writes qualification rules before any request is judged: service area, minimum project size, services offered, work that is out of scope, and internal notes that must never appear in a customer draft. PERSON DECIDES: what a good-fit request is, and which phrases are internal only.",
+    "2. The person copies one quote request from a form or email into plain text. They remove payment details, account passwords, and any columns the workflow does not need. This is a pasted request, not a live inbox or form connector. PERSON DECIDES: which request to review and what to leave out.",
+    "3. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to paste the request as text, upload a file, or not use AI for this request at all.",
+    "4. The person pastes the Scope Extraction Prompt, their rules from the Qualification Rules Worksheet, the service catalog, and the request text.",
+    "5. AI extracts only what the request stated. It labels CONFIRMED facts (work type, size, location, stated timeline, named material, requester) separately from AI INTERPRETATION (budget sensitivity, unknown structure condition, whether a date is a preference). It does not invent square footage, budget, addresses, or dates. Approximate wording such as 'maybe 300 sq ft' stays approximate.",
+    "6. AI applies the written qualification rules before any FIT label. FIT YES only when location is in the service area, size meets the minimum, and the work type is offered. FIT NO when the work is out of scope or the location is outside the service area, with the matching rule shown. If location, size, or work type is missing, or the work is close to the catalog but not listed, AI writes NEEDS YOUR CHECK and does not mark FIT NO. PERSON DECIDES: whether an unusual request is still worth a quote.",
+    "7. AI lists clarifying questions and writes a draft acknowledgment that contains no price, cost band, markup, or supplier name. The draft is not sent. AI also fills a suggested tracker row. PERSON DECIDES: which questions to ask, whether the draft is sent, what price to give, and whether the tracker row is added.",
+    "8. The person uses the Reply Review Checklist before contacting the requester. PERSON DECIDES: whether to ask questions, price the job, decline, or do nothing. The person prices and sends in their own mail or CRM. The Blueprint never sends, edits, cancels, or pays."
+  ],
+  "before": "Requests sit in an inbox until someone has time to read them carefully, and some are lost.",
+  "after": "Every pasted request has a structured scope, a fit judgment with reasons, and a draft reply the owner reviews before pricing or sending.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/quote-request-assistant using one fictional website-form request from Jordan Hale, dated 2026-05-12, for a back deck in Riverside. The owner's written rules are service area Riverside, minimum 150 sq ft, offered deck replacement and railings, and roofing out of scope. The demo extracts CONFIRMED facts from the request, labels budget sensitivity as AI INTERPRETATION, shows FIT YES with the matching rules, checks three facts against the request, shows two clarifying questions and a draft that is not sent, and ends with a tracker row the owner would add. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone. Every name, size, and date is invented. No live form, inbox, or CRM is attached.",
+    "steps": [
+      "Step 1 of 6 - The request and the rules: show the fictional website-form request from Jordan Hale received 2026-05-12 with the exact text 'Need our back deck redone, maybe 300 sq ft, composite if not crazy expensive. Hoping before July. We're in Riverside.' Show the qualification rules table with service_area Riverside, minimum_size_sq_ft 150, offered 'deck replacement (wood or composite); railings', out_of_scope 'roofing; new-home construction', and never_in_draft 'prices; cost bands; markups; supplier names'. Label the request invented. State that no live form, inbox, or CRM is attached.",
+      "Step 2 of 6 - Extract with labels: show CONFIRMED lines containing 'deck replacement', 'maybe 300 sq ft', 'Riverside', 'hoping before July', 'composite', and 'Jordan Hale'. Show AI INTERPRETATION text containing 'if not crazy expensive' and 'requested window, not a booked start date'. Show the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. Do not show a price.",
+      "Step 3 of 6 - Fit against written rules: show the exact heading 'FIT: YES'. Show reasons containing 'Riverside', '150', and 'deck replacement'. Show the sentence 'A roofing request in Mesa would be FIT NO (out of catalog; outside service area).' Show the sentence 'A curved custom deck in Riverside that is not listed as a catalog item would be NEEDS YOUR CHECK, not FIT NO.'",
+      "Step 4 of 6 - Check the facts: show the CONFIRMED line with location = Riverside. A 'Check facts against the request' button shows three rows (location Riverside vs Riverside, size maybe 300 sq ft vs maybe 300 sq ft, work_type deck replacement vs back deck redone), each labelled with the text 'Matches'.",
+      "Step 5 of 6 - Questions and draft: show exactly two questions containing 'condition of the existing deck' and 'railing replacement'. Show a draft acknowledgment that contains 'Jordan', 'Riverside', '300 sq ft', and 'before July', and that does not contain a dollar amount, a cost band, a markup, or a supplier name. Show the exact sentence 'Do not send this draft.'",
+      "Step 6 of 6 - You price and send: show a tracker table with columns request_id, received, requester, location, work_type, size_sq_ft, material, timeline, fit, open_questions, status and one data row QR-1001, 2026-05-12, Jordan Hale, Riverside, deck replacement, 300, composite, before July, YES, existing structure; railing included, needs pricing. State the exact sentences 'You price it. You send it. The kit changes nothing.' and 'Do not send this draft.' Explain that the person adds the tracker row, prices the job, and sends any reply themselves. Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "received: 2026-05-12 (fictional)\nsource: website form\nrequester: Jordan Hale\nservice_area: Riverside\nminimum_size_sq_ft: 150\noffered: deck replacement (wood or composite); railings\nout_of_scope: roofing; new-home construction\nnever_in_draft: prices; cost bands; markups; supplier names\nrequest: Need our back deck redone, maybe 300 sq ft, composite if not crazy expensive. Hoping before July. We're in Riverside.",
+    "sample_output": "CONFIRMED: work_type = deck replacement. size = maybe 300 sq ft. location = Riverside. timeline stated = hoping before July. material mentioned = composite. requester = Jordan Hale. received = 2026-05-12. source = website form.\nAI INTERPRETATION: budget-sensitive because of \"if not crazy expensive\". \"before July\" is a requested window, not a booked start date. Existing structure condition is unknown.\nFIT: YES. Riverside is in service_area. 300 is above minimum_size_sq_ft 150. deck replacement is offered.\nNEEDS YOUR CHECK: existing structure condition; whether railing is included.\nQuestions: What is the condition of the existing deck? Should the quote include railing replacement?\nDRAFT ACKNOWLEDGMENT (not sent): Thank you, Jordan. We received your request for a back deck replacement in Riverside, about 300 sq ft, with composite as a preference, and a hope to finish before July. We will review the scope and follow up with questions before we price anything.\nTRACKER: QR-1001 | 2026-05-12 | Jordan Hale | Riverside | deck replacement | 300 | composite | before July | YES | existing structure; railing included | needs pricing\nRECOMMENDED ACTION (you decide): Add the tracker row. Ask the two questions or price the job. You price it. You send it. The kit changes nothing.",
+    "fictional_data_notice": "All requests, names, locations, sizes, and dates on this page are fictional. No real business data is used, and nothing is connected to a form, inbox, CRM, or any other live system."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Quote Request Setup Checklist",
+      "purpose": "Step-by-step setup for one review. It covers writing qualification rules (service area, minimum size, services offered, out-of-scope work, never-in-draft notes), copying one form or email request as plain text, removing payment details and other columns the workflow does not need, checking the AI tool's data settings before pasting, and the rule that this is a pasted request, not a live connector. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that the request can be pasted as text instead."
+    },
+    {
+      "id": "extraction-prompt",
+      "title": "Scope Extraction Prompt",
+      "purpose": "Copyable prompt that extracts only stated fields, keeps approximate wording such as 'maybe 300 sq ft', labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately, and forbids invented sizes, budgets, addresses, dates, prices, sending, and adding a tracker row."
+    },
+    {
+      "id": "fit-review-prompt",
+      "title": "Fit Review Prompt",
+      "purpose": "Copyable prompt that applies the owner's written qualification rules before any FIT label, outputs FIT YES, FIT NO, or NEEDS YOUR CHECK with the matching rule, refuses to auto-reject an unusual request that is close to the catalog, and forbids sending, pricing, leaking internal notes, and editing a CRM."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Qualification Rules Worksheet",
+      "purpose": "Browser-only form where the person writes service area, minimum project size, services offered, out-of-scope work, and internal notes that must never appear in a draft. It generates a copyable rules block to paste with the prompts. Nothing is saved to Atlas."
+    },
+    {
+      "id": "tracker-template",
+      "title": "Quote Tracker Template",
+      "purpose": "Column layout (request_id, received, requester, location, work_type, size_sq_ft, material, timeline, fit, open_questions, status) with allowed fit values YES, NO, NEEDS YOUR CHECK, allowed status values needs pricing, waiting on answers, declined, quoted, sent, and the fictional QR-1001 row from the guided demo. Includes a Copy CSV button so the person can start their own spreadsheet."
+    },
+    {
+      "id": "action-review-checklist",
+      "title": "Reply Review Checklist",
+      "purpose": "Interactive, session-only checklist used before contacting the requester. It confirms that every CONFIRMED fact appears in the request, that labels are separate, that fit used only the written rules, that unusual requests were not auto-rejected, that the draft has no price or internal notes, and that the person will price and send themselves."
+    },
+    {
+      "id": "sample-request",
+      "title": "Fictional Sample Requests",
+      "purpose": "The same fictional Jordan Hale deck request used in the guided demo, plus a second fictional roofing request in Mesa labelled FIT NO, both labelled as fictional, with a Copy text button. The person can practice extraction and fit rules in their AI tool before using a real request."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling quote requests in AI tools: review data settings, remove payment details, do not paste passwords, do not put prices or internal cost notes in a draft, do not send the draft, and do not auto-reject an unusual request that might still be a good lead. It also states that file upload support differs by plan and that nothing is sent, edited, or paid automatically."
+    }
+  ],
+  "decision_rules": [
+    "Apply the owner's written qualification rules before any FIT label. Do not judge fit from a generic 'sounds like a deck job' guess.",
+    "CONFIRMED fields may use only words the request stated. Do not invent square footage, budget, addresses, names, or dates.",
+    "Keep approximate wording. If the request says 'maybe 300 sq ft', the CONFIRMED size is 'maybe 300 sq ft', not 300.00.",
+    "If location is missing, write NEEDS YOUR CHECK. Do not assume the service area.",
+    "If size is missing, write NEEDS YOUR CHECK. Do not infer size from photos or from 'a regular backyard'.",
+    "If the work type is not in the offered list and is listed as out of scope, mark FIT NO and show the matching rule.",
+    "If the location is outside the written service area, mark FIT NO and show the matching rule.",
+    "If the work is close to the catalog but not listed (for example a curved custom deck when only deck replacement is offered), write NEEDS YOUR CHECK. Do not mark FIT NO.",
+    "A phrase such as 'if not crazy expensive' is AI INTERPRETATION about budget sensitivity, not a CONFIRMED budget.",
+    "A stated hope such as 'hoping before July' is a requested window, not a booked start date and not a confirmed deadline.",
+    "Never put prices, cost bands, markups, supplier names, or other internal notes in the draft acknowledgment.",
+    "The draft is a draft only. Do not send it. Do not create a CRM record or tracker row. Suggest the row; the person adds it.",
+    "Do not generate a price, a range, or a 'ballpark'. Pricing is the person's job after they review scope.",
+    "List every skipped or NO-fit request with its rule. Do not hide a rejected request.",
+    "On a later request, start from the new pasted text and the current written rules. Do not reuse a previous requester's size, location, or timeline."
+  ],
+  "human_ai_boundary": [
+    "AI extracts stated fields and labels CONFIRMED separately from AI INTERPRETATION. The person decides whether a field was actually stated.",
+    "AI applies the qualification rules the owner wrote. The person writes those rules and decides whether an unusual request is still worth a quote.",
+    "AI writes FIT YES, FIT NO, or NEEDS YOUR CHECK with the matching rule. The person decides whether to quote, decline, or ask more.",
+    "AI lists clarifying questions and drafts an acknowledgment with no price. The person edits the questions and the draft, or discards them.",
+    "AI suggests a tracker row. The person adds, changes, or skips that row in their own sheet or CRM.",
+    "AI never sends email, never prices the job, never edits a CRM, and never uploads the person's request to a third party. The person prices and sends, or decides not to.",
+    "The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, or paid automatically. Every page states that the person prices and sends, and that the kit changes nothing.",
+    "Atlas does not connect to a website form, inbox, CRM, sheet, or any other vendor. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before pasting a request into an AI tool, the person is told to review that tool's data settings (such as chat history, training use, and file retention) and to remove payment details and other columns the workflow does not need.",
+    "The kit tells the person not to paste account passwords, payment card numbers, or bank details into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to put prices, cost bands, markups, or supplier names in a customer-facing draft, and not to send the draft from the kit.",
+    "The kit tells the person not to mark FIT NO on an unusual request that is close to the catalog. That case is NEEDS YOUR CHECK so a good lead is not dropped in silence.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no statistics, savings, ROI claims, prices, or checkout. Fictional sizes such as 300 sq ft and 150 sq ft are measurements, not dollar figures."
+  ],
+  "required_data_tools": [
+    "The quote request as pasted form or email text",
+    "A written service catalog (what the shop offers)",
+    "Owner-written qualification rules (service area, minimum size, out-of-scope work, never-in-draft notes)",
+    "A sheet or CRM the person updates themselves",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings; the request can be pasted as text instead."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/quote-request-assistant without a session renders a page whose h1 is 'Quote Request Assistant', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows the request text 'Need our back deck redone, maybe 300 sq ft, composite if not crazy expensive. Hoping before July. We're in Riverside.', the requester 'Jordan Hale', the date '2026-05-12', and qualification rules containing 'Riverside', '150', 'deck replacement', 'railings', 'roofing', and 'new-home construction'.",
+    "Step 2 shows CONFIRMED text containing 'deck replacement', 'maybe 300 sq ft', 'Riverside', 'hoping before July', 'composite', and 'Jordan Hale'. It shows AI INTERPRETATION text containing 'if not crazy expensive' and 'requested window, not a booked start date'. It shows the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone.",
+    "Step 3 shows the exact heading 'FIT: YES' and reason text containing 'Riverside', '150', and 'deck replacement'. It shows the exact sentences 'A roofing request in Mesa would be FIT NO (out of catalog; outside service area).' and 'A curved custom deck in Riverside that is not listed as a catalog item would be NEEDS YOUR CHECK, not FIT NO.'",
+    "Step 4 shows the CONFIRMED line with location = Riverside. Activating 'Check facts against the request' reveals three rows (location, size, work_type), each containing the text 'Matches', and the values Riverside, maybe 300 sq ft, and deck replacement.",
+    "Step 5 shows exactly two questions whose text contains 'condition of the existing deck' and 'railing replacement', a draft containing 'Jordan', 'Riverside', '300 sq ft', and 'before July', and the exact sentence 'Do not send this draft.' The draft contains no '$', no 'cost band', no 'markup', and no supplier name.",
+    "Step 6 shows tracker text 'QR-1001', '2026-05-12', 'Jordan Hale', 'Riverside', 'deck replacement', '300', 'composite', 'before July', 'YES', and 'needs pricing', the exact sentences 'You price it. You send it. The kit changes nothing.' and 'Do not send this draft.', and a link to /blueprints/quote-request-assistant/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every requester name, location, size, date, fit label, question, and tracker field in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', 'per month', or a price. Neither page contains a dollar amount.",
+    "Neither page contains a percentage, an hours-saved figure, or an ROI or savings claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/quote-request-assistant', and /sitemap.xml does not contain '/blueprints/quote-request-assistant'.",
+    "GET /blueprints/quote-request-assistant/kit without a session redirects to /auth with the query parameter next=/blueprints/quote-request-assistant/kit.",
+    "Quote Request Assistant is registered in src/lib/blueprints.ts with id and productSlug 'quote-request-assistant', access 'premium', href '/blueprints/quote-request-assistant/kit', purchaseHref '/blueprints/quote-request-assistant', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/quote-request-assistant/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'quote-request-assistant') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'Quote Request Assistant Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no Quote Request Assistant entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Scope Extraction Prompt is shown in a <pre> element and contains these strings: 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'Do not invent', 'Do not send', 'Do not price', 'Do not add a tracker row', 'maybe 300', 'Never put prices'.",
+    "The Fit Review Prompt is shown in a <pre> element and contains: 'Apply the qualification rules before any FIT label', 'FIT YES', 'FIT NO', 'NEEDS YOUR CHECK', 'Do not mark FIT NO', 'Do not send', 'Do not price', 'You price it'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Qualification Rules Worksheet has visible labels 'Service area', 'Minimum project size (sq ft)', 'Services offered', 'Work that is out of scope (one per line)', and 'Internal notes that must never appear in a draft', with defaults 'Riverside', '150', 'deck replacement (wood or composite); railings', 'roofing', and 'prices; cost bands; markups; supplier names', plus a 'Generate My Qualification Rules' button.",
+    "With the defaults, the generated rules block contains 'Service area: Riverside.', 'Minimum size: 150 sq ft.', 'Offered: deck replacement (wood or composite); railings.', 'Out of scope: roofing.', 'Never put prices, cost bands, markups, or supplier names in a draft.', 'Apply these rules before any FIT label.', 'If location is missing, write NEEDS YOUR CHECK. Do not assume the service area.', 'If work is close but not in the catalog, write NEEDS YOUR CHECK. Do not mark FIT NO.', and 'Do not send, price, or add a tracker row.' The block has a Copy button.",
+    "If the service-area field is empty or whitespace only, the worksheet shows the error 'Enter a service area.' and generates no rules block.",
+    "If the minimum-size field is empty or whitespace only, the worksheet shows the error 'Enter a minimum project size.' and generates no rules block.",
+    "When 'Work that is out of scope (one per line)' is empty, the generated rules block contains no 'Out of scope:' line. When it contains 'roofing' and 'new-home construction' on two lines, the block contains 'Out of scope: roofing; new-home construction.'",
+    "The Quote Tracker Template shows the columns request_id, received, requester, location, work_type, size_sq_ft, material, timeline, fit, open_questions, status. Its 'Copy CSV' button writes text whose first line is 'request_id,received,requester,location,work_type,size_sq_ft,material,timeline,fit,open_questions,status' and whose QR-1001 row contains '2026-05-12', 'Jordan Hale', 'Riverside', 'deck replacement', '300', 'YES', and 'needs pricing'.",
+    "The Reply Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Requests section is labelled 'Fictional' and its copied text includes the Jordan Hale request sentence from guided_demo.sample_input and a second request containing 'roof' and 'Mesa'.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the Quote Request Assistant card as Unlocked with an Open Blueprint link to /blueprints/quote-request-assistant/kit.",
+    "With an authenticated session that has no Quote Request Assistant entitlement, /my-blueprints shows the Quote Request Assistant card as Locked with an Available to purchase link to /blueprints/quote-request-assistant and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged. Security Readiness Action Pack and Google Ads Performance Coach entitlement and locked or unlocked card behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/quote-request-assistant/, components/premium/quote-request-assistant/, and src/lib/premium/quote-request-assistant/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/quote-request-assistant/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/quote-request-assistant renders h1 'Quote Request Assistant', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/quote-request-assistant'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/quote-request-assistant'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-request-and-rules",
+      "description": "Step 1 shows the request text containing 'back deck redone', 'maybe 300 sq ft', 'Riverside', requester 'Jordan Hale', date '2026-05-12', and rules text containing '150', 'deck replacement', 'railings', 'roofing', and 'new-home construction'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-extraction-labels",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6'. CONFIRMED text contains 'deck replacement', 'maybe 300 sq ft', 'Riverside', 'hoping before July', 'composite', and 'Jordan Hale'. AI INTERPRETATION contains 'if not crazy expensive' and 'requested window, not a booked start date'. The text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-fit-yes",
+      "description": "On step 3, the exact heading 'FIT: YES' is visible, reasons contain 'Riverside', '150', and 'deck replacement', and the page shows 'A roofing request in Mesa would be FIT NO (out of catalog; outside service area).' and 'A curved custom deck in Riverside that is not listed as a catalog item would be NEEDS YOUR CHECK, not FIT NO.'",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-fact-check",
+      "description": "On step 4, the CONFIRMED location line is visible. Clicking 'Check facts against the request' reveals 3 rows (Riverside vs Riverside; maybe 300 sq ft vs maybe 300 sq ft; deck replacement vs back deck redone), each with the text 'Matches'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-questions-draft",
+      "description": "On step 5, two questions contain 'condition of the existing deck' and 'railing replacement'. The draft contains 'Jordan', 'Riverside', '300 sq ft', and 'before July'. The exact sentence 'Do not send this draft.' is visible. The draft text does not match /\\$|cost band|markup/i.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-tracker-human-sends",
+      "description": "On step 6, tracker text includes 'QR-1001', '2026-05-12', 'Jordan Hale', 'Riverside', 'deck replacement', '300', 'YES', and 'needs pricing'. The exact sentences 'You price it. You send it. The kit changes nothing.' and 'Do not send this draft.' are visible. A link to /blueprints/quote-request-assistant/kit is present with visible text mentioning sign-in and private preview. 'Next step' is absent or disabled.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\$\\d|ROI|hours saved/i.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/quote-request-assistant/kit ends on pathname /auth with searchParams next equal to '/blueprints/quote-request-assistant/kit' (expectAuthNext helper).",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/quote-request-assistant/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/quote-request-assistant/kit sees h1 'Quote Request Assistant Premium Kit', the exact text 'Premium · Private preview', and meta robots containing 'noindex'. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, extraction-prompt, fit-review-prompt, rules-worksheet, tracker-template, action-review-checklist, sample-request, and safety-guidance, each with a heading matching its kit_contents title. A table-of-contents link with href '#<id>' exists for each.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-price-or-checkout",
+      "description": "Kit page body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\$\\d|ROI|hours saved/i, and the page contains no form that posts to a payment URL.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-extraction-prompt-copy",
+      "description": "The extraction-prompt <pre> contains 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'Do not invent', 'Do not send', 'Do not price', 'Do not add a tracker row', 'maybe 300', and 'Never put prices'. Clicking its 'Copy Prompt' button changes the label to 'Copied', and navigator.clipboard.readText() equals the <pre> text.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-fit-prompt-content",
+      "description": "The Fit Review Prompt <pre> contains 'Apply the qualification rules before any FIT label', 'FIT YES', 'FIT NO', 'NEEDS YOUR CHECK', 'Do not mark FIT NO', 'Do not send', 'Do not price', and 'You price it'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Qualification Rules' with default values produces a block containing 'Service area: Riverside.', 'Minimum size: 150 sq ft.', 'Offered: deck replacement (wood or composite); railings.', 'Out of scope: roofing.', 'Never put prices, cost bands, markups, or supplier names in a draft.', 'Apply these rules before any FIT label.', 'If location is missing, write NEEDS YOUR CHECK. Do not assume the service area.', 'If work is close but not in the catalog, write NEEDS YOUR CHECK. Do not mark FIT NO.', and 'Do not send, price, or add a tracker row.'",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-custom-out-of-scope",
+      "description": "Entering 'roofing' and 'new-home construction' on two lines in 'Work that is out of scope (one per line)' and generating produces a block containing 'Out of scope: roofing; new-home construction.'",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Clearing 'Service area' and generating shows 'Enter a service area.' and no rules block. Restoring 'Riverside', clearing 'Minimum project size (sq ft)', and generating shows 'Enter a minimum project size.' and no rules block.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-tracker-copy-csv",
+      "description": "The Quote Tracker Template lists columns request_id, received, requester, location, work_type, size_sq_ft, material, timeline, fit, open_questions, status. Its 'Copy CSV' button writes clipboard text whose first line is 'request_id,received,requester,location,work_type,size_sq_ft,material,timeline,fit,open_questions,status' and that contains 'QR-1001', 'Jordan Hale', and 'needs pricing'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-request-fictional",
+      "description": "The Fictional Sample Requests section shows the label 'Fictional'. Its copied text contains 'Need our back deck redone, maybe 300 sq ft' and a second request containing 'roof' and 'Mesa'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Reply Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-entitled",
+      "description": "With an entitled authenticated session, /my-blueprints shows the Quote Request Assistant card with PREMIUM, Unlocked, and an Open Blueprint link to /blueprints/quote-request-assistant/kit.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-locked-without-entitlement",
+      "description": "With an authenticated session whose entitlement header is deny, /blueprints/quote-request-assistant/kit shows heading 'Premium is locked', does not render #setup-checklist, and has 0 Buy Premium buttons.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-locked",
+      "description": "With an authenticated session whose entitlement header is deny, the Quote Request Assistant card on /my-blueprints is Locked, the Available to purchase link points at /blueprints/quote-request-assistant, and there is no kit link.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "daily-inbox-still-open",
+      "description": "With an authenticated session, /my-blueprints still has Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit, including when the Quote Request Assistant entitlement is denied.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "collections-behavior-unchanged",
+      "description": "AI Collections Assistant remaining premium, Buy Premium, checkout, and entitlement behavior is unchanged. Do not edit Collections product files or e2e/ai-collections-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "security-behavior-unchanged",
+      "description": "Security Readiness Action Pack remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Security product files or e2e/security-readiness-action-pack/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "google-ads-behavior-unchanged",
+      "description": "Google Ads Performance Coach remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Google Ads product files or e2e/google-ads-performance-coach/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-quote-stripe-price",
+      "description": "Quote Request Assistant is not in PAID_PRODUCTS, getPaidProduct('quote-request-assistant') is undefined, and its pages show no Stripe price, checkout form, or Buy Premium button.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/quote-request-assistant/authenticated.spec.ts. Authenticated QA must actually reach the kit after automatic session refresh.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts (the only authenticated file run by the authenticated-desktop project), call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, the service-area field, the minimum-size field, the Generate button, every review-checklist checkbox, and Reset. Each shows a visible focus ring (non-'none' outline or box-shadow on :focus-visible).",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to a website form, inbox, CRM, sheet, or any other vendor, including OAuth flows, API calls, and automated forwarding.",
+    "Uploading, parsing, or storing the person's real quote requests on Atlas.",
+    "Sending email, creating CRM records, adding tracker rows, generating prices, or charging a customer from Atlas.",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for Quote Request Assistant. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Security Readiness Action Pack behavior, Google Ads Performance Coach behavior, Stripe configuration, Production, or e2e/quote-request-assistant/authenticated.spec.ts.",
+    "Changes to content/published/, /use-cases/quote-request-assistant, or Japanese catalog labels.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or tracker rows to an Atlas account.",
+    "Statistics, time-to-quote claims, win-rate claims, or ROI claims.",
+    "Auto-rejecting a request that is close to the catalog, or leaking internal pricing notes into a draft."
+  ],
+  "source": {
+    "run_id": "20261031T065641Z-quote-request-assistant",
+    "candidate_id": "quote-request-assistant",
+    "approved_at": "2026-10-31T06:56:41.995Z",
+    "approval_note": "Approved internally for batch batch-20261031T062745Z. Final human review is deferred to the batch dashboard.",
+    "summary_scores": {
+      "commercial": 7.3,
+      "atlas_fit": 7,
+      "buildability": 7.5,
+      "overall": 7.3
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/quote-request-assistant",
+    "kit": "/blueprints/quote-request-assistant/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/quote-request-assistant/",
+    "components/premium/quote-request-assistant/",
+    "src/lib/premium/quote-request-assistant/",
+    "src/lib/blueprints.ts",
+    "e2e/quote-request-assistant/"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/quote-request-assistant and the Premium kit at /blueprints/quote-request-assistant/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled \"Premium · Private preview\". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/quote-request-assistant/, components/premium/quote-request-assistant/, and src/lib/premium/quote-request-assistant/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.",
+    "e2e/quote-request-assistant/authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}

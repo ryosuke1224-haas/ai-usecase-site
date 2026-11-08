@@ -2,8 +2,34 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
-import { noShowPaths, type UiLocale } from "@/src/lib/i18n/locale";
-import { noShowCopy } from "@/src/lib/premium/no-show-recovery-assistant/copy";
+import {
+  AI_INTERPRETATION_TEXT,
+  AS_OF,
+  BOOKING_COLUMNS,
+  BOOKING_ROWS,
+  bookingCells,
+  CONFIRMED_OPEN_SLOTS,
+  CONFIRMED_RIVERA,
+  CONFIRM_CONSENT,
+  DO_NOT_SEND,
+  DRAFT_SMS,
+  FACT_CHECK,
+  FLAGGED_KIM,
+  KIT_PATH,
+  NO_DEPOSIT,
+  NOT_OFFERED,
+  OPEN_SLOT_COLUMNS,
+  OPEN_SLOTS,
+  openSlotCells,
+  RECOMMENDED_ACTION_TEXT,
+  REPEAT_NO_SHOW_THRESHOLD,
+  SERVICE_DOES_NOT_MATCH,
+  SKIPPED_CHEN,
+  SKIPPED_OKONKWO,
+  SKIPPED_PATEL,
+  THIRD_NO_SHOW_POLICY,
+  YOU_REVIEW_AND_SEND,
+} from "@/src/lib/premium/no-show-recovery-assistant/demo-data";
 import { DataTable } from "./data-table";
 import { FactLabel } from "./fact-label";
 import { PRIMARY_BUTTON, SECONDARY_BUTTON } from "./styles";
@@ -12,111 +38,131 @@ const SUBHEADING = "text-sm font-semibold tracking-tight text-foreground";
 const BODY = "text-sm leading-relaxed text-muted";
 const CARD = "rounded-xl border border-border/60 bg-card p-4";
 
-function useDemo(locale: UiLocale) {
-  return noShowCopy(locale).demo;
-}
-
-export function BookingsStep({ locale }: { locale: UiLocale; pathLocale: UiLocale | null }) {
-  const demo = useDemo(locale);
+export function BookingsStep() {
   return (
     <div className="space-y-5">
-      <p className={BODY}>{demo.step1Lead}</p>
-      <p className="text-sm text-foreground">
-        <span className="font-semibold">{demo.asOfLabel}: </span>
-        {demo.asOfValue}
+      <p className={BODY}>
+        This booking list is invented. No live calendar, SMS, Calendly, Square,
+        Acuity, or Twilio account is attached. Atlas does not connect, upload,
+        or send anything.
       </p>
-      <DataTable
-        label={demo.bookingsLabel}
-        columns={demo.columns}
-        monospaceHeader
-        rows={demo.rows.map((row) => [
-          row.time,
-          row.client,
-          row.service,
-          row.status,
-          row.contactPref,
-          row.smsConsent,
-          row.prior,
-        ])}
-      />
+      <dl className="grid gap-3 sm:grid-cols-2">
+        <div className={CARD}>
+          <dt className="text-xs font-semibold uppercase tracking-wider text-muted">
+            as_of (invented)
+          </dt>
+          <dd className="mt-1 text-sm font-semibold text-foreground">{AS_OF}</dd>
+        </div>
+        <div className={CARD}>
+          <dt className="text-xs font-semibold uppercase tracking-wider text-muted">
+            repeat_no_show_threshold
+          </dt>
+          <dd className="mt-1 text-sm font-semibold text-foreground">
+            {REPEAT_NO_SHOW_THRESHOLD}
+          </dd>
+        </div>
+      </dl>
       <div>
-        <h3 className={SUBHEADING}>{demo.openSlotsLabel}</h3>
-        <ul className="mt-2 space-y-1.5 text-sm text-foreground">
-          {demo.slots.map((slot) => (
-            <li key={`${slot.service}-${slot.when}`}>
-              {slot.service} — {slot.when}
-            </li>
-          ))}
-        </ul>
+        <h3 className={SUBHEADING}>Day&apos;s bookings (invented)</h3>
+        <div className="mt-2">
+          <DataTable
+            label="Day's bookings"
+            columns={BOOKING_COLUMNS}
+            monospaceHeader
+            rows={BOOKING_ROWS.map((row) => bookingCells(row))}
+          />
+        </div>
       </div>
-      <p className="text-sm leading-relaxed text-foreground">{demo.consentTeaching}</p>
+      <div>
+        <h3 className={SUBHEADING}>Open slots (invented)</h3>
+        <div className="mt-2">
+          <DataTable
+            label="Open slots"
+            columns={OPEN_SLOT_COLUMNS}
+            monospaceHeader
+            rows={OPEN_SLOTS.map((slot) => openSlotCells(slot))}
+          />
+        </div>
+      </div>
     </div>
   );
 }
 
-export function ConfirmAttendanceStep({ locale }: { locale: UiLocale; pathLocale: UiLocale | null }) {
-  const demo = useDemo(locale);
+export function ConfirmAttendanceStep() {
   return (
     <div className="space-y-5">
-      <p className={BODY}>{demo.step2Lead}</p>
-      <div>
-        <h3 className={SUBHEADING}>{demo.skippedLabel}</h3>
-        <ul aria-label={demo.skippedLabel} className="mt-2 space-y-2">
-          {demo.skipped.map((item) => (
-            <li key={item.client} className={`${CARD} text-sm leading-relaxed text-foreground`}>
-              <FactLabel kind="SKIPPED" locale={locale} />
-              <span className="font-semibold">{item.client}</span>: {item.reason}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <h3 className={SUBHEADING}>{demo.confirmedLabel}</h3>
-        <ul aria-label={demo.confirmedLabel} className="mt-2 space-y-2">
-          {demo.confirmed.map((item) => (
-            <li key={item.client} className={`${CARD} text-sm leading-relaxed text-foreground`}>
-              <FactLabel kind="CONFIRMED" locale={locale} />
-              <span className="font-semibold">{item.client}</span>: {item.detail}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <p className={BODY}>
+        Attendance is confirmed against the booking row before any draft. Skipped
+        rows keep a visible reason.
+      </p>
       <p className="text-sm leading-relaxed text-foreground">
-        <FactLabel kind="NEEDS YOUR CHECK" locale={locale} />
-        {demo.smsHold}
+        <FactLabel kind="CONFIRMED" />
+        {CONFIRMED_RIVERA}
+      </p>
+      <p className="text-sm leading-relaxed text-foreground">
+        <FactLabel kind="SKIPPED" />
+        {SKIPPED_CHEN}
+      </p>
+      <p className="text-sm leading-relaxed text-foreground">
+        <FactLabel kind="SKIPPED" />
+        {SKIPPED_PATEL}
+      </p>
+      <p className="text-sm leading-relaxed text-foreground">
+        <FactLabel kind="SKIPPED FOR SMS" />
+        {SKIPPED_OKONKWO}
+      </p>
+      <p className="text-sm leading-relaxed text-foreground">
+        <FactLabel kind="FLAG FOR POLICY" />
+        {FLAGGED_KIM}
       </p>
     </div>
   );
 }
 
-export function DraftStep({ locale }: { locale: UiLocale; pathLocale: UiLocale | null }) {
-  const demo = useDemo(locale);
+export function DraftStep() {
   return (
     <div className="space-y-5">
-      <p className={BODY}>{demo.step3Lead}</p>
-      <blockquote className={`${CARD} border-l-4 border-l-accent`}>
-        <p className={`text-xs font-semibold text-muted ${locale === "ja" ? "" : "uppercase tracking-wider"}`}>
-          {demo.draftLabel}
-        </p>
-        <p className="mt-2 text-sm leading-relaxed text-foreground">{demo.draftText}</p>
+      <p className={BODY}>
+        One unsent SMS draft for the confirmed miss. Offered times come from the
+        open-slot list and match the missed service.
+      </p>
+      <blockquote aria-label="Draft SMS" className={`${CARD} border-l-4 border-l-accent`}>
+        <p className="text-sm leading-relaxed text-foreground">{DRAFT_SMS}</p>
       </blockquote>
       <p className="text-sm leading-relaxed text-foreground">
-        <FactLabel kind="NEEDS YOUR CHECK" locale={locale} />
-        {demo.step3Needs}
+        <FactLabel kind="CONFIRMED" />
+        {CONFIRMED_RIVERA} {CONFIRMED_OPEN_SLOTS}
       </p>
-      <p className="text-sm leading-relaxed text-foreground">{demo.step3Policy}</p>
-      <p className="text-sm font-medium leading-relaxed text-foreground">{demo.step3Boundary}</p>
+      <p className="text-sm leading-relaxed text-foreground">
+        <FactLabel kind="AI INTERPRETATION" />
+        {AI_INTERPRETATION_TEXT}
+      </p>
+      <p className="text-sm leading-relaxed text-foreground">
+        <FactLabel kind="RECOMMENDED ACTION" />
+        {RECOMMENDED_ACTION_TEXT}
+      </p>
+      <p className="text-sm leading-relaxed text-foreground">{NOT_OFFERED}</p>
+      <p className="text-sm leading-relaxed text-foreground">{SERVICE_DOES_NOT_MATCH}</p>
     </div>
   );
 }
 
-export function FactCheckStep({ locale }: { locale: UiLocale; pathLocale: UiLocale | null }) {
-  const demo = useDemo(locale);
+export function FactCheckStep() {
   const [revealed, setRevealed] = useState(false);
   const checkId = useId();
+
   return (
     <div className="space-y-5">
-      <p className={BODY}>{demo.step4Lead}</p>
+      <p className={BODY}>
+        Before anyone contacts a client, every CONFIRMED field is checked against
+        the booking row.
+      </p>
+      <blockquote className={`${CARD} border-l-4 border-l-accent`}>
+        <p className="text-sm leading-relaxed text-foreground">
+          <FactLabel kind="CONFIRMED" />
+          {FACT_CHECK.confirmed}
+        </p>
+      </blockquote>
       <button
         type="button"
         className={SECONDARY_BUTTON}
@@ -124,19 +170,19 @@ export function FactCheckStep({ locale }: { locale: UiLocale; pathLocale: UiLoca
         aria-controls={checkId}
         onClick={() => setRevealed((current) => !current)}
       >
-        {demo.factButton}
+        Check facts against the booking row
       </button>
       <div id={checkId} hidden={!revealed}>
         {revealed ? (
           <DataTable
-            label={demo.factTableLabel}
-            columns={demo.factColumns}
-            rows={demo.factRows.map((row) => [
+            label="Fact check against the booking row"
+            columns={["Field", "In the CONFIRMED line", "In the booking row", "Result"]}
+            rows={FACT_CHECK.rows.map((row) => [
               row.field,
               row.confirmed,
-              row.booking,
-              <span key={row.field} className="font-semibold text-emerald-800 dark:text-emerald-300">
-                {demo.factResult}
+              row.bookingValue,
+              <span key="result" className="font-semibold text-emerald-800 dark:text-emerald-300">
+                Matches
               </span>,
             ])}
           />
@@ -146,42 +192,47 @@ export function FactCheckStep({ locale }: { locale: UiLocale; pathLocale: UiLoca
   );
 }
 
-export function RepeatPolicyStep({ locale }: { locale: UiLocale; pathLocale: UiLocale | null }) {
-  const demo = useDemo(locale);
+export function RepeatPolicyStep() {
   return (
     <div className="space-y-5">
-      <p className={BODY}>{demo.step5Lead}</p>
-      <p className={`${CARD} text-sm leading-relaxed text-foreground`}>
-        <span className="font-semibold">{locale === "ja" ? `${demo.policyLabel}：` : `${demo.policyLabel}. `}</span>
-        {demo.policyDetail}
+      <p className={BODY}>
+        Repeat no-shows stay with the owner. Missing consent is not a text.
       </p>
       <p className="text-sm leading-relaxed text-foreground">
-        <FactLabel kind="YOU DECIDE" locale={locale} />
-        {demo.step5Boundary}
+        <FactLabel kind="FLAG FOR POLICY" />
+        {FLAGGED_KIM}
       </p>
+      <p className="text-sm font-semibold text-foreground">{THIRD_NO_SHOW_POLICY}</p>
+      <p className="text-sm leading-relaxed text-foreground">
+        <FactLabel kind="SKIPPED FOR SMS" />
+        {SKIPPED_OKONKWO}
+      </p>
+      <p className="text-sm font-semibold text-foreground">{CONFIRM_CONSENT}</p>
+      <p className="text-sm font-semibold text-foreground">{NO_DEPOSIT}</p>
     </div>
   );
 }
 
-export function YouReviewAndSendStep({
-  locale,
-  pathLocale,
-}: {
-  locale: UiLocale;
-  pathLocale: UiLocale | null;
-}) {
-  const demo = useDemo(locale);
+export function YouReviewAndSendStep() {
   return (
     <div className="space-y-5">
-      <p className="text-base font-semibold text-foreground">{demo.step6TitleSentence}</p>
-      <p className={BODY}>{demo.step6Body}</p>
-      <p className="text-sm leading-relaxed text-foreground">{demo.step6Boundary}</p>
+      <p className="text-base font-semibold text-foreground">{YOU_REVIEW_AND_SEND}</p>
+      <p className="text-sm font-semibold text-foreground">{DO_NOT_SEND}</p>
+      <p className={BODY}>
+        You pick the recipient from your own contacts and send from your own SMS
+        or email tool, or you decide not to. Nothing is sent, booked, cancelled,
+        or paid automatically.
+      </p>
+      <p className={BODY}>
+        Atlas does not connect to a calendar, SMS tool, Calendly, Square, Acuity,
+        or Twilio. The prompts, worksheet, and checklists are in the Premium kit.
+      </p>
       <Link
-        href={noShowPaths(pathLocale).kit}
+        href={KIT_PATH}
         prefetch={false}
         className={`${PRIMARY_BUTTON} w-full max-w-full whitespace-normal text-center sm:w-auto`}
       >
-        {demo.kitLink}
+        Open the Premium kit (sign-in is required, private preview)
       </Link>
     </div>
   );

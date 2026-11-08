@@ -1,40 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import type { UiLocale } from "@/src/lib/i18n/locale";
-import { noShowCopy } from "@/src/lib/premium/no-show-recovery-assistant/copy";
+import { REVIEW_CHECKLIST_ITEMS } from "@/src/lib/premium/no-show-recovery-assistant/kit-content";
 import { FOCUS_RING, SECONDARY_BUTTON } from "./styles";
 import { useHydrated } from "./use-hydrated";
 
-export function ActionReviewChecklist({ locale = "en" }: { locale?: UiLocale }) {
-  const copy = noShowCopy(locale);
-  const items = copy.reviewItems;
-  const [checked, setChecked] = useState<boolean[]>(() => items.map(() => false));
+export function ActionReviewChecklist() {
+  const [checked, setChecked] = useState<boolean[]>(() =>
+    REVIEW_CHECKLIST_ITEMS.map(() => false),
+  );
   const hydrated = useHydrated();
   const completed = checked.filter(Boolean).length;
-  const total = items.length;
+  const total = REVIEW_CHECKLIST_ITEMS.length;
 
   function toggle(index: number) {
-    setChecked((current) => current.map((value, itemIndex) => (itemIndex === index ? !value : value)));
+    setChecked((current) =>
+      current.map((value, itemIndex) => (itemIndex === index ? !value : value)),
+    );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p role="status" className="text-sm font-medium text-foreground">
-          {copy.checkedLabel(completed, total)}
+          Checked {completed} of {total}
         </p>
         <button
           type="button"
-          onClick={() => setChecked(items.map(() => false))}
+          onClick={() => setChecked(REVIEW_CHECKLIST_ITEMS.map(() => false))}
           disabled={!hydrated}
           className={SECONDARY_BUTTON}
         >
-          {copy.resetChecklist}
+          Reset checklist
         </button>
       </div>
       <ul className="space-y-2">
-        {items.map((item, index) => (
+        {REVIEW_CHECKLIST_ITEMS.map((item, index) => (
           <li key={item}>
             <label
               className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-colors ${
@@ -57,7 +58,8 @@ export function ActionReviewChecklist({ locale = "en" }: { locale?: UiLocale }) 
       </ul>
       {completed === total ? (
         <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-300">
-          {copy.reviewComplete}
+          Review complete for this day. Reset the checklist before you review
+          the next export. You still choose whether any message is sent.
         </p>
       ) : null}
     </div>

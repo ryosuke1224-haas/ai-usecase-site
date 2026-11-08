@@ -1,7 +1,24 @@
 import type { ReactNode } from "react";
-import type { UiLocale } from "@/src/lib/i18n/locale";
-import { noShowCopy } from "@/src/lib/premium/no-show-recovery-assistant/copy";
-import type { NoShowSectionId } from "@/src/lib/premium/no-show-recovery-assistant/copy-types";
+import {
+  OPEN_SLOT_COLUMNS,
+  OPEN_SLOTS,
+  openSlotCells,
+  RECOVERY_LOG_COLUMNS,
+  RECOVERY_LOG_CSV,
+  RECOVERY_LOG_ROWS,
+  recoveryLogCells,
+  SAMPLE_BOOKINGS_CSV,
+} from "@/src/lib/premium/no-show-recovery-assistant/demo-data";
+import {
+  ATTENDANCE_PROMPT,
+  kitSectionTitle,
+  PLAN_DIFFERENCE_NOTICE,
+  REBOOKING_DRAFT_PROMPT,
+  SAFETY_RULES,
+  SESSION_ONLY_NOTICE,
+  SETUP_STEPS,
+  type KitSectionId,
+} from "@/src/lib/premium/no-show-recovery-assistant/kit-content";
 import { ActionReviewChecklist } from "./action-review-checklist";
 import { CopyButton } from "./copy-button";
 import { DataTable } from "./data-table";
@@ -10,7 +27,7 @@ import { PRE_BLOCK } from "./styles";
 
 const BODY = "text-sm leading-relaxed text-muted";
 
-function KitSection({ id, title, children }: { id: NoShowSectionId; title: string; children: ReactNode }) {
+function KitSection({ id, children }: { id: KitSectionId; children: ReactNode }) {
   const headingId = `${id}-heading`;
   return (
     <section
@@ -19,163 +36,158 @@ function KitSection({ id, title, children }: { id: NoShowSectionId; title: strin
       className="min-w-0 scroll-mt-20 rounded-2xl border border-border/60 bg-card p-4 sm:p-6"
     >
       <h2 id={headingId} className="text-xl font-bold tracking-tight text-foreground">
-        {title}
+        {kitSectionTitle(id)}
       </h2>
       <div className="mt-4 space-y-4">{children}</div>
     </section>
   );
 }
 
-function csvTable(csv: string): { columns: string[]; rows: string[][] } {
-  const lines = csv.split("\n").filter((line) => line.length > 0);
-  const [header, ...rows] = lines;
-  return {
-    columns: (header ?? "").split(","),
-    rows: rows.map((line) => line.split(",")),
-  };
-}
-
-function PlanNotice({ text }: { text: string }) {
+function PlanNotice() {
   return (
     <p className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-900 dark:text-amber-200">
-      {text}
+      {PLAN_DIFFERENCE_NOTICE}
     </p>
   );
 }
 
-export function SetupChecklistSection({ locale }: { locale: UiLocale }) {
-  const copy = noShowCopy(locale);
-  const section = copy.sections[0];
+export function SetupChecklistSection() {
   return (
-    <KitSection id="setup-checklist" title={section.title}>
-      <p className={BODY}>{section.intro}</p>
+    <KitSection id="setup-checklist">
+      <p className={BODY}>
+        Run these steps for one review. Practice first with the Fictional Sample
+        Booking Export before you use a real booking list.
+      </p>
       <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-foreground">
-        {copy.setupSteps.map((step) => (
+        {SETUP_STEPS.map((step) => (
           <li key={step}>{step}</li>
         ))}
       </ol>
-      <PlanNotice text={copy.planDifferenceNotice} />
+      <PlanNotice />
     </KitSection>
   );
 }
 
 function PromptSection({
   id,
-  locale,
+  intro,
+  prompt,
 }: {
-  id: "attendance-prompt" | "rebooking-draft-prompt";
-  locale: UiLocale;
+  id: KitSectionId;
+  intro: string;
+  prompt: string;
 }) {
-  const copy = noShowCopy(locale);
-  const section = copy.sections.find((item) => item.id === id);
-  const prompt = id === "attendance-prompt" ? copy.attendancePrompt : copy.rebookingDraftPrompt;
   return (
-    <KitSection id={id} title={section?.title ?? id}>
-      <p className={BODY}>{section?.intro}</p>
+    <KitSection id={id}>
+      <p className={BODY}>{intro}</p>
       <pre className={PRE_BLOCK}>{prompt}</pre>
-      <CopyButton text={prompt} label={copy.copyPrompt} copiedLabel={copy.copied} errorLabel={copy.copyFailed} />
+      <CopyButton text={prompt} label="Copy Prompt" />
     </KitSection>
   );
 }
 
-export function AttendancePromptSection({ locale }: { locale: UiLocale }) {
-  return <PromptSection id="attendance-prompt" locale={locale} />;
-}
-
-export function RebookingDraftPromptSection({ locale }: { locale: UiLocale }) {
-  return <PromptSection id="rebooking-draft-prompt" locale={locale} />;
-}
-
-export function RulesWorksheetSection({ locale }: { locale: UiLocale }) {
-  const copy = noShowCopy(locale);
-  const section = copy.sections.find((item) => item.id === "rules-worksheet");
+export function AttendancePromptSection() {
   return (
-    <KitSection id="rules-worksheet" title={section?.title ?? "rules-worksheet"}>
-      <p className={BODY}>{section?.intro}</p>
-      <RulesWorksheet locale={locale} />
-    </KitSection>
+    <PromptSection
+      id="attendance-prompt"
+      intro="Paste this prompt with your rules block, then paste one day's booking rows and open slots. It runs CONFIRM ATTENDANCE FIRST, drafts only when status = no_show, and labels CONFIRMED separately from AI INTERPRETATION."
+      prompt={ATTENDANCE_PROMPT}
+    />
   );
 }
 
-export function RecoveryLogTemplateSection({ locale }: { locale: UiLocale }) {
-  const copy = noShowCopy(locale);
-  const section = copy.sections.find((item) => item.id === "recovery-log-template");
-  const table = csvTable(copy.recoveryLogCsv);
+export function RebookingDraftPromptSection() {
   return (
-    <KitSection id="recovery-log-template" title={section?.title ?? "recovery-log-template"}>
-      <p className={BODY}>{section?.intro}</p>
-      <div>
-        <h3 className="text-sm font-semibold tracking-tight text-foreground">{copy.allowedOutcomesLabel}</h3>
-        <ul aria-label={copy.allowedOutcomesLabel} className="mt-2 flex flex-wrap gap-2">
-          {copy.allowedOutcomes.map((outcome) => (
-            <li
-              key={outcome}
-              className="rounded-md border border-border/60 bg-surface px-2 py-0.5 font-mono text-xs text-foreground"
-            >
-              {outcome}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <p className={`text-xs font-semibold text-muted ${locale === "ja" ? "" : "uppercase tracking-wider"}`}>
-        {copy.fictionalExample}
+    <PromptSection
+      id="rebooking-draft-prompt"
+      intro="Paste this only after attendance is confirmed. It requires sms_consent and matching open slots before any SMS wording, and flags repeat no-shows as FLAG FOR POLICY with no draft."
+      prompt={REBOOKING_DRAFT_PROMPT}
+    />
+  );
+}
+
+export function RulesWorksheetSection() {
+  return (
+    <KitSection id="rules-worksheet">
+      <p className={BODY}>
+        Set the repeat no-show threshold including today, list statuses that are
+        never a no-show, and list clients to always skip. Then generate a rules
+        block to paste with the prompts. Nothing you enter here is saved to Atlas.
       </p>
-      <DataTable label={copy.logTableLabel} columns={table.columns} monospaceHeader rows={table.rows} />
-      <CopyButton text={copy.recoveryLogCsv} label={copy.copyCsv} copiedLabel={copy.copied} errorLabel={copy.copyFailed} />
+      <RulesWorksheet />
     </KitSection>
   );
 }
 
-export function ActionReviewChecklistSection({ locale }: { locale: UiLocale }) {
-  const copy = noShowCopy(locale);
-  const section = copy.sections.find((item) => item.id === "action-review-checklist");
+export function RecoveryLogTemplateSection() {
   return (
-    <KitSection id="action-review-checklist" title={section?.title ?? "action-review-checklist"}>
-      <p className={BODY}>{section?.intro}</p>
-      <ActionReviewChecklist locale={locale} />
-    </KitSection>
-  );
-}
-
-export function SampleBookingsSection({ locale }: { locale: UiLocale }) {
-  const copy = noShowCopy(locale);
-  const section = copy.sections.find((item) => item.id === "sample-bookings");
-  const [bookingsCsv, slotsCsv] = copy.sampleBookingsCsv.split("\n\n");
-  const bookings = csvTable(bookingsCsv ?? "");
-  const slots = csvTable(slotsCsv ?? "");
-  return (
-    <KitSection id="sample-bookings" title={section?.title ?? "sample-bookings"}>
-      <p
-        className={`inline-flex items-center rounded-md bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-900 dark:text-amber-200 ${locale === "ja" ? "" : "uppercase tracking-wider"}`}
-      >
-        {copy.fictionalBadge}
+    <KitSection id="recovery-log-template">
+      <p className={BODY}>
+        Column layout with the fictional J. Rivera drafted_not_sent row from the
+        guided demo. Allowed action values are skipped_attended, skipped_cancelled,
+        skipped_no_consent, flagged_policy, drafted_not_sent, sent_by_owner, and
+        not_sent. Allowed outcome values are rebooked, no_reply, policy_hold, and
+        left_empty. Copy CSV so you can start your own spreadsheet.
       </p>
-      <p className={BODY}>{section?.intro}</p>
-      <DataTable label={copy.sampleTableLabel} columns={bookings.columns} monospaceHeader rows={bookings.rows} />
-      {slots.rows.length > 0 ? (
-        <DataTable label={copy.demo.openSlotsLabel} columns={slots.columns} monospaceHeader rows={slots.rows} />
-      ) : null}
-      <CopyButton
-        text={copy.sampleBookingsCsv}
-        label={copy.copyCsv}
-        copiedLabel={copy.copied}
-        errorLabel={copy.copyFailed}
+      <DataTable
+        label="Recovery log template"
+        columns={RECOVERY_LOG_COLUMNS}
+        monospaceHeader
+        rows={RECOVERY_LOG_ROWS.map((row) => recoveryLogCells(row))}
+      />
+      <CopyButton text={RECOVERY_LOG_CSV} label="Copy CSV" />
+    </KitSection>
+  );
+}
+
+export function ActionReviewChecklistSection() {
+  return (
+    <KitSection id="action-review-checklist">
+      <p className={BODY}>
+        Use this before you contact anyone. Progress stays in this browser
+        session only.
+      </p>
+      <ActionReviewChecklist />
+    </KitSection>
+  );
+}
+
+export function SampleBookingsSection() {
+  return (
+    <KitSection id="sample-bookings">
+      <p className="inline-flex items-center rounded-md bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+        Fictional
+      </p>
+      <p className={BODY}>
+        The same invented five-row salon day and matching open-slot rows used in
+        the guided demo. Paste the booking CSV into your AI tool with the
+        prompts to practice before you use a real booking export. Copy CSV
+        writes the booking rows only.
+      </p>
+      <pre className={PRE_BLOCK}>{SAMPLE_BOOKINGS_CSV}</pre>
+      <CopyButton text={SAMPLE_BOOKINGS_CSV} label="Copy CSV" />
+      <h3 className="text-sm font-semibold tracking-tight text-foreground">
+        Open slots (invented)
+      </h3>
+      <DataTable
+        label="Sample open slots"
+        columns={OPEN_SLOT_COLUMNS}
+        monospaceHeader
+        rows={OPEN_SLOTS.map((slot) => openSlotCells(slot))}
       />
     </KitSection>
   );
 }
 
-export function SafetyGuidanceSection({ locale }: { locale: UiLocale }) {
-  const copy = noShowCopy(locale);
-  const section = copy.sections.find((item) => item.id === "safety-guidance");
+export function SafetyGuidanceSection() {
   return (
-    <KitSection id="safety-guidance" title={section?.title ?? "safety-guidance"}>
-      <p className={BODY}>{section?.intro}</p>
-      <PlanNotice text={copy.planDifferenceNotice} />
+    <KitSection id="safety-guidance">
+      <PlanNotice />
       <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground">
-        {copy.safetyRules.map((rule) => (
+        {SAFETY_RULES.map((rule) => (
           <li key={rule}>{rule}</li>
         ))}
+        <li>{SESSION_ONLY_NOTICE}</li>
       </ul>
     </KitSection>
   );

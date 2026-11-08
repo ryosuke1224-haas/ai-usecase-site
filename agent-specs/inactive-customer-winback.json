@@ -1,0 +1,499 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "inactive-customer-winback",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "Lapsed Customer Return Queue",
+  "value_proposition": "Turn a stripped customer export into a consent-filtered, VIP-first winback queue with drafts locked to the owner's written offers, then check a later POS export for who returned — the owner reviews and sends, and the kit never texts, emails, or invents a discount.",
+  "persona": "Owner of a salon, clinic, fitness studio, or independent retail shop who can export customers from Square, Mindbody, or a POS and has not looked at who stopped coming in after about 60 days.",
+  "problem": "Repeat customers go quiet and nobody builds a list. When staff remember someone, they send a vague 'we miss you' note, sometimes to people who opted out, and they never check who actually returned.",
+  "workflow": [
+    "1. The person writes winback rules before any draft: lapse threshold (last visit before this date counts as lapsed), VIP visit floor for the last 12 months, whether one-time buyers are skipped, and a written offer list the drafts may not leave. PERSON DECIDES: the lapse date, VIP floor, one-time rule, and which offers the business will actually honor.",
+    "2. The person exports customers with last visit or purchase date, last service or item, visit count in the last 12 months, and marketing-consent / do-not-contact flags, then removes emails, phones, and addresses before paste or upload. They also open last period's contact log. PERSON DECIDES: which columns to keep. This is an export review, not a live Square, Mindbody, POS, email, or SMS connection.",
+    "3. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting or uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to paste the rows as text, upload a file, or not use AI for this data at all.",
+    "4. The person pastes the Skip-Rules-First Prompt and their rules from the Lapse, VIP, and Offer Worksheet, then attaches or pastes the customer rows and the contact-log names already contacted this period.",
+    "5. AI runs SKIP RULES FIRST. It sets aside rows with no marketing consent, do-not-contact, already contacted this period per the log, last visit more recent than the lapse threshold, and one-time buyers when the owner chose to skip them. Every skip lists its reason. PERSON DECIDES: whether a skipped row should still get a personal note outside this workflow.",
+    "6. AI segments the rest: VIP if visit count meets the owner's VIP floor, otherwise occasional. It ranks VIP first, then by days since last visit. It drafts one message per queued row using only last service or item, last visit date, and an offer from the written offer list. It does not invent a discount, private detail, or deadline that is not on the offer list. PERSON DECIDES: whether each draft is accurate enough to consider.",
+    "7. AI labels CONFIRMED (from the export and rules), AI INTERPRETATION (for example that days since visit do not prove why they stopped), and RECOMMENDED ACTION separately. PERSON DECIDES: whether each recommended action happens.",
+    "8. The person uses the Send Review Checklist, picks the recipient from their own list, and sends from their own email or SMS tool, or decides not to. Nothing is sent automatically. After the next POS export, the person pastes the Return Check Prompt and marks returned vs still lapsed in the contact log. PERSON DECIDES: the log outcome. The Blueprint never sends, edits, cancels, or pays."
+  ],
+  "before": "Lapsed regulars disappear from the book. Staff sometimes text a person they remember, including people who asked not to be contacted, and nobody counts who came back.",
+  "after": "Each cycle the owner reviews a consent-filtered queue, VIP first, with drafts that only use export fields and the written offer. A later POS export shows which queued people returned.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/inactive-customer-winback using a fictional eight-row salon customer export dated as_of 2026-06-15, with lapse_if_last_visit_before 2026-04-16, vip_if_visits_12mo >= 8, skip_one_time_buyers yes, and a written offer list (10% off next color for VIP only; complimentary consult for occasional). SKIP RULES FIRST sets aside A. Chen (recent visit), M. Ortiz (no marketing consent), K. Singh (do_not_contact), S. Diaz (one-time buyer), and R. Wells (already contacted this period). The queue ranks VIP J. Rivera then L. Park above occasional T. Brooks, with drafts locked to the offer list. A later fictional POS export marks J. Rivera returned and the others still lapsed. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone. Every name, date, and service is invented. No live POS, booking, email, or SMS system is attached.",
+    "steps": [
+      "Step 1 of 6 - The customer export: show the fictional 8-row customer table (J. Rivera, L. Park, T. Brooks, A. Chen, M. Ortiz, K. Singh, S. Diaz, R. Wells) with as_of 2026-06-15, lapse_if_last_visit_before 2026-04-16, vip_if_visits_12mo 8, skip_one_time_buyers yes, and written offers '10% off next color (VIP only)' and 'complimentary consult (occasional)'. Show contact-log text that R. Wells was already contacted this period. Label the table invented. State that no live Square, Mindbody, POS, email, or SMS account is attached.",
+      "Step 2 of 6 - Skip rules first: show the exact heading 'SKIP RULES FIRST'. List A. Chen as SKIPPED with text containing 'last visit' and '2026-06-01' and the exact sentence 'Do not queue someone whose last visit is after your lapse date.'. List M. Ortiz as SKIPPED with text containing 'marketing_consent' and 'no'. List K. Singh as SKIPPED with text containing 'do_not_contact' and 'yes'. List S. Diaz as SKIPPED with text containing 'one-time' and '1'. List R. Wells as SKIPPED with text containing 'already contacted'.",
+      "Step 3 of 6 - VIP first, then drafts: show the queue ordered J. Rivera (VIP), L. Park (VIP), T. Brooks (occasional). Show CONFIRMED text for J. Rivera containing '2026-02-03', 'Cut & color', '11', and 'yes'. Show the VIP draft 'It has been a while since your Cut & color on Feb 3. If useful, a 10% off next color is available.' Show the occasional draft for T. Brooks containing 'Massage', 'Mar 1', and 'complimentary consult'. Show the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. Show AI INTERPRETATION text containing 'days since visit' and 'do not prove why'. Show that no draft invents an offer outside the written list.",
+      "Step 4 of 6 - Check the facts: open the J. Rivera row. A 'Check facts against the export row' button shows three rows (last visit 2026-02-03 vs 2026-02-03, last service Cut & color vs Cut & color, offer 10% off next color vs written VIP offer), each labelled with the text 'Matches'.",
+      "Step 5 of 6 - Later export return check: show a later fictional POS export as_of 2026-07-20 where J. Rivera last_visit is 2026-07-01 (RETURNED), L. Park last_visit is still 2026-02-15 (still lapsed), and T. Brooks last_visit is still 2026-03-01 (still lapsed). Show the exact sentences 'A return is not proof the message caused it.' and 'Confirm consent before any message.'. Show M. Ortiz and K. Singh still skipped for consent reasons.",
+      "Step 6 of 6 - You send it: state the exact sentences 'You send it. Nothing is sent automatically.' and 'Do not invent a discount that is not on your offer list.'. Explain that the person picks the recipient from their own contacts and sends from their own email or SMS tool, or decides not to, and that nothing is sent, edited, cancelled, or paid automatically. Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "FICTIONAL SAMPLE. as_of: 2026-06-15 | lapse_if_last_visit_before: 2026-04-16 | vip_if_visits_12mo >= 8 | skip_one_time_buyers: yes\nfirst,last_visit,last_service,visits_12mo,marketing_consent,do_not_contact\nJ. Rivera,2026-02-03,Cut & color,11,yes,no\nL. Park,2026-02-15,Cut,10,yes,no\nT. Brooks,2026-03-01,Massage,4,yes,no\nA. Chen,2026-06-01,Consult,3,yes,no\nM. Ortiz,2026-01-20,Facial,2,no,no\nK. Singh,2025-11-02,Cut,9,yes,yes\nS. Diaz,2025-12-10,Color,1,yes,no\nR. Wells,2026-01-05,Highlights,5,yes,no\nContact log this period: R. Wells contacted 2026-06-01\nWritten offers: 10% off next color (VIP only); complimentary consult (occasional)\n\nLater POS export (fictional) as_of: 2026-07-20\nfirst,last_visit\nJ. Rivera,2026-07-01\nL. Park,2026-02-15\nT. Brooks,2026-03-01",
+    "sample_output": "SKIP RULES FIRST\nQUEUE as of 2026-06-15 (fictional; 2 VIP, 1 occasional, 5 skipped)\n1. J. Rivera. CONFIRMED: last visit 2026-02-03 (132 days); last service Cut & color; 11 visits in 12 months; marketing consent yes. Segment: VIP. Draft: 'It has been a while since your Cut & color on Feb 3. If useful, a 10% off next color is available.'\n2. L. Park. CONFIRMED: last visit 2026-02-15 (120 days); last service Cut; 10 visits in 12 months; marketing consent yes. Segment: VIP. Draft: 'It has been a while since your Cut on Feb 15. If useful, a 10% off next color is available.'\n3. T. Brooks. CONFIRMED: last visit 2026-03-01 (106 days); last service Massage; 4 visits in 12 months; marketing consent yes. Segment: occasional. Draft: 'It has been a while since your Massage on Mar 1. A complimentary consult is available if useful.'\nSKIPPED: A. Chen (last visit 2026-06-01 is after your lapse date). Do not queue someone whose last visit is after your lapse date.\nSKIPPED: M. Ortiz (marketing_consent is no).\nSKIPPED: K. Singh (do_not_contact is yes).\nSKIPPED: S. Diaz (one-time buyer; visits_12mo = 1).\nSKIPPED: R. Wells (already contacted this period per the contact log).\nAI INTERPRETATION: days since visit do not prove why they stopped coming.\nRECOMMENDED ACTION (you decide): pick the recipient from your own list and send from your own tool. You send it. Nothing is sent automatically. Do not invent a discount that is not on your offer list.\n\nRETURN CHECK as of 2026-07-20 (fictional)\nCONFIRMED: J. Rivera RETURNED (last visit 2026-07-01). L. Park still lapsed (last visit 2026-02-15). T. Brooks still lapsed (last visit 2026-03-01).\nAI INTERPRETATION: A return is not proof the message caused it.\nRECOMMENDED ACTION (you decide): mark returned vs still lapsed in your contact log.",
+    "fictional_data_notice": "All customers, names, visit dates, services, consent flags, offers, and return outcomes on this page are fictional. No real customer data is used, and nothing is connected to Square, Mindbody, a POS, email, SMS, or any other live system."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Lapsed Customer Winback Setup Checklist",
+      "purpose": "Step-by-step setup for one cycle. It covers writing the lapse threshold, VIP visit floor, one-time-buyer rule, and written offer list; exporting customers with last visit, last service or item, visit count, and consent flags; removing emails, phones, and addresses; opening the contact log; checking the AI tool's data settings before pasting or uploading; and the rule that this is an export review, not a live Square, Mindbody, POS, email, or SMS connection. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
+    },
+    {
+      "id": "skip-rules-prompt",
+      "title": "Skip-Rules-First Prompt",
+      "purpose": "Copyable prompt that runs SKIP RULES FIRST, lists every skip with its reason (no marketing consent, do-not-contact, already contacted this period, last visit after the lapse date, one-time buyer when that rule is on), labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately, and forbids contacting opted-out people, inventing offers, and sending."
+    },
+    {
+      "id": "draft-prompt",
+      "title": "VIP-First Draft Prompt",
+      "purpose": "Copyable prompt used only after skip rules run. It segments VIP vs occasional using the owner's VIP floor, ranks VIP first then by days since last visit, drafts one message per queued row using only last service or item, last visit date, and an offer from the written offer list, and forbids inventing discounts, private details, deadlines, and sending."
+    },
+    {
+      "id": "return-check-prompt",
+      "title": "Return Check Prompt",
+      "purpose": "Copyable prompt used after a later POS export. It compares queued names to the new last-visit dates, marks returned vs still lapsed, warns that a return is not proof the message caused it, and forbids inventing return outcomes or claiming a recovery rate."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Lapse, VIP, and Offer Worksheet",
+      "purpose": "Browser-only form where the person sets the lapse threshold date, VIP visit floor, whether to skip one-time buyers, and the written offer list (VIP offers and occasional offers). It generates a copyable rules block to paste with the prompts. Nothing is saved to Atlas."
+    },
+    {
+      "id": "contact-log-template",
+      "title": "Contact Log Template",
+      "purpose": "Column layout (as_of, first, last_visit, last_service, visits_12mo, segment, offer_used, action, outcome) with allowed action values skipped_no_consent, skipped_dnc, skipped_recent, skipped_one_time, skipped_already_contacted, drafted_not_sent, sent_by_owner, not_sent, allowed outcome values returned, still_lapsed, unknown, and the fictional J. Rivera drafted_not_sent then returned rows from the guided demo. Includes a Copy CSV button so the person can start their own spreadsheet."
+    },
+    {
+      "id": "action-review-checklist",
+      "title": "Send Review Checklist",
+      "purpose": "Interactive, session-only checklist used before contacting anyone. It confirms that SKIP RULES FIRST ran, that no-consent and do-not-contact rows were skipped, that each CONFIRMED field matches the export row, that the draft offer appears on the written offer list, that VIP ranked above occasional, that labels are separate, that a later return will not be treated as proof the message caused it, and that the person will send from their own tool themselves."
+    },
+    {
+      "id": "sample-customers",
+      "title": "Fictional Sample Customer Export",
+      "purpose": "The same fictional eight-row customer CSV, contact-log note, written offers, and later return-check rows used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real customer data."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling customer exports in AI tools: review data settings, remove emails and phones, do not paste passwords or card numbers, do not contact someone without marketing consent or with do-not-contact set, do not invent a discount outside the offer list, do not treat a return as proof the message caused it, and do not send the draft. It also states that file upload support differs by plan and that nothing is sent, edited, cancelled, or paid automatically."
+    }
+  ],
+  "decision_rules": [
+    "Write SKIP RULES FIRST and apply it before any segment, rank, or draft.",
+    "Skip any row whose marketing_consent is no or missing. Show the reason 'marketing_consent is no' or 'marketing_consent missing'.",
+    "Skip any row whose do_not_contact is yes. Show the reason 'do_not_contact is yes'.",
+    "Skip any row already contacted this period per the contact log. Show the reason 'already contacted this period'.",
+    "Skip any row whose last_visit is on or after the owner's lapse_if_last_visit_before date. Show the reason and the exact sentence 'Do not queue someone whose last visit is after your lapse date.'.",
+    "If the owner set skip_one_time_buyers, skip any row with visits_12mo equal to 1. Show the reason 'one-time buyer'.",
+    "If a remaining row is missing last_visit, last_service, visits_12mo, or marketing_consent, do not draft it. List it under NEEDS YOUR CHECK.",
+    "Segment remaining rows as VIP when visits_12mo meets the owner's VIP floor; otherwise occasional.",
+    "Rank VIP rows before occasional rows. Within a segment, rank by days since last visit (highest first), calculated from as_of minus last_visit.",
+    "Draft only from last_service or last item, last_visit date, and an offer that appears on the owner's written offer list for that segment. Do not invent a discount, private detail, deadline, or recovery rate.",
+    "VIP drafts may use only VIP offers. Occasional drafts may use only occasional offers.",
+    "Days since visit do not prove why the person stopped coming. That guess is AI INTERPRETATION, not a CONFIRMED fact.",
+    "On a later POS export, mark queued people RETURNED when last_visit moved after the prior as_of, otherwise still lapsed. A return is not proof the message caused it.",
+    "The draft is a draft only. Do not send it. Do not edit the POS. Suggest a contact-log row; the person adds it.",
+    "On a later cycle, start from a new export and the current contact log. Do not reuse a prior draft as if it were sent."
+  ],
+  "human_ai_boundary": [
+    "AI applies the skip rules the owner wrote. The person writes the lapse date, VIP floor, one-time rule, and offer list, and holds the real consent record.",
+    "AI lists every skip with a reason. The person decides whether a skipped row still gets a personal note outside this workflow.",
+    "AI segments VIP vs occasional and ranks the queue. The person decides whether that ranking matches how they value regulars.",
+    "AI drafts only from export fields and the written offer list. The person checks each draft against the export and the offers they will honor.",
+    "AI never chooses or sees the recipient email or phone. The person addresses and sends every message from their own email or SMS tool, or decides not to.",
+    "AI marks returned vs still lapsed only when the person pastes a later export. The person records the log outcome and does not treat a return as proof the message caused it.",
+    "The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, or paid automatically. Every page states that the person sends it, and that nothing is sent automatically.",
+    "Atlas does not connect to Square, Mindbody, a POS, email, SMS, or any other vendor. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before pasting or uploading exports to an AI tool, the person is told to review that tool's data settings (such as chat history, training use, and file retention) and to remove emails, phones, addresses, and other columns the workflow does not need.",
+    "The kit tells the person not to paste phone numbers, email addresses, account passwords, or payment card numbers into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to contact someone without marketing consent, not to contact do-not-contact rows, not to invent a discount outside the offer list, and not to treat a return as proof the message caused it.",
+    "The kit tells the person that a missing consent column is their risk: without it, skip rules cannot protect opted-out people.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no recovery-rate claims, savings claims, ROI claims, prices, or checkout. The fictional offer-list phrase '10% off next color' may appear only as an owner-written offer in the demo and sample data, not as a claimed result."
+  ],
+  "required_data_tools": [
+    "POS, booking, or customer-list export (CSV) with last visit date, last item or service, visit count, and consent flags",
+    "Owner-set lapse threshold and VIP visit floor",
+    "Written offer list (only offers the business will actually honor)",
+    "Contact log spreadsheet (template in the kit)",
+    "The owner's own email or SMS tool",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings; rows can be pasted as text instead."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/inactive-customer-winback without a session renders a page whose h1 is 'Lapsed Customer Return Queue', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a customer table with exactly 8 data rows whose names are J. Rivera, L. Park, T. Brooks, A. Chen, M. Ortiz, K. Singh, S. Diaz, and R. Wells, and shows '2026-06-15', '2026-04-16', '8', '10% off next color', and 'complimentary consult'.",
+    "Step 2 shows the exact heading 'SKIP RULES FIRST'. A. Chen is SKIPPED with text containing '2026-06-01' and the exact sentence 'Do not queue someone whose last visit is after your lapse date.'. M. Ortiz is SKIPPED with text containing 'marketing_consent' and 'no'. K. Singh is SKIPPED with text containing 'do_not_contact' and 'yes'. S. Diaz is SKIPPED with text containing 'one-time' or '1'. R. Wells is SKIPPED with text containing 'already contacted'.",
+    "Step 3 shows the queue ordered J. Rivera, then L. Park, then T. Brooks. It shows the draft 'It has been a while since your Cut & color on Feb 3. If useful, a 10% off next color is available.' It shows T. Brooks draft text containing 'Massage', 'Mar 1' or 'March 1', and 'complimentary consult'. It shows the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. CONFIRMED for J. Rivera contains '2026-02-03', 'Cut & color', '11', and 'yes'. AI INTERPRETATION contains 'days since visit' and 'do not prove why'.",
+    "Step 4 shows the J. Rivera CONFIRMED line. Activating 'Check facts against the export row' reveals three rows (last visit, last service, offer), each containing the text 'Matches', and the values 2026-02-03, Cut & color, and 10% off next color.",
+    "Step 5 shows J. Rivera RETURNED with last visit 2026-07-01, L. Park still lapsed, T. Brooks still lapsed, and the exact sentences 'A return is not proof the message caused it.' and 'Confirm consent before any message.'.",
+    "Step 6 contains the exact sentences 'You send it. Nothing is sent automatically.' and 'Do not invent a discount that is not on your offer list.' and a link to /blueprints/inactive-customer-winback/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every customer name, visit date, service, consent value, offer, skip reason, draft, and return outcome in the demo matches the guided_demo.sample_input and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', or 'per month'. Neither page contains a dollar amount. The only percentage allowed is the fictional offer-list phrase '10% off next color'.",
+    "Neither page contains a recovery-rate figure, an hours-saved figure, or an ROI or savings claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/inactive-customer-winback', and /sitemap.xml does not contain '/blueprints/inactive-customer-winback'.",
+    "GET /blueprints/inactive-customer-winback/kit without a session redirects to /auth with the query parameter next=/blueprints/inactive-customer-winback/kit.",
+    "Lapsed Customer Return Queue is registered in src/lib/blueprints.ts with id and productSlug 'inactive-customer-winback', title 'Lapsed Customer Return Queue', access 'premium', href '/blueprints/inactive-customer-winback/kit', purchaseHref '/blueprints/inactive-customer-winback', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/inactive-customer-winback/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'inactive-customer-winback') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'Lapsed Customer Return Queue Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no Lapsed Customer Return Queue entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 9 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Skip-Rules-First Prompt is shown in a <pre> element and contains these strings: 'SKIP RULES FIRST', 'marketing_consent', 'do_not_contact', 'already contacted', 'Do not queue someone whose last visit is after your lapse date', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'Do not invent', 'Do not send'.",
+    "The VIP-First Draft Prompt is shown in a <pre> element and contains: 'only after', 'skip', 'VIP', 'occasional', 'written offer', 'Do not invent', 'Do not send', 'You send it'.",
+    "The Return Check Prompt is shown in a <pre> element and contains: 'RETURNED', 'still lapsed', 'A return is not proof the message caused it', 'Do not invent', 'contact log'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Lapse, VIP, and Offer Worksheet has a visible label 'Lapse if last visit before' whose default value is '2026-04-16', a visible label 'VIP if visits in 12 months at least' whose default value is '8', a visible label 'Skip one-time buyers' whose default is checked or yes, a visible label 'VIP offers (one per line)' whose default includes '10% off next color', a visible label 'Occasional offers (one per line)' whose default includes 'complimentary consult', plus a 'Generate My Winback Rules' button.",
+    "With the defaults, the generated rules block contains 'Apply SKIP RULES FIRST before any draft.', 'Skip when marketing_consent is no or missing.', 'Skip when do_not_contact is yes.', 'Skip when already contacted this period.', 'Lapse if last visit before 2026-04-16.', 'VIP if visits_12mo >= 8.', 'Skip one-time buyers.', 'VIP offers: 10% off next color.', 'Occasional offers: complimentary consult.', and 'Do not send. You send it. Nothing is sent automatically.' The block has a Copy button.",
+    "If the lapse-date field is empty or whitespace only, the worksheet shows the error 'Enter a lapse threshold date.' and generates no rules block.",
+    "If the VIP floor field is empty, 0, or negative, the worksheet shows the error 'Enter a VIP visit floor of 1 or more.' and generates no rules block.",
+    "If both VIP offers and occasional offers are empty or whitespace only, the worksheet shows the error 'Enter at least one offer on your written offer list.' and generates no rules block.",
+    "When 'VIP offers (one per line)' contains only '10% off next color' and 'Occasional offers (one per line)' contains 'complimentary consult' and 'free add-on' on two lines, the generated rules block contains 'VIP offers: 10% off next color.' and 'Occasional offers: complimentary consult; free add-on.'.",
+    "The Contact Log Template shows the columns as_of, first, last_visit, last_service, visits_12mo, segment, offer_used, action, outcome. Its 'Copy CSV' button writes text whose first line is 'as_of,first,last_visit,last_service,visits_12mo,segment,offer_used,action,outcome' and whose J. Rivera row contains '2026-06-15', 'Cut & color', 'VIP', 'drafted_not_sent' or 'returned'.",
+    "The Send Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Customer Export section is labelled 'Fictional' and its Copy CSV text equals the first,last_visit,last_service,visits_12mo,marketing_consent,do_not_contact rows and header from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the Lapsed Customer Return Queue card as Unlocked with an Open Blueprint link to /blueprints/inactive-customer-winback/kit.",
+    "With an authenticated session that has no Lapsed Customer Return Queue entitlement, /my-blueprints shows the Lapsed Customer Return Queue card as Locked with an Available to purchase link to /blueprints/inactive-customer-winback and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged. Security Readiness Action Pack, Google Ads Performance Coach, Quote Request Assistant, AI Expense Watchdog, No-show Recovery Assistant, Unbilled Work Review Queue, On-brand Reply Review Queue, Stalled Deal Rescue Queue, Next-Pay Labor Check, Quiet Proposal Chase Queue, and Shift Coverage vs Demand Check entitlement and locked or unlocked card behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/inactive-customer-winback/, components/premium/inactive-customer-winback/, and src/lib/premium/inactive-customer-winback/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/inactive-customer-winback/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/inactive-customer-winback renders h1 'Lapsed Customer Return Queue', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/inactive-customer-winback'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/inactive-customer-winback'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-customer-table",
+      "description": "Step 1 customer table has exactly 8 data rows named J. Rivera, L. Park, T. Brooks, A. Chen, M. Ortiz, K. Singh, S. Diaz, and R. Wells, and the page shows '2026-06-15', '2026-04-16', '8', '10% off next color', and 'complimentary consult'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-skip-rules",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and the exact heading 'SKIP RULES FIRST'. A. Chen is SKIPPED with '2026-06-01' and 'Do not queue someone whose last visit is after your lapse date.'. M. Ortiz is SKIPPED with 'marketing_consent' and 'no'. K. Singh is SKIPPED with 'do_not_contact' and 'yes'. S. Diaz is SKIPPED with 'one-time' or '1'. R. Wells is SKIPPED with 'already contacted'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-queue-drafts",
+      "description": "On step 3, the queue order is J. Rivera, L. Park, T. Brooks. The draft contains 'It has been a while since your Cut & color on Feb 3. If useful, a 10% off next color is available.'. T. Brooks draft text contains 'Massage' and 'complimentary consult'. The text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible. CONFIRMED contains 'J. Rivera', '2026-02-03', 'Cut & color', '11', and 'yes'. AI INTERPRETATION contains 'days since visit' and 'do not prove why'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-fact-check",
+      "description": "On step 4, the J. Rivera CONFIRMED line is visible. Clicking 'Check facts against the export row' reveals 3 rows (2026-02-03 vs 2026-02-03; Cut & color vs Cut & color; 10% off next color vs written VIP offer), each with the text 'Matches'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-return-check",
+      "description": "On step 5, J. Rivera is RETURNED with 2026-07-01, L. Park and T. Brooks are still lapsed, and the page shows 'A return is not proof the message caused it.' and 'Confirm consent before any message.'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-sends",
+      "description": "On step 6, the exact sentences 'You send it. Nothing is sent automatically.' and 'Do not invent a discount that is not on your offer list.' are visible. A link to /blueprints/inactive-customer-winback/kit is present with visible text mentioning sign-in and private preview. 'Next step' is absent or disabled.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\$\\d|ROI|hours saved|recovery rate|winback rate/i. The fictional offer-list phrase '10% off next color' is allowed; other percentage claims are not.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/inactive-customer-winback/kit ends on pathname /auth with searchParams next equal to '/blueprints/inactive-customer-winback/kit' (expectAuthNext helper).",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/inactive-customer-winback/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/inactive-customer-winback/kit sees h1 'Lapsed Customer Return Queue Premium Kit', the exact text 'Premium · Private preview', and meta robots containing 'noindex'. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 9 sections with ids setup-checklist, skip-rules-prompt, draft-prompt, return-check-prompt, rules-worksheet, contact-log-template, action-review-checklist, sample-customers, and safety-guidance, each with a heading matching its kit_contents title. A table-of-contents link with href '#<id>' exists for each.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-price-or-checkout",
+      "description": "Kit page body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\$\\d|ROI|hours saved|recovery rate|winback rate/i, and the page contains no form that posts to a payment URL. The fictional offer-list phrase '10% off next color' is allowed.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-skip-rules-prompt-copy",
+      "description": "The skip-rules-prompt <pre> contains 'SKIP RULES FIRST', 'marketing_consent', 'do_not_contact', 'already contacted', 'Do not queue someone whose last visit is after your lapse date', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'Do not invent', and 'Do not send'. Clicking its 'Copy Prompt' button changes the label to 'Copied', and navigator.clipboard.readText() equals the <pre> text.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-draft-prompt-content",
+      "description": "The VIP-First Draft Prompt <pre> contains 'only after', 'skip', 'VIP', 'occasional', 'written offer', 'Do not invent', 'Do not send', and 'You send it'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-return-check-prompt-content",
+      "description": "The Return Check Prompt <pre> contains 'RETURNED', 'still lapsed', 'A return is not proof the message caused it', 'Do not invent', and 'contact log'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Winback Rules' with default values produces a block containing 'Apply SKIP RULES FIRST before any draft.', 'Skip when marketing_consent is no or missing.', 'Skip when do_not_contact is yes.', 'Skip when already contacted this period.', 'Lapse if last visit before 2026-04-16.', 'VIP if visits_12mo >= 8.', 'Skip one-time buyers.', 'VIP offers: 10% off next color.', 'Occasional offers: complimentary consult.', and 'Do not send. You send it. Nothing is sent automatically.'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-custom-offers",
+      "description": "Setting VIP offers to '10% off next color' and occasional offers to 'complimentary consult' and 'free add-on' on two lines, then generating, produces a block containing 'VIP offers: 10% off next color.' and 'Occasional offers: complimentary consult; free add-on.'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Clearing 'Lapse if last visit before' and generating shows 'Enter a lapse threshold date.' and no rules block. Setting the VIP floor to 0 shows 'Enter a VIP visit floor of 1 or more.' and no rules block. Clearing both offer fields shows 'Enter at least one offer on your written offer list.' and no rules block.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-contact-log-copy-csv",
+      "description": "The Contact Log Template lists columns as_of, first, last_visit, last_service, visits_12mo, segment, offer_used, action, outcome. Its 'Copy CSV' button writes clipboard text whose first line is 'as_of,first,last_visit,last_service,visits_12mo,segment,offer_used,action,outcome' and that contains 'J. Rivera', '2026-06-15', and 'drafted_not_sent' or 'returned'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-customers-fictional",
+      "description": "The Fictional Sample Customer Export section shows the label 'Fictional'. Its copied CSV contains the header 'first,last_visit,last_service,visits_12mo,marketing_consent,do_not_contact' and the J. Rivera, L. Park, T. Brooks, A. Chen, M. Ortiz, K. Singh, S. Diaz, and R. Wells rows from the demo.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Send Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-entitled",
+      "description": "With an entitled authenticated session, /my-blueprints shows the Lapsed Customer Return Queue card with PREMIUM, Unlocked, and an Open Blueprint link to /blueprints/inactive-customer-winback/kit.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-locked-without-entitlement",
+      "description": "With an authenticated session whose entitlement header is deny, /blueprints/inactive-customer-winback/kit shows heading 'Premium is locked', does not render #setup-checklist, and has 0 Buy Premium buttons.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-locked",
+      "description": "With an authenticated session whose entitlement header is deny, the Lapsed Customer Return Queue card on /my-blueprints is Locked, the Available to purchase link points at /blueprints/inactive-customer-winback, and there is no kit link.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "daily-inbox-still-open",
+      "description": "With an authenticated session, /my-blueprints still has Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit, including when the Lapsed Customer Return Queue entitlement is denied.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "collections-behavior-unchanged",
+      "description": "AI Collections Assistant remaining premium, Buy Premium, checkout, and entitlement behavior is unchanged. Do not edit Collections product files or e2e/ai-collections-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "security-behavior-unchanged",
+      "description": "Security Readiness Action Pack remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Security product files or e2e/security-readiness-action-pack/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "google-ads-behavior-unchanged",
+      "description": "Google Ads Performance Coach remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Google Ads product files or e2e/google-ads-performance-coach/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "quote-request-behavior-unchanged",
+      "description": "Quote Request Assistant remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Quote Request product files or e2e/quote-request-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "expense-watchdog-behavior-unchanged",
+      "description": "AI Expense Watchdog remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Expense Watchdog product files or e2e/ai-expense-watchdog/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-show-behavior-unchanged",
+      "description": "No-show Recovery Assistant remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit No-show product files or e2e/no-show-recovery-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "unbilled-behavior-unchanged",
+      "description": "Unbilled Work Review Queue remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Unbilled product files or e2e/unbilled-work-review-queue/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "customer-response-behavior-unchanged",
+      "description": "On-brand Reply Review Queue remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Customer Response product files or e2e/ai-customer-response-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "pipeline-risk-behavior-unchanged",
+      "description": "Stalled Deal Rescue Queue remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Pipeline Risk product files or e2e/ai-pipeline-risk-detector/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "payroll-forecasting-behavior-unchanged",
+      "description": "Next-Pay Labor Check remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit payroll forecasting product files or e2e/ai-payroll-forecasting/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "proposal-follow-up-behavior-unchanged",
+      "description": "Quiet Proposal Chase Queue remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Proposal Follow-up product files or e2e/ai-proposal-follow-up-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "staffing-optimizer-behavior-unchanged",
+      "description": "Shift Coverage vs Demand Check remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Staffing Optimizer product files or e2e/ai-staffing-optimizer/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-winback-stripe-price",
+      "description": "Lapsed Customer Return Queue is not in PAID_PRODUCTS, getPaidProduct('inactive-customer-winback') is undefined, and its pages show no Stripe price, checkout form, or Buy Premium button.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/inactive-customer-winback/authenticated.spec.ts. Authenticated QA must actually reach the kit after automatic session refresh.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts (the only authenticated file run by the authenticated-desktop project), call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, the lapse-date field, the VIP-floor field, the skip-one-time control, the VIP-offers field, the occasional-offers field, the Generate button, every review-checklist checkbox, and Reset. Each shows a visible focus ring (non-'none' outline or box-shadow on :focus-visible).",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to Square, Mindbody, a POS, email, SMS, or any other vendor, including OAuth flows, API calls, webhooks, and automated sends.",
+    "Uploading, parsing, or storing the person's real customer files on Atlas.",
+    "Sending SMS or email, editing a POS or booking system, or charging from Atlas.",
+    "Same-day no-show recovery (that belongs to No-show Recovery Assistant).",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for Lapsed Customer Return Queue. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Security Readiness Action Pack behavior, Google Ads Performance Coach behavior, Quote Request Assistant behavior, AI Expense Watchdog behavior, No-show Recovery Assistant behavior, Unbilled Work Review Queue behavior, On-brand Reply Review Queue behavior, Stalled Deal Rescue Queue behavior, Next-Pay Labor Check behavior, Quiet Proposal Chase Queue behavior, Shift Coverage vs Demand Check behavior, Stripe configuration, Production, or e2e/inactive-customer-winback/authenticated.spec.ts.",
+    "Changes to content/published/, /use-cases/inactive-customer-winback, or Japanese catalog labels.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or contact-log rows to an Atlas account.",
+    "Statistics, recovery-rate claims, time-to-return claims, or ROI claims.",
+    "Contacting someone without marketing consent, inventing a discount outside the offer list, or treating a return as proof the message caused it."
+  ],
+  "source": {
+    "run_id": "20261108T063826Z-inactive-customer-winback",
+    "candidate_id": "inactive-customer-winback",
+    "approved_at": "2026-11-08T06:38:26.986Z",
+    "approval_note": "Approved internally for batch batch-20261031T062745Z. Final human review is deferred to the batch dashboard.",
+    "summary_scores": {
+      "commercial": 6.3,
+      "atlas_fit": 7.8,
+      "buildability": 7.2,
+      "overall": 7.02
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/inactive-customer-winback",
+    "kit": "/blueprints/inactive-customer-winback/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/inactive-customer-winback/",
+    "components/premium/inactive-customer-winback/",
+    "src/lib/premium/inactive-customer-winback/",
+    "src/lib/blueprints.ts",
+    "e2e/inactive-customer-winback/"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/inactive-customer-winback and the Premium kit at /blueprints/inactive-customer-winback/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled \"Premium · Private preview\". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/inactive-customer-winback/, components/premium/inactive-customer-winback/, and src/lib/premium/inactive-customer-winback/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.",
+    "e2e/inactive-customer-winback/authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}

@@ -26,7 +26,7 @@ export const DAILY_INBOX_STARTER_KIT_PATH =
 export const MY_BLUEPRINTS_PATH = "/my-blueprints";
 
 export const blueprintCatalog: BlueprintDefinition[] = [
-  {
+{
     id: "daily-inbox-briefing-starter-kit",
     title: "AI Daily Inbox Briefing",
     badge: "FREE STARTER",
@@ -35,7 +35,7 @@ export const blueprintCatalog: BlueprintDefinition[] = [
     summary:
       "Prompts, setup guides, worksheets, and review tools for the free starter workflow.",
   },
-  {
+{
     id: "ai-collections-assistant",
     title: "AI Collections Assistant",
     badge: "PREMIUM",
@@ -46,7 +46,7 @@ export const blueprintCatalog: BlueprintDefinition[] = [
     summary:
       "A weekly collections queue you review yourself before anything is sent.",
   },
-  {
+{
     id: "security-readiness-action-pack",
     title: "Security Readiness Action Pack",
     badge: "PREMIUM",
@@ -57,7 +57,40 @@ export const blueprintCatalog: BlueprintDefinition[] = [
     summary:
       "A quarterly readiness queue you review yourself. The kit does not scan, certify, or change accounts.",
   },
-  {
+{
+    id: "google-ads-performance-coach",
+    title: "Google Ads Performance Coach",
+    badge: "PREMIUM",
+    href: "/blueprints/google-ads-performance-coach/kit",
+    purchaseHref: "/blueprints/google-ads-performance-coach",
+    productSlug: "google-ads-performance-coach",
+    access: "premium",
+    summary:
+      "A measurement-first review you run yourself before any budget move. The kit does not edit Google Ads.",
+  },
+{
+    id: "quote-request-assistant",
+    title: "Quote Request Assistant",
+    badge: "PREMIUM",
+    href: "/blueprints/quote-request-assistant/kit",
+    purchaseHref: "/blueprints/quote-request-assistant",
+    productSlug: "quote-request-assistant",
+    access: "premium",
+    summary:
+      "Paste a quote request, extract labelled scope against your written rules, and review a draft. You price and send.",
+  },
+{
+    id: "ai-expense-watchdog",
+    title: "AI Expense Watchdog",
+    badge: "PREMIUM",
+    href: "/blueprints/ai-expense-watchdog/kit",
+    purchaseHref: "/blueprints/ai-expense-watchdog",
+    productSlug: "ai-expense-watchdog",
+    access: "premium",
+    summary:
+      "A recurring-charge ledger from a card or accounting CSV. You decide what to cancel. The kit never cancels or connects to a bank.",
+  },
+{
     id: "no-show-recovery-assistant",
     title: "No-show Recovery Assistant",
     badge: "PREMIUM",
@@ -66,7 +99,84 @@ export const blueprintCatalog: BlueprintDefinition[] = [
     productSlug: "no-show-recovery-assistant",
     access: "premium",
     summary:
-      "A same-day rebooking draft you review yourself. Nothing is sent automatically.",
+      "Labelled no-show drafts with real open times and a consent check. You review and send. The kit never texts, emails, or books.",
+  },
+{
+    id: "unbilled-work-review-queue",
+    title: "Unbilled Work Review Queue",
+    badge: "PREMIUM",
+    href: "/blueprints/unbilled-work-review-queue/kit",
+    purchaseHref: "/blueprints/unbilled-work-review-queue",
+    productSlug: "unbilled-work-review-queue",
+    access: "premium",
+    summary:
+      "A skip-ruled unbilled queue from a job export. You create the invoice. Nothing is sent or collected.",
+  },
+{
+    id: "ai-customer-response-assistant",
+    title: "On-brand Reply Review Queue",
+    badge: "PREMIUM",
+    href: "/blueprints/ai-customer-response-assistant/kit",
+    purchaseHref: "/blueprints/ai-customer-response-assistant",
+    productSlug: "ai-customer-response-assistant",
+    access: "premium",
+    summary:
+      "Paste one inbound message, stop drafts on the owner's escalate list, and answer only from pasted FAQ facts. The owner reviews and sends. The kit never emails a customer.",
+  },
+{
+    id: "ai-pipeline-risk-detector",
+    title: "Stalled Deal Rescue Queue",
+    badge: "PREMIUM",
+    href: "/blueprints/ai-pipeline-risk-detector/kit",
+    purchaseHref: "/blueprints/ai-pipeline-risk-detector",
+    productSlug: "ai-pipeline-risk-detector",
+    access: "premium",
+    summary:
+      "A skip-ruled stall queue from an open-deals export. You send the recovery note. Nothing is sent or written to the CRM.",
+  },
+{
+    id: "ai-payroll-forecasting",
+    title: "Next-Pay Labor Check",
+    badge: "PREMIUM",
+    href: "/blueprints/ai-payroll-forecasting/kit",
+    purchaseHref: "/blueprints/ai-payroll-forecasting",
+    productSlug: "ai-payroll-forecasting",
+    access: "premium",
+    summary:
+      "Loaded payroll from the posted schedule with visible formulas. You edit the schedule. The kit changes nothing.",
+  },
+{
+    id: "ai-proposal-follow-up-assistant",
+    title: "Quiet Proposal Chase Queue",
+    badge: "PREMIUM",
+    href: "/blueprints/ai-proposal-follow-up-assistant/kit",
+    purchaseHref: "/blueprints/ai-proposal-follow-up-assistant",
+    productSlug: "ai-proposal-follow-up-assistant",
+    access: "premium",
+    summary:
+      "A skip-ruled silence queue from a sent-proposal export. You send the follow-up. Nothing is sent automatically.",
+  },
+{
+    id: "ai-staffing-optimizer",
+    title: "Shift Coverage vs Demand Check",
+    badge: "PREMIUM",
+    href: "/blueprints/ai-staffing-optimizer/kit",
+    purchaseHref: "/blueprints/ai-staffing-optimizer",
+    productSlug: "ai-staffing-optimizer",
+    access: "premium",
+    summary:
+      "Hourly POS demand against clocked hours under owner minimums and a 3-of-4-weeks rule. You edit the schedule. The kit changes nothing.",
+  },
+  {
+    id: "inactive-customer-winback",
+    title: "Lapsed Customer Return Queue",
+    badge: "PREMIUM",
+    href: "/blueprints/inactive-customer-winback/kit",
+    purchaseHref: "/blueprints/inactive-customer-winback",
+    productSlug: "inactive-customer-winback",
+    access: "premium",
+    summary:
+      "A consent-filtered, VIP-first winback queue from a stripped customer export. You review and send. Nothing is sent automatically, and the kit never invents a discount.",
   },
 ];
 

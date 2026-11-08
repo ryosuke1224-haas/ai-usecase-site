@@ -1,0 +1,283 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "ai-expense-watchdog",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "AI Expense Watchdog",
+  "value_proposition": "Before any cancel, build a recurring-charge ledger from an export, show price-change formulas in plain text, and label possible overlaps as interpretation — the Blueprint never cancels a vendor.",
+  "persona": "An owner or office manager who has not looked line by line at software and vendor spend for months, and who can export card, bank, or accounting transactions as CSV.",
+  "problem": "Forgotten subscriptions, duplicate tools, and quiet price increases accumulate in card and bank statements. A generic chatbot will invent unused tools and a savings total.",
+  "workflow": [
+    "1. The person writes the keep list (vendors that must never be flagged for cancel), overlap-watch categories, and the minimum amount change worth listing. PERSON DECIDES: which vendors are essential and which categories to watch.",
+    "2. The person exports two or three months of card, bank, or accounting transactions as CSV with date, vendor, amount, and the file's date range. QuickBooks is optional only as a CSV export, not a live connection. PERSON DECIDES: which columns to keep. Remove card numbers, account numbers, and other columns the workflow does not need.",
+    "3. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting or uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to upload the file, paste the rows as text, or not use AI for this data at all.",
+    "4. The person pastes the Recurring Ledger Prompt and their rules from the Keep List and Overlap Rules Worksheet, then attaches or pastes the CSV.",
+    "5. AI writes RECURRING LEDGER FIRST. It groups a vendor as recurring only when that exact vendor name appears in at least two months, lists one-time charges as NOT RECURRING, and skips keep-list vendors for cancel review.",
+    "6. For recurring vendors, AI fills visible change formulas from export amounts only (for example =39.00-29.00). A later higher amount is a CONFIRMED price change, not a savings figure. Possible duplicate tools are AI INTERPRETATION.",
+    "7. AI labels each point as CONFIRMED (from the CSV), AI INTERPRETATION (a possible overlap), or RECOMMENDED ACTION. It does not invent unused subscriptions or a savings total.",
+    "8. The person uses the Cancel Review Checklist and checks every CONFIRMED amount against the export row before touching a vendor account. PERSON DECIDES: whether to cancel, keep, or wait and re-export. The person cancels in the vendor's own site themselves. The Blueprint never cancels anything."
+  ],
+  "before": "Recurring charges blur together. The owner guesses which tools overlap and sometimes cancels a tool the business still needs, or never reviews at all.",
+  "after": "The owner sees a recurring ledger with visible formulas, one-time charges set aside, keep-list vendors skipped, and a short evidence-labelled list of what to confirm next. Nothing is cancelled automatically.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/ai-expense-watchdog using a fictional ten-row card export dated 2026-07-01 to 2026-09-30, as of 2026-09-30. The keep list is ZoomMeet, the overlap-watch category is design tools, and the minimum change is 5.00. DesignHub Pro, CanvaLite Teams, and ZoomMeet are recurring; Harbor Office Supply is one charge; ZoomMeet is skipped for cancel review. The demo shows ledger formulas, labelled interpretation that DesignHub Pro and CanvaLite Teams may overlap, a fact check of DesignHub Pro against the export rows, and an ending that states the person cancels it. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone.",
+    "steps": [
+      "Step 1 of 6 - The export: show the fictional card table of 10 rows whose vendor names include DesignHub Pro, CanvaLite Teams, ZoomMeet, and Harbor Office Supply. Show '2026-07-01 to 2026-09-30', '2026-09-30', 'ZoomMeet', 'design tools', and '5.00'. Label the table invented. State that no live card network, bank, QuickBooks, or Plaid account is attached.",
+      "Step 2 of 6 - Recurring ledger first: show the exact heading 'RECURRING LEDGER FIRST'. List DesignHub Pro, CanvaLite Teams, and ZoomMeet as recurring. List Harbor Office Supply as NOT RECURRING with text containing '84.00' and 'one charge'. List ZoomMeet as skipped for cancel review.",
+      "Step 3 of 6 - Visible formulas, then stop: show a ledger table. DesignHub Pro formula text '=39.00-29.00', result '10.00'. CanvaLite Teams formula text '=30.00-30.00', result '0.00'. ZoomMeet formula text '=15.99-15.99', result '0.00'. Show the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. Show AI INTERPRETATION text containing 'may overlap' and 'not a savings figure'. Show RECOMMENDED ACTION text containing 'confirm who uses' and 'Do not cancel from a guess.'.",
+      "Step 4 of 6 - Check the facts: open the DesignHub Pro CONFIRMED line with 29.00 and 39.00. A 'Check facts against the export row' button shows three rows (2026-07-03, 2026-08-03, 2026-09-03), each labelled with the text 'Matches', and the values 29.00, 39.00, and 39.00.",
+      "Step 5 of 6 - What a later run needs: show 'No new export was provided.', 'no usage column', ZoomMeet on the keep list, and the sentence 'Re-run next month with a new export. Do not cancel from a guess.'.",
+      "Step 6 of 6 - You cancel it: state the exact sentences 'You cancel it. The kit changes nothing.' and 'Do not cancel from a guess.' Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "export_range: 2026-07-01 to 2026-09-30 (fictional)\nas_of: 2026-09-30\nkeep_list: ZoomMeet\noverlap_watch: design tools\nminimum_change: 5.00\ndate,vendor,amount,source\n2026-07-03,DesignHub Pro,29.00,card\n2026-07-11,CanvaLite Teams,30.00,card\n2026-07-15,ZoomMeet,15.99,card\n2026-08-03,DesignHub Pro,39.00,card\n2026-08-11,CanvaLite Teams,30.00,card\n2026-08-15,ZoomMeet,15.99,card\n2026-08-22,Harbor Office Supply,84.00,card\n2026-09-03,DesignHub Pro,39.00,card\n2026-09-11,CanvaLite Teams,30.00,card\n2026-09-15,ZoomMeet,15.99,card",
+    "sample_output": "RECURRING LEDGER FIRST\nCONFIRMED: DesignHub Pro appears on 2026-07-03 (29.00), 2026-08-03 (39.00), and 2026-09-03 (39.00). Cadence: monthly. change_formula =39.00-29.00. change_result 10.00.\nCONFIRMED: CanvaLite Teams appears on 2026-07-11 (30.00), 2026-08-11 (30.00), and 2026-09-11 (30.00). Cadence: monthly. change_formula =30.00-30.00. change_result 0.00.\nCONFIRMED: ZoomMeet appears on 2026-07-15 (15.99), 2026-08-15 (15.99), and 2026-09-15 (15.99). Cadence: monthly. change_formula =15.99-15.99. change_result 0.00. Always keep: ZoomMeet.\nNOT RECURRING: Harbor Office Supply 84.00 on 2026-08-22 (one charge in the export).\nSKIPPED FOR CANCEL REVIEW: ZoomMeet (on your keep list).\nNEEDS YOUR CHECK: no usage column in the export.\nAI INTERPRETATION: DesignHub Pro and CanvaLite Teams may overlap (both design tools). A 10.00 amount change is not a savings figure and is not proof the business can cancel either tool.\nRECOMMENDED ACTION (you decide): Before cancelling either, confirm who uses DesignHub Pro and CanvaLite Teams. Keep ZoomMeet. Do not cancel from a guess. You cancel it. The kit changes nothing.",
+    "fictional_data_notice": "All vendors, amounts, and dates on this page are fictional. No real business data is used, and nothing is connected to a card network, bank, QuickBooks, Plaid, or any other live system."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Expense Review Setup Checklist",
+      "purpose": "Step-by-step setup for one review. It covers writing the keep list and overlap-watch categories, exporting two or three months of card, bank, or accounting transactions as CSV with date, vendor, amount, and the file's date range, treating QuickBooks as an optional CSV export only, checking the AI tool's data settings before pasting or uploading, and the rule that this is an export review, not a live connector. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
+    },
+    {
+      "id": "ledger-prompt",
+      "title": "Recurring Ledger Prompt",
+      "purpose": "Copyable prompt that writes RECURRING LEDGER FIRST, groups a vendor as recurring only when it appears in at least two months, lists one-time charges as NOT RECURRING, skips keep-list vendors for cancel review, and labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately. It forbids inventing unused tools, claiming savings, and cancelling."
+    },
+    {
+      "id": "increase-review-prompt",
+      "title": "Price Change and Overlap Prompt",
+      "purpose": "Copyable prompt used only after the ledger is built. It fills visible change formulas from export amounts, treats a later higher amount as a CONFIRMED price change not a savings figure, and labels possible overlaps as AI INTERPRETATION."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Keep List and Overlap Rules Worksheet",
+      "purpose": "Browser-only form where the person sets essential vendors to never flag for cancel, overlap-watch categories, and the minimum amount to list as a price change. It generates a copyable rules block to paste with the ledger prompt. Nothing is saved to Atlas."
+    },
+    {
+      "id": "ledger-template",
+      "title": "Recurring Ledger Template",
+      "purpose": "Column layout (vendor, jul, aug, sep, cadence, change_formula, change_result, keep_list) with fictional example rows and a Copy CSV button so the person can start their own spreadsheet."
+    },
+    {
+      "id": "action-review-checklist",
+      "title": "Cancel Review Checklist",
+      "purpose": "Interactive, session-only checklist used before cancelling anything. It confirms recurring vendors appear in at least two months, one-time charges were not called subscriptions, each CONFIRMED amount matches an export row, overlaps are labelled interpretation, no savings total was invented, and the person cancels in the vendor's own site themselves."
+    },
+    {
+      "id": "sample-exports",
+      "title": "Fictional Sample Card Export",
+      "purpose": "The same 10-row fictional CSV used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real financial data."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling financial data in AI tools: review data settings, remove card and account numbers, do not invent savings, do not claim a tool is unused when the export has no usage column, and remember that nothing is cancelled automatically."
+    }
+  ],
+  "decision_rules": [
+    "Write RECURRING LEDGER FIRST and apply it before any overlap guess, cancel suggestion, or savings language.",
+    "Use the export's own date range, not today's date. If the CSV has no date range, ask the person for it before building the ledger.",
+    "Group a vendor as recurring only when that exact vendor name appears in at least two months of the export. Show the months.",
+    "A charge that appears only once is NOT RECURRING. Show the reason 'one charge in the export'. Do not call it a subscription.",
+    "Skip any vendor on the keep list for cancel review. Show the reason 'on your keep list'.",
+    "If a remaining row is missing date, vendor, or amount, or the same vendor appears twice on the same date with different amounts, do not rank it. List it under NEEDS YOUR CHECK.",
+    "Do not claim a tool is unused. If the export has no usage column, write 'no usage column in the export' under NEEDS YOUR CHECK.",
+    "Leave every change formula visible as text (for example =39.00-29.00). A later higher amount is a CONFIRMED price change from the CSV, not a savings claim.",
+    "List a price change only when the later amount minus the earlier amount is at least the person's minimum.",
+    "Possible duplicate tools are AI INTERPRETATION. Do not merge similar vendor names. A possible overlap is not proof either tool can be cancelled.",
+    "Do not invent amounts, vendors, unused subscriptions, or savings totals. Do not treat a price change as money the business will get back.",
+    "On a later run, use a new export. If the person has not attached a new export, say that no new export was provided."
+  ],
+  "human_ai_boundary": [
+    "AI groups recurring vendors from the export. The person decides which vendors are essential and which categories to watch.",
+    "AI writes RECURRING LEDGER FIRST and skips keep-list vendors for cancel review. The person decides whether a vendor stays on the keep list.",
+    "AI fills ledger formulas from export amounts and leaves the arithmetic visible. The person checks every CONFIRMED number against the export row before treating it as true.",
+    "AI labels CONFIRMED facts, AI INTERPRETATION, and RECOMMENDED ACTION separately. The person decides whether a possible overlap is worth investigating.",
+    "AI never connects to a card network, bank, QuickBooks, or Plaid, never cancels a vendor, and never uploads the person's files to a third party. The person cancels in the vendor's own site, or decides not to.",
+    "The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, or paid automatically. Every page states that the person cancels it and that the kit changes nothing.",
+    "Atlas does not connect to a card network, bank, QuickBooks, Plaid, or any other vendor. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before pasting or uploading exports to an AI tool, the person is told to review that tool's data settings and to remove card numbers, account numbers, and other columns the workflow does not need.",
+    "The kit tells the person not to paste card numbers, bank account numbers, passwords, or tax IDs into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to cancel from a guess, not to invent unused tools, and not to treat a price change as a savings figure.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no statistics, savings, ROI claims, prices, or checkout. Fictional export amounts and confirmed differences are the only dollar figures."
+  ],
+  "required_data_tools": [
+    "Card, bank, or accounting CSV export for two or three months with date, vendor, amount, and the file's date range",
+    "QuickBooks optional only as a CSV export, not a live connection",
+    "Spreadsheet (Google Sheets or Excel) so ledger formulas stay visible",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings; rows can be pasted as text instead."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/ai-expense-watchdog without a session renders a page whose h1 is 'AI Expense Watchdog', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a table with exactly 10 data rows whose vendor names include DesignHub Pro, CanvaLite Teams, ZoomMeet, and Harbor Office Supply. It also shows '2026-07-01 to 2026-09-30', '2026-09-30', 'ZoomMeet', 'design tools', and '5.00'.",
+    "Step 2 shows the exact heading 'RECURRING LEDGER FIRST'. DesignHub Pro, CanvaLite Teams, and ZoomMeet are listed as recurring. Harbor Office Supply is listed as NOT RECURRING with text containing '84.00' and 'one charge'. ZoomMeet is listed as skipped for cancel review.",
+    "Step 3 shows ledger text '=39.00-29.00' and '10.00' on DesignHub Pro, '=30.00-30.00' and '0.00' on CanvaLite Teams, and '=15.99-15.99' and '0.00' on ZoomMeet. It shows the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. The AI INTERPRETATION line contains 'may overlap' and 'not a savings figure'. The RECOMMENDED ACTION line contains 'confirm who uses' and 'Do not cancel from a guess.'.",
+    "Step 4 shows the DesignHub Pro CONFIRMED line with 29.00 and 39.00. Activating 'Check facts against the export row' reveals three rows (2026-07-03, 2026-08-03, 2026-09-03), each containing the text 'Matches', and the values 29.00, 39.00, and 39.00.",
+    "Step 5 shows 'No new export was provided.', 'no usage column', ZoomMeet on the keep list, and the sentence 'Re-run next month with a new export. Do not cancel from a guess.'.",
+    "Step 6 contains the exact sentences 'You cancel it. The kit changes nothing.' and 'Do not cancel from a guess.' and a link to /blueprints/ai-expense-watchdog/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every vendor name, date, and amount in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', or 'per month'. The only dollar figures are the fictional export amounts and the confirmed difference (29.00, 39.00, 30.00, 15.99, 84.00, 10.00, 5.00).",
+    "Neither page contains a percentage, an hours-saved figure, a 'you could save' claim, or an ROI or savings-total claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/ai-expense-watchdog', and /sitemap.xml does not contain '/blueprints/ai-expense-watchdog'.",
+    "GET /blueprints/ai-expense-watchdog/kit without a session redirects to /auth with the query parameter next=/blueprints/ai-expense-watchdog/kit.",
+    "AI Expense Watchdog is registered in src/lib/blueprints.ts with id and productSlug 'ai-expense-watchdog', access 'premium', href '/blueprints/ai-expense-watchdog/kit', purchaseHref '/blueprints/ai-expense-watchdog', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/ai-expense-watchdog/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'ai-expense-watchdog') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'AI Expense Watchdog Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no AI Expense Watchdog entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Recurring Ledger Prompt is shown in a <pre> element and contains these strings: 'RECURRING LEDGER FIRST', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'two months', 'Do not cancel', 'Do not invent', 'Do not claim savings', 'unused', 'You cancel it'.",
+    "The Price Change and Overlap Prompt is shown in a <pre> element and contains: 'only after', 'ledger', 'price change', 'overlap', 'not a savings figure', 'Do not cancel', 'Do not invent', 'You cancel it'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Keep List and Overlap Rules Worksheet has a visible label 'Essential vendors to never flag for cancel (one per line)' whose default value is 'ZoomMeet', a visible label 'Overlap-watch categories (one per line)' whose default value is 'design tools', a visible label 'Minimum amount to list as a price change (USD)' whose default value is '5', plus a 'Generate My Expense Review Rules' button.",
+    "With the defaults, the generated rules block contains 'Always keep: ZoomMeet.', 'Watch for overlap in: design tools.', 'List a price change only when the later amount minus the earlier amount is 5.00 or more.', 'Group a vendor as recurring only when it appears in at least two months.', 'One-time charges are not subscriptions.', 'Do not invent savings.', and 'Do not cancel. You cancel it. The kit changes nothing.' The block has a Copy button.",
+    "If the minimum-amount field is empty or negative, the worksheet shows the error 'Enter a minimum amount of 0 or more.' and generates no rules block.",
+    "When 'Essential vendors to never flag for cancel (one per line)' is empty, the generated rules block contains no 'Always keep' line. When it contains 'ZoomMeet' and 'Harbor Office Supply' on two lines, the block contains 'Always keep: ZoomMeet; Harbor Office Supply.'.",
+    "The Recurring Ledger Template shows the columns vendor, jul, aug, sep, cadence, change_formula, change_result, keep_list. Its 'Copy CSV' button writes text whose first line is 'vendor,jul,aug,sep,cadence,change_formula,change_result,keep_list' and whose DesignHub Pro row contains '29.00', '39.00', '=39.00-29.00', and '10.00'.",
+    "The Cancel Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Card Export section is labelled 'Fictional' and its Copy CSV text equals the date,vendor,amount,source rows and header from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the AI Expense Watchdog card as Unlocked with an Open Blueprint link to /blueprints/ai-expense-watchdog/kit.",
+    "With an authenticated session that has no AI Expense Watchdog entitlement, /my-blueprints shows the AI Expense Watchdog card as Locked with an Available to purchase link to /blueprints/ai-expense-watchdog and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged. Security Readiness Action Pack, Google Ads Performance Coach, and Quote Request Assistant entitlement and locked or unlocked card behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/ai-expense-watchdog/, components/premium/ai-expense-watchdog/, and src/lib/premium/ai-expense-watchdog/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/ai-expense-watchdog/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect.",
+    "The guided demo at /blueprints/ai-expense-watchdog renders without sign-in on desktop and a phone-sized viewport, uses only fictional data, and says so.",
+    "The kit at /blueprints/ai-expense-watchdog/kit requires sign-in, is labelled Premium · Private preview, and shows no price, checkout, or purchase claim.",
+    "Both pages set robots noindex and are not linked from the homepage, header, or sitemap.",
+    "Confirmed facts, AI interpretation, and recommended actions are labelled separately, and every external action stays with the person.",
+    "The Daily Inbox Briefing, its Starter Kit, and its tests are unchanged."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/ai-expense-watchdog renders h1 'AI Expense Watchdog', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/ai-expense-watchdog'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/ai-expense-watchdog'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-export-table",
+      "description": "Step 1 table has exactly 10 data rows including DesignHub Pro, CanvaLite Teams, ZoomMeet, and Harbor Office Supply, and the page shows '2026-07-01 to 2026-09-30', '2026-09-30', 'ZoomMeet', 'design tools', and '5.00'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-ledger-first",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and the exact heading 'RECURRING LEDGER FIRST'. DesignHub Pro, CanvaLite Teams, and ZoomMeet are recurring. Harbor Office Supply is NOT RECURRING with '84.00' and 'one charge'. ZoomMeet is skipped for cancel review.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-formulas",
+      "description": "On step 3, DesignHub Pro shows '=39.00-29.00' and '10.00'; CanvaLite Teams shows '=30.00-30.00' and '0.00'; ZoomMeet shows '=15.99-15.99' and '0.00'. The text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-fact-check",
+      "description": "On step 4, clicking 'Check facts against the export row' reveals 3 rows (2026-07-03 / 29.00; 2026-08-03 / 39.00; 2026-09-03 / 39.00), each with the text 'Matches'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-cancels",
+      "description": "On step 6, the exact sentences 'You cancel it. The kit changes nothing.' and 'Do not cancel from a guess.' are visible. A link to /blueprints/ai-expense-watchdog/kit mentions sign-in and private preview.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/ai-expense-watchdog/kit ends on pathname /auth with searchParams next equal to '/blueprints/ai-expense-watchdog/kit'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/ai-expense-watchdog/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/ai-expense-watchdog/kit sees h1 'AI Expense Watchdog Premium Kit' and the exact text 'Premium · Private preview'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, ledger-prompt, increase-review-prompt, rules-worksheet, ledger-template, action-review-checklist, sample-exports, and safety-guidance, each with a heading matching its kit_contents title.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/ai-expense-watchdog/authenticated.spec.ts.",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to a card network, bank, QuickBooks, Plaid, or any other vendor, including OAuth flows, API calls, and automated exports.",
+    "Uploading, parsing, or storing the person's real card, bank, or accounting files on Atlas.",
+    "Cancelling a vendor, editing a billing account, or sending any message from Atlas.",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for AI Expense Watchdog. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Security Readiness Action Pack behavior, Stripe configuration, Production, or e2e/ai-expense-watchdog/authenticated.spec.ts.",
+    "Changes to content/published/, /use-cases/ai-expense-watchdog, or any public catalog page.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or ledgers to an Atlas account.",
+    "Statistics, time savings, unused-subscription counts presented as proven waste, or ROI claims."
+  ],
+  "source": {
+    "run_id": "20261101T161944Z-ai-expense-watchdog",
+    "candidate_id": "ai-expense-watchdog",
+    "approved_at": "2026-11-01T16:19:44.897Z",
+    "approval_note": "Approved internally for batch batch-20261031T062745Z. Final human review is deferred to the batch dashboard.",
+    "summary_scores": {
+      "commercial": 7.3,
+      "atlas_fit": 6.8,
+      "buildability": 7.3,
+      "overall": 7.08
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/ai-expense-watchdog",
+    "kit": "/blueprints/ai-expense-watchdog/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/ai-expense-watchdog/",
+    "components/premium/ai-expense-watchdog/",
+    "src/lib/premium/ai-expense-watchdog/",
+    "src/lib/blueprints.ts",
+    "e2e/ai-expense-watchdog/"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/ai-expense-watchdog and the Premium kit at /blueprints/ai-expense-watchdog/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled \"Premium · Private preview\". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/ai-expense-watchdog/, components/premium/ai-expense-watchdog/, and src/lib/premium/ai-expense-watchdog/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.",
+    "e2e/ai-expense-watchdog/authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}

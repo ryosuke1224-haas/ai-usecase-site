@@ -1,0 +1,425 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "google-ads-performance-coach",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "Google Ads Performance Coach",
+  "value_proposition": "Before any budget move, check whether the primary conversion is a qualified outcome, then show period changes with visible formulas and an evidence-labelled list the owner verifies — the Blueprint never edits Google Ads.",
+  "persona": "An owner, marketer, or consultant who already runs Google Ads and can export reports, but does not know which number to trust before changing a budget.",
+  "problem": "Ad spend decisions are made on conversion numbers that may not measure a qualified outcome. A generic chatbot will happily optimize the wrong conversion.",
+  "workflow": [
+    "1. The person writes the qualified outcome for this business (for example form_submit = completed contact form) and lists events that do not count (default: page_view, add_to_cart). PERSON DECIDES: what a conversion must mean before any number is trusted.",
+    "2. The person exports the current and previous Google Ads campaign reports as CSV (campaign, clicks, cost, conversions, primary_conversion, plus each file's date range), a conversion-actions screenshot or table from Goals > Conversions > Summary, GA4 Traffic acquisition and Landing page exports for the same two ranges, and a search-terms export when the campaign type provides one. PERSON DECIDES: which columns to keep. Remove customer emails and other columns the workflow does not need.",
+    "3. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting or uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to upload the files, paste the rows as text, or not use AI for this data at all.",
+    "4. The person pastes the Measurement Review Prompt and their rules from the Qualified Outcome Worksheet, then attaches or pastes the conversion-actions table, the campaign exports, and the GA4 landing-page rows.",
+    "5. AI runs the measurement check first. For each in-scope campaign it compares primary_conversion to the owner's qualified outcome. If the primary conversion is not a qualified outcome, or the conversion-actions table is missing, AI stops efficiency ranking for that campaign, writes MEASUREMENT REVIEW FIRST, and does not recommend bid, budget, status, or targeting changes.",
+    "6. For campaigns that pass the measurement check, AI fills the calculation workbook using only export numbers and leaves every formula visible (cost / conversions, current minus previous). Campaigns that failed measurement may show the same formula labelled not meaningful; that figure is never used to rank spend. Google Ads conversions and GA4 events are listed as separate CONFIRMED counts and are not forced to match.",
+    "7. AI labels each point as CONFIRMED (from an export or the conversion-actions table), AI INTERPRETATION (a possible explanation), or RECOMMENDED ACTION. It does not invent clicks, cost, conversions, savings, or ROI. PERSON DECIDES: whether each recommended action happens.",
+    "8. The person uses the Action Review Checklist and checks every CONFIRMED number against the export row before touching Google Ads. PERSON DECIDES: whether to change a primary conversion, wait and re-export, or change nothing. The person makes any change in Google Ads themselves. The Blueprint never edits the account."
+  ],
+  "before": "The owner compares two dashboards by hand, trusts the conversion count, and moves budget on a hunch.",
+  "after": "The owner knows whether the numbers can be trusted, sees calculated changes with visible formulas, and gets a short evidence-labelled list of what to verify next.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/google-ads-performance-coach using a fictional two-campaign Google Ads account dated 2026-09-01 to 2026-09-30, with a previous period of 2026-08-01 to 2026-08-31 and no live Google Ads or GA4 connection. The qualified outcome is form_submit. Spring Promo fails the measurement check because its primary conversion is page_view; the demo stops efficiency ranking there, shows one CONFIRMED finding and one AI INTERPRETATION, shows Brand's workbook formula only because form_submit matches, and states that every number is invented. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone.",
+    "steps": [
+      "Step 1 of 6 - The exports: show the fictional current campaign table (Spring Promo, Brand), the previous-period table (same two campaigns), the conversion-actions table (page_view primary for Spring Promo, form_submit primary for Brand), and the GA4 landing-page table (/spring-landing, /contact). Show the qualified outcome text 'form_submit (completed contact form)', current_period '2026-09-01 to 2026-09-30', and previous_period '2026-08-01 to 2026-08-31'. Label the tables invented. State that no live Google Ads or GA4 account is attached.",
+      "Step 2 of 6 - Measurement review first: show the exact heading 'MEASUREMENT REVIEW FIRST'. List Spring Promo as failed because primary_conversion is page_view, not form_submit, with CONFIRMED text containing 'page_view', '96', and '12'. List Brand as passed because primary_conversion is form_submit. State that Spring Promo is skipped for efficiency ranking.",
+      "Step 3 of 6 - Visible formulas, then stop: show a workbook table. Spring Promo formula text '=1860/96', result '19.38', meaningful 'no'. Brand formula text '=290/22', result '13.18', meaningful 'yes'. Show the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. Show AI INTERPRETATION text containing 'not meaningful until tracking changes'. Show RECOMMENDED ACTION text containing 'Do not change bids yet'.",
+      "Step 4 of 6 - Check the facts: open the Spring Promo row. A 'Check facts against the export row' button shows three rows (primary_conversion page_view vs page_view, conversions 96 vs 96, cost 1860 vs 1860), each labelled with the text 'Matches'.",
+      "Step 5 of 6 - What a later run needs: show that no post-fix export exists. Show Brand's previous-period workbook row with formula text '=275/19', result '14.47', cost change '15' from formula text '=290-275', conversion change '3' from formula text '=22-19'. Show 'Search-terms export: not provided' under NEEDS YOUR CHECK. Show AI INTERPRETATION that a cost change of 15 is not a reason to move budget. Show the sentence 'Re-run after 14 days with a new campaign export. Do not change bids yet.'",
+      "Step 6 of 6 - You change it: state the exact sentences 'You change it in Google Ads. The kit changes nothing.' and 'Do not change bids yet.' Explain that the person sets form_submit as primary in Google Ads themselves, or decides not to, and that nothing is sent, edited, or paid automatically. Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "qualified_outcome: form_submit (completed contact form)\ncurrent_period: 2026-09-01 to 2026-09-30 (fictional)\nprevious_period: 2026-08-01 to 2026-08-31 (fictional)\ncampaign,clicks,cost,conversions,primary_conversion\nSpring Promo,1240,1860,96,page_view\nBrand,410,290,22,form_submit\nprevious_campaign,clicks,cost,conversions,primary_conversion\nSpring Promo,980,1420,71,page_view\nBrand,385,275,19,form_submit\nconversion_action,category,counting,primary_for\npage_view,Page view,Every,Spring Promo\nform_submit,Submit lead form,One,Brand\nga4_landing,sessions,bounced_sessions,form_submit_events\n/spring-landing,1050,850,12\n/contact,180,76,22",
+    "sample_output": "MEASUREMENT REVIEW FIRST\nCONFIRMED: Spring Promo primary_conversion = page_view. Qualified outcome = form_submit.\nCONFIRMED: Spring Promo conversions = 96. /spring-landing form_submit_events = 12.\nCONFIRMED: /spring-landing sessions = 1050. Spring Promo clicks = 1240.\nCONFIRMED: Brand primary_conversion = form_submit. Brand conversions = 22.\nSKIPPED FOR EFFICIENCY: Spring Promo (primary conversion is not the qualified outcome).\nNEEDS YOUR CHECK: Search-terms export not provided.\nAI INTERPRETATION: Spring Promo cost per conversion (1860 / 96 = 19.38) is not meaningful until tracking changes. Brand can use a later period review because form_submit matches the qualified outcome. The 96 vs 12 gap is two export counts, not proof of a broken tag.\nRECOMMENDED ACTION (you decide): Set form_submit as primary for Spring Promo, then re-run in 14 days. Do not change bids yet. You change it in Google Ads. The kit changes nothing.",
+    "fictional_data_notice": "All campaigns, costs, conversions, landing pages, and dates on this page are fictional. No real business data is used, and nothing is connected to Google Ads, GA4, or any other live system."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Google Ads Performance Setup Checklist",
+      "purpose": "Step-by-step setup for one review. It covers writing the qualified outcome, exporting current and previous Google Ads campaign CSVs with campaign, clicks, cost, conversions, primary_conversion, and each file's date range, capturing the conversion-actions screenshot from Goals > Conversions > Summary, exporting GA4 Traffic acquisition and Landing page reports for the same ranges, adding a search-terms export when the campaign type provides one, checking the AI tool's data settings before pasting or uploading, and the rule that this is an export review, not a live connector. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
+    },
+    {
+      "id": "measurement-review-prompt",
+      "title": "Measurement Review Prompt",
+      "purpose": "Copyable prompt that runs the measurement check first, compares each primary_conversion to the owner's qualified outcome, writes MEASUREMENT REVIEW FIRST and stops efficiency ranking when the primary conversion is not qualified, labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately, and forbids bid, budget, status, or targeting changes, invented numbers, and editing the Google Ads account."
+    },
+    {
+      "id": "period-review-prompt",
+      "title": "Period Review Prompt",
+      "purpose": "Copyable prompt used only after every in-scope campaign passes the measurement check. It fills the workbook from current and previous export numbers, leaves formulas visible, compares periods without inventing savings or ROI, and forbids bid or budget changes and any edit to the Google Ads account."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Qualified Outcome Worksheet",
+      "purpose": "Browser-only form where the person writes the qualified outcome, confirms or turns off the default 'does not count' events, and lists campaigns to mark out of scope. It generates a copyable rules block to paste with the Measurement Review Prompt. Nothing is saved to Atlas."
+    },
+    {
+      "id": "workbook-template",
+      "title": "Calculation Workbook Template",
+      "purpose": "Column layout (campaign, period, clicks, cost, conversions, primary_conversion, formula, result, meaningful) with the fictional demo numbers and visible formula text such as =1860/96. Includes a Copy CSV button so the person can start their own spreadsheet. Spring Promo is labelled meaningful = no."
+    },
+    {
+      "id": "action-review-checklist",
+      "title": "Action Review Checklist",
+      "purpose": "Interactive, session-only checklist used before changing anything in Google Ads. It confirms that the qualified outcome is written down, that MEASUREMENT REVIEW FIRST ran before efficiency ranking, that each CONFIRMED number matches an export row, that labels are separate, that no bid or budget change is recommended while measurement failed, and that the person will make any change in Google Ads themselves."
+    },
+    {
+      "id": "sample-exports",
+      "title": "Fictional Sample Exports",
+      "purpose": "The same fictional campaign, previous-period, conversion-action, and GA4 CSVs used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real account data."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling ad-account exports in AI tools: review data settings, remove unneeded columns, do not paste passwords or billing details, do not treat a GA4 All Users report as paid Google traffic, do not force Google Ads and GA4 counts to match, and do not change live bids from a hypothesis. It also states that file upload support differs by plan and that nothing is sent, edited, or paid automatically."
+    }
+  ],
+  "decision_rules": [
+    "Use each export's own date range, not today's date. If a campaign export has no date range, ask the person for it before ranking anything.",
+    "Write MEASUREMENT REVIEW FIRST and apply it before any efficiency ranking, cost-per-conversion comparison, or bid or budget suggestion.",
+    "A campaign whose primary_conversion does not match the owner's qualified outcome is skipped for efficiency ranking. Show the reason 'primary conversion is not the qualified outcome'.",
+    "If the conversion-actions screenshot or table is missing, or a remaining row is missing campaign, cost, conversions, or primary_conversion, or the same campaign name appears twice in one period, do not rank it. List it under NEEDS YOUR CHECK.",
+    "Do not invent clicks, cost, conversions, sessions, events, savings, or ROI. Use only values from the files the person pasted.",
+    "Leave every workbook formula visible as text (for example =1860/96). AI must not hide the arithmetic or replace it with a rounded marketing figure.",
+    "A cost-per-conversion figure on a campaign that failed measurement may be shown only with meaningful = no and must not be used to rank spend or to recommend a bid or budget change.",
+    "Do not treat a Google Ads conversion count and a GA4 event count as the same metric. List both as CONFIRMED counts from their own exports. Any cause of a gap is AI INTERPRETATION.",
+    "Do not treat a GA4 All Users report as paid Google traffic. If the export is not filtered to paid Google, list it under NEEDS YOUR CHECK.",
+    "Search-terms are optional. If the file is missing, write 'Search-terms export: not provided' under NEEDS YOUR CHECK. Do not invent queries.",
+    "Skip any campaign the owner marked out of scope. Show the reason 'marked out of scope by you'.",
+    "Do not recommend bid, budget, status, or targeting changes while any in-scope campaign fails the measurement check. Allowed suggestions are verify tracking, set the qualified outcome as primary, wait, and re-export.",
+    "Never claim that spend was wasted, that a change will save money, or that a result is ROI. Period differences are calculations from the two exports, not savings claims.",
+    "AI INTERPRETATION must state that a failed measurement check means the conversion number is not a qualified outcome, not that the campaign is a proven waste of spend.",
+    "On a later run, use a new pair of exports. Do not invent a post-fix results file. If the person has not attached a new export, say that no new export was provided."
+  ],
+  "human_ai_boundary": [
+    "AI compares each primary_conversion to the qualified outcome the owner wrote. The person defines that outcome and decides whether a page view ever counts.",
+    "AI writes MEASUREMENT REVIEW FIRST and stops efficiency ranking when measurement fails. The person decides whether to change tracking in Google Ads or to accept the current setup.",
+    "AI fills the workbook from export numbers and leaves formulas visible. The person checks every CONFIRMED number against the export row before treating it as true.",
+    "AI labels CONFIRMED facts, AI INTERPRETATION, and RECOMMENDED ACTION separately. The person decides whether a hypothesis is worth investigating.",
+    "AI never connects to Google Ads or GA4, never changes a bid, budget, status, or targeting, and never uploads the person's files to a third party. The person makes every change in Google Ads, or decides not to.",
+    "AI reads only the files the person pasted. Only the person records what they changed in the live account.",
+    "The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, or paid automatically. Every page states that the person changes Google Ads themselves and that the kit changes nothing.",
+    "Atlas does not connect to Google Ads, GA4, Google Analytics, or any other vendor. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before pasting or uploading exports to an AI tool, the person is told to review that tool's data settings (such as chat history, training use, and file retention) and to remove columns the workflow does not need.",
+    "The kit tells the person not to paste Google account passwords, billing account numbers, or customer emails into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to change live bids, budgets, or campaign status from a hypothesis, and not to treat MEASUREMENT REVIEW FIRST as proof that spend was wasted.",
+    "Google Ads and GA4 counts are not forced to match. A gap is shown as two CONFIRMED export counts, not as a diagnosed tracking bug.",
+    "A GA4 All Users export is not treated as paid Google traffic.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no statistics, savings, ROI claims, prices, or checkout. Fictional campaign costs and workbook results are the only dollar figures."
+  ],
+  "required_data_tools": [
+    "Google Ads campaign export (CSV) for the current period and the previous period, with campaign, clicks, cost, conversions, primary_conversion, and each file's date range",
+    "Conversion-actions screenshot or table from Google Ads Goals > Conversions > Summary",
+    "GA4 Traffic acquisition and Landing page exports for the same two periods",
+    "Search-terms export when the campaign type provides one",
+    "Spreadsheet (Google Sheets or Excel) so workbook formulas stay visible",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings; rows can be pasted as text instead."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/google-ads-performance-coach without a session renders a page whose h1 is 'Google Ads Performance Coach', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a current-period table with exactly 2 data rows whose campaign names are Spring Promo and Brand, a previous-period table with the same 2 campaign names, a conversion-actions table containing page_view and form_submit, and a GA4 table containing /spring-landing and /contact. It also shows 'form_submit (completed contact form)', '2026-09-01 to 2026-09-30', and '2026-08-01 to 2026-08-31'.",
+    "Step 2 shows the exact heading 'MEASUREMENT REVIEW FIRST'. Spring Promo is listed as failed with text containing 'page_view', '96', and '12'. Brand is listed as passed with text containing 'form_submit'. Spring Promo is listed as skipped for efficiency.",
+    "Step 3 shows workbook text '=1860/96', '19.38', and meaningful 'no' on Spring Promo, and '=290/22', '13.18', and meaningful 'yes' on Brand. It shows the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. The AI INTERPRETATION line contains 'not meaningful until tracking changes'. The RECOMMENDED ACTION line contains 'Do not change bids yet'.",
+    "Step 4 shows the Spring Promo CONFIRMED line with primary_conversion = page_view. Activating 'Check facts against the export row' reveals three rows (primary_conversion, conversions, cost), each containing the text 'Matches', and the values page_view, 96, and 1860.",
+    "Step 5 shows Brand previous-period text '=275/19', '14.47', '=290-275', '15', '=22-19', and '3'. It shows 'Search-terms export: not provided' and the sentence 'Re-run after 14 days with a new campaign export. Do not change bids yet.'",
+    "Step 6 contains the exact sentences 'You change it in Google Ads. The kit changes nothing.' and 'Do not change bids yet.' and a link to /blueprints/google-ads-performance-coach/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every campaign name, landing path, date, click, cost, conversion, session, and event count in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', 'per month', or a price. The only dollar figures are the fictional campaign costs and workbook results (1860, 290, 1420, 275, 19.38, 13.18, 14.47).",
+    "Neither page contains a percentage, an hours-saved figure, or an ROI or savings claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/google-ads-performance-coach', and /sitemap.xml does not contain '/blueprints/google-ads-performance-coach'.",
+    "GET /blueprints/google-ads-performance-coach/kit without a session redirects to /auth with the query parameter next=/blueprints/google-ads-performance-coach/kit.",
+    "Google Ads Performance Coach is registered in src/lib/blueprints.ts with id and productSlug 'google-ads-performance-coach', access 'premium', href '/blueprints/google-ads-performance-coach/kit', purchaseHref '/blueprints/google-ads-performance-coach', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/google-ads-performance-coach/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'google-ads-performance-coach') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'Google Ads Performance Coach Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no Google Ads Performance Coach entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Measurement Review Prompt is shown in a <pre> element and contains these strings: 'MEASUREMENT REVIEW FIRST', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'qualified outcome', 'page_view', 'Do not change bids', 'Do not edit the Google Ads account', 'Do not invent'.",
+    "The Period Review Prompt is shown in a <pre> element and contains: 'only after', 'measurement', 'visible formulas', 'previous period', 'Do not change bids', 'Do not invent', 'Do not edit the Google Ads account'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Qualified Outcome Worksheet has a visible label 'Qualified outcome (what must happen before a conversion counts)' whose default value is 'form_submit — completed contact form', two checkboxes with visible labels 'page_view does not count as a qualified outcome' and 'add_to_cart does not count as a qualified outcome' (both checked by default), a visible label 'Campaigns to mark out of scope (one per line)', plus a 'Generate My Measurement Rules' button.",
+    "With the defaults, the generated rules block contains 'Qualified outcome: form_submit — completed contact form.', 'page_view does not count as a qualified outcome.', 'add_to_cart does not count as a qualified outcome.', 'Run MEASUREMENT REVIEW FIRST before any efficiency ranking.', 'If the primary conversion is not the qualified outcome, stop. Do not change bids.', and 'Do not edit the Google Ads account.' The block has a Copy button. The block contains no 'Always skip' line.",
+    "If the qualified-outcome field is empty or whitespace only, the worksheet shows the error 'Enter a qualified outcome.' and generates no rules block.",
+    "When 'Campaigns to mark out of scope (one per line)' is empty, the generated rules block contains no 'Always skip' line. When it contains 'Brand', the block contains 'Always skip: Brand'.",
+    "The Calculation Workbook Template shows the columns campaign, period, clicks, cost, conversions, primary_conversion, formula, result, meaningful. Its 'Copy CSV' button writes text whose first line is 'campaign,period,clicks,cost,conversions,primary_conversion,formula,result,meaningful' and whose Spring Promo current row contains '1860', '=1860/96', '19.38', and 'no'.",
+    "The Action Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Exports section is labelled 'Fictional' and its Copy CSV text equals the campaign, previous, conversion-action, and GA4 rows and headers from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the Google Ads Performance Coach card as Unlocked with an Open Blueprint link to /blueprints/google-ads-performance-coach/kit.",
+    "With an authenticated session that has no Google Ads Performance Coach entitlement, /my-blueprints shows the Google Ads Performance Coach card as Locked with an Available to purchase link to /blueprints/google-ads-performance-coach and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged. Security Readiness Action Pack entitlement and locked or unlocked card behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/google-ads-performance-coach/, components/premium/google-ads-performance-coach/, and src/lib/premium/google-ads-performance-coach/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/google-ads-performance-coach/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/google-ads-performance-coach renders h1 'Google Ads Performance Coach', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/google-ads-performance-coach'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/google-ads-performance-coach'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-export-tables",
+      "description": "Step 1 current table has exactly 2 data rows named Spring Promo and Brand, the previous table has the same 2 names, conversion actions include page_view and form_submit, GA4 rows include /spring-landing and /contact, and the page shows 'form_submit (completed contact form)', '2026-09-01 to 2026-09-30', and '2026-08-01 to 2026-08-31'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-measurement-first",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and the exact heading 'MEASUREMENT REVIEW FIRST'. Spring Promo is failed with text containing 'page_view', '96', and '12'. Brand is passed with text containing 'form_submit'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-workbook-stop",
+      "description": "On step 3, Spring Promo shows '=1860/96', '19.38', and meaningful 'no'; Brand shows '=290/22', '13.18', and meaningful 'yes'. The text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible, AI INTERPRETATION contains 'not meaningful until tracking changes', and RECOMMENDED ACTION contains 'Do not change bids yet'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-fact-check",
+      "description": "On step 4, the Spring Promo CONFIRMED line is visible. Clicking 'Check facts against the export row' reveals 3 rows (page_view vs page_view; 96 vs 96; 1860 vs 1860), each with the text 'Matches'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-later-run",
+      "description": "On step 5, Brand previous-period text includes '=275/19', '14.47', '=290-275', '15', '=22-19', and '3'. The page shows 'Search-terms export: not provided' and 'Re-run after 14 days with a new campaign export. Do not change bids yet.'",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-changes",
+      "description": "On step 6, the exact sentences 'You change it in Google Ads. The kit changes nothing.' and 'Do not change bids yet.' are visible. A link to /blueprints/google-ads-performance-coach/kit is present with visible text mentioning sign-in and private preview. 'Next step' is absent or disabled.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\d+%|ROI|hours saved/i.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/google-ads-performance-coach/kit ends on pathname /auth with searchParams next equal to '/blueprints/google-ads-performance-coach/kit' (expectAuthNext helper).",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/google-ads-performance-coach/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/google-ads-performance-coach/kit sees h1 'Google Ads Performance Coach Premium Kit', the exact text 'Premium · Private preview', and meta robots containing 'noindex'. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, measurement-review-prompt, period-review-prompt, rules-worksheet, workbook-template, action-review-checklist, sample-exports, and safety-guidance, each with a heading matching its kit_contents title. A table-of-contents link with href '#<id>' exists for each.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-price-or-checkout",
+      "description": "Kit page body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\d+%|ROI|hours saved/i, and the page contains no form that posts to a payment URL.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-measurement-prompt-copy",
+      "description": "The measurement-review prompt <pre> contains all required strings. Clicking its 'Copy Prompt' button changes the label to 'Copied', and navigator.clipboard.readText() equals the <pre> text.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-period-prompt-content",
+      "description": "The Period Review Prompt <pre> contains 'only after', 'measurement', 'visible formulas', 'previous period', 'Do not change bids', 'Do not invent', and 'Do not edit the Google Ads account'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Measurement Rules' with default values produces a block containing 'Qualified outcome: form_submit — completed contact form.', 'page_view does not count as a qualified outcome.', 'add_to_cart does not count as a qualified outcome.', 'Run MEASUREMENT REVIEW FIRST before any efficiency ranking.', 'If the primary conversion is not the qualified outcome, stop. Do not change bids.', and 'Do not edit the Google Ads account.', and no 'Always skip' line.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-custom-skip",
+      "description": "Entering 'Brand' in 'Campaigns to mark out of scope (one per line)' and generating produces a block containing 'Always skip: Brand'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Clearing 'Qualified outcome (what must happen before a conversion counts)' and generating shows 'Enter a qualified outcome.' and no rules block.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-workbook-copy-csv",
+      "description": "The Calculation Workbook Template lists columns campaign, period, clicks, cost, conversions, primary_conversion, formula, result, meaningful. Its 'Copy CSV' button writes clipboard text whose first line is 'campaign,period,clicks,cost,conversions,primary_conversion,formula,result,meaningful' and that contains '=1860/96' and '19.38'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-exports-fictional",
+      "description": "The Fictional Sample Exports section shows the label 'Fictional'. Its copied CSV contains the header 'campaign,clicks,cost,conversions,primary_conversion' and the Spring Promo and Brand current rows from the demo.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Action Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-entitled",
+      "description": "With an entitled authenticated session, /my-blueprints shows the Google Ads Performance Coach card with PREMIUM, Unlocked, and an Open Blueprint link to /blueprints/google-ads-performance-coach/kit.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-locked-without-entitlement",
+      "description": "With an authenticated session whose entitlement header is deny, /blueprints/google-ads-performance-coach/kit shows heading 'Premium is locked', does not render #setup-checklist, and has 0 Buy Premium buttons.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-locked",
+      "description": "With an authenticated session whose entitlement header is deny, the Google Ads Performance Coach card on /my-blueprints is Locked, the Available to purchase link points at /blueprints/google-ads-performance-coach, and there is no kit link.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "daily-inbox-still-open",
+      "description": "With an authenticated session, /my-blueprints still has Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit, including when the Google Ads Performance Coach entitlement is denied.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "collections-behavior-unchanged",
+      "description": "AI Collections Assistant remaining premium, Buy Premium, checkout, and entitlement behavior is unchanged. Do not edit Collections product files or e2e/ai-collections-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "security-behavior-unchanged",
+      "description": "Security Readiness Action Pack remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Security product files or e2e/security-readiness-action-pack/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-ads-stripe-price",
+      "description": "Google Ads Performance Coach is not in PAID_PRODUCTS, getPaidProduct('google-ads-performance-coach') is undefined, and its pages show no Stripe price, checkout form, or Buy Premium button.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/google-ads-performance-coach/authenticated.spec.ts. Authenticated QA must actually reach the kit after automatic session refresh.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts (the only authenticated file run by the authenticated-desktop project), call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, the qualified-outcome field, every does-not-count checkbox and the Generate button, every review-checklist checkbox, and Reset. Each shows a visible focus ring (non-'none' outline or box-shadow on :focus-visible).",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to Google Ads, GA4, Google Analytics, or any other vendor, including OAuth flows, API calls, and automated exports.",
+    "Uploading, parsing, or storing the person's real campaign, GA4, or search-terms files on Atlas.",
+    "Editing bids, budgets, campaign status, targeting, conversion actions, or any other Google Ads setting from Atlas.",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for Google Ads Performance Coach. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Security Readiness Action Pack behavior, Stripe configuration, Production, or e2e/google-ads-performance-coach/authenticated.spec.ts.",
+    "Changes to content/published/, /use-cases/google-ads-performance-coach, or app/playbooks/google-ads-audit/.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or workbooks to an Atlas account.",
+    "Statistics, time savings, wasted-spend totals presented as proven loss, or ROI claims.",
+    "Treating a GA4 All Users export as paid Google traffic, or forcing Google Ads and GA4 counts to reconcile."
+  ],
+  "source": {
+    "run_id": "20261031T064115Z-google-ads-performance-coach",
+    "candidate_id": "google-ads-performance-coach",
+    "approved_at": "2026-10-31T06:41:16.037Z",
+    "approval_note": "Approved internally for batch batch-20261031T062745Z. Final human review is deferred to the batch dashboard.",
+    "summary_scores": {
+      "commercial": 7,
+      "atlas_fit": 9,
+      "buildability": 8.3,
+      "overall": 7.85
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/google-ads-performance-coach",
+    "kit": "/blueprints/google-ads-performance-coach/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/google-ads-performance-coach/",
+    "components/premium/google-ads-performance-coach/",
+    "src/lib/premium/google-ads-performance-coach/",
+    "src/lib/blueprints.ts",
+    "e2e/google-ads-performance-coach/"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/google-ads-performance-coach and the Premium kit at /blueprints/google-ads-performance-coach/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled \"Premium · Private preview\". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/google-ads-performance-coach/, components/premium/google-ads-performance-coach/, and src/lib/premium/google-ads-performance-coach/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.",
+    "e2e/google-ads-performance-coach/authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}

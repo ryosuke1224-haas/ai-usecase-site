@@ -1,0 +1,449 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "unbilled-work-review-queue",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "Unbilled Work Review Queue",
+  "value_proposition": "Turn a job or time-entry export into a skip-ruled unbilled queue with oldest-first ranking and field-limited invoice outlines — the owner creates or holds each invoice, and the kit never sends, collects, or records a payment.",
+  "persona": "Owner of a contractor, agency, clinic, or professional-services firm that completes jobs or time entries in a tracker and invoices later from QuickBooks, Xero, or a spreadsheet, and who currently finds unbilled work only when cash feels tight.",
+  "problem": "Work is done and not invoiced. Time entries sit in draft, completed jobs have no invoice number, and retainers are not drawn. Collections chases invoices that already went out; this catches work that never became an invoice.",
+  "workflow": [
+    "1. The person writes skip rules before any outline: already invoiced (invoice id present), owner-marked write-off or warranty, below the owner's minimum, dates after the as-of date, and disputed jobs. PERSON DECIDES: the minimum amount, which statuses are never billed, and which jobs or customers are always skipped.",
+    "2. The person exports completed jobs or time entries as CSV with job or entry id, customer, date completed or worked, amount or hours and rate, invoice status, and invoice id if any, plus the export's as-of date. They open last week's billing log. PERSON DECIDES: which columns to keep. Remove emails, phone numbers, and any columns the workflow does not need. This is an export review, not a live QuickBooks, Xero, time-tracker, or invoicing-tool connection.",
+    "3. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting or uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to paste the rows as text, upload a file, or not use AI for this data at all.",
+    "4. The person pastes the Unbilled Queue Prompt and their rules from the Skip Rules and Minimum Worksheet, then attaches or pastes the export and the billing log.",
+    "5. AI runs SKIP RULES FIRST. It sets aside already-invoiced rows (invoice id present), warranty or write-off statuses, amounts below the owner's minimum, dates after the as-of date, and disputed jobs. Every skipped row is listed with its reason. PERSON DECIDES: whether a warranty, write-off, or disputed row should still be billed.",
+    "6. AI ranks remaining unbilled rows by oldest completion date first, then by amount (or hours x owner rate if amount is missing). It drafts an invoice outline using only export fields: customer, id, date, hours, rate, and amount. It does not invent line items, taxes, or terms. PERSON DECIDES: whether hours, rate, and amount are complete enough to outline.",
+    "7. AI labels CONFIRMED (from the export or log), NEEDS YOUR CHECK (missing rate, customer, amount, or id), AI INTERPRETATION (a blank invoice id is not proof the customer was never billed off-export), and RECOMMENDED ACTION separately. PERSON DECIDES: whether each recommended action happens.",
+    "8. The person uses the Invoice Outline Review Checklist and checks every CONFIRMED number against the export row. PERSON DECIDES: create, hold, or write off each row in their own invoicing tool. The Blueprint never sends an invoice, records a payment, or edits QuickBooks or Xero. Outcomes (invoiced, hold, write-off) go in the billing log and feed next week's run."
+  ],
+  "before": "The owner invoices whichever job they remember on Sunday night. Completed work from two weeks ago stays unbilled until someone asks for a statement.",
+  "after": "Each week the owner reviews an unbilled queue with skip reasons and invoice outlines whose numbers match the export. Already-invoiced and write-off rows stay out. The owner still creates or holds each invoice in their own billing tool.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/unbilled-work-review-queue using a fictional four-row job export dated as of 2026-05-11, with a fictional owner minimum of $150. SKIP RULES FIRST skips J-91 (invoice_id INV-220), J-70 (warranty), and J-94 (below $150). The ranked unbilled queue has one row, J-88 Northgate Clinic, oldest first, with an outline whose hours, rate, and amount match the export. A fact-check shows Matches. Next week's billing log skips J-88 after it is marked invoiced as INV-241. The demo ends on the owner creating the invoice. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone. Every job, customer, amount, and date is invented. No live QuickBooks, Xero, or time-tracker connection is attached.",
+    "steps": [
+      "Step 1 of 6 - The export: show the fictional 4-row job table (J-88 Northgate Clinic, J-91 Pell & Co, J-70 Harbor Lane, J-94 Birchwood) with as_of 2026-05-11 and min_amount 150. Label the table invented. State that no live QuickBooks, Xero, time tracker, or invoicing tool is attached.",
+      "Step 2 of 6 - Skip rules first: show the exact heading 'SKIP RULES FIRST'. List J-91 as SKIPPED with text containing 'invoice_id' and 'INV-220'. List J-70 as SKIPPED with text containing 'warranty'. List J-94 as SKIPPED with text containing '$85' and '$150'. Show that disputed jobs and dates after the as-of date are also skip rules even when this export has no such row.",
+      "Step 3 of 6 - The ranked unbilled queue: show exactly 1 queued row, J-88, as oldest remaining completion date first. Show CONFIRMED text containing 'Northgate Clinic', 'J-88', '2026-04-22', '12', '85', and '1020'. Show the invoice outline 'Northgate Clinic, J-88, 12 hours at $85, $1,020, date 2026-04-22'. Show the exact sentence 'Do not add tax or terms not in the export.' Show the text labels 'CONFIRMED', 'NEEDS YOUR CHECK', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. Show AI INTERPRETATION text containing 'blank invoice id' and 'does not prove'. Show that a row with no customer or rate would be NEEDS YOUR CHECK, not outlined.",
+      "Step 4 of 6 - Check the numbers: open the J-88 outline. A 'Check numbers against the export row' button shows three rows (hours 12 vs 12, rate $85 vs 85, amount $1,020 vs 1020), each labelled with the text 'Matches'.",
+      "Step 5 of 6 - Next week's log: show the fictional billing log for the week of 2026-05-11 with J-88 outcome invoiced and invoice_id INV-241. Show a mock run as of 2026-05-18. J-88 is SKIPPED with text containing 'INV-241' and 'invoiced'. J-91, J-70, and J-94 stay skipped for the same reasons as step 2. Show the sentence 'Logged invoiced work is not listed again.'",
+      "Step 6 of 6 - You create the invoice: state the exact sentences 'You create the invoice. Nothing is sent or collected.' and 'Do not add tax or terms not in the export.' Explain that the person creates, holds, or writes off each row in their own invoicing tool, and that nothing is sent, edited, cancelled, or marked paid automatically. Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "as_of: 2026-05-11 (fictional)\nmin_amount: 150\njob,customer,completed,hours,rate,amount,invoice_id,status\nJ-88,Northgate Clinic,2026-04-22,12,85,1020,,completed\nJ-91,Pell & Co,2026-05-01,4,85,340,INV-220,invoiced\nJ-70,Harbor Lane,2026-03-15,2,85,170,,warranty\nJ-94,Birchwood,2026-05-09,1,85,85,,completed\n\nBilling log after week of 2026-05-11 (fictional, entered by the owner):\nweek_of,job,customer,action_taken,outcome,invoice_id,notes\n2026-05-11,J-88,Northgate Clinic,created,invoiced,INV-241,\n2026-05-11,J-91,Pell & Co,skipped,already_invoiced,INV-220,\n2026-05-11,J-70,Harbor Lane,skipped,warranty,,\n2026-05-11,J-94,Birchwood,skipped,below_minimum,,",
+    "sample_output": "SKIP RULES FIRST\nUNBILLED QUEUE as of 2026-05-11 (fictional; 1 to bill, 3 skipped)\n1. J-88 Northgate Clinic, completed 2026-04-22, $1,020 (12 x $85). CONFIRMED: invoice_id blank; status completed; hours 12; rate 85; amount 1020. Invoice outline: Northgate Clinic, J-88, 12 hours at $85, $1,020, date 2026-04-22. Do not add tax or terms not in the export.\nSKIPPED: J-91 (invoice_id INV-220 present).\nSKIPPED: J-70 (status warranty).\nSKIPPED: J-94 (amount $85 is below your $150 minimum).\nNEEDS YOUR CHECK: none on this export. A row with no customer or rate would be listed here, not outlined.\nAI INTERPRETATION: a blank invoice id does not prove the customer was never billed off-export.\nRECOMMENDED ACTION (you decide): create, hold, or write off each row in your own invoicing tool. You create the invoice. Nothing is sent or collected.\n\nNEXT WEEK (mock run as of 2026-05-18, using your billing log)\nQueue: none from this export.\nSKIPPED: J-88 (invoice_id INV-241 present; logged as invoiced).\nSKIPPED: J-91 (invoice_id INV-220 present).\nSKIPPED: J-70 (status warranty).\nSKIPPED: J-94 (amount $85 is below your $150 minimum).\nLogged invoiced work is not listed again.",
+    "fictional_data_notice": "All jobs, customers, amounts, hours, rates, invoice numbers, and dates on this page are fictional. No real business or customer data is used, and nothing is connected to QuickBooks, Xero, a time tracker, or any other live system."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Unbilled Work Setup Checklist",
+      "purpose": "Step-by-step setup for the weekly run. It covers writing the minimum amount and skip statuses, exporting completed jobs or time entries as CSV with job id, customer, completion date, hours, rate, amount, invoice status, invoice id, and as-of date, removing emails and other columns the workflow does not need, opening last week's billing log, checking the AI tool's data settings before pasting or uploading, and the rule that this is an export review, not a live QuickBooks, Xero, or time-tracker connection. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
+    },
+    {
+      "id": "queue-prompt",
+      "title": "Unbilled Queue Prompt",
+      "purpose": "Copyable prompt that runs SKIP RULES FIRST, lists every skip with its reason, ranks remaining rows by oldest completion date first, drafts invoice outlines using only customer, id, date, hours, rate, and amount from the export, and labels CONFIRMED, NEEDS YOUR CHECK, AI INTERPRETATION, and RECOMMENDED ACTION separately. It forbids inventing tax or terms, sending an invoice, and recording a payment."
+    },
+    {
+      "id": "next-week-prompt",
+      "title": "Week-to-Week Billing Log Prompt",
+      "purpose": "Copyable prompt for the following week. It reads the previous billing log with the new export, skips rows whose invoice id is now present or whose log outcome is invoiced or write-off, keeps hold rows in the queue with a CONFIRMED note from the log, and forbids sending or marking anything paid."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Skip Rules and Minimum Worksheet",
+      "purpose": "Browser-only form where the person sets the minimum amount to bill, statuses that are never billed, and jobs or customers to always skip. It generates a copyable rules block to paste with the prompts. Nothing is saved to Atlas."
+    },
+    {
+      "id": "billing-log-template",
+      "title": "Billing Log Template",
+      "purpose": "Column layout (week_of, job, customer, action_taken, outcome, invoice_id, notes) with allowed outcome values invoiced, hold, write-off, already_invoiced, warranty, below_minimum, disputed, and the fictional J-88 invoiced INV-241 row from the guided demo. Includes a Copy CSV button so the person can start their own spreadsheet."
+    },
+    {
+      "id": "outline-review-checklist",
+      "title": "Invoice Outline Review Checklist",
+      "purpose": "Interactive, session-only checklist used before creating an invoice. It confirms that SKIP RULES FIRST ran, that every skip has a reason, that remaining rows are oldest-first, that CONFIRMED hours, rate, and amount match the export row, that labels are separate, that the outline uses only export fields, that tax and terms were not invented, that a blank invoice id was not treated as proof of never billed, and that the person will create, hold, or write off in their own invoicing tool."
+    },
+    {
+      "id": "sample-job-export",
+      "title": "Fictional Sample Job Export",
+      "purpose": "The same fictional four-row job CSV used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real job data."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling job and billing exports in AI tools: review data settings, remove emails and phone numbers, do not paste bank or card details, do not invent tax or terms, do not bill warranty or write-off work without the owner's decision, and do not treat a blank invoice id as proof the customer was never billed off-export. It also states that file upload support differs by plan and that nothing is sent, collected, or marked paid automatically."
+    }
+  ],
+  "decision_rules": [
+    "Write SKIP RULES FIRST and apply it before ranking or drafting any invoice outline.",
+    "Skip any row whose invoice_id is present. Show the reason 'invoice_id <id> present'.",
+    "Skip any row whose status is in the owner's never-billed list (default warranty, plus owner-marked write-off). Show the reason 'status <status>'.",
+    "Skip any row whose amount (or hours x owner rate) is below the owner's minimum. Show the reason 'amount $<amount> is below your $<minimum> minimum'.",
+    "Skip any row whose completed date is after the export as-of date. Show the reason 'completed after as-of date'.",
+    "Skip any row marked disputed in the export or the billing log. Show the reason 'disputed; needs your decision'.",
+    "Skip any job or customer on the owner's always-skip list. Show the reason 'on your always-skip list'.",
+    "If a remaining row is missing job id, customer, or both hours-and-rate and amount, do not outline it. List it under NEEDS YOUR CHECK.",
+    "If amount is missing and hours and rate are present, compute amount as hours x rate and label the product CONFIRMED from those export fields. If rate is missing, write NEEDS YOUR CHECK. Do not invent a rate.",
+    "Rank remaining unbilled rows by oldest completion date first. If two rows share a completion date, larger amount first.",
+    "Invoice outlines may state only customer, job or entry id, completed date, hours, rate, and amount from the export row. Do not invent line items, taxes, payment terms, PO numbers, or discounts.",
+    "A blank invoice id is CONFIRMED as blank. It is not proof the customer was never billed off-export. That caution is AI INTERPRETATION.",
+    "Do not treat Collections follow-up copy as an unbilled outline. This workflow is for work with no invoice id, not for overdue sent invoices.",
+    "The outline is a draft only. Do not send it. Do not create the invoice. Do not record a payment. Suggest a billing-log row; the person adds it.",
+    "On a later run, start from a new export and the current billing log. Skip rows whose log outcome is invoiced or write-off, or whose invoice id is now present."
+  ],
+  "human_ai_boundary": [
+    "AI applies skip rules and lists every skipped row with its reason. The person decides whether a warranty, write-off, or disputed row should still be billed.",
+    "AI ranks remaining rows by oldest completion date first. The person decides which outlines to create this week and in what order.",
+    "AI drafts invoice outlines using only export fields. The person checks every number against the export row, edits the wording, and approves it.",
+    "AI labels a blank invoice id as CONFIRMED blank, not as proof of never billed. The person checks their invoicing tool before creating a duplicate invoice.",
+    "AI never sends an invoice, never records a payment, and never edits QuickBooks, Xero, or a time tracker. The person creates, holds, or writes off in their own invoicing tool, or decides not to.",
+    "AI reads the billing log. Only the person records outcomes, and the log reflects what the person entered, not what AI assumed.",
+    "The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, collected, or marked paid automatically. Every page states that the person creates the invoice, and that nothing is sent or collected.",
+    "Atlas does not connect to QuickBooks, Xero, a time tracker, an invoicing tool, email, or any other vendor. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before pasting or uploading exports to an AI tool, the person is told to review that tool's data settings (such as chat history, training use, and file retention) and to remove emails, phone numbers, and other columns the workflow does not need.",
+    "The kit tells the person not to paste bank account numbers, card numbers, or tax IDs into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to invent tax or terms, not to bill warranty or included-rework without an owner decision, and not to treat a blank invoice id as proof the customer was never billed off-export.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no statistics, collection rates, savings, ROI claims, prices, or checkout. The only dollar figures are fictional job amounts and the fictional $150 minimum."
+  ],
+  "required_data_tools": [
+    "Job, project, or time-entry export (CSV) with completion date, invoice status, and invoice id if any",
+    "Owner rate table if the export has hours but no amount",
+    "Billing log spreadsheet, started from the kit's Billing Log Template",
+    "The owner's own invoicing tool (QuickBooks, Xero, or a spreadsheet) for creating invoices",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings; rows can be pasted as text instead."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/unbilled-work-review-queue without a session renders a page whose h1 is 'Unbilled Work Review Queue', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a table with exactly 4 data rows whose job ids are J-88, J-91, J-70, and J-94, and whose customers include Northgate Clinic, Pell & Co, Harbor Lane, and Birchwood. It also shows the as-of date 2026-05-11 and the minimum $150.",
+    "Step 2 shows the exact heading 'SKIP RULES FIRST'. J-91 is SKIPPED with text containing 'invoice_id' and 'INV-220'. J-70 is SKIPPED with text containing 'warranty'. J-94 is SKIPPED with text containing '$85' and '$150'.",
+    "Step 3 lists exactly 1 queued row, J-88. It shows CONFIRMED text containing 'Northgate Clinic', 'J-88', '2026-04-22', '12', '85', and '1020'. It shows the outline text 'Northgate Clinic, J-88, 12 hours at $85, $1,020, date 2026-04-22' and the exact sentence 'Do not add tax or terms not in the export.' It shows the text labels 'CONFIRMED', 'NEEDS YOUR CHECK', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. AI INTERPRETATION contains 'blank invoice id' and 'does not prove'.",
+    "Step 4 shows the J-88 outline. Activating 'Check numbers against the export row' reveals three rows (hours, rate, amount), each containing the text 'Matches', and the values 12, 85, and 1020.",
+    "Step 5 shows the fictional billing log with J-88 invoiced and INV-241, and a mock next-week run as of 2026-05-18. The run lists J-88 as skipped with text containing 'INV-241' and 'invoiced', and shows 'Logged invoiced work is not listed again.'",
+    "Step 6 contains the exact sentences 'You create the invoice. Nothing is sent or collected.' and 'Do not add tax or terms not in the export.' and a link to /blueprints/unbilled-work-review-queue/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every job id, customer, amount, hour, rate, invoice id, and date in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', or 'per month'. The only dollar figures are the fictional job amounts and the fictional $150 minimum.",
+    "Neither page contains a percentage, a collection-rate figure, an hours-saved figure, or an ROI or savings claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/unbilled-work-review-queue', and /sitemap.xml does not contain '/blueprints/unbilled-work-review-queue'.",
+    "GET /blueprints/unbilled-work-review-queue/kit without a session redirects to /auth with the query parameter next=/blueprints/unbilled-work-review-queue/kit.",
+    "Unbilled Work Review Queue is registered in src/lib/blueprints.ts with id and productSlug 'unbilled-work-review-queue', access 'premium', href '/blueprints/unbilled-work-review-queue/kit', purchaseHref '/blueprints/unbilled-work-review-queue', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/unbilled-work-review-queue/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'unbilled-work-review-queue') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'Unbilled Work Review Queue Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no Unbilled Work Review Queue entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Unbilled Queue Prompt is shown in a <pre> element and contains these strings: 'SKIP RULES FIRST', 'CONFIRMED', 'NEEDS YOUR CHECK', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'invoice_id', 'warranty', 'oldest', 'Do not invent', 'Do not add tax', 'Do not send', 'Nothing is sent or collected'.",
+    "The Week-to-Week Billing Log Prompt is shown in a <pre> element and contains: 'billing log', 'invoiced', 'write-off', 'hold', 'invoice_id', 'Do not send', 'Nothing is sent or collected'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Skip Rules and Minimum Worksheet has a visible label 'Minimum amount to bill (USD)' whose default value is '150', a visible label 'Statuses that are never billed (one per line)' whose default value is 'warranty', a visible label 'Jobs or customers to always skip (one per line)', plus a 'Generate My Unbilled Skip Rules' button.",
+    "With the defaults, the generated rules block contains 'Skip when invoice_id is present.', 'Never bill statuses: warranty.', 'Skip amounts below $150.', 'Skip dates after the as-of date.', 'Skip disputed jobs.', 'Rank remaining rows by oldest completion date first.', 'Invoice outline uses only customer, id, date, hours, rate, and amount from the export.', 'Do not invent tax, terms, or line items.', 'A blank invoice id is not proof the customer was never billed off-export.', and 'You create the invoice. Nothing is sent or collected.' The block has a Copy button. The block contains no 'Always skip' line.",
+    "If the minimum-amount field is empty, whitespace only, or negative, the worksheet shows the error 'Enter a minimum amount of 0 or more.' and generates no rules block.",
+    "When 'Jobs or customers to always skip (one per line)' is empty, the generated rules block contains no 'Always skip' line. When it contains 'Northgate Clinic', the block contains 'Always skip: Northgate Clinic'.",
+    "When 'Statuses that are never billed (one per line)' contains 'warranty' and 'write-off' on two lines, the generated rules block contains 'Never bill statuses: warranty; write-off.'.",
+    "The Billing Log Template shows the columns week_of, job, customer, action_taken, outcome, invoice_id, notes. Its 'Copy CSV' button writes text whose first line is 'week_of,job,customer,action_taken,outcome,invoice_id,notes' and whose J-88 row contains '2026-05-11', 'Northgate Clinic', 'invoiced', and 'INV-241'.",
+    "The Invoice Outline Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Job Export section is labelled 'Fictional' and its Copy CSV text equals the job,customer,completed,hours,rate,amount,invoice_id,status rows and header from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the Unbilled Work Review Queue card as Unlocked with an Open Blueprint link to /blueprints/unbilled-work-review-queue/kit.",
+    "With an authenticated session that has no Unbilled Work Review Queue entitlement, /my-blueprints shows the Unbilled Work Review Queue card as Locked with an Available to purchase link to /blueprints/unbilled-work-review-queue and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged. Security Readiness Action Pack, Google Ads Performance Coach, Quote Request Assistant, AI Expense Watchdog, and No-show Recovery Assistant entitlement and locked or unlocked card behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/unbilled-work-review-queue/, components/premium/unbilled-work-review-queue/, and src/lib/premium/unbilled-work-review-queue/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/unbilled-work-review-queue/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/unbilled-work-review-queue renders h1 'Unbilled Work Review Queue', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/unbilled-work-review-queue'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/unbilled-work-review-queue'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-export-table",
+      "description": "Step 1 table has exactly 4 data rows named J-88, J-91, J-70, and J-94, customers Northgate Clinic, Pell & Co, Harbor Lane, and Birchwood, and the page shows '2026-05-11' and '$150'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-skip-reasons",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and the exact heading 'SKIP RULES FIRST'. J-91 is SKIPPED with 'invoice_id' and 'INV-220'. J-70 is SKIPPED with 'warranty'. J-94 is SKIPPED with '$85' and '$150'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-queue-labels",
+      "description": "On step 3, exactly one queued row J-88 is visible. CONFIRMED contains 'Northgate Clinic', 'J-88', '2026-04-22', '12', '85', and '1020'. The outline contains '12 hours at $85' and '$1,020'. The exact sentence 'Do not add tax or terms not in the export.' is visible. The text labels 'CONFIRMED', 'NEEDS YOUR CHECK', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible. AI INTERPRETATION contains 'blank invoice id' and 'does not prove'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-number-check",
+      "description": "On step 4, the J-88 outline is visible. Clicking 'Check numbers against the export row' reveals 3 rows (12 vs 12; 85 vs 85; 1020 vs 1020), each with the text 'Matches'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-next-week-log",
+      "description": "On step 5, the billing log shows J-88 invoiced INV-241. The mock run as of 2026-05-18 shows J-88 skipped with 'INV-241' and 'invoiced', and the page shows 'Logged invoiced work is not listed again.'",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-creates",
+      "description": "On step 6, the exact sentences 'You create the invoice. Nothing is sent or collected.' and 'Do not add tax or terms not in the export.' are visible. A link to /blueprints/unbilled-work-review-queue/kit is present with visible text mentioning sign-in and private preview. 'Next step' is absent or disabled.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\d+%|ROI|hours saved|collection rate/i.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/unbilled-work-review-queue/kit ends on pathname /auth with searchParams next equal to '/blueprints/unbilled-work-review-queue/kit' (expectAuthNext helper).",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/unbilled-work-review-queue/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/unbilled-work-review-queue/kit sees h1 'Unbilled Work Review Queue Premium Kit', the exact text 'Premium · Private preview', and meta robots containing 'noindex'. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, queue-prompt, next-week-prompt, rules-worksheet, billing-log-template, outline-review-checklist, sample-job-export, and safety-guidance, each with a heading matching its kit_contents title. A table-of-contents link with href '#<id>' exists for each.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-price-or-checkout",
+      "description": "Kit page body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\d+%|ROI|hours saved|collection rate/i, and the page contains no form that posts to a payment URL.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-queue-prompt-copy",
+      "description": "The queue-prompt <pre> contains 'SKIP RULES FIRST', 'CONFIRMED', 'NEEDS YOUR CHECK', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'invoice_id', 'warranty', 'oldest', 'Do not invent', 'Do not add tax', 'Do not send', and 'Nothing is sent or collected'. Clicking its 'Copy Prompt' button changes the label to 'Copied', and navigator.clipboard.readText() equals the <pre> text.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-next-week-prompt-content",
+      "description": "The Week-to-Week Billing Log Prompt <pre> contains 'billing log', 'invoiced', 'write-off', 'hold', 'invoice_id', 'Do not send', and 'Nothing is sent or collected'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Unbilled Skip Rules' with default values produces a block containing 'Skip when invoice_id is present.', 'Never bill statuses: warranty.', 'Skip amounts below $150.', 'Skip dates after the as-of date.', 'Skip disputed jobs.', 'Rank remaining rows by oldest completion date first.', 'Invoice outline uses only customer, id, date, hours, rate, and amount from the export.', 'Do not invent tax, terms, or line items.', 'A blank invoice id is not proof the customer was never billed off-export.', and 'You create the invoice. Nothing is sent or collected.', and no 'Always skip' line.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-custom-skip",
+      "description": "Entering 'Northgate Clinic' in 'Jobs or customers to always skip (one per line)' and generating produces a block containing 'Always skip: Northgate Clinic'. Entering 'warranty' and 'write-off' on two lines in 'Statuses that are never billed (one per line)' produces 'Never bill statuses: warranty; write-off.'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Clearing 'Minimum amount to bill (USD)' and generating shows 'Enter a minimum amount of 0 or more.' and no rules block. Setting the minimum to -1 shows the same error and no rules block.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-billing-log-copy-csv",
+      "description": "The Billing Log Template lists columns week_of, job, customer, action_taken, outcome, invoice_id, notes. Its 'Copy CSV' button writes clipboard text whose first line is 'week_of,job,customer,action_taken,outcome,invoice_id,notes' and that contains 'J-88', '2026-05-11', 'invoiced', and 'INV-241'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-export-fictional",
+      "description": "The Fictional Sample Job Export section shows the label 'Fictional'. Its copied CSV contains the header 'job,customer,completed,hours,rate,amount,invoice_id,status' and the J-88, J-91, J-70, and J-94 rows from the demo.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Invoice Outline Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-entitled",
+      "description": "With an entitled authenticated session, /my-blueprints shows the Unbilled Work Review Queue card with PREMIUM, Unlocked, and an Open Blueprint link to /blueprints/unbilled-work-review-queue/kit.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-locked-without-entitlement",
+      "description": "With an authenticated session whose entitlement header is deny, /blueprints/unbilled-work-review-queue/kit shows heading 'Premium is locked', does not render #setup-checklist, and has 0 Buy Premium buttons.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-locked",
+      "description": "With an authenticated session whose entitlement header is deny, the Unbilled Work Review Queue card on /my-blueprints is Locked, the Available to purchase link points at /blueprints/unbilled-work-review-queue, and there is no kit link.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "daily-inbox-still-open",
+      "description": "With an authenticated session, /my-blueprints still has Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit, including when the Unbilled Work Review Queue entitlement is denied.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "collections-behavior-unchanged",
+      "description": "AI Collections Assistant remaining premium, Buy Premium, checkout, and entitlement behavior is unchanged. Do not edit Collections product files or e2e/ai-collections-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "security-behavior-unchanged",
+      "description": "Security Readiness Action Pack remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Security product files or e2e/security-readiness-action-pack/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "google-ads-behavior-unchanged",
+      "description": "Google Ads Performance Coach remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Google Ads product files or e2e/google-ads-performance-coach/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "quote-request-behavior-unchanged",
+      "description": "Quote Request Assistant remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Quote Request product files or e2e/quote-request-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "expense-watchdog-behavior-unchanged",
+      "description": "AI Expense Watchdog remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Expense Watchdog product files or e2e/ai-expense-watchdog/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-show-behavior-unchanged",
+      "description": "No-show Recovery Assistant remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit No-show product files or e2e/no-show-recovery-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-unbilled-stripe-price",
+      "description": "Unbilled Work Review Queue is not in PAID_PRODUCTS, getPaidProduct('unbilled-work-review-queue') is undefined, and its pages show no Stripe price, checkout form, or Buy Premium button.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/unbilled-work-review-queue/authenticated.spec.ts. Authenticated QA must actually reach the kit after automatic session refresh.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts (the only authenticated file run by the authenticated-desktop project), call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, the minimum-amount field, the never-billed-statuses field, the always-skip field, the Generate button, every review-checklist checkbox, and Reset. Each shows a visible focus ring (non-'none' outline or box-shadow on :focus-visible).",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to QuickBooks, Xero, time trackers, invoicing tools, email, or any other vendor, including OAuth flows, API calls, webhooks, and automated invoice sends.",
+    "Uploading, parsing, or storing the person's real job files or billing logs on Atlas.",
+    "Creating, sending, or voiding invoices, recording payments, or editing an accounting system from Atlas.",
+    "Chasing overdue invoices that already went out. That is AI Collections Assistant. This version only queues completed work with no invoice id.",
+    "Qualifying inbound work not yet done. That is Quote Request Assistant.",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for Unbilled Work Review Queue. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Security Readiness Action Pack behavior, Google Ads Performance Coach behavior, Quote Request Assistant behavior, AI Expense Watchdog behavior, No-show Recovery Assistant behavior, Stripe configuration, Production, or e2e/unbilled-work-review-queue/authenticated.spec.ts.",
+    "Changes to content/published/, /use-cases/unbilled-work-review-queue, or Japanese catalog labels.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or billing-log rows to an Atlas account.",
+    "Statistics, collection-rate claims, time-to-invoice claims, or ROI claims.",
+    "Inventing tax, payment terms, or line items, or treating a blank invoice id as proof the customer was never billed off-export."
+  ],
+  "source": {
+    "run_id": "20261102T052753Z-unbilled-work-review-queue",
+    "candidate_id": "unbilled-work-review-queue",
+    "approved_at": "2026-11-02T05:27:53.587Z",
+    "approval_note": "Approved internally for batch batch-20261031T062745Z. Final human review is deferred to the batch dashboard.",
+    "summary_scores": {
+      "commercial": 7.5,
+      "atlas_fit": 8,
+      "buildability": 7.6,
+      "overall": 7.7
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/unbilled-work-review-queue",
+    "kit": "/blueprints/unbilled-work-review-queue/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/unbilled-work-review-queue/",
+    "components/premium/unbilled-work-review-queue/",
+    "src/lib/premium/unbilled-work-review-queue/",
+    "src/lib/blueprints.ts",
+    "e2e/unbilled-work-review-queue/"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/unbilled-work-review-queue and the Premium kit at /blueprints/unbilled-work-review-queue/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled \"Premium · Private preview\". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/unbilled-work-review-queue/, components/premium/unbilled-work-review-queue/, and src/lib/premium/unbilled-work-review-queue/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.",
+    "e2e/unbilled-work-review-queue/authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}

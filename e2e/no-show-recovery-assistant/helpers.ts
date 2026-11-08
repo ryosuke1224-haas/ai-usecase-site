@@ -3,11 +3,9 @@ import { loadProductSpec } from "../support/product-spec";
 
 export const DEMO_PATH = "/blueprints/no-show-recovery-assistant";
 export const KIT_PATH = "/blueprints/no-show-recovery-assistant/kit";
-export const JA_DEMO_PATH = "/ja/blueprints/no-show-recovery-assistant";
-export const JA_KIT_PATH = "/ja/blueprints/no-show-recovery-assistant/kit";
 
 export const FORBIDDEN_COPY =
-  /checkout|buy now|purchase|Buy Premium|\/month|per month|\d+%|ROI|hours saved/i;
+  /checkout|buy now|purchase|Buy Premium|\/month|per month|\$\d|\d+%|ROI|hours saved|recovery rate/i;
 
 export const TOTAL_STEPS = 6;
 
@@ -22,13 +20,28 @@ export function loadNoShowSpec(): NoShowSpec {
   return loadProductSpec<NoShowSpec>("no-show-recovery-assistant");
 }
 
-/** Windows Chromium's clipboard.readText() inserts CR before LF. */
+/**
+ * Windows Chromium's clipboard.readText() inserts CR before LF.
+ * The copied characters are otherwise unchanged.
+ */
 export function expectSameClipboardText(actual: string, expected: string) {
   expect(actual.replace(/\r\n/g, "\n")).toBe(expected.replace(/\r\n/g, "\n"));
 }
 
+/** time,client,service,status,contact_pref,sms_consent,prior_no_shows rows and header from guided_demo.sample_input. */
 export function sampleBookingsCsv(spec: NoShowSpec): string {
-  return spec.guided_demo.sample_input.replace(/\r\n/g, "\n").replace(/\n$/, "");
+  const lines = spec.guided_demo.sample_input.split("\n").map((line) => line.replace(/\r$/, ""));
+  const start = lines.findIndex((line) =>
+    line.startsWith("time,client,service,status,contact_pref,sms_consent,prior_no_shows"),
+  );
+  if (start < 0) throw new Error("Sample CSV header not found in spec");
+  const end = lines.findIndex(
+    (line, index) => index > start && line.startsWith("open_slot"),
+  );
+  return lines
+    .slice(start, end < 0 ? undefined : end)
+    .filter((line) => line.length > 0)
+    .join("\n");
 }
 
 export function demoRegion(page: Page): Locator {
@@ -58,15 +71,20 @@ export type FocusInfo = {
   ring: boolean;
 };
 
+/** Describes document.activeElement, including whether it shows a visible focus ring. */
 export async function describeFocus(page: Page): Promise<FocusInfo | null> {
   return page.evaluate(() => {
     const el = document.activeElement as HTMLElement | null;
     if (!el || el === document.body) return null;
     const style = window.getComputedStyle(el);
-    const outlineVisible = style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0;
+    const outlineVisible =
+      style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0;
     const shadowVisible = style.boxShadow !== "none" && style.boxShadow !== "";
     const input = el as HTMLInputElement;
-    const label = input.labels && input.labels.length > 0 ? (input.labels[0].textContent ?? "").trim() : "";
+    const label =
+      input.labels && input.labels.length > 0
+        ? (input.labels[0].textContent ?? "").trim()
+        : "";
     return {
       tag: el.tagName.toLowerCase(),
       type: input.type ?? "",

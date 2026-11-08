@@ -1,0 +1,417 @@
+{
+  "schema_version": "atlas-blueprint-spec-v1",
+  "id": "ai-staffing-optimizer",
+  "tier": "premium",
+  "status": "private-preview",
+  "name": "Shift Coverage vs Demand Check",
+  "value_proposition": "Line up hourly POS demand against clocked hours under owner-set minimums and a 3-of-4-weeks pattern rule, so the manager sees which day-parts are repeatedly overstaffed or understaffed before editing next week's schedule — the Blueprint never posts a shift.",
+  "persona": "Owner or general manager of a café, quick-service restaurant, retail shop, or fitness studio with 8-40 hourly staff. They use a POS and a scheduling or time-clock app and mostly copy each week's schedule from the last.",
+  "problem": "Schedules follow habit instead of demand. Some slow hours have more staff than needed while rush hours run short, and nobody has time to line up sales by hour against clocked hours.",
+  "workflow": [
+    "1. The person writes staffing rules before any flag: minimum staff per open hour (or by role), a target range of transactions per staff-hour, roles that cannot be cut (such as the keyholder), and day-parts with non-sales work (prep, restocking, cleaning). PERSON DECIDES: the minimum, the target range, protected roles, and which quiet hours still need coverage for non-sales work.",
+    "2. The person exports 4-8 weeks of hourly transactions or sales from the POS, and clocked hours by hour from the time-clock or scheduling app, then removes employee names, pay rates, tax IDs, and other columns the workflow does not need. PERSON DECIDES: which columns to keep. This is an export review, not a live POS, scheduling, or time-clock connection.",
+    "3. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting or uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to upload the file, paste the rows as text, or not use AI for this data at all.",
+    "4. The person pastes the Coverage Check Prompt and their rules from the Staffing Rules Worksheet, then attaches or pastes the aligned hourly rows.",
+    "5. AI calculates transactions per staff-hour for each day-part with every formula left visible as text. It flags a block only when the result is outside the owner's target range in at least 3 of the weeks in the export. It does not flag a single bad day. PERSON DECIDES: whether a flagged block is real enough to change the next schedule.",
+    "6. AI labels each point CONFIRMED (calculated from the exports), OWNER-ENTERED (minimum, target range, protected roles, non-sales day-parts), AI INTERPRETATION (possible causes the data cannot confirm, such as prep work missing from the POS), or RECOMMENDED ACTION (a coverage-safe shift move that never drops below the owner's minimum). It includes a reminder to check local scheduling and break rules. PERSON DECIDES: whether any schedule change happens.",
+    "7. The person uses the Schedule Change Review Checklist and checks every CONFIRMED transactions-per-staff-hour figure against the export rows. PERSON DECIDES: edit the next schedule in their own scheduling tool, or change nothing. The Blueprint never edits schedules, posts shifts, or contacts staff.",
+    "8. After about 4 weeks, the person pastes the Four-Week Re-Check Prompt with a new export for the same flagged blocks and records whether those blocks moved into the target range. PERSON DECIDES: whether to keep, reverse, or further adjust the schedule change."
+  ],
+  "before": "The manager copies last week's schedule, feels short-handed on Saturday, sees staff idle on Tuesday afternoon, and has no numbers to justify a change.",
+  "after": "The manager has a short list of day-parts that are overstaffed or understaffed in most weeks, each with its calculation, a coverage-safe suggestion, and a re-check four weeks later.",
+  "guided_demo": {
+    "summary": "A public, six-step walkthrough at /blueprints/ai-staffing-optimizer using a fictional café with 4 weeks of invented hourly sales and clocked hours (names already removed). Owner rules are minimum 2 on floor, target 15-25 transactions per staff-hour, and flag only if outside target in 3 or more of 4 weeks. Tue 14:00 is overstaffed in 4 of 4 weeks; Sat 12:00 is understaffed in 4 of 4 weeks. Clicking a flagged block shows visible formulas, the weeks that triggered it, and AI INTERPRETATION kept separate from the math. A coverage-safe recommendation stops at the minimum-staff rule. A mock four-week re-check shows Sat 12:00 moving into the target after adding one person. Confirmed facts, owner-entered rules, AI interpretation, and recommended actions are labelled with text, not color alone. Every hour, transaction count, and staff count is invented. No live POS, scheduling, or time-clock system is attached.",
+    "steps": [
+      "Step 1 of 6 - The exports: show the fictional two-row hour table (Tue 14:00: week1_tx 12, week2_tx 10, week3_tx 11, week4_tx 11, week1_staff 4, week2_staff 4, week3_staff 4, week4_staff 4; Sat 12:00: week1_tx 90, week2_tx 82, week3_tx 88, week4_tx 92, week1_staff 3, week2_staff 3, week3_staff 3, week4_staff 3). Show rules text 'minimum 2 on floor', 'target 15-25', and 'flag only if outside target in 3+ of 4 weeks'. Label the table invented. State that no live POS, scheduling, or time-clock account is attached.",
+      "Step 2 of 6 - Owner rules first: show the exact heading 'OWNER RULES FIRST'. Show OWNER-ENTERED minimum '2', target range '15-25 transactions per staff-hour', protected role 'keyholder', and non-sales note that quiet hours may include prep. State that a single week outside the target is not enough to flag.",
+      "Step 3 of 6 - Day-by-hour grid and flags: show a grid with Tue 14:00 and Sat 12:00. Show CONFIRMED Tue formulas '=12/4' result '3.0', '=10/4' result '2.5', '=11/4' result '2.8', '=11/4' result '2.8', and text that Tue 14:00 is below the 15-25 target in 4 of 4 weeks (overstaffed pattern). Show CONFIRMED Sat formulas '=90/3' result '30.0', '=82/3' result '27.3', '=88/3' result '29.3', '=92/3' result '30.7', and text that Sat 12:00 is above target in 4 of 4 weeks (understaffed pattern). Mark over and under flags with visible text and an icon, not color alone. Show the text labels 'CONFIRMED', 'OWNER-ENTERED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words.",
+      "Step 4 of 6 - Check one flagged block: open the Tue 14:00 CONFIRMED line. A 'Check facts against the export row' button shows four week rows (week1 12 vs 12 and 4 vs 4; week2 10 and 4; week3 11 and 4; week4 11 and 4), each labelled with the text 'Matches'. Show AI INTERPRETATION text containing 'prep' and 'POS export does not show'.",
+      "Step 5 of 6 - Coverage-safe recommendation and re-check: show RECOMMENDED ACTION text containing 'consider 2 on floor Tue 14:00-15:00' and 'your minimum', and Sat text containing 'adding 1 person' and '88 / 4 = 22'. Show a mock four-week re-check where Sat 12:00 with 4 staff shows transactions per staff-hour inside 15-25 in 4 of 4 weeks, and Tue 14:00 with 2 staff remains below target with text that non-sales work may still apply. Show the sentence 'Re-check the same blocks after 4 weeks with a new export.'",
+      "Step 6 of 6 - You edit the schedule: state the exact sentences 'You edit the schedule in your own tool. The kit changes nothing.' and 'Do not cut below your minimum staff.' and 'Check local scheduling and break rules before changing posted shifts.' Explain that the person edits shifts in their own scheduling tool, or decides not to, and that nothing is sent, edited, cancelled, or paid automatically. Offer a link to the Premium kit labelled as private preview with sign-in required."
+    ],
+    "sample_input": "FICTIONAL SAMPLE. 4 weeks of hourly rows (names removed)\nday,hour,week1_tx,week2_tx,week3_tx,week4_tx,week1_staff,week2_staff,week3_staff,week4_staff\nTue,14:00,12,10,11,11,4,4,4,4\nSat,12:00,90,82,88,92,3,3,3,3\nRules: minimum 2 on floor; target 15-25 transactions per staff-hour; flag only if outside target in 3+ of 4 weeks; protected role: keyholder\n\nMock re-check after schedule edits (fictional, 4 later weeks):\nday,hour,week5_tx,week6_tx,week7_tx,week8_tx,week5_staff,week6_staff,week7_staff,week8_staff\nTue,14:00,12,11,13,12,2,2,2,2\nSat,12:00,90,82,88,92,4,4,4,4",
+    "sample_output": "OWNER RULES FIRST\nCOVERAGE CHECK (fictional)\nCONFIRMED (calculated): Tue 14:00 transactions per staff-hour =12/4=3.0, =10/4=2.5, =11/4=2.8, =11/4=2.8; below your 15-25 target in 4 of 4 weeks (overstaffed pattern).\nCONFIRMED (calculated): Sat 12:00 =90/3=30.0, =82/3=27.3, =88/3=29.3, =92/3=30.7; above target in 4 of 4 weeks (understaffed pattern).\nOWNER-ENTERED: minimum 2 on floor; target 15-25; flag only if outside target in 3+ of 4 weeks; protected role keyholder.\nAI INTERPRETATION: Tuesday afternoon may include prep or restocking that the POS export does not show. A quiet POS hour is not proof the floor can run at the absolute minimum without checking non-sales work.\nRECOMMENDED ACTION (you decide): consider 2 on floor Tue 14:00-15:00 (your minimum). Consider adding 1 person at Sat 12:00 (example: 88 / 4 = 22 per staff-hour). Check local scheduling and break rules before changing posted shifts. You edit the schedule in your own tool. The kit changes nothing. Do not cut below your minimum staff.\n\nFOUR-WEEK RE-CHECK (fictional)\nCONFIRMED: Tue 14:00 with 2 staff =12/2=6.0, =11/2=5.5, =13/2=6.5, =12/2=6.0; still below target in 4 of 4 weeks — keep reviewing non-sales work before cutting further.\nCONFIRMED: Sat 12:00 with 4 staff =90/4=22.5, =82/4=20.5, =88/4=22.0, =92/4=23.0; inside 15-25 in 4 of 4 weeks. Re-check the same blocks after 4 weeks with a new export.",
+    "fictional_data_notice": "All hours, transaction counts, staff counts, and dates on this page are fictional. No real business data is used, and nothing is connected to a POS, scheduling tool, time clock, or any other live system."
+  },
+  "kit_contents": [
+    {
+      "id": "setup-checklist",
+      "title": "Coverage Check Setup Checklist",
+      "purpose": "Step-by-step setup for one run. It covers writing the minimum staff rule, target transactions-per-staff-hour range, protected roles, and non-sales day-parts; exporting 4-8 weeks of hourly POS transactions and clocked hours with names removed; aligning hour buckets across systems; checking the AI tool's data settings before pasting or uploading; and the rule that this is an export review, not a live POS or scheduling connection. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
+    },
+    {
+      "id": "coverage-check-prompt",
+      "title": "Coverage Check Prompt",
+      "purpose": "Copyable prompt that writes OWNER RULES FIRST, calculates transactions per staff-hour with every formula visible, flags a day-part only when it is outside the owner's target in at least 3 of the weeks, never recommends staffing below the owner's minimum, labels CONFIRMED, OWNER-ENTERED, AI INTERPRETATION, and RECOMMENDED ACTION separately, and forbids editing schedules, posting shifts, contacting staff, inventing transaction counts, and inventing savings."
+    },
+    {
+      "id": "recheck-prompt",
+      "title": "Four-Week Re-Check Prompt",
+      "purpose": "Copyable prompt used only after about four weeks. It recalculates the previously flagged day-parts from a new export, compares whether each block moved into the target range, leaves formulas visible, and forbids inventing the new week numbers or editing the schedule."
+    },
+    {
+      "id": "rules-worksheet",
+      "title": "Staffing Rules Worksheet",
+      "purpose": "Browser-only form where the person sets minimum staff on floor, target transactions-per-staff-hour low and high, the pattern rule (default flag when outside target in 3 or more of 4 weeks), protected roles, and optional non-sales day-parts. It generates a copyable rules block to paste with the Coverage Check Prompt. Nothing is saved to Atlas."
+    },
+    {
+      "id": "workbook-template",
+      "title": "Hourly Coverage Workbook Template",
+      "purpose": "Column layout (day, hour, week1_tx through week4_tx, week1_staff through week4_staff, week1_tx_per_staff_formula through week4_tx_per_staff_formula, weeks_outside_target, flag, notes) with the fictional Tue 14:00 and Sat 12:00 demo numbers and visible formula text such as =12/4 and =90/3. Includes a Copy CSV button so the person can start their own spreadsheet."
+    },
+    {
+      "id": "schedule-review-checklist",
+      "title": "Schedule Change Review Checklist",
+      "purpose": "Interactive, session-only checklist used before changing the next schedule. It confirms that every CONFIRMED transactions-per-staff-hour figure matches the export rows, that flags used the 3-of-4 (or owner-set) pattern rule rather than a single week, that recommendations never drop below the minimum staff rule, that protected roles were not cut, that quiet hours with possible prep were not treated as confirmed overstaffing alone, that local scheduling and break rules were considered, and that the person edits the schedule in their own tool themselves."
+    },
+    {
+      "id": "sample-exports",
+      "title": "Fictional Sample Hourly Export",
+      "purpose": "The same fictional two-row hourly CSV and owner-entered rules used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real POS or time-clock data."
+    },
+    {
+      "id": "safety-guidance",
+      "title": "Data and Safety Guidance",
+      "purpose": "Rules for handling POS and time-clock exports in AI tools: review data settings, remove employee names and pay rates, do not paste scheduling-system passwords, do not recommend coverage below a safe or legally required minimum, do not ignore non-sales work, do not invent savings or return-on-investment claims, remind the person to check local scheduling and break rules, and remember that nothing is edited or sent to staff automatically. It also states that file upload support differs by plan."
+    }
+  ],
+  "decision_rules": [
+    "Write OWNER RULES FIRST and finish the arithmetic before any schedule-change suggestion or interpretation.",
+    "Transactions per staff-hour for a week equals that week's transactions divided by that week's staff count for the same day-part. Leave every formula visible as text (for example =12/4 and =90/3).",
+    "Flag a day-part only when transactions per staff-hour is outside the owner's target range in at least 3 of the weeks in the export (or the owner-set N-of-M pattern). Do not flag a single bad day.",
+    "Never recommend staffing below the owner's written minimum for that open hour. If a cut would break the minimum, say so and stop at the minimum.",
+    "Never recommend cutting a role on the owner's protected-role list (for example keyholder).",
+    "If a remaining row is missing day, hour, a week of transactions, or a week of staff, or staff is 0, do not include that week in the pattern count. List it under NEEDS YOUR CHECK.",
+    "Do not invent transaction counts, staff counts, savings, labor-cost percentages, or ROI. Use only values from the files and rules the person pasted.",
+    "A quiet POS hour is CONFIRMED low transactions per staff-hour only. Possible prep, restocking, or cleaning needs are AI INTERPRETATION unless the person labelled that day-part as non-sales work in the rules.",
+    "CONFIRMED means calculated from the exports. OWNER-ENTERED means minimum, target range, pattern rule, protected roles, or non-sales day-parts. AI INTERPRETATION is not a confirmed fact. RECOMMENDED ACTION is never executed by the kit.",
+    "Include a reminder to check local scheduling, break, and predictive-scheduling rules before changing posted shifts. The export cannot show those rules.",
+    "On a later run after about four weeks, recalculate the same previously flagged day-parts from a new export with visible formulas. Do not invent the new week numbers. If no new export was provided, say that no new export was provided."
+  ],
+  "human_ai_boundary": [
+    "AI calculates transactions per staff-hour and applies the owner's pattern rule. The person decides the minimum staff, target range, protected roles, and non-sales day-parts.",
+    "AI flags only when a day-part is outside the target in enough weeks. The person decides whether a flag means the next schedule should change.",
+    "AI leaves every formula visible and labels CONFIRMED, OWNER-ENTERED, AI INTERPRETATION, and RECOMMENDED ACTION separately. The person checks every CONFIRMED number against the export rows before treating it as true.",
+    "AI may suggest coverage-safe shift moves that still respect the minimum and protected roles. The person decides whether any edit happens.",
+    "AI never connects to a POS, scheduling tool, or time clock, never edits a shift, never posts a shift, and never contacts staff. The person edits the schedule in their own tool, or decides not to.",
+    "AI recalculates previously flagged blocks only when the person provides a new export. Only the person records whether the change worked.",
+    "The person decides whether any recommended action happens."
+  ],
+  "safety": [
+    "Nothing is sent, edited, cancelled, or paid automatically. Every page states that the person edits the schedule in their own tool and that the kit changes nothing.",
+    "Atlas does not connect to a POS, scheduling tool, time clock, payroll provider, or any other vendor. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before pasting or uploading exports to an AI tool, the person is told to review that tool's data settings and to remove employee names, pay rates, tax IDs, and other columns the workflow does not need.",
+    "The kit tells the person not to paste scheduling-system passwords, bank account numbers, Social Security numbers, or full employee names into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to cut below minimum coverage or local scheduling rules, not to ignore non-sales work in quiet hours, and not to invent savings or ROI.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no invented statistics, savings, or ROI claims, and no price or checkout. The only counts and ratios are the fictional hourly math, owner-entered rules, and the fictional four-week re-check."
+  ],
+  "required_data_tools": [
+    "POS hourly sales or transactions export (CSV)",
+    "Time-clock or scheduling export of hours by employee or role (CSV), with names removed",
+    "Owner-entered staffing rules (minimum staff, target transactions per staff-hour, protected roles, non-sales day-parts)",
+    "Spreadsheet (Google Sheets or Excel) so formulas stay visible",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings; rows can be pasted as text instead."
+  ],
+  "acceptance_criteria": [
+    "GET /blueprints/ai-staffing-optimizer without a session renders a page whose h1 is 'Shift Coverage vs Demand Check', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a table with exactly 2 data rows whose day-hour labels are Tue 14:00 and Sat 12:00, with Tue values 12, 10, 11, 11 and 4, 4, 4, 4 and Sat values 90, 82, 88, 92 and 3, 3, 3, 3. It also shows 'minimum 2', '15-25', and text about flagging only when outside target in 3+ of 4 weeks.",
+    "Step 2 shows the exact heading 'OWNER RULES FIRST'. It shows OWNER-ENTERED minimum '2', target '15-25', and text that a single week outside the target is not enough to flag.",
+    "Step 3 shows CONFIRMED Tue formula text '=12/4' and '3.0', '=10/4' and '2.5', '=11/4' and '2.8', and text that Tue is below target in 4 of 4 weeks; Sat formula text '=90/3' and '30.0', '=82/3' and '27.3', '=88/3' and '29.3', '=92/3' and '30.7', and text that Sat is above target in 4 of 4 weeks. Over and under flags use visible text and an icon, not color alone. The text labels 'CONFIRMED', 'OWNER-ENTERED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' appear as words.",
+    "Step 4 shows the Tue 14:00 CONFIRMED line. Activating 'Check facts against the export row' reveals four week rows with matching transaction and staff values, each containing the text 'Matches'. AI INTERPRETATION contains 'prep' and 'POS export does not show'.",
+    "Step 5 shows RECOMMENDED ACTION text containing '2 on floor' and 'Tue 14:00', and Sat text containing 'adding 1' and '22'. It shows a mock re-check with Sat inside 15-25 and Tue still below target, plus the sentence 'Re-check the same blocks after 4 weeks with a new export.'.",
+    "Step 6 contains the exact sentences 'You edit the schedule in your own tool. The kit changes nothing.', 'Do not cut below your minimum staff.', and 'Check local scheduling and break rules before changing posted shifts.' and a link to /blueprints/ai-staffing-optimizer/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every day-part, transaction count, staff count, and ratio in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', or 'per month'. The only numeric staffing figures are the fictional hourly counts, ratios, minima, and targets from the sample.",
+    "Neither page contains an hours-saved figure, a 'you could save' claim, or an ROI or savings-total claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/ai-staffing-optimizer', and /sitemap.xml does not contain '/blueprints/ai-staffing-optimizer'.",
+    "GET /blueprints/ai-staffing-optimizer/kit without a session redirects to /auth with the query parameter next=/blueprints/ai-staffing-optimizer/kit.",
+    "Shift Coverage vs Demand Check is registered in src/lib/blueprints.ts with id and productSlug 'ai-staffing-optimizer', title 'Shift Coverage vs Demand Check', access 'premium', href '/blueprints/ai-staffing-optimizer/kit', purchaseHref '/blueprints/ai-staffing-optimizer', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/ai-staffing-optimizer/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'ai-staffing-optimizer') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'Shift Coverage vs Demand Check Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no Shift Coverage vs Demand Check entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Coverage Check Prompt is shown in a <pre> element and contains these strings: 'OWNER RULES FIRST', 'CONFIRMED', 'OWNER-ENTERED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'transactions per staff-hour', '3 of', 'Do not invent', 'Do not edit', 'minimum', 'You edit the schedule'.",
+    "The Four-Week Re-Check Prompt is shown in a <pre> element and contains: 're-check', '4 weeks', 'target', 'Do not invent', 'Do not edit', 'You edit the schedule'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Staffing Rules Worksheet has a visible label 'Minimum staff on floor' whose default value is '2', a visible label 'Target transactions per staff-hour (low)' whose default value is '15', a visible label 'Target transactions per staff-hour (high)' whose default value is '25', a visible label 'Flag when outside target in at least N of M weeks' whose default N is '3' and M is '4', a visible label 'Roles that cannot be cut (one per line)' whose default includes 'keyholder', a visible label 'Non-sales day-parts (optional, one per line)', plus a 'Generate My Staffing Rules' button.",
+    "With the defaults, the generated rules block contains 'Minimum staff on floor: 2.', 'Target transactions per staff-hour: 15-25.', 'Flag only when outside target in at least 3 of 4 weeks.', 'Protected roles: keyholder.', 'Do not invent transaction counts or savings.', and 'Do not edit schedules or contact staff. You edit the schedule in your own tool. The kit changes nothing.' The block has a Copy button.",
+    "If the minimum-staff field is empty, 0, or negative, the worksheet shows the error 'Enter a minimum staff of 1 or more.' and generates no rules block. If either target bound is empty or the low bound is greater than the high bound, the worksheet shows the error 'Enter a target range with low less than or equal to high.' and generates no rules block.",
+    "When 'Non-sales day-parts (optional, one per line)' is empty, the generated rules block contains no 'Non-sales day-parts' line. When it contains 'Tue 14:00-16:00 prep' on one line, the block contains 'Non-sales day-parts: Tue 14:00-16:00 prep.'.",
+    "The Hourly Coverage Workbook Template shows the columns day, hour, week1_tx, week2_tx, week3_tx, week4_tx, week1_staff, week2_staff, week3_staff, week4_staff, week1_tx_per_staff_formula, week2_tx_per_staff_formula, week3_tx_per_staff_formula, week4_tx_per_staff_formula, weeks_outside_target, flag, notes. Its 'Copy CSV' button writes text whose first line starts with 'day,hour' and whose Tue row contains '14:00', '=12/4', and '3.0'.",
+    "The Schedule Change Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Hourly Export section is labelled 'Fictional' and its Copy CSV text equals the day,hour,week1_tx through week4_staff rows and header from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the Shift Coverage vs Demand Check card as Unlocked with an Open Blueprint link to /blueprints/ai-staffing-optimizer/kit.",
+    "With an authenticated session that has no Shift Coverage vs Demand Check entitlement, /my-blueprints shows the Shift Coverage vs Demand Check card as Locked with an Available to purchase link to /blueprints/ai-staffing-optimizer and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged. Other Premium Blueprint entitlement and locked or unlocked card behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/ai-staffing-optimizer/, components/premium/ai-staffing-optimizer/, and src/lib/premium/ai-staffing-optimizer/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/ai-staffing-optimizer/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect.",
+    "The guided demo at /blueprints/ai-staffing-optimizer renders without sign-in on desktop and a phone-sized viewport, uses only fictional data, and says so.",
+    "The kit at /blueprints/ai-staffing-optimizer/kit requires sign-in, is labelled Premium · Private preview, and shows no price, checkout, or purchase claim.",
+    "Both pages set robots noindex and are not linked from the homepage, header, or sitemap.",
+    "Confirmed facts, owner-entered inputs, AI interpretation, and recommended actions are labelled separately, and every external action stays with the person.",
+    "The Daily Inbox Briefing, its Starter Kit, and its tests are unchanged."
+  ],
+  "qa_checks": [
+    {
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/ai-staffing-optimizer renders h1 'Shift Coverage vs Demand Check', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/ai-staffing-optimizer'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/ai-staffing-optimizer'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-hourly-table",
+      "description": "Step 1 table has exactly 2 data rows labelled Tue 14:00 and Sat 12:00 with Tue values 12/10/11/11 and 4/4/4/4 and Sat values 90/82/88/92 and 3/3/3/3, and the page shows 'minimum 2', '15-25', and 3+ of 4 weeks flag text.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step2-owner-rules",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and the exact heading 'OWNER RULES FIRST', with minimum '2', target '15-25', and text that a single week outside the target is not enough to flag.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step3-flags",
+      "description": "On step 3, the page shows '=12/4', '3.0', '=90/3', '30.0', text that Tue is below target in 4 of 4 weeks, text that Sat is above target in 4 of 4 weeks, and the text labels 'CONFIRMED', 'OWNER-ENTERED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-fact-check",
+      "description": "On step 4, clicking 'Check facts against the export row' reveals 4 week rows for Tue 14:00, each with the text 'Matches', and AI INTERPRETATION contains 'prep' and 'POS export does not show'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-recheck",
+      "description": "On step 5, RECOMMENDED ACTION contains '2 on floor' and 'adding 1', the mock re-check shows Sat inside 15-25, and the page shows 'Re-check the same blocks after 4 weeks with a new export.'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-edits",
+      "description": "On step 6, the exact sentences 'You edit the schedule in your own tool. The kit changes nothing.', 'Do not cut below your minimum staff.', and 'Check local scheduling and break rules before changing posted shifts.' are visible. A link to /blueprints/ai-staffing-optimizer/kit mentions sign-in and private preview.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|ROI|hours saved|you could save/i.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/ai-staffing-optimizer/kit ends on pathname /auth with searchParams next equal to '/blueprints/ai-staffing-optimizer/kit'.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/ai-staffing-optimizer/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/ai-staffing-optimizer/kit sees h1 'Shift Coverage vs Demand Check Premium Kit' and the exact text 'Premium · Private preview'. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, coverage-check-prompt, recheck-prompt, rules-worksheet, workbook-template, schedule-review-checklist, sample-exports, and safety-guidance, each with a heading matching its kit_contents title.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-checkout",
+      "description": "With an entitled authenticated session, the kit page body does not contain 'checkout', 'Buy Premium', '/month', or 'per month', and shows 'Premium · Private preview'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-coverage-prompt-copy",
+      "description": "The coverage-check-prompt <pre> contains 'OWNER RULES FIRST', 'CONFIRMED', 'OWNER-ENTERED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'transactions per staff-hour', 'Do not invent', 'Do not edit', and 'You edit the schedule'. Clicking its 'Copy Prompt' button changes the label to 'Copied'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-recheck-prompt-content",
+      "description": "The Four-Week Re-Check Prompt <pre> contains 're-check', '4 weeks', 'target', 'Do not invent', 'Do not edit', and 'You edit the schedule'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Staffing Rules' with default values produces a block containing 'Minimum staff on floor: 2.', 'Target transactions per staff-hour: 15-25.', 'Flag only when outside target in at least 3 of 4 weeks.', 'Protected roles: keyholder.', and 'You edit the schedule in your own tool. The kit changes nothing.'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Clearing 'Minimum staff on floor' and generating shows 'Enter a minimum staff of 1 or more.' and no rules block. Setting the low target above the high target shows 'Enter a target range with low less than or equal to high.' and no rules block.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-workbook-copy-csv",
+      "description": "The Hourly Coverage Workbook Template 'Copy CSV' button writes clipboard text whose first line starts with 'day,hour' and that contains 'Tue', '14:00', '=12/4', and '3.0'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-exports-fictional",
+      "description": "The Fictional Sample Hourly Export section shows the label 'Fictional'. Its copied CSV contains the header starting with 'day,hour' and the Tue 14:00 and Sat 12:00 rows from the demo.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Schedule Change Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-entitled",
+      "description": "With an entitled authenticated session, /my-blueprints shows the Shift Coverage vs Demand Check card with PREMIUM, Unlocked, and an Open Blueprint link to /blueprints/ai-staffing-optimizer/kit.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-locked-without-entitlement",
+      "description": "With an authenticated session whose entitlement header is deny, /blueprints/ai-staffing-optimizer/kit shows heading 'Premium is locked', does not render #setup-checklist, and has 0 Buy Premium buttons.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-locked",
+      "description": "With an authenticated session whose entitlement header is deny, the Shift Coverage vs Demand Check card on /my-blueprints is Locked, the Available to purchase link points at /blueprints/ai-staffing-optimizer, and there is no kit link.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "daily-inbox-still-open",
+      "description": "With an authenticated session, /my-blueprints still has Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit, including when the Shift Coverage vs Demand Check entitlement is denied.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "payroll-forecasting-behavior-unchanged",
+      "description": "Next-Pay Labor Check remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit payroll forecasting product files or e2e/ai-payroll-forecasting/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "collections-behavior-unchanged",
+      "description": "AI Collections Assistant remaining premium, Buy Premium, checkout, and entitlement behavior is unchanged. Do not edit Collections product files or e2e/ai-collections-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-staffing-stripe-price",
+      "description": "Shift Coverage vs Demand Check is not in PAID_PRODUCTS, getPaidProduct('ai-staffing-optimizer') is undefined, and its pages show no Stripe price, checkout form, or Buy Premium button.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/ai-staffing-optimizer/authenticated.spec.ts. Authenticated QA must actually reach the kit after automatic session refresh.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts, call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, the minimum-staff field, the target low and high fields, the pattern N and M fields, the protected-roles field, the non-sales day-parts field, the Generate button, every review-checklist checkbox, and Reset. Each shows a visible focus ring.",
+      "viewport": "desktop",
+      "requires_auth": true
+    }
+  ],
+  "out_of_scope": [
+    "Live connections to a POS, scheduling tool, time clock, payroll provider, or any other vendor, including OAuth flows, API calls, and automated exports.",
+    "Uploading, parsing, or storing the person's real POS or time-clock files on Atlas.",
+    "Editing shifts, posting shifts, messaging staff, or changing pay rates from Atlas.",
+    "Loaded payroll totals, overtime pay math, or next-pay-period labor-share checks (that belongs to Next-Pay Labor Check / ai-payroll-forecasting).",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for Shift Coverage vs Demand Check. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Next-Pay Labor Check behavior, other Premium Blueprint product behavior, Stripe configuration, Production, or e2e/ai-staffing-optimizer/authenticated.spec.ts.",
+    "Changes to content/published/, /use-cases/ai-staffing-optimizer, or any public catalog page.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or coverage workbooks to an Atlas account.",
+    "Invented statistics, time savings, or ROI claims."
+  ],
+  "source": {
+    "run_id": "20261108T065253Z-ai-staffing-optimizer",
+    "candidate_id": "ai-staffing-optimizer",
+    "approved_at": "2026-11-08T06:52:53.801Z",
+    "approval_note": "Approved internally for batch batch-20261031T062745Z. Final human review is deferred to the batch dashboard.",
+    "summary_scores": {
+      "commercial": 7.1,
+      "atlas_fit": 7.7,
+      "buildability": 7,
+      "overall": 7.06
+    }
+  },
+  "routes": {
+    "guided_demo": "/blueprints/ai-staffing-optimizer",
+    "kit": "/blueprints/ai-staffing-optimizer/kit"
+  },
+  "allowed_paths": [
+    "app/blueprints/ai-staffing-optimizer/",
+    "components/premium/ai-staffing-optimizer/",
+    "src/lib/premium/ai-staffing-optimizer/",
+    "src/lib/blueprints.ts",
+    "e2e/ai-staffing-optimizer/"
+  ],
+  "constraints": [
+    "Private preview only. The guided demo lives at /blueprints/ai-staffing-optimizer and the Premium kit at /blueprints/ai-staffing-optimizer/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled \"Premium · Private preview\". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/ai-staffing-optimizer/, components/premium/ai-staffing-optimizer/, and src/lib/premium/ai-staffing-optimizer/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.",
+    "e2e/ai-staffing-optimizer/authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
+  ]
+}

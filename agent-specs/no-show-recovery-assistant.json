@@ -4,154 +4,442 @@
   "tier": "premium",
   "status": "private-preview",
   "name": "No-show Recovery Assistant",
-  "value_proposition": "Confirm a missed appointment from one day's booking export, then draft one rebooking message with real open slots. A person reviews and sends. Nothing is sent automatically.",
+  "value_proposition": "Turn a day's booking export into labelled no-show drafts with real open times and a consent check — the owner reviews and sends, and the kit never texts, emails, or books.",
   "persona": "A clinic, salon, fitness studio, or consultant with several no-shows a month.",
-  "problem": "Missed appointments are lost the same day, and the rebooking message usually never gets sent. SMS consent and email consent are easy to mix up.",
+  "problem": "Missed appointments are lost revenue the same day, and the rebooking message usually never gets sent.",
   "workflow": [
-    "Write recovery rules, including statuses that are never a no-show and the repeat threshold.",
-    "Export one day's bookings and matching open slots. Remove phone numbers, email addresses, and card numbers.",
-    "Run the Confirm Attendance Prompt. Draft only when status is no_show. Skip attended and cancelled rows.",
-    "Paste the Rebooking Draft Prompt only after attendance is confirmed. Draft SMS only when sms_consent is yes and contact_pref is sms.",
-    "The person checks every confirmed field, then sends from their own tool or decides not to."
+    "1. The person writes recovery rules before any draft: which statuses are never a no-show (default cancelled, plus attended as a hard skip), the repeat no-show threshold including today, and clients who must never get a recovery message. PERSON DECIDES: when a miss becomes a policy case, and who is never contacted from this workflow.",
+    "2. The person exports one day's booking list as CSV with time, client, service, status, contact_pref, sms_consent, and prior_no_shows, plus the open slots that match those services. PERSON DECIDES: which columns to keep. Remove phone numbers, email addresses, card numbers, and any columns the workflow does not need. This is an export review, not a live Calendly, Square, Acuity, Google Calendar, or Twilio connection.",
+    "3. The person checks the data settings of their AI assistant (chat history, training use, and file retention) before pasting or uploading anything. File upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings. PERSON DECIDES: whether to paste the rows as text, upload a file, or not use AI for this data at all.",
+    "4. The person pastes the Confirm Attendance Prompt and their rules from the Consent and Repeat Policy Worksheet, then attaches or pastes the booking rows and open slots.",
+    "5. AI runs CONFIRM ATTENDANCE FIRST. It drafts only when status = no_show on the booking row. Attended and cancelled rows are skipped with a visible reason. PERSON DECIDES: whether a row marked no_show is actually a no-show before any message is considered.",
+    "6. For each confirmed no-show, AI checks sms_consent and contact_pref before any SMS wording. SMS drafts require sms_consent = yes and contact_pref = sms. Missing consent is NEEDS YOUR CHECK, not a text. Repeat no-shows at the owner's threshold are FLAG FOR POLICY with no recovery draft. Open times in a draft must appear in the open-slot list and match the missed service. PERSON DECIDES: whether a flagged client gets a last-chance note, a deposit policy, or no contact.",
+    "7. AI labels CONFIRMED (from the export), AI INTERPRETATION (for example an unknown late arrival when there is no arrival time), and RECOMMENDED ACTION separately. It does not invent phone numbers, emails, deposits, open times, or recovery rates. PERSON DECIDES: whether each recommended action happens.",
+    "8. The person uses the Send Review Checklist and checks every CONFIRMED field against the booking row before contacting anyone. PERSON DECIDES: whether to send, edit, hold, or skip. The person picks the recipient from their own contacts and sends from their own SMS or email tool. The Blueprint never sends, books, cancels, or charges."
   ],
   "before": "Staff mean to follow up on no-shows but rarely do, and slots stay empty.",
-  "after": "Each confirmed miss gets one specific rebooking draft, or a visible reason not to draft, and a person decides what is sent.",
+  "after": "Each confirmed miss has a specific rebooking draft with real open times, skipped attended bookings, a consent check, and a human policy flag for repeat no-shows — and the owner still sends, or decides not to.",
   "guided_demo": {
-    "summary": "A public six-step walkthrough of one fictional booking day. It skips attended and cancelled rows, drafts one SMS for a consented no-show, holds sms_consent no, and flags a repeat no-show. Nothing is sent automatically.",
+    "summary": "A public, six-step walkthrough at /blueprints/no-show-recovery-assistant using a fictional five-row salon day dated 2026-10-14, with open Cut & color slots on Thu 2:00 and Fri 9:30 and no live calendar, SMS, or booking connection. CONFIRM ATTENDANCE FIRST skips A. Chen (attended) and S. Patel (cancelled), blocks SMS for M. Okonkwo (no consent), flags R. Kim for a third-miss policy decision, and produces one unsent SMS draft for J. Rivera that offers only matching open Cut & color times. Confirmed facts, AI interpretation, and recommended actions are labelled with text, not color alone. Every name, time, and status is invented.",
     "steps": [
-      "Show the fictional booking export and open slots, including the rule that email consent does not imply SMS consent.",
-      "Confirm attendance first. Skip attended and cancelled rows with reasons.",
-      "Draft one SMS from the Rebooking Draft Prompt using real open slots. Do not draft SMS when sms_consent is no.",
-      "Check confirmed fields against the booking row.",
-      "Flag the repeat no-show for a person to decide. Do not auto-draft it.",
-      "State that the person reviews and sends, and that nothing is sent automatically."
+      "Step 1 of 6 - The day's bookings: show the fictional 5-row booking table (J. Rivera, A. Chen, M. Okonkwo, S. Patel, R. Kim) with as_of 2026-10-14, repeat_no_show_threshold 3, and the open-slot table (Thu 2:00 Cut & color, Fri 9:30 Cut & color, Thu 11:00 Consult, Fri 15:00 Color). Label the tables invented. State that no live calendar, SMS, Calendly, Square, Acuity, or Twilio account is attached.",
+      "Step 2 of 6 - Confirm attendance first: show the exact heading 'CONFIRM ATTENDANCE FIRST'. List J. Rivera as a confirmed no-show. List A. Chen as SKIPPED with text containing 'attended' and the exact sentence 'Do not message someone who attended.'. List S. Patel as SKIPPED with text containing 'cancelled'. List M. Okonkwo as SKIPPED FOR SMS with text containing 'sms_consent' and 'no'. List R. Kim as FLAG FOR POLICY with text containing 'prior_no_shows' and '2'.",
+      "Step 3 of 6 - Draft with real open slots: show the SMS draft 'Hi J., we missed you today. Would Thu 2:00 or Fri 9:30 work instead?'. Show the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. Show CONFIRMED text containing 'J. Rivera', '10:00', 'Cut & color', 'no_show', 'sms', and 'yes'. Show AI INTERPRETATION text containing 'no arrival time' and 'not a promise they remain open'. Show RECOMMENDED ACTION text containing 'Do not send this draft.'. Show that Thu 11:00 Consult is not offered because the service does not match.",
+      "Step 4 of 6 - Check the facts: open the J. Rivera row. A 'Check facts against the booking row' button shows three rows (status no_show vs no_show, sms_consent yes vs yes, open slots Thu 2:00 and Fri 9:30 vs Thu 2:00 Cut & color and Fri 9:30 Cut & color), each labelled with the text 'Matches'.",
+      "Step 5 of 6 - Repeat no-shows need a policy decision: show R. Kim still FLAG FOR POLICY with prior_no_shows 2. Show the exact sentence 'A third no-show is a policy decision, not an automatic text.'. Show M. Okonkwo still skipped for missing SMS consent. Show the exact sentence 'Confirm consent before any message.'. Show the sentence 'No deposit is charged from this kit.'.",
+      "Step 6 of 6 - You review and send: state the exact sentences 'You review and send. The kit changes nothing.' and 'Do not send this draft.'. Explain that the person picks the recipient from their own contacts and sends from their own SMS or email tool, or decides not to, and that nothing is sent, booked, cancelled, or paid automatically. Offer a link to the Premium kit labelled as private preview with sign-in required."
     ],
-    "sample_input": "time,client,service,status,contact_pref,sms_consent,prior_no_shows\n10:00,J. Rivera,Cut & color,no_show,sms,yes,0\n11:30,A. Chen,Consult,attended,email,no,0\n13:00,M. Ortiz,Cut,cancelled,email,no,1\n15:00,R. Kim,Color,no_show,email,no,0\n16:30,L. Brooks,Cut & color,no_show,sms,yes,2\n\nservice,when\nCut & color,Thu 14:00\nCut & color,Fri 09:30\nConsult,Thu 11:00",
-    "sample_output": "CONFIRMED: J. Rivera missed 10:00 Cut & color. sms_consent = yes. contact_pref = sms.\nDRAFT (SMS, not sent): Hi J., we missed you today. Would Thu 14:00 or Fri 09:30 work for Cut & color?\nNEEDS YOUR CHECK: R. Kim has sms_consent = no. Email consent does not imply SMS consent. Do not draft SMS.\nFLAG FOR POLICY: L. Brooks reaches the repeat threshold. No recovery draft until a person decides.\nNothing is sent automatically. You review and send.",
-    "fictional_data_notice": "The bookings, clients, and open slots on this page are fictional. Nothing here is a real customer, and nothing is sent automatically."
+    "sample_input": "as_of: 2026-10-14 (fictional)\nrepeat_no_show_threshold: 3\ntime,client,service,status,contact_pref,sms_consent,prior_no_shows\n10:00,J. Rivera,Cut & color,no_show,sms,yes,0\n11:30,A. Chen,Consult,attended,email,no,0\n13:00,M. Okonkwo,Highlights,no_show,sms,no,0\n14:30,S. Patel,Cut,cancelled,sms,yes,0\n16:00,R. Kim,Color,no_show,sms,yes,2\nopen_slot_date,weekday,time,service\n2026-10-15,Thu,14:00,Cut & color\n2026-10-16,Fri,09:30,Cut & color\n2026-10-15,Thu,11:00,Consult\n2026-10-16,Fri,15:00,Color",
+    "sample_output": "CONFIRM ATTENDANCE FIRST\nCONFIRMED: J. Rivera missed 10:00 Cut & color on 2026-10-14. status = no_show. contact_pref = sms. sms_consent = yes. prior_no_shows = 0.\nCONFIRMED open Cut & color slots: Thu 2:00 (2026-10-15 14:00), Fri 9:30 (2026-10-16 09:30).\nSKIPPED: A. Chen (attended; Do not message someone who attended.).\nSKIPPED: S. Patel (cancelled; not a no-show).\nSKIPPED FOR SMS: M. Okonkwo (sms_consent = no). NEEDS YOUR CHECK: no SMS consent on file. Confirm consent before any message. Do not send SMS.\nFLAG FOR POLICY: R. Kim (prior_no_shows = 2; this miss is number 3). No recovery draft until you decide.\nNOT OFFERED: Thu 11:00 Consult (service does not match Cut & color). Fri 15:00 Color (service does not match Cut & color).\nAI INTERPRETATION: Whether J. Rivera was running late is unknown; the export has no arrival time. Thu 2:00 and Fri 9:30 are listed as open as of this export, not a promise they remain open when you send.\nDRAFT (SMS, not sent): Hi J., we missed you today. Would Thu 2:00 or Fri 9:30 work instead?\nRECOMMENDED ACTION (you decide): Review the J. Rivera draft. You review and send. The kit changes nothing. Do not send this draft.",
+    "fictional_data_notice": "All bookings, names, times, services, and dates on this page are fictional. No real client data is used, and nothing is connected to a calendar, SMS tool, Calendly, Square, Acuity, Twilio, or any other live system."
   },
   "kit_contents": [
     {
       "id": "setup-checklist",
       "title": "No-show Recovery Setup Checklist",
-      "purpose": "Setup steps that name the Rebooking Draft Prompt and say to paste it only after attendance is confirmed."
+      "purpose": "Step-by-step setup for one review. It covers writing the repeat-no-show threshold and skip rules, exporting one day's bookings with time, client, service, status, contact_pref, sms_consent, prior_no_shows, and matching open slots, removing phone numbers, emails, and payment details, checking the AI tool's data settings before pasting or uploading, and the rule that this is an export review, not a live connector. It notes that file upload support differs by ChatGPT, Claude, and Gemini plan, account, and admin settings, and that rows can be pasted as text instead."
     },
     {
       "id": "attendance-prompt",
       "title": "Confirm Attendance Prompt",
-      "purpose": "Copyable prompt that confirms attendance before any draft and treats sms_consent no the same as missing SMS consent."
+      "purpose": "Copyable prompt that runs CONFIRM ATTENDANCE FIRST, drafts only when status = no_show, skips attended and cancelled rows with reasons, labels CONFIRMED, AI INTERPRETATION, and RECOMMENDED ACTION separately, and forbids messaging someone who attended, inventing status, sending, booking, or charging."
     },
     {
       "id": "rebooking-draft-prompt",
       "title": "Rebooking Draft Prompt",
-      "purpose": "Copyable prompt that drafts one rebooking message with real open slots and does not treat email consent as SMS consent."
+      "purpose": "Copyable prompt used only after attendance is confirmed. It requires sms_consent = yes and contact_pref = sms before any SMS wording, offers only open slots that match the missed service, flags repeat no-shows at the owner's threshold as FLAG FOR POLICY with no draft, and forbids sending, inventing phone numbers or open times, and any edit to the booking system."
     },
     {
       "id": "rules-worksheet",
       "title": "Consent and Repeat Policy Worksheet",
-      "purpose": "Browser-only worksheet for the repeat threshold, never-a-no-show statuses, and clients to skip."
+      "purpose": "Browser-only form where the person sets the repeat no-show threshold including today, lists statuses that are never a no-show, and lists clients to always skip. It generates a copyable rules block to paste with the prompts. Nothing is saved to Atlas."
     },
     {
       "id": "recovery-log-template",
       "title": "Recovery Log Template",
-      "purpose": "CSV columns for a recovery log, including a fictional row that was drafted and not sent."
+      "purpose": "Column layout (as_of, time, client, service, status, channel, sms_consent, prior_no_shows, slots_offered, action, outcome) with allowed action values skipped_attended, skipped_cancelled, skipped_no_consent, flagged_policy, drafted_not_sent, sent_by_owner, not_sent, allowed outcome values rebooked, no_reply, policy_hold, left_empty, and the fictional J. Rivera drafted_not_sent row from the guided demo. Includes a Copy CSV button so the person can start their own spreadsheet."
     },
     {
       "id": "action-review-checklist",
       "title": "Send Review Checklist",
-      "purpose": "Session-only checklist used before a person sends. Nothing is sent automatically."
+      "purpose": "Interactive, session-only checklist used before contacting anyone. It confirms that CONFIRM ATTENDANCE FIRST ran, that attended and cancelled rows were skipped, that each CONFIRMED field matches the booking row, that labels are separate, that SMS is drafted only with consent, that offered times match the open-slot list and the missed service, that repeat no-shows were flagged instead of auto-drafted, and that the person will send from their own tool themselves."
     },
     {
       "id": "sample-bookings",
       "title": "Fictional Sample Booking Export",
-      "purpose": "The fictional booking export used in the guided demo, including a row with email contact and sms_consent no."
+      "purpose": "The same fictional five-row booking CSV and open-slot rows used in the guided demo, labelled as fictional, with a Copy CSV button. The person can practice the full workflow in their AI tool before using real booking data."
     },
     {
       "id": "safety-guidance",
       "title": "Data and Safety Guidance",
-      "purpose": "Data-handling and consent rules, including that a person approves every message and nothing is sent automatically."
+      "purpose": "Rules for handling booking exports in AI tools: review data settings, remove phone numbers and emails, do not paste passwords or card numbers, do not text someone who attended, do not send SMS without consent, do not offer a slot that is not open or that does not match the service, and do not auto-message a repeat no-show. It also states that file upload support differs by plan and that nothing is sent, booked, cancelled, or paid automatically."
     }
   ],
   "decision_rules": [
-    "Draft only when the booking row status is no_show.",
-    "Never draft for attended.",
-    "Never treat cancelled as a no-show unless the owner removes it from the never-a-no-show list.",
-    "SMS draft only when sms_consent is yes and contact_pref is sms. sms_consent no and a missing sms_consent both mean do not draft SMS.",
-    "Email consent does not imply SMS consent.",
-    "Offer only open slots that match the missed service.",
-    "Flag repeat no-shows at the owner's threshold instead of drafting.",
-    "Nothing is sent automatically. A person reviews and sends."
+    "Write CONFIRM ATTENDANCE FIRST and apply it before any draft, open-slot offer, or policy flag.",
+    "Draft only when the booking row status is no_show. Show the matching row.",
+    "Skip any row whose status is attended. Show the reason 'attended; Do not message someone who attended.'.",
+    "Skip any row whose status is in the owner's never-a-no-show list (default cancelled). Show the reason 'cancelled; not a no-show' or the matching status.",
+    "If a remaining row is missing time, client, service, or status, or the same client appears twice at the same time, do not draft it. List it under NEEDS YOUR CHECK.",
+    "Do not invent phone numbers, email addresses, deposits, open times, arrival times, or recovery rates. Use only values from the file the person pasted.",
+    "SMS draft only when sms_consent = yes and contact_pref = sms. If sms_consent is no or missing, write NEEDS YOUR CHECK with 'no SMS consent on file' and do not draft SMS.",
+    "If contact_pref is email, do not draft SMS. If email consent is not in the export, write NEEDS YOUR CHECK. Do not assume email is allowed.",
+    "Offer a time only when it appears in the open-slot list and the slot's service matches the missed service. Do not offer a Consult slot for a Cut & color miss.",
+    "If no matching open slot exists, write NEEDS YOUR CHECK with 'no matching open slot'. Do not invent a time.",
+    "Flag a client when prior_no_shows plus this miss reaches the owner's repeat threshold (default 3, so prior_no_shows 2). Write FLAG FOR POLICY and do not draft a recovery message until the person decides.",
+    "Skip any client on the owner's always-skip list. Show the reason 'on your always-skip list'.",
+    "A missing arrival time is not proof the client was or was not running late. That guess is AI INTERPRETATION, not a CONFIRMED fact.",
+    "Open slots are listed as of the export. Do not promise they will still be open when the person sends.",
+    "The draft is a draft only. Do not send it. Do not book, cancel, or charge. Suggest a recovery-log row; the person adds it.",
+    "On a later run, start from a new export. Do not reuse a previous day's open slots or assume a prior draft was sent."
   ],
   "human_ai_boundary": [
-    "AI confirms attendance from the export. The person decides whether a no_show row is actually a miss.",
-    "AI drafts a message only after the consent and slot rules pass. The person approves every message before it goes out.",
-    "AI flags repeat no-shows. The person decides the policy.",
-    "AI never sends, books, cancels, or charges."
+    "AI compares each row's status to no_show. The person decides whether a marked no-show actually missed the visit before any message is considered.",
+    "AI writes CONFIRM ATTENDANCE FIRST and skips attended and cancelled rows. The person decides whether a cancellation should still get a courtesy note.",
+    "AI checks sms_consent and contact_pref before any SMS wording. The person holds the consent record and decides whether any channel is allowed.",
+    "AI offers only matching open slots from the export. The person checks those times against the live book before sending.",
+    "AI flags repeat no-shows at the threshold the owner wrote. The person decides the policy: last-chance note, deposit going forward, or no contact.",
+    "AI never chooses or sees the recipient phone number or email. The person addresses and sends every message from their own SMS or email tool, or decides not to.",
+    "AI never books, cancels, or charges. The person makes any booking change in their own calendar.",
+    "The person decides whether any recommended action happens."
   ],
   "safety": [
-    "Nothing is sent automatically. You review and send. The kit changes nothing.",
-    "Email consent does not imply SMS consent.",
-    "Do not send SMS when sms_consent is no or missing.",
-    "All demo and sample data is fictional.",
-    "The pages contain no prices or checkout."
+    "Nothing is sent, edited, cancelled, booked, or paid automatically. Every page states that the person reviews and sends, and that the kit changes nothing.",
+    "Atlas does not connect to Calendly, Square, Acuity, Google Calendar, Twilio, SMS, email, or any other vendor. It has no OAuth flow, no API call, and does not upload the person's data to any third party.",
+    "Before pasting or uploading exports to an AI tool, the person is told to review that tool's data settings (such as chat history, training use, and file retention) and to remove phone numbers, email addresses, card numbers, and other columns the workflow does not need.",
+    "The kit tells the person not to paste phone numbers, email addresses, account passwords, or payment card numbers into the AI tool.",
+    "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings. The kit says so and does not claim any plan includes a specific capability.",
+    "The kit tells the person not to message someone who attended, not to send SMS without consent, not to offer a slot that is not open or that does not match the service, and not to auto-message a repeat no-show.",
+    "All demo and sample data is fictional and labelled as fictional on the page.",
+    "Worksheet entries and checklist progress stay in the browser session only and are not saved to Atlas.",
+    "The pages contain no statistics, recovery rates, savings, ROI claims, prices, or checkout. Fictional appointment times such as 10:00 and Thu 2:00 are clock times, not dollar figures."
   ],
   "required_data_tools": [
-    "One day's booking export with time, client, service, status, contact_pref, sms_consent, and prior_no_shows",
-    "Open slots that name the service and time"
+    "Booking or calendar CSV export for one day, with time, client, service, status, contact_pref, sms_consent, and prior_no_shows",
+    "Open slots that name the service, weekday or date, and time",
+    "Contact preference and SMS consent status from the person's own records",
+    "Owner-written repeat-no-show threshold and skip rules",
+    "The owner's own SMS or email tool for sending",
+    "A file-capable AI assistant. File upload support differs by plan, account, and admin settings; rows can be pasted as text instead."
   ],
   "acceptance_criteria": [
-    "The public demo and premium kit are noindex.",
-    "The kit requires sign-in and an entitlement. Locked accounts see Premium is locked and no checkout.",
-    "Setup names the Rebooking Draft Prompt.",
-    "sms_consent no is handled the same as missing SMS consent, and email consent is not treated as SMS consent.",
-    "Nothing is sent automatically, and a person approves every message."
+    "GET /blueprints/no-show-recovery-assistant without a session renders a page whose h1 is 'No-show Recovery Assistant', with a visible 'Private preview' label.",
+    "The guided demo page's HTML contains a robots meta tag whose content includes 'noindex' and 'nofollow'.",
+    "The guided demo page shows the fictional data notice text exactly as specified in guided_demo.fictional_data_notice, above the first demo step.",
+    "The guided demo is a six-step stepper. It shows the text 'Step N of 6', a 'Next step' button (absent or disabled on step 6), and a 'Previous step' button (absent or disabled on step 1). Each step has a visible heading.",
+    "Step 1 shows a booking table with exactly 5 data rows whose client names are J. Rivera, A. Chen, M. Okonkwo, S. Patel, and R. Kim, and an open-slot table containing 'Thu', '2:00' or '14:00', 'Fri', '9:30', 'Cut & color', 'Consult', and 'Color'. It also shows '2026-10-14' and '3'.",
+    "Step 2 shows the exact heading 'CONFIRM ATTENDANCE FIRST'. J. Rivera is listed as a confirmed no-show. A. Chen is SKIPPED with text containing 'attended' and the exact sentence 'Do not message someone who attended.'. S. Patel is SKIPPED with text containing 'cancelled'. M. Okonkwo is SKIPPED FOR SMS with text containing 'sms_consent' and 'no'. R. Kim is FLAG FOR POLICY with text containing 'prior_no_shows' and '2'.",
+    "Step 3 shows the draft text 'Hi J., we missed you today. Would Thu 2:00 or Fri 9:30 work instead?'. It shows the text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' as visible words, not as color or icon alone. CONFIRMED text contains 'J. Rivera', '10:00', 'Cut & color', 'no_show', and 'yes'. AI INTERPRETATION contains 'no arrival time' and 'not a promise they remain open'. RECOMMENDED ACTION contains 'Do not send this draft.'. The page states that Thu 11:00 Consult is not offered because the service does not match.",
+    "Step 4 shows the J. Rivera CONFIRMED line. Activating 'Check facts against the booking row' reveals three rows (status, sms_consent, open slots), each containing the text 'Matches', and the values no_show, yes, and Thu 2:00.",
+    "Step 5 shows R. Kim with FLAG FOR POLICY and prior_no_shows 2, the exact sentences 'A third no-show is a policy decision, not an automatic text.' and 'Confirm consent before any message.', M. Okonkwo still skipped for missing consent, and 'No deposit is charged from this kit.'.",
+    "Step 6 contains the exact sentences 'You review and send. The kit changes nothing.' and 'Do not send this draft.' and a link to /blueprints/no-show-recovery-assistant/kit whose visible text says sign-in is required and the kit is a private preview.",
+    "Every client name, time, service, status, consent value, prior_no_shows count, and open slot in the demo matches the guided_demo.sample_input rows and sample_output exactly.",
+    "Neither page contains the text 'checkout', 'buy now', 'purchase', 'Buy Premium', '/month', 'per month', or a price. Neither page contains a dollar amount.",
+    "Neither page contains a percentage, a recovery-rate figure, an hours-saved figure, or an ROI or savings claim.",
+    "The homepage (/) and the site header contain zero links whose href includes '/blueprints/no-show-recovery-assistant', and /sitemap.xml does not contain '/blueprints/no-show-recovery-assistant'.",
+    "GET /blueprints/no-show-recovery-assistant/kit without a session redirects to /auth with the query parameter next=/blueprints/no-show-recovery-assistant/kit.",
+    "No-show Recovery Assistant is registered in src/lib/blueprints.ts with id and productSlug 'no-show-recovery-assistant', access 'premium', href '/blueprints/no-show-recovery-assistant/kit', purchaseHref '/blueprints/no-show-recovery-assistant', and badge PREMIUM. It is not added to PAID_PRODUCTS and has no Stripe price.",
+    "The kit page calls requireUser('/blueprints/no-show-recovery-assistant/kit') from src/lib/auth.ts and hasActiveEntitlement(user.id, 'no-show-recovery-assistant') from src/lib/payments/access.ts. It exports metadata with robots { index: false, follow: false }.",
+    "With an authenticated entitled session, the kit page renders h1 'No-show Recovery Assistant Premium Kit' and the exact label text 'Premium · Private preview'. Kit resource and interaction criteria below apply only to this entitled state.",
+    "With an authenticated session that has no No-show Recovery Assistant entitlement, the kit page renders h1 'Premium is locked', does not render kit content sections such as #setup-checklist, and does not show a Buy Premium button or a Stripe price.",
+    "The kit page shows 8 resource sections with headings matching the kit_contents titles, each with an element id equal to its kit_contents id. A table of contents at the top links to each section with an href of '#<id>'.",
+    "The Confirm Attendance Prompt is shown in a <pre> element and contains these strings: 'CONFIRM ATTENDANCE FIRST', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'attended', 'cancelled', 'Do not message someone who attended', 'Do not invent', 'Do not send', 'Confirm consent before any message'.",
+    "The Rebooking Draft Prompt is shown in a <pre> element and contains: 'only after', 'attendance', 'sms_consent', 'open slots', 'match the missed service', 'FLAG FOR POLICY', 'Do not send', 'Do not invent', 'You review and send'.",
+    "Each prompt has a 'Copy Prompt' button that writes the exact <pre> text to the clipboard and changes its label to 'Copied'. If the clipboard is unavailable, it shows a visible error telling the person to copy manually.",
+    "The Consent and Repeat Policy Worksheet has a visible label 'Repeat no-show threshold including today' whose default value is '3', a visible label 'Statuses that are never a no-show (one per line)' whose default value is 'cancelled', a visible label 'Clients to always skip (one per line)', plus a 'Generate My Recovery Rules' button.",
+    "With the defaults, the generated rules block contains 'Confirm status = no_show against the booking row before any draft.', 'Never draft for attended.', 'Never treat cancelled as a no-show.', 'SMS draft only when sms_consent = yes and contact_pref = sms.', 'Confirm consent before any message.', 'Flag when this miss reaches the repeat threshold of 3.', 'Offer only open slots that match the missed service.', and 'Do not send. You review and send. The kit changes nothing.' The block has a Copy button. The block contains no 'Always skip' line.",
+    "If the repeat-threshold field is empty, 0, or negative, the worksheet shows the error 'Enter a repeat no-show threshold of 1 or more.' and generates no rules block.",
+    "When 'Clients to always skip (one per line)' is empty, the generated rules block contains no 'Always skip' line. When it contains 'R. Kim', the block contains 'Always skip: R. Kim'.",
+    "When 'Statuses that are never a no-show (one per line)' contains 'cancelled' and 'rescheduled' on two lines, the generated rules block contains 'Never treat cancelled; rescheduled as a no-show.'.",
+    "The Recovery Log Template shows the columns as_of, time, client, service, status, channel, sms_consent, prior_no_shows, slots_offered, action, outcome. Its 'Copy CSV' button writes text whose first line is 'as_of,time,client,service,status,channel,sms_consent,prior_no_shows,slots_offered,action,outcome' and whose J. Rivera row contains '2026-10-14', '10:00', 'Cut & color', 'no_show', 'yes', and 'drafted_not_sent'.",
+    "The Send Review Checklist shows 9 checkbox items with visible labels, a progress line 'Checked N of 9', and a 'Reset checklist' button that sets the count back to 0. Progress is not saved beyond the browser session.",
+    "The Fictional Sample Booking Export section is labelled 'Fictional' and its Copy CSV text equals the time,client,service,status,contact_pref,sms_consent,prior_no_shows rows and header from guided_demo.sample_input.",
+    "The Setup Checklist and the Data and Safety Guidance sections each state that file upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.",
+    "The kit page says that worksheet entries and checklist progress stay in this browser session and are not saved to Atlas.",
+    "With an authenticated entitled session, /my-blueprints shows the No-show Recovery Assistant card as Unlocked with an Open Blueprint link to /blueprints/no-show-recovery-assistant/kit.",
+    "With an authenticated session that has no No-show Recovery Assistant entitlement, /my-blueprints shows the No-show Recovery Assistant card as Locked with an Available to purchase link to /blueprints/no-show-recovery-assistant and no link to the kit.",
+    "With an authenticated session, /my-blueprints still shows the free Daily Inbox Starter Kit with Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit. AI Collections Assistant entitlement, Buy Premium, and checkout behavior are unchanged. Security Readiness Action Pack, Google Ads Performance Coach, Quote Request Assistant, and AI Expense Watchdog entitlement and locked or unlocked card behavior are unchanged.",
+    "At a 393px-wide viewport, neither page scrolls horizontally (document scrollWidth minus clientWidth is 1px or less) on any demo step or kit section. Tables either wrap or scroll inside their own container.",
+    "Every interactive control on both pages can be reached with Tab and activated with Enter or Space, and shows a visible focus ring. After 'Next step' or 'Previous step', focus moves to the new step's heading.",
+    "Loading both pages produces no unexpected browser console errors or page errors, as judged by the e2e/support/fixtures.ts console filter.",
+    "Product implementation files live under app/blueprints/no-show-recovery-assistant/, components/premium/no-show-recovery-assistant/, and src/lib/premium/no-show-recovery-assistant/. The Blueprint registry entry lives in src/lib/blueprints.ts. e2e/no-show-recovery-assistant/authenticated.spec.ts is the protected acceptance test and must not be weakened, skipped, rewritten, or have assertions removed.",
+    "Authenticated QA uses the repository's automatic Playwright session refresh. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED and that failure is not treated as a product defect."
   ],
   "qa_checks": [
     {
-      "id": "public-demo",
-      "description": "Logged-out demo loads, stays noindex, and walks through attendance, consent, and human send.",
+      "id": "demo-loads-logged-out",
+      "description": "Without a session, /blueprints/no-show-recovery-assistant renders h1 'No-show Recovery Assistant', a 'Private preview' label, the exact fictional data notice, and 'Step 1 of 6'.",
       "viewport": "both",
       "requires_auth": false
     },
     {
-      "id": "japanese-demo",
-      "description": "Japanese demo uses 確認済み, 要確認, AIの解釈, 推奨アクション, and プライベートプレビュー.",
+      "id": "demo-noindex",
+      "description": "The demo page has meta[name='robots'] with content containing 'noindex' and 'nofollow'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-not-linked",
+      "description": "On '/', the count of a[href*='/blueprints/no-show-recovery-assistant'] is 0, including in the header. The response body of /sitemap.xml does not contain '/blueprints/no-show-recovery-assistant'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step1-booking-table",
+      "description": "Step 1 booking table has exactly 5 data rows named J. Rivera, A. Chen, M. Okonkwo, S. Patel, and R. Kim, the open-slot table includes Thu 2:00 or 14:00 Cut & color, Fri 9:30 Cut & color, Thu 11:00 Consult, and Fri 15:00 Color, and the page shows '2026-10-14' and '3'.",
       "viewport": "both",
       "requires_auth": false
     },
     {
-      "id": "kit-auth",
-      "description": "Logged-out kit access returns to auth and keeps the next path.",
+      "id": "demo-step2-confirm-attendance",
+      "description": "After one 'Next step', the page shows 'Step 2 of 6' and the exact heading 'CONFIRM ATTENDANCE FIRST'. J. Rivera is a confirmed no-show. A. Chen is SKIPPED with 'attended' and 'Do not message someone who attended.'. S. Patel is SKIPPED with 'cancelled'. M. Okonkwo is SKIPPED FOR SMS with 'sms_consent' and 'no'. R. Kim is FLAG FOR POLICY with 'prior_no_shows' and '2'.",
       "viewport": "both",
       "requires_auth": false
     },
     {
-      "id": "kit-entitled",
-      "description": "Entitled kit copies prompts and generates rules that keep the consent boundary.",
+      "id": "demo-step3-draft-labels",
+      "description": "On step 3, the draft contains 'Hi J., we missed you today. Would Thu 2:00 or Fri 9:30 work instead?'. The text labels 'CONFIRMED', 'AI INTERPRETATION', and 'RECOMMENDED ACTION' are visible. CONFIRMED contains 'J. Rivera', '10:00', 'Cut & color', 'no_show', and 'yes'. AI INTERPRETATION contains 'no arrival time' and 'not a promise they remain open'. RECOMMENDED ACTION contains 'Do not send this draft.'. The page states that Thu 11:00 Consult is not offered because the service does not match.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step4-fact-check",
+      "description": "On step 4, the J. Rivera CONFIRMED line is visible. Clicking 'Check facts against the booking row' reveals 3 rows (no_show vs no_show; yes vs yes; Thu 2:00 and Fri 9:30 vs Thu 2:00 Cut & color and Fri 9:30 Cut & color), each with the text 'Matches'.",
       "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step5-repeat-policy",
+      "description": "On step 5, R. Kim is FLAG FOR POLICY with prior_no_shows 2, the page shows 'A third no-show is a policy decision, not an automatic text.' and 'Confirm consent before any message.', M. Okonkwo is still skipped for missing consent, and 'No deposit is charged from this kit.' is visible.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-step6-human-sends",
+      "description": "On step 6, the exact sentences 'You review and send. The kit changes nothing.' and 'Do not send this draft.' are visible. A link to /blueprints/no-show-recovery-assistant/kit is present with visible text mentioning sign-in and private preview. 'Next step' is absent or disabled.",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-keyboard-stepper",
+      "description": "Using only the keyboard (Tab, then Enter on 'Next step'), the page advances to 'Step 2 of 6' and the step 2 heading receives focus. Shift+Tab to 'Previous step' and Enter returns to 'Step 1 of 6'.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-no-price-or-claims",
+      "description": "Across all 6 steps, body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\$\\d|\\d+%|ROI|hours saved|recovery rate/i.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "demo-mobile-no-overflow",
+      "description": "On the Pixel 5 project, after rendering each of the 6 steps, document.documentElement.scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-logged-out-redirect",
+      "description": "Without a session, visiting /blueprints/no-show-recovery-assistant/kit ends on pathname /auth with searchParams next equal to '/blueprints/no-show-recovery-assistant/kit' (expectAuthNext helper).",
+      "viewport": "both",
+      "requires_auth": false
+    },
+    {
+      "id": "kit-loads-signed-in",
+      "description": "e2e/no-show-recovery-assistant/authenticated.spec.ts is the protected acceptance test and must be run, not skipped or rewritten. After automatic session refresh, an entitled authenticated user opening /blueprints/no-show-recovery-assistant/kit sees h1 'No-show Recovery Assistant Premium Kit', the exact text 'Premium · Private preview', and meta robots containing 'noindex'. If the session cannot be refreshed, QA stops with AUTH_SESSION_REFRESH_REQUIRED.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-resource-sections",
+      "description": "The kit page has 8 sections with ids setup-checklist, attendance-prompt, rebooking-draft-prompt, rules-worksheet, recovery-log-template, action-review-checklist, sample-bookings, and safety-guidance, each with a heading matching its kit_contents title. A table-of-contents link with href '#<id>' exists for each.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-no-price-or-checkout",
+      "description": "Kit page body text does not match /checkout|buy now|purchase|Buy Premium|\\/month|per month|\\$\\d|\\d+%|ROI|hours saved|recovery rate/i, and the page contains no form that posts to a payment URL.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-attendance-prompt-copy",
+      "description": "The attendance-prompt <pre> contains 'CONFIRM ATTENDANCE FIRST', 'CONFIRMED', 'AI INTERPRETATION', 'RECOMMENDED ACTION', 'attended', 'cancelled', 'Do not message someone who attended', 'Do not invent', 'Do not send', and 'Confirm consent before any message'. Clicking its 'Copy Prompt' button changes the label to 'Copied', and navigator.clipboard.readText() equals the <pre> text.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-draft-prompt-content",
+      "description": "The Rebooking Draft Prompt <pre> contains 'only after', 'attendance', 'sms_consent', 'open slots', 'match the missed service', 'FLAG FOR POLICY', 'Do not send', 'Do not invent', and 'You review and send'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-generate-defaults",
+      "description": "Clicking 'Generate My Recovery Rules' with default values produces a block containing 'Confirm status = no_show against the booking row before any draft.', 'Never draft for attended.', 'Never treat cancelled as a no-show.', 'SMS draft only when sms_consent = yes and contact_pref = sms.', 'Confirm consent before any message.', 'Flag when this miss reaches the repeat threshold of 3.', 'Offer only open slots that match the missed service.', and 'Do not send. You review and send. The kit changes nothing.', and no 'Always skip' line.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-custom-skip",
+      "description": "Entering 'R. Kim' in 'Clients to always skip (one per line)' and generating produces a block containing 'Always skip: R. Kim'. Entering 'cancelled' and 'rescheduled' on two lines in 'Statuses that are never a no-show (one per line)' produces 'Never treat cancelled; rescheduled as a no-show.'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-worksheet-validation",
+      "description": "Clearing 'Repeat no-show threshold including today' and generating shows 'Enter a repeat no-show threshold of 1 or more.' and no rules block. Setting the threshold to 0 shows the same error and no rules block.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-recovery-log-copy-csv",
+      "description": "The Recovery Log Template lists columns as_of, time, client, service, status, channel, sms_consent, prior_no_shows, slots_offered, action, outcome. Its 'Copy CSV' button writes clipboard text whose first line is 'as_of,time,client,service,status,channel,sms_consent,prior_no_shows,slots_offered,action,outcome' and that contains 'J. Rivera', '2026-10-14', and 'drafted_not_sent'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-sample-bookings-fictional",
+      "description": "The Fictional Sample Booking Export section shows the label 'Fictional'. Its copied CSV contains the header 'time,client,service,status,contact_pref,sms_consent,prior_no_shows' and the J. Rivera, A. Chen, M. Okonkwo, S. Patel, and R. Kim rows from the demo.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-review-checklist-toggle-reset",
+      "description": "The Send Review Checklist has 9 labelled checkboxes. Pressing Space on the first one changes the progress text to 'Checked 1 of 9'. Clicking 'Reset checklist' returns it to 'Checked 0 of 9'.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-plan-difference-notice",
+      "description": "The setup-checklist and safety-guidance sections each contain text stating that ChatGPT, Claude, and Gemini file upload support and data controls differ by plan, account, and admin settings.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-entitled",
+      "description": "With an entitled authenticated session, /my-blueprints shows the No-show Recovery Assistant card with PREMIUM, Unlocked, and an Open Blueprint link to /blueprints/no-show-recovery-assistant/kit.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-locked-without-entitlement",
+      "description": "With an authenticated session whose entitlement header is deny, /blueprints/no-show-recovery-assistant/kit shows heading 'Premium is locked', does not render #setup-checklist, and has 0 Buy Premium buttons.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-my-blueprints-locked",
+      "description": "With an authenticated session whose entitlement header is deny, the No-show Recovery Assistant card on /my-blueprints is Locked, the Available to purchase link points at /blueprints/no-show-recovery-assistant, and there is no kit link.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "daily-inbox-still-open",
+      "description": "With an authenticated session, /my-blueprints still has Open Starter Kit pointing at /blueprints/daily-inbox-briefing/starter-kit, including when the No-show Recovery Assistant entitlement is denied.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "collections-behavior-unchanged",
+      "description": "AI Collections Assistant remaining premium, Buy Premium, checkout, and entitlement behavior is unchanged. Do not edit Collections product files or e2e/ai-collections-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "security-behavior-unchanged",
+      "description": "Security Readiness Action Pack remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Security product files or e2e/security-readiness-action-pack/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "google-ads-behavior-unchanged",
+      "description": "Google Ads Performance Coach remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Google Ads product files or e2e/google-ads-performance-coach/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "quote-request-behavior-unchanged",
+      "description": "Quote Request Assistant remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Quote Request product files or e2e/quote-request-assistant/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "expense-watchdog-behavior-unchanged",
+      "description": "AI Expense Watchdog remaining premium, locked and unlocked kit behavior, and entitlement behavior is unchanged. Do not edit Expense Watchdog product files or e2e/ai-expense-watchdog/ to satisfy this spec.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "no-no-show-stripe-price",
+      "description": "No-show Recovery Assistant is not in PAID_PRODUCTS, getPaidProduct('no-show-recovery-assistant') is undefined, and its pages show no Stripe price, checkout form, or Buy Premium button.",
+      "viewport": "desktop",
+      "requires_auth": false
+    },
+    {
+      "id": "authenticated-tests-protected",
+      "description": "Do not skip, weaken, rewrite, or remove assertions from e2e/no-show-recovery-assistant/authenticated.spec.ts. Authenticated QA must actually reach the kit after automatic session refresh.",
+      "viewport": "desktop",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-mobile-no-overflow",
+      "description": "Inside authenticated.spec.ts (the only authenticated file run by the authenticated-desktop project), call page.setViewportSize({ width: 393, height: 851 }), load the kit, scroll through every section, and assert scrollWidth minus clientWidth is at most 1px.",
+      "viewport": "mobile",
+      "requires_auth": true
+    },
+    {
+      "id": "kit-keyboard-reachable",
+      "description": "Tabbing from the top of the kit page reaches the table-of-contents links, each Copy button, the repeat-threshold field, the never-a-no-show field, the always-skip field, the Generate button, every review-checklist checkbox, and Reset. Each shows a visible focus ring (non-'none' outline or box-shadow on :focus-visible).",
+      "viewport": "desktop",
       "requires_auth": true
     }
   ],
   "out_of_scope": [
-    "Stripe, pricing, checkout, and payment logic",
-    "Live connections to Calendly, Square, Acuity, Google Calendar, Twilio, SMS, or email"
+    "Live connections to Calendly, Square, Acuity, Google Calendar, Twilio, SMS, email, or any other vendor, including OAuth flows, API calls, webhooks, and automated sends.",
+    "Uploading, parsing, or storing the person's real booking files on Atlas.",
+    "Sending SMS or email, booking or cancelling appointments, charging deposits, or editing a calendar from Atlas.",
+    "The published catalog record's automatic SMS, 2-hour delay, Calendly webhook, and Twilio delivery. This version is draft-only.",
+    "Adding a Stripe price, checkout, Buy Premium button, or PAID_PRODUCTS entry for No-show Recovery Assistant. Entitlement checks remain required. The kit cannot be bought today.",
+    "Linking the Blueprint from the homepage, header navigation, or the sitemap. Listing it in My Blueprints through src/lib/blueprints.ts is required.",
+    "Changes to Daily Inbox Briefing behavior, AI Collections Assistant behavior, Security Readiness Action Pack behavior, Google Ads Performance Coach behavior, Quote Request Assistant behavior, AI Expense Watchdog behavior, Stripe configuration, Production, or e2e/no-show-recovery-assistant/authenticated.spec.ts.",
+    "Changes to content/published/, /use-cases/no-show-recovery-assistant, or Japanese catalog labels.",
+    "Supademo walkthroughs, downloadable PDFs, or spreadsheet file downloads.",
+    "Saving worksheet answers, checklist progress, or recovery-log rows to an Atlas account.",
+    "Statistics, recovery-rate claims, time-to-rebook claims, or ROI claims.",
+    "Texting someone who attended, offering a slot that is not open, or messaging without SMS consent."
   ],
+  "source": {
+    "run_id": "20261102T051355Z-no-show-recovery-assistant",
+    "candidate_id": "no-show-recovery-assistant",
+    "approved_at": "2026-11-02T05:13:56.018Z",
+    "approval_note": "Approved internally for batch batch-20261031T062745Z. Final human review is deferred to the batch dashboard.",
+    "summary_scores": {
+      "commercial": 7.3,
+      "atlas_fit": 5.8,
+      "buildability": 6,
+      "overall": 6.43
+    }
+  },
   "routes": {
     "guided_demo": "/blueprints/no-show-recovery-assistant",
     "kit": "/blueprints/no-show-recovery-assistant/kit"
   },
   "allowed_paths": [
     "app/blueprints/no-show-recovery-assistant/",
-    "app/[locale]/blueprints/no-show-recovery-assistant/",
     "components/premium/no-show-recovery-assistant/",
     "src/lib/premium/no-show-recovery-assistant/",
     "src/lib/blueprints.ts",
-    "src/lib/i18n/locale.ts"
+    "e2e/no-show-recovery-assistant/"
   ],
   "constraints": [
-    "Private preview only. English routes stay unprefixed. Japanese routes use /ja/blueprints/no-show-recovery-assistant and /ja/blueprints/no-show-recovery-assistant/kit. Both set robots noindex.",
-    "The kit requires sign-in and hasActiveEntitlement for no-show-recovery-assistant. There is no checkout on this product.",
-    "Keep code identifiers, the slug, and column keys unchanged.",
-    "Nothing is sent automatically. A person approves every message."
+    "Private preview only. The guided demo lives at /blueprints/no-show-recovery-assistant and the Premium kit at /blueprints/no-show-recovery-assistant/kit. Both pages set robots noindex and are not linked from the homepage, header navigation, or the sitemap.",
+    "The Premium kit requires requireUser from src/lib/auth.ts and hasActiveEntitlement for this product. It is labelled \"Premium · Private preview\". It shows no Stripe price, checkout, or Buy Premium unless the product is already in PAID_PRODUCTS.",
+    "All sample data is fictional and labelled as fictional. No live connector, OAuth flow, API call, or upload to a third party.",
+    "AI prepares; the person decides. Confirmed facts, AI interpretation, and recommended actions are labelled separately. Nothing is sent, edited, cancelled, or paid automatically.",
+    "No invented statistics, savings, or ROI claims. ChatGPT, Claude, and Gemini capabilities differ by plan; say so where it matters.",
+    "Product files live in app/blueprints/no-show-recovery-assistant/, components/premium/no-show-recovery-assistant/, and src/lib/premium/no-show-recovery-assistant/. Register the Blueprint in src/lib/blueprints.ts. Do not edit Daily Inbox, Collections product behavior, Stripe, or Production.",
+    "e2e/no-show-recovery-assistant/authenticated.spec.ts is read-only once it exists. Do not skip, weaken, or rewrite it. Authenticated QA uses automatic session refresh.",
+    "Keyboard accessible, visible labels, no horizontal scrolling at a phone-sized viewport, no console errors."
   ]
 }
