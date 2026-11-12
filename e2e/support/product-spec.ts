@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export const SHARED_E2E_DIRS = ["daily-inbox-briefing", "payments", "support"] as const;
+export const SHARED_E2E_DIRS = ["daily-inbox-briefing", "launch-readiness", "payments", "support"] as const;
 export const REQUIRED_SHARED_SPEC_ID = "daily-inbox-briefing";
 
 export class ProductSpecMissingError extends Error {
