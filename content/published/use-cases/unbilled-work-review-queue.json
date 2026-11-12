@@ -1,0 +1,111 @@
+{
+  "id": "uc-038",
+  "slug": "unbilled-work-review-queue",
+  "title": "Unbilled Work Review Queue",
+  "category": "Finance & Planning",
+  "industries": [
+    "Contractors",
+    "Home Services",
+    "Professional Services",
+    "Local Services"
+  ],
+  "businessFunctions": [
+    "Finance",
+    "Operations"
+  ],
+  "businessArea": "finance-accounting",
+  "primaryBusinessProcess": "Invoicing & Accounts Receivable",
+  "businessProcesses": [
+    "Invoicing & Accounts Receivable"
+  ],
+  "businessOutcomes": [
+    "Finished work is reviewed for billing before it sits uninvoiced."
+  ],
+  "summary": "Turn a job or time-entry export into a skip-ruled unbilled queue. You create or hold each invoice. Nothing is sent or collected.",
+  "businessProblem": "Completed jobs stay unbilled because the export is hard to review. Staff have to find missing invoices by hand before money can be billed.",
+  "businessProblems": [
+    "improve-cash-flow-and-planning",
+    "reduce-repetitive-admin-work"
+  ],
+  "outcome": "A ranked queue of unbilled work, with skip rules applied, that a person reviews before creating an invoice.",
+  "expectedOutcomes": [
+    "A ranked queue of unbilled work, with skip rules applied, that a person reviews before creating an invoice."
+  ],
+  "whoItsFor": "Service businesses that finish work before they invoice and review a job or time-entry export before billing.",
+  "requiredDataSources": [
+    "time-tracking-data",
+    "invoices",
+    "spreadsheets"
+  ],
+  "requiredData": [
+    "time-tracking-data",
+    "invoices",
+    "spreadsheets"
+  ],
+  "aiInputs": [
+    "Job or time-entry export",
+    "Billing log of work already invoiced",
+    "Owner skip rules, such as minimum amount and missing fields"
+  ],
+  "aiOutputs": [
+    "Skip-ruled unbilled queue, oldest first",
+    "Field-limited invoice outline for each ready row",
+    "Rows held back until missing fields are completed"
+  ],
+  "requiredApis": [
+    "quickbooks-api",
+    "xero-api",
+    "google-sheets-api",
+    "openai-api"
+  ],
+  "requiredCapabilities": [
+    "llm"
+  ],
+  "noCodeTools": [
+    "Export the job or time sheet, then review the queue in ChatGPT, Claude, or Gemini",
+    "QuickBooks or Xero report plus a spreadsheet of work already invoiced"
+  ],
+  "lowCodeTools": [
+    "Spreadsheet export reviewed against the owner's skip rules",
+    "Accounting report joined to the billing log before any invoice is created"
+  ],
+  "customBuildStack": [
+    "Job or time-entry export",
+    "Skip rules applied before any outline is drafted",
+    "Invoice outlines limited to fields present in the export",
+    "No invoice is created, sent, or collected by the template"
+  ],
+  "implementationSteps": [
+    "Export jobs or time entries and the billing log",
+    "Write the skip rules, including the minimum amount and required fields",
+    "Review the ranked unbilled queue",
+    "Complete any row that is missing fields before outlining it",
+    "Create or hold each invoice yourself"
+  ],
+  "systemBehavior": [
+    "Reads an export. It does not connect to a live accounting system.",
+    "Applies skip rules before drafting an outline",
+    "Ranks ready work oldest first",
+    "Does not add tax or terms that are not in the export",
+    "Does not create, send, or collect an invoice"
+  ],
+  "risks": [
+    "A stale export can hide work that was invoiced after the file was saved",
+    "Missing hours or rates must be completed by a person before billing",
+    "Creating and sending the invoice remains a human step"
+  ],
+  "difficulty": "Beginner",
+  "automationLevel": "Manual trigger",
+  "valuePotential": "High",
+  "relatedUseCases": [
+    "ai-collections-assistant",
+    "ai-expense-watchdog"
+  ],
+  "tags": [
+    "invoicing",
+    "unbilled",
+    "time",
+    "review"
+  ],
+  "featured": false
+}

@@ -241,6 +241,11 @@ const useCases: Record<string, { title: string; summary: string }> = {
     title: "新人向けの確認問題",
     summary: "手順書をもとに、入社初日に使える確認問題と質問の答えを作ります。",
   },
+  "unbilled-work-review-queue": {
+    title: "未請求作業の確認",
+    summary:
+      "仕事や工数の書き出しから未請求キューを作り、古い順に確認します。請求するかどうかは自分で決めます。",
+  },
   "weekly-owner-briefing": {
     title: "週次の経営メモ",
     summary: "売上、未入金、商談の状態を、金曜に読める短い文章にまとめます。",

@@ -18,3 +18,43 @@ export function isPublicJapaneseCatalogUseCase(useCase: {
   if (useCase.templateVersion === "experience-v2" && useCase.experience) return true;
   return implementedSlugs.has(useCase.slug);
 }
+
+/**
+ * Japanese catalog cards open the shipped experience.
+ * Premium products use the blueprint purchase page. The free starter uses its kit.
+ * Records without a shipped experience stay on the metadata page.
+ */
+export function japaneseCatalogHref(useCase: { slug: string; accessTier?: string }): string {
+  const product = blueprintCatalog.find((item) => item.productSlug === useCase.slug || item.id === useCase.slug);
+  if (product?.purchaseHref) return `/ja${product.purchaseHref}`;
+  if (product?.access === "free-authenticated") return product.href;
+  if (useCase.accessTier === "free") {
+    const starter = blueprintCatalog.find((item) => item.access === "free-authenticated");
+    if (starter) return starter.href;
+  }
+  return `/ja/use-cases/${useCase.slug}`;
+}
+
+export function facetsUsedByCatalog<TData extends { slug: string }, TApi extends { slug: string }>(
+  useCases: {
+    requiredDataSources: string[];
+    requiredApis: string[];
+    difficulty: string;
+    automationLevel: string;
+  }[],
+  dataSources: TData[],
+  apis: TApi[],
+  difficulties: readonly string[],
+  automationLevels: readonly string[],
+): { dataSources: TData[]; apis: TApi[]; difficulties: string[]; automationLevels: string[] } {
+  const dataSlugs = new Set(useCases.flatMap((item) => item.requiredDataSources));
+  const apiSlugs = new Set(useCases.flatMap((item) => item.requiredApis));
+  const difficultyValues = new Set(useCases.map((item) => item.difficulty));
+  const automationValues = new Set(useCases.map((item) => item.automationLevel));
+  return {
+    dataSources: dataSources.filter((item) => dataSlugs.has(item.slug)),
+    apis: apis.filter((item) => apiSlugs.has(item.slug)),
+    difficulties: difficulties.filter((item) => difficultyValues.has(item)),
+    automationLevels: automationLevels.filter((item) => automationValues.has(item)),
+  };
+}

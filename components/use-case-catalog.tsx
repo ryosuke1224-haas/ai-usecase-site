@@ -11,7 +11,7 @@ import {
 } from "@/src/lib/discovery";
 import { UseCaseCard } from "./use-case-card";
 import { japaneseCatalogLabel, japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
-import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
+import { facetsUsedByCatalog, isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
 import type { CatalogLabels } from "@/src/lib/i18n/copy";
 import type { UiLocale } from "@/src/lib/i18n/locale";
 import { englishSiteCopy, siteCopy } from "@/src/lib/i18n/copy";
@@ -39,7 +39,15 @@ export function UseCaseCatalog({
   const published = usePublishedContent();
   const useCases =
     locale === "ja" ? published.useCases.filter(isPublicJapaneseCatalogUseCase) : published.useCases;
-  const { apis, dataSources } = published;
+  const facetSource = locale === "ja"
+    ? facetsUsedByCatalog(useCases, published.dataSources, published.apis, difficulties, automationLevels)
+    : {
+        dataSources: published.dataSources,
+        apis: published.apis,
+        difficulties,
+        automationLevels,
+      };
+  const { apis, dataSources } = facetSource;
   const categories = getUseCaseCategories(useCases);
   const industries = getUseCaseIndustries(useCases);
   const businessFunctions = getUseCaseBusinessFunctions(useCases);
@@ -154,14 +162,14 @@ export function UseCaseCatalog({
 
       <FilterRow label={resolvedLabels.difficulty}>
         <FilterChip label={resolvedLabels.all} active={!difficulty} onClick={() => updateParams({ difficulty: null })} />
-        {difficulties.map((d) => (
+        {facetSource.difficulties.map((d) => (
           <FilterChip key={d} label={labelFor(d)} active={difficulty === d} onClick={() => updateParams({ difficulty: difficulty === d ? null : d })} />
         ))}
       </FilterRow>
 
       <FilterRow label={resolvedLabels.automation}>
         <FilterChip label={resolvedLabels.all} active={!automation} onClick={() => updateParams({ automation: null })} />
-        {automationLevels.map((a) => (
+        {facetSource.automationLevels.map((a) => (
           <FilterChip key={a} label={labelFor(a)} active={automation === a} onClick={() => updateParams({ automation: automation === a ? null : a })} />
         ))}
       </FilterRow>

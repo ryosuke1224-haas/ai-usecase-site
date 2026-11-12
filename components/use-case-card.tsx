@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { UseCase } from "@/src/types";
 import { japaneseCatalogLabel, japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
+import { japaneseCatalogHref } from "@/src/lib/i18n/japanese-catalog";
 import type { UiLocale } from "@/src/lib/i18n/locale";
 import { ExperienceTile } from "./use-case/experience/experience-tile";
 import { Badge } from "./ui/detail";
@@ -38,7 +39,7 @@ export function UseCaseCard({
 
   const title = japanese?.title ?? useCase.title;
   const summary = japanese?.summary ?? useCase.summary;
-  const href = locale === "ja" ? `/ja/use-cases/${useCase.slug}` : `/use-cases/${useCase.slug}`;
+  const href = locale === "ja" ? japaneseCatalogHref(useCase) : `/use-cases/${useCase.slug}`;
 
   return (
     <Link
