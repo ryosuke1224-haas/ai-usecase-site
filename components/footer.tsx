@@ -192,6 +192,11 @@ function LiveFooter({ locale }: { locale: UiLocale | null }) {
 
         <div className="mt-10 border-t border-border/60 pt-6 text-center text-sm text-muted">
           {copy.footer.tagline}
+          <nav aria-label={copy.footer.legal} className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2">
+            <Link href="/legal/terms" className="hover:text-foreground">{copy.footer.terms}</Link>
+            <Link href="/legal/privacy" className="hover:text-foreground">{copy.footer.privacy}</Link>
+            <Link href="/legal/refund" className="hover:text-foreground">{copy.footer.refund}</Link>
+          </nav>
         </div>
       </div>
     </footer>

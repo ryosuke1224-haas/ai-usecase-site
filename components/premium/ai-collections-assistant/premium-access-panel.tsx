@@ -4,6 +4,7 @@ import { authPath } from "@/src/lib/blueprints";
 import { siteCopy } from "@/src/lib/i18n/copy";
 import { collectionsPaths, type UiLocale } from "@/src/lib/i18n/locale";
 import { japanPurchaseDisclosure } from "@/src/lib/japan-launch/legal";
+import { englishPurchaseLinks, englishPurchaseRefundNotice } from "@/src/lib/legal/english";
 import {
   COLLECTIONS_KIT_PATH,
   COLLECTIONS_PRODUCT_SLUG,
@@ -87,6 +88,18 @@ export function PremiumAccessPanel({
           <p>支払いはStripeの決済画面で完了します。</p>
           <nav aria-label="購入前の確認" className="flex flex-wrap gap-x-4 gap-y-2 pt-1">
             {japanPurchaseDisclosure.links.map((link) => (
+              <Link key={link.href} href={link.href} className="font-medium text-accent hover:underline">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      ) : null}
+      {uiLocale !== "ja" && mode !== "open" ? (
+        <div className="mt-4 space-y-2 text-sm leading-relaxed text-muted">
+          <p>{englishPurchaseRefundNotice}</p>
+          <nav aria-label="Purchase terms" className="flex flex-wrap gap-x-4 gap-y-2">
+            {englishPurchaseLinks.map((link) => (
               <Link key={link.href} href={link.href} className="font-medium text-accent hover:underline">
                 {link.label}
               </Link>

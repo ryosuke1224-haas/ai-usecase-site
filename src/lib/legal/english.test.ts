@@ -1,0 +1,36 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { CONTACT_EMAIL } from "@/src/lib/site";
+import { englishLegalDocuments, englishLegalPlainText, US_BLUEPRINT_PRICE } from "./english";
+
+test("English legal pages state launch facts and do not invent operator identity", () => {
+  const text = englishLegalPlainText();
+  assert.match(text, new RegExp(US_BLUEPRINT_PRICE.replace("$", "\\$")));
+  assert.match(text, /one-time digital purchases/);
+  assert.match(text, /no subscription/i);
+  assert.match(text, /Nothing is shipped/);
+  assert.match(text, /English and Japanese versions/);
+  assert.match(text, /changed your mind/);
+  assert.match(text, /charged more than once/);
+  assert.match(text, /delivering the access you purchased/);
+  assert.match(text, /serious defect/);
+  assert.match(text, /Applicable law requires a refund/);
+  assert.match(text, /may be incomplete or wrong/);
+  assert.match(text, /do not guarantee a specific sales/);
+  assert.match(text, /unless that product says it does/);
+  assert.match(text, /authentication cookie/);
+  assert.match(text, /do not collect a password/i);
+  assert.match(text, /Stripe/);
+  assert.match(text, /Supabase/);
+  assert.match(text, /Google Analytics is loaded only when/);
+  assert.match(text, new RegExp(CONTACT_EMAIL.replace(".", "\\.")));
+  assert.equal(text.includes("no refunds under any circumstances"), false);
+  assert.equal(text.includes("tax-inclusive"), false);
+  assert.equal(text.includes("tax-exclusive"), false);
+  assert.equal(text.includes("4,900"), false);
+  assert.equal(text.includes("7,980"), false);
+  assert.equal(/\d{2,4}-\d{2,4}-\d{4}/.test(text), false);
+  assert.equal(englishLegalDocuments.terms.sections.some((section) => section.heading === "Digital products"), true);
+  assert.equal(englishLegalDocuments.privacy.sections.some((section) => section.heading === "Supabase"), true);
+  assert.equal(englishLegalDocuments.refund.sections.some((section) => section.heading === "Refunds we review"), true);
+});
