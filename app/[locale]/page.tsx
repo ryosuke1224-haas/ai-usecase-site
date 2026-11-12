@@ -6,6 +6,7 @@ import { FeaturedTopics } from "@/components/topics/featured-topics";
 import { siteCopy } from "@/src/lib/i18n/copy";
 import { isUiLocale, localizedHref } from "@/src/lib/i18n/locale";
 import { getBusinessAreaOverviews } from "@/src/lib/business-area-content";
+import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
 import { featuredTopics } from "@/src/lib/topics";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -26,7 +27,7 @@ export default async function LocaleHomePage({ params }: PageProps) {
   const { locale } = await params;
   if (!isUiLocale(locale)) notFound();
   const copy = siteCopy(locale).home;
-  const areas = getBusinessAreaOverviews();
+  const areas = getBusinessAreaOverviews(locale === "ja" ? isPublicJapaneseCatalogUseCase : undefined);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10 sm:py-14">

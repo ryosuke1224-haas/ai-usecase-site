@@ -11,6 +11,7 @@ import {
 } from "@/src/lib/discovery";
 import { UseCaseCard } from "./use-case-card";
 import { japaneseCatalogLabel, japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
+import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
 import type { CatalogLabels } from "@/src/lib/i18n/copy";
 import type { UiLocale } from "@/src/lib/i18n/locale";
 import { englishSiteCopy, siteCopy } from "@/src/lib/i18n/copy";
@@ -35,7 +36,10 @@ export function UseCaseCatalog({
   locale?: UiLocale | null;
 } = {}) {
   const resolvedLabels = locale ? siteCopy(locale).catalog.labels : labels;
-  const { useCases, apis, dataSources } = usePublishedContent();
+  const published = usePublishedContent();
+  const useCases =
+    locale === "ja" ? published.useCases.filter(isPublicJapaneseCatalogUseCase) : published.useCases;
+  const { apis, dataSources } = published;
   const categories = getUseCaseCategories(useCases);
   const industries = getUseCaseIndustries(useCases);
   const businessFunctions = getUseCaseBusinessFunctions(useCases);

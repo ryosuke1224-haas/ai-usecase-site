@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BusinessAreaIcon } from "@/components/business-areas/business-area-icon";
 import { getBusinessAreaProcessSections, getUseCasesForBusinessArea } from "@/src/lib/business-area-content";
+import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
 import { getBusinessArea } from "@/src/lib/business-areas";
 import { japaneseBusinessArea, japaneseExampleCount, japaneseProcessName } from "@/src/lib/i18n/business-areas";
 import { isUiLocale } from "@/src/lib/i18n/locale";
@@ -26,8 +27,8 @@ export default async function LocaleBusinessAreaPage({ params }: PageProps) {
   const area = getBusinessArea(slug);
   const japanese = japaneseBusinessArea(slug);
   if (!area || !japanese) notFound();
-  const { covered, empty } = getBusinessAreaProcessSections(area);
-  const count = getUseCasesForBusinessArea(area.slug).length;
+  const { covered, empty } = getBusinessAreaProcessSections(area, isPublicJapaneseCatalogUseCase);
+  const count = getUseCasesForBusinessArea(area.slug, isPublicJapaneseCatalogUseCase).length;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-10">

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { usePublishedContent } from "@/src/content/content-context";
 import { globalSearch, type SearchResult } from "@/src/lib/discovery";
+import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
 
 function localizeSearchHref(href: string): string {
   if (href.startsWith("/business-areas")) return href.replace("/business-areas", "/ja/business-areas");
@@ -43,8 +44,14 @@ export function GlobalSearch({
   const router = useRouter();
 
   useEffect(() => {
-    setResults(globalSearch(query, content));
-  }, [query, content]);
+    const matches = globalSearch(query, content);
+    if (!japanese) {
+      setResults(matches);
+      return;
+    }
+    const listed = new Set(content.useCases.filter(isPublicJapaneseCatalogUseCase).map((useCase) => useCase.slug));
+    setResults(matches.filter((result) => result.type !== "use-case" || listed.has(result.slug)));
+  }, [query, content, japanese]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {

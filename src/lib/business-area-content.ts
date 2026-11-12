@@ -46,9 +46,12 @@ export function getRelatedProcesses(useCase: UseCase): string[] {
   return related.filter((process) => process !== primary);
 }
 
-export function getUseCasesForBusinessArea(area: BusinessArea): UseCase[] {
+export function getUseCasesForBusinessArea(
+  area: BusinessArea,
+  include?: (useCase: UseCase) => boolean,
+): UseCase[] {
   return loadPublishedContent().useCases.filter(
-    (useCase) => useCase.businessArea === area,
+    (useCase) => useCase.businessArea === area && (include ? include(useCase) : true),
   );
 }
 
@@ -59,8 +62,9 @@ export function getUseCasesForBusinessArea(area: BusinessArea): UseCase[] {
  */
 export function getBusinessAreaProcessSections(
   area: BusinessAreaDefinition,
+  include?: (useCase: UseCase) => boolean,
 ): BusinessAreaProcessSections {
-  const useCases = getUseCasesForBusinessArea(area.slug);
+  const useCases = getUseCasesForBusinessArea(area.slug, include);
 
   const covered: BusinessProcessGroup[] = [];
   const partiallyCovered: BusinessProcessGroup[] = [];
@@ -97,8 +101,10 @@ export function getUnmappedAreaUseCases(
   });
 }
 
-export function getBusinessAreaOverviews(): BusinessAreaOverview[] {
-  const useCases = loadPublishedContent().useCases;
+export function getBusinessAreaOverviews(
+  include?: (useCase: UseCase) => boolean,
+): BusinessAreaOverview[] {
+  const useCases = loadPublishedContent().useCases.filter((useCase) => (include ? include(useCase) : true));
 
   return businessAreaDefinitions.map((area) => ({
     ...area,

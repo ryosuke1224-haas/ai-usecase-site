@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { UseCaseCatalog } from "@/components/use-case-catalog";
 import { loadPublishedContent } from "@/src/content/load-published";
+import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
 import { siteCopy } from "@/src/lib/i18n/copy";
 import { isUiLocale, localizedHref } from "@/src/lib/i18n/locale";
 
@@ -26,11 +27,12 @@ export default async function LocaleUseCasesPage({ params }: PageProps) {
   if (!isUiLocale(locale)) notFound();
   const copy = siteCopy(locale).catalog;
   const { useCases } = loadPublishedContent();
+  const listed = locale === "ja" ? useCases.filter(isPublicJapaneseCatalogUseCase) : useCases;
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8">
       <header className="border-b border-border/60 pb-4">
-        <p className="font-mono text-xs text-muted">{copy.eyebrow(useCases.length)}</p>
+        <p className="font-mono text-xs text-muted">{copy.eyebrow(listed.length)}</p>
         <h1 className="mt-1 text-2xl font-bold">{copy.title}</h1>
         <p className="mt-1 text-sm text-muted">{copy.body}</p>
         <p className="mt-2 text-xs text-muted">

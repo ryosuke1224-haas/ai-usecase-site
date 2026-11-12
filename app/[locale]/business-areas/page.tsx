@@ -5,6 +5,7 @@ import { BusinessAreaCard } from "@/components/business-areas/business-area-card
 import { siteCopy } from "@/src/lib/i18n/copy";
 import { isUiLocale } from "@/src/lib/i18n/locale";
 import { getBusinessAreaOverviews } from "@/src/lib/business-area-content";
+import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -22,7 +23,7 @@ export default async function LocaleBusinessAreasPage({ params }: PageProps) {
   const { locale } = await params;
   if (!isUiLocale(locale) || locale !== "ja") notFound();
   const copy = siteCopy("ja");
-  const areas = getBusinessAreaOverviews();
+  const areas = getBusinessAreaOverviews(isPublicJapaneseCatalogUseCase);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
