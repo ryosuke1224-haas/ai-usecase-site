@@ -4,6 +4,7 @@ import { FactLabel } from "@/components/premium/ai-collections-assistant/fact-la
 import { GuidedDemo } from "@/components/premium/ai-collections-assistant/guided-demo";
 import { PremiumAccessPanel } from "@/components/premium/ai-collections-assistant/premium-access-panel";
 import { getCurrentUser } from "@/src/lib/auth";
+import { japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
 import { siteCopy } from "@/src/lib/i18n/copy";
 import { isUiLocale } from "@/src/lib/i18n/locale";
 import { hasActiveEntitlement } from "@/src/lib/payments/access";
@@ -22,8 +23,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale } = await params;
   if (!isUiLocale(locale)) return {};
   const copy = siteCopy(locale).collections;
+  const title = locale === "ja" ? japaneseUseCase("ai-collections-assistant")?.title ?? copy.title : copy.title;
   return {
-    title: copy.title,
+    title,
     description: copy.body,
     alternates: { canonical: `/${locale}/blueprints/ai-collections-assistant` },
     robots: { index: false, follow: false },
@@ -35,6 +37,7 @@ export default async function LocaleCollectionsPage({ params, searchParams }: Pa
   if (!isUiLocale(locale)) notFound();
   const query = await searchParams;
   const copy = siteCopy(locale);
+  const collectionsTitle = locale === "ja" ? japaneseUseCase("ai-collections-assistant")?.title ?? copy.collections.title : copy.collections.title;
   const user = await getCurrentUser();
   const priceLabel = displayPriceForUi(locale, await loadPreviewPriceLabel(COLLECTIONS_PRODUCT_SLUG, locale));
   let mode: "sign-in" | "buy" | "open" = "sign-in";
@@ -48,7 +51,7 @@ export default async function LocaleCollectionsPage({ params, searchParams }: Pa
       <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-accent">
         {copy.collections.eyebrow}
       </p>
-      <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{copy.collections.title}</h1>
+      <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{collectionsTitle}</h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">{copy.collections.body}</p>
       {locale === "ja" ? (
         <section className="mt-6" aria-label={copy.collections.labelsTitle}>

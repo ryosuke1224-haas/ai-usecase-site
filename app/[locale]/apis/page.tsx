@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ReferenceDirectory } from "@/components/discovery/reference-directory";
 import { loadPublishedContent } from "@/src/content/load-published";
+import { japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
+import { isPublicJapaneseCatalogUseCase, japaneseCatalogHref, useCasesForReference } from "@/src/lib/i18n/japanese-catalog";
 import { isUiLocale } from "@/src/lib/i18n/locale";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -14,30 +16,28 @@ export const metadata: Metadata = {
 export default async function LocaleApisPage({ params }: PageProps) {
   const { locale } = await params;
   if (!isUiLocale(locale) || locale !== "ja") notFound();
-  const { apis } = loadPublishedContent();
+  const { apis, useCases } = loadPublishedContent();
+  const visible = useCases.filter(isPublicJapaneseCatalogUseCase);
+  const items = apis.flatMap((api) => {
+    const products = useCasesForReference(visible, "requiredApis", api.slug).flatMap((useCase) => {
+      const label = japaneseUseCase(useCase.slug);
+      if (!label) return [];
+      return [{ slug: useCase.slug, title: label.title, href: japaneseCatalogHref(useCase) }];
+    });
+    if (products.length === 0) return [];
+    return [{
+      slug: api.slug,
+      name: api.name,
+      filterHref: `/ja/use-cases?api=${encodeURIComponent(api.slug)}`,
+      products,
+    }];
+  });
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <header className="border-b border-border/60 pb-4">
-        <p className="font-mono text-xs text-muted">{apis.length}件</p>
-        <h1 className="mt-1 text-2xl font-bold">API・ツール</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-          テンプレートが参照している会計、メール、広告、AIのサービスです。
-        </p>
-      </header>
-      <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {apis.map((api) => (
-          <li key={api.slug} className="rounded-xl border border-border/60 bg-card px-4 py-4">
-            <p className="text-sm font-semibold">{api.name}</p>
-            <p className="mt-1 text-xs text-muted">{api.provider}</p>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-8 text-sm">
-        <Link href="/ja/use-cases" className="font-medium text-accent hover:underline">
-          このツールを使うテンプレートを探す
-        </Link>
-      </p>
-    </div>
+    <ReferenceDirectory
+      title="API・ツール"
+      intro="公開中のテンプレートが使うツールだけを表示しています。各項目から、そのツールを使うテンプレートを開けます。"
+      items={items}
+    />
   );
 }

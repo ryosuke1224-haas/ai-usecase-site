@@ -51,10 +51,19 @@ export function GlobalSearch({
     const q = query.trim().toLowerCase();
     const listed = content.useCases.filter(isPublicJapaneseCatalogUseCase);
     const listedSlugs = new Set(listed.map((useCase) => useCase.slug));
+    const apiSlugs = new Set(listed.flatMap((useCase) => useCase.requiredApis));
+    const dataSlugs = new Set(listed.flatMap((useCase) => useCase.requiredDataSources));
     const fromEnglish = matches.flatMap((result) => {
       if (result.type === "workflow") return [];
       if (result.type === "use-case" && !listedSlugs.has(result.slug)) return [];
-      if (result.type !== "use-case") return [result];
+      if (result.type === "api") {
+        if (!apiSlugs.has(result.slug)) return [];
+        return [{ ...result, href: `/ja/use-cases?api=${encodeURIComponent(result.slug)}` }];
+      }
+      if (result.type === "data-source") {
+        if (!dataSlugs.has(result.slug)) return [];
+        return [{ ...result, href: `/ja/use-cases?dataSource=${encodeURIComponent(result.slug)}` }];
+      }
       const useCase = listed.find((item) => item.slug === result.slug);
       const label = japaneseUseCase(result.slug);
       return [{
@@ -78,7 +87,8 @@ export function GlobalSearch({
         href: japaneseCatalogHref(useCase),
       }];
     });
-    setResults([...fromJapanese, ...fromEnglish]);
+    const rank: Record<SearchResult["type"], number> = { "use-case": 0, api: 1, "data-source": 2, workflow: 3 };
+    setResults([...fromJapanese, ...fromEnglish].sort((a, b) => rank[a.type] - rank[b.type]));
   }, [query, content, japanese]);
 
   useEffect(() => {

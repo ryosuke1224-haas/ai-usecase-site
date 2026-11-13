@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BusinessAreaCard } from "@/components/business-areas/business-area-card";
+import { FeaturedLaunchProducts } from "@/components/home/featured-launch-products";
 import { FeaturedTopics } from "@/components/topics/featured-topics";
+import { loadPublishedContent } from "@/src/content/load-published";
 import { siteCopy } from "@/src/lib/i18n/copy";
+import { japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
+import { JAPANESE_FEATURED_SLUGS, japaneseFeaturedCta } from "@/src/lib/i18n/featured-launch";
 import { isUiLocale, localizedHref } from "@/src/lib/i18n/locale";
 import { getBusinessAreaOverviews } from "@/src/lib/business-area-content";
-import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
+import { isPublicJapaneseCatalogUseCase, japaneseCatalogHref } from "@/src/lib/i18n/japanese-catalog";
 import { featuredTopics } from "@/src/lib/topics";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -28,6 +32,13 @@ export default async function LocaleHomePage({ params }: PageProps) {
   if (!isUiLocale(locale)) notFound();
   const copy = siteCopy(locale).home;
   const areas = getBusinessAreaOverviews(locale === "ja" ? isPublicJapaneseCatalogUseCase : undefined);
+  const published = locale === "ja" ? loadPublishedContent().useCases : [];
+  const featured = JAPANESE_FEATURED_SLUGS.flatMap((slug) => {
+    const useCase = published.find((item) => item.slug === slug);
+    const label = japaneseUseCase(slug);
+    if (!useCase || !label || !isPublicJapaneseCatalogUseCase(useCase)) return [];
+    return [{ slug, href: japaneseCatalogHref(useCase), title: label.title, body: label.summary, cta: japaneseFeaturedCta(slug) }];
+  });
 
   return (
     <div className="launch-canvas mx-auto w-full max-w-6xl px-6 py-10 sm:py-16">
@@ -73,7 +84,11 @@ export default async function LocaleHomePage({ params }: PageProps) {
         </ul>
       </section>
 
-      <FeaturedTopics locale={locale} topics={featuredTopics(locale)} />
+      {locale === "ja" ? (
+        <FeaturedLaunchProducts products={featured} />
+      ) : (
+        <FeaturedTopics locale={locale} topics={featuredTopics(locale)} />
+      )}
 
       <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
         <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{copy.stepsTitle}</h2>

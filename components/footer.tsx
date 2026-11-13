@@ -48,7 +48,6 @@ function LiveFooter({ locale }: { locale: UiLocale | null }) {
                   { href: "/ja/business-areas", label: "業務から探す" },
                   { href: "/ja/use-cases", label: "AI活用テンプレート" },
                   { href: "/ja/use-cases?difficulty=Beginner", label: "初心者向け" },
-                  { href: "/ja#how-it-works", label: "使い方" },
                 ].map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className={linkClass}>{link.label}</Link>

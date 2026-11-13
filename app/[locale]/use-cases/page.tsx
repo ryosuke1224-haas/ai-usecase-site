@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { UseCaseCatalog } from "@/components/use-case-catalog";
 import { loadPublishedContent } from "@/src/content/load-published";
+import { japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
 import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
 import { siteCopy } from "@/src/lib/i18n/copy";
 import { isUiLocale, localizedHref } from "@/src/lib/i18n/locale";
@@ -40,7 +41,7 @@ export default async function LocaleUseCasesPage({ params }: PageProps) {
             {siteCopy(locale).nav.businessAreas}
           </Link>
           <Link href={localizedHref(locale, "/blueprints/ai-collections-assistant")} className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
-            AI Collections Assistant
+            {locale === "ja" ? japaneseUseCase("ai-collections-assistant")?.title : "AI Collections Assistant"}
           </Link>
         </p>
       </header>

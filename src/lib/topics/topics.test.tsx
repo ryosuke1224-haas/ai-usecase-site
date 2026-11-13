@@ -46,23 +46,20 @@ test("security is a topic page in Japanese and English, not a business area", as
   await assert.rejects(() => TopicSlugPage({ params: Promise.resolve({ locale: "ja", slug: "not-a-topic" }) }));
 });
 
-test("the Japanese homepage links to the security topic after business areas", () => {
+test("the Japanese homepage features shipped products and English keeps the security topic", () => {
   const page = readFileSync("app/[locale]/page.tsx", "utf8");
   const areas = page.indexOf('id="business-areas"');
-  const featured = page.indexOf("<FeaturedTopics");
+  const featured = page.indexOf("<FeaturedLaunchProducts");
   const steps = page.indexOf('id="how-it-works"');
   assert.ok(areas >= 0 && featured > areas && steps > featured);
+  assert.match(page, /locale === "ja" \?/);
   assert.match(page, /featuredTopics\(locale\)/);
 
-  const html = renderToStaticMarkup(<FeaturedTopics locale="ja" topics={featuredTopics("ja")} />);
-  assert.match(html, /注目テーマ/);
-  assert.match(html, /セキュリティ対策を、何から始めるか。/);
-  assert.match(html, /href="\/ja\/topics\/security"/);
-  assert.match(html, /セキュリティ対策を見る/);
+  const html = renderToStaticMarkup(
+    <FeaturedTopics locale="en" topics={featuredTopics("en")} />,
+  );
+  assert.match(html, /href="\/en\/topics\/security"/);
   assert.equal(html.includes('href="/ja/business-areas/security"'), false);
-
-  const english = renderToStaticMarkup(<FeaturedTopics locale="en" topics={featuredTopics("en")} />);
-  assert.match(english, /href="\/en\/topics\/security"/);
 
   const extra = renderToStaticMarkup(
     <FeaturedTopics
@@ -84,9 +81,10 @@ test("the Japanese homepage links to the security topic after business areas", (
   assert.match(extra, /href="\/ja\/topics\/cash-flow"/);
 });
 
-test("security is discovered from Resources and not from the main header", () => {
+test("security is discovered from English Resources and not from the main header", () => {
   const japanese = resourceMenuLinks("ja");
-  assert.equal(japanese.some((link) => link.href === "/ja/topics/security" && link.label === "セキュリティ対策"), true);
+  assert.equal(japanese.some((link) => link.href === "/ja/topics/security"), false);
+  assert.equal(japanese.some((link) => link.href === "/ja#how-it-works"), false);
   const english = resourceMenuLinks("en");
   assert.equal(english.some((link) => link.href === "/en/topics/security" && link.label === "Security readiness"), true);
   assert.equal(resourceMenuLinks(null).some((link) => link.href === "/en/topics/security"), true);

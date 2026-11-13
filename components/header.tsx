@@ -15,7 +15,7 @@ function navLinks(locale: UiLocale | null) {
     { href: href("/use-cases", true), label: copy.blueprints },
     { href: href("/#how-it-works", true), label: copy.howItWorks },
     { href: href("/contact", true), label: copy.contact },
-  ];
+  ].filter((link) => locale !== "ja" || !link.href.includes("#how-it-works"));
 }
 
 function BrandLink({ locale }: { locale: UiLocale | null }) {

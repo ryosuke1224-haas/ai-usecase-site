@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 import { LAUNCH_PRODUCTS } from "@/src/lib/payments/launch-catalog";
-import { facetsUsedByCatalog, isPublicJapaneseCatalogUseCase, japaneseCatalogHref, useCaseMatchesProcess } from "./japanese-catalog";
+import { japaneseUseCase } from "./catalog-labels";
+import { JAPANESE_FEATURED_SLUGS, japaneseFeaturedCta } from "./featured-launch";
+import { facetsUsedByCatalog, isPublicJapaneseCatalogUseCase, japaneseCatalogHref, useCaseMatchesProcess, useCasesForReference } from "./japanese-catalog";
 
 const useCaseDir = "content/published/use-cases";
 
@@ -95,4 +97,37 @@ test("process matching includes related products and excludes empty categories",
   assert.deepEqual(slugs("Follow-Up & Outreach"), ["ai-proposal-follow-up-assistant"]);
   assert.deepEqual(slugs("Lead Capture & Qualification"), []);
   assert.equal(useCaseMatchesProcess(visible[0], ""), true);
+});
+
+test("Japanese featured products and reference directories stay on shipped work", () => {
+  const records = publishedUseCases().filter(isPublicJapaneseCatalogUseCase);
+  assert.equal(japaneseUseCase("ai-collections-assistant")?.title, "入金フォローの下書き");
+  for (const slug of JAPANESE_FEATURED_SLUGS) {
+    const record = records.find((item) => item.slug === slug);
+    assert.ok(record, slug);
+    assert.equal(japaneseFeaturedCta(slug).length > 0, true);
+    const href = japaneseCatalogHref(record!);
+    assert.equal(href.startsWith("/ja/use-cases/"), false);
+  }
+
+  const apis = new Set(records.flatMap((record) => record.requiredApis));
+  for (const slug of apis) {
+    const products = useCasesForReference(records, "requiredApis", slug);
+    assert.ok(products.length > 0, slug);
+  }
+  assert.ok(useCasesForReference(records, "requiredApis", "google-ads-api").some((item) => item.slug === "google-ads-performance-coach"));
+  assert.ok(useCasesForReference(records, "requiredApis", "quickbooks-api").some((item) => item.slug === "ai-expense-watchdog"));
+  assert.ok(useCasesForReference(records, "requiredApis", "gmail-api").some((item) => item.slug === "ai-daily-inbox-briefing"));
+  assert.equal(useCasesForReference(records, "requiredApis", "linkedin-api").length, 0);
+
+  const sources = new Set(records.flatMap((record) => record.requiredDataSources));
+  for (const slug of sources) {
+    assert.ok(useCasesForReference(records, "requiredDataSources", slug).length > 0, slug);
+  }
+  const invoices = useCasesForReference(records, "requiredDataSources", "invoices").map((item) => item.slug);
+  assert.ok(invoices.includes("ai-collections-assistant"));
+  assert.ok(invoices.includes("unbilled-work-review-queue"));
+  assert.ok(useCasesForReference(records, "requiredDataSources", "credit-card-transactions").some((item) => item.slug === "ai-expense-watchdog"));
+  assert.ok(useCasesForReference(records, "requiredDataSources", "staff-schedules").some((item) => item.slug === "ai-staffing-optimizer"));
+  assert.equal(useCasesForReference(records, "requiredDataSources", "linkedin-profiles").length, 0);
 });

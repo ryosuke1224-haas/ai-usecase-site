@@ -74,3 +74,11 @@ export function facetsUsedByCatalog<TData extends { slug: string }, TApi extends
     automationLevels: automationLevels.filter((item) => automationValues.has(item)),
   };
 }
+
+export function useCasesForReference<T extends { requiredApis: string[]; requiredDataSources: string[] }>(
+  useCases: T[],
+  field: "requiredApis" | "requiredDataSources",
+  slug: string,
+): T[] {
+  return useCases.filter((useCase) => useCase[field].includes(slug));
+}

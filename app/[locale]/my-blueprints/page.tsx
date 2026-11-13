@@ -89,7 +89,7 @@ export default async function LocaleMyBlueprintsPage({ params }: PageProps) {
                 </span>
               </div>
               <h2 className="mt-3 text-lg font-semibold tracking-tight">
-                {locale === "ja" && JAPANESE_LAUNCH_IDS.has(blueprint.id)
+                {locale === "ja" && (JAPANESE_LAUNCH_IDS.has(blueprint.id) || blueprint.id === "ai-collections-assistant")
                   ? japaneseUseCase(blueprint.id)?.title ?? blueprint.title
                   : blueprint.title}
               </h2>

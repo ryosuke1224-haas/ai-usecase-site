@@ -122,7 +122,7 @@ const useCases: Record<string, { title: string; summary: string }> = {
     summary: "請求、給与、固定費から、30日・60日・90日の現金の過不足を見ます。",
   },
   "ai-collections-assistant": {
-    title: "AI Collections Assistant",
+    title: "入金フォローの下書き",
     summary: "遅れている請求に優先順位をつけ、送る文面の下書きまで作ります。送信は人が決めます。",
   },
   "ai-content-calendar": {

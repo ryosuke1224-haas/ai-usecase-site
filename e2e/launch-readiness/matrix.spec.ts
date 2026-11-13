@@ -133,7 +133,7 @@ test.describe("Launch catalog, collections, inbox, and legal", () => {
 
   test("Collections keeps its Japanese price and Daily Inbox stays a free starter", async ({ page }) => {
     await page.goto("/ja/blueprints/ai-collections-assistant");
-    await expect(page.getByRole("heading", { level: 1, name: "AI Collections Assistant" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "入金フォローの下書き" })).toBeVisible();
     await expect(page.getByText("4,900円").first()).toBeVisible();
     await expect(page.getByText("¥7,980")).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
@@ -208,7 +208,56 @@ test.describe("Launch catalog, collections, inbox, and legal", () => {
     await expect(menu.getByRole("link", { name: "AI活用アイデア" })).toHaveCount(0);
     await expect(menu.getByRole("link", { name: "業務から探す" })).toBeVisible();
     await expect(menu.getByRole("link", { name: "AI活用テンプレート" })).toBeVisible();
+    await expect(menu.getByRole("link", { name: "使い方" })).toHaveCount(0);
+    await expect(menu.getByRole("link", { name: "セキュリティ対策" })).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
+  });
+
+  test("Japanese featured products, tools, data sources, and search open shipped work", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/ja");
+    const featured = page.locator("#featured-products");
+    await expect(featured.getByRole("link", { name: /見積依頼レビュー/ })).toHaveAttribute(
+      "href",
+      "/ja/blueprints/quote-request-assistant",
+    );
+    await expect(featured.getByRole("link", { name: /Google Ads 運用チェック/ })).toHaveAttribute(
+      "href",
+      "/ja/blueprints/google-ads-performance-coach",
+    );
+    await expect(featured.getByRole("link", { name: /朝の受信箱まとめ/ })).toHaveAttribute(
+      "href",
+      "/blueprints/daily-inbox-briefing/starter-kit",
+    );
+    await expect(featured.getByRole("link", { name: /セキュリティ/ })).toHaveCount(0);
+    await expect(page.locator("header").getByRole("link", { name: "使い方" })).toHaveCount(0);
+
+    await page.getByRole("searchbox").fill("入金フォロー");
+    const searchResult = page.getByRole("link", { name: /入金フォローの下書き/ }).first();
+    await expect(searchResult).toHaveAttribute("href", "/ja/blueprints/ai-collections-assistant");
+
+    await page.goto("/ja/apis");
+    const ads = page.locator("li").filter({ has: page.getByRole("heading", { name: "Google Ads API" }) });
+    await expect(ads.getByRole("link", { name: "Google Ads 運用チェック" })).toHaveAttribute(
+      "href",
+      "/ja/blueprints/google-ads-performance-coach",
+    );
+    await expect(page.getByRole("heading", { name: /LinkedIn/ })).toHaveCount(0);
+
+    await page.goto("/ja/data-sources");
+    const cards = page.locator("li").filter({ has: page.getByRole("heading", { name: "カード明細" }) });
+    await expect(cards.getByRole("link", { name: "経費の定期点検" })).toHaveAttribute(
+      "href",
+      "/ja/blueprints/ai-expense-watchdog",
+    );
+    const invoices = page.locator("li").filter({ has: page.getByRole("heading", { name: "請求書" }) });
+    await expect(invoices.getByRole("link", { name: "入金フォローの下書き" })).toBeVisible();
+    const shifts = page.locator("li").filter({ has: page.getByRole("heading", { name: "シフト" }) });
+    await expect(shifts.getByRole("link", { name: "シフト過不足チェック" })).toHaveAttribute(
+      "href",
+      "/ja/blueprints/ai-staffing-optimizer",
+    );
+    await expect(page.getByRole("heading", { name: "LinkedInプロフィール" })).toHaveCount(0);
   });
 
   test("an auth callback without a code keeps the Japanese next path", async ({ page }) => {
