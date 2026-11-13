@@ -17,7 +17,7 @@ import { commerceScopeForUiLocale, formatCheckoutPrice, previewCommerceScope } f
 import { LIVE_STRIPE_PROVISIONING_BLOCKED, provisionSandboxProduct } from "./provision";
 import { getPaidProduct, productCommercePaths } from "./products";
 import { mappingKey, mergeRegistryProducts, resolveTrustedPriceId } from "./registry";
-import { isLiveStripeKey } from "./stripe-mode";
+import { envForStripeCredential, isLiveStripeKey, stripeRuntimeMode } from "./stripe-mode";
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -144,11 +144,33 @@ test("paid checkout grants the canonical slug and an owned buyer is not sent to 
 test("launch provisioning stays in sandbox and does not create a live price", async () => {
   const stripeServer = readFileSync("src/lib/stripe/server.ts", "utf8");
   assert.match(stripeServer, /environment: "SANDBOX"/);
-  assert.match(stripeServer, /stripeRuntimeMode\(\) === "live"/);
-  assert.match(stripeServer, /STRIPE_SECRET_KEY_JP_LIVE/);
+  assert.match(stripeServer, /serverCommerceEnv/);
+  assert.match(stripeServer, /env\.STRIPE_SECRET_KEY/);
+  assert.equal(stripeServer.includes("STRIPE_SECRET_KEY_JP_LIVE"), false);
   assert.equal(stripeServer.includes("STRIPE_SECRET_KEY_US_LIVE"), false);
   assert.equal(isLiveStripeKey("sk_test_not_live"), false);
+  assert.equal(isLiveStripeKey("rk_test_not_live"), false);
   assert.equal(isLiveStripeKey("sk_live_example"), true);
+  assert.equal(isLiveStripeKey("rk_live_example"), true);
+  assert.equal(stripeRuntimeMode(envForStripeCredential({}, "rk_live_example")), "live");
+  assert.equal(stripeRuntimeMode(envForStripeCredential({}, "sk_live_example")), "live");
+  assert.equal(stripeRuntimeMode(envForStripeCredential({}, "sk_test_example")), "sandbox");
+  assert.equal(stripeRuntimeMode(envForStripeCredential({ ATLAS_STRIPE_MODE: "sandbox" }, "rk_live_example")), "sandbox");
+  const liveCredential = envForStripeCredential({}, "rk_live_example");
+  assert.deepEqual(commerceScopeForUiLocale("ja", liveCredential), {
+    market: "JP",
+    locale: "ja",
+    currency: "jpy",
+    stripe_environment: "LIVE",
+  });
+  assert.deepEqual(commerceScopeForUiLocale("en", liveCredential), {
+    market: "JP",
+    locale: "en",
+    currency: "usd",
+    stripe_environment: "LIVE",
+  });
+  const checkout = readFileSync("src/lib/payments/start-checkout.ts", "utf8");
+  assert.match(checkout, /serverCommerceEnv/);
   const success = readFileSync("app/blueprints/[slug]/checkout/success/page.tsx", "utf8");
   assert.match(success, /hasActiveEntitlement/);
   assert.doesNotMatch(success, /grantCheckoutSession|upsertEntitlement/);

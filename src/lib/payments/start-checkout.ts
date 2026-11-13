@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getStripe } from "@/src/lib/stripe/server";
+import { getStripe, serverCommerceEnv } from "@/src/lib/stripe/server";
 import { buildCheckoutSessionCreateParams } from "./checkout-session";
 import { loadRegistryProducts } from "./load-registry";
 import { commerceScopeForUiLocale, formatCheckoutPrice, parseUiLocale, previewCommerceScope, type UiCommerceLocale } from "./preview-market";
@@ -17,7 +17,8 @@ export async function loadPreviewPriceLabel(
   productSlug: string,
   uiLocale: UiCommerceLocale | null = null,
 ): Promise<string | null> {
-  const scope = uiLocale ? commerceScopeForUiLocale(uiLocale) : previewCommerceScope();
+  const env = serverCommerceEnv();
+  const scope = uiLocale ? commerceScopeForUiLocale(uiLocale, env) : previewCommerceScope(env);
   if (!scope) return null;
   const products = await loadRegistryProducts();
   const row = findRegistryMapping(products, { product_slug: productSlug, ...scope });
@@ -35,7 +36,8 @@ export async function createHostedCheckoutUrl(input: {
   uiLocale?: UiCommerceLocale | null;
 }): Promise<string> {
   const uiLocale = parseUiLocale(input.uiLocale);
-  const scope = uiLocale ? commerceScopeForUiLocale(uiLocale) : previewCommerceScope();
+  const env = serverCommerceEnv();
+  const scope = uiLocale ? commerceScopeForUiLocale(uiLocale, env) : previewCommerceScope(env);
   if (!scope) throw new CheckoutUnavailable();
   const products = await loadRegistryProducts();
   const resolved = resolveTrustedPriceId(input.productSlug, {
