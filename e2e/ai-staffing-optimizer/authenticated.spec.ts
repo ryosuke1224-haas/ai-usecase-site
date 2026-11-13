@@ -327,7 +327,7 @@ test.describe("Shift Coverage vs Demand Check without a premium entitlement", ()
         name: "Shift Coverage vs Demand Check",
       }),
     });
-    await expect(card.getByRole("link", { name: "Private preview" })).toHaveAttribute(
+    await expect(card.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
       "href",
       DEMO_PATH,
     );

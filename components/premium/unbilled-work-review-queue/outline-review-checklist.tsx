@@ -5,13 +5,24 @@ import { REVIEW_CHECKLIST_ITEMS } from "@/src/lib/premium/unbilled-work-review-q
 import { FOCUS_RING, SECONDARY_BUTTON } from "./styles";
 import { useHydrated } from "./use-hydrated";
 
-export function OutlineReviewChecklist() {
-  const [checked, setChecked] = useState<boolean[]>(() =>
-    REVIEW_CHECKLIST_ITEMS.map(() => false),
-  );
+type OutlineReviewChecklistProps = {
+  items?: readonly string[];
+  checkedLabel?: string;
+  resetLabel?: string;
+  completeLabel?: string;
+};
+
+export function OutlineReviewChecklist({
+  items = REVIEW_CHECKLIST_ITEMS,
+  checkedLabel = "Checked {done} of {total}",
+  resetLabel = "Reset checklist",
+  completeLabel =
+    "Review complete for this export. Reset the checklist before you review the next run. You still create, hold, or write off each invoice in your own tool.",
+}: OutlineReviewChecklistProps = {}) {
+  const [checked, setChecked] = useState<boolean[]>(() => items.map(() => false));
   const hydrated = useHydrated();
   const completed = checked.filter(Boolean).length;
-  const total = REVIEW_CHECKLIST_ITEMS.length;
+  const total = items.length;
 
   function toggle(index: number) {
     setChecked((current) =>
@@ -23,19 +34,19 @@ export function OutlineReviewChecklist() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p role="status" className="text-sm font-medium text-foreground">
-          Checked {completed} of {total}
+          {checkedLabel.replaceAll("{done}", String(completed)).replaceAll("{total}", String(total))}
         </p>
         <button
           type="button"
-          onClick={() => setChecked(REVIEW_CHECKLIST_ITEMS.map(() => false))}
+          onClick={() => setChecked(items.map(() => false))}
           disabled={!hydrated}
           className={SECONDARY_BUTTON}
         >
-          Reset checklist
+          {resetLabel}
         </button>
       </div>
       <ul className="space-y-2">
-        {REVIEW_CHECKLIST_ITEMS.map((item, index) => (
+        {items.map((item, index) => (
           <li key={item}>
             <label
               className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-colors ${
@@ -46,7 +57,7 @@ export function OutlineReviewChecklist() {
             >
               <input
                 type="checkbox"
-                checked={checked[index]}
+                checked={checked[index] === true}
                 onChange={() => toggle(index)}
                 disabled={!hydrated}
                 className={`mt-1 size-4 shrink-0 rounded border-border accent-[var(--accent)] ${FOCUS_RING}`}
@@ -58,9 +69,7 @@ export function OutlineReviewChecklist() {
       </ul>
       {completed === total ? (
         <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-300">
-          Review complete for this export. Reset the checklist before you review
-          the next run. You still create, hold, or write off each invoice in
-          your own tool.
+          {completeLabel}
         </p>
       ) : null}
     </div>

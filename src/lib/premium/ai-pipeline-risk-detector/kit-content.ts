@@ -1,4 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
 import { secondaryPromptSetupStep } from "@/src/lib/premium/shared/setup-checklist";
+import { pipelineCopy } from "./copy";
 
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
@@ -171,20 +173,38 @@ function formatSkipStatuses(statuses: string[]): string {
   return `Skip ${head}, and ${statuses[statuses.length - 1]}.`;
 }
 
-export function generateStallRules(input: StallRulesInput): RulesResult {
+export function generateStallRules(
+  input: StallRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
+  const ja = locale === "ja" ? pipelineCopy("ja") : null;
   const stageLimit = parsePositiveLimit(input.daysInStageLimit);
   const activityLimit = parsePositiveLimit(input.daysSinceActivityLimit);
   if (stageLimit === null || activityLimit === null) {
-    return { ok: false, errors: [STALL_LIMIT_ERROR] };
+    return { ok: false, errors: [ja?.stallLimitError ?? STALL_LIMIT_ERROR] };
   }
 
   const amount = parseNonNegativeAmount(input.ownerMinimum);
   if (amount === null) {
-    return { ok: false, errors: [MINIMUM_AMOUNT_ERROR] };
+    return { ok: false, errors: [ja?.minimumAmountError ?? MINIMUM_AMOUNT_ERROR] };
   }
 
   const neverChase = linesOf(input.neverChaseStatuses);
   const skipList = linesOf(input.alwaysSkip);
+
+  if (ja) {
+    return {
+      ok: true,
+      rules: ja.reviewRules({
+        daysInStageLimit: stageLimit,
+        daysSinceActivityLimit: activityLimit,
+        ownerMinimum: amount,
+        neverChaseStatuses: neverChase,
+        alwaysSkip: skipList,
+      }),
+    };
+  }
+
   const lines = [
     ...(neverChase.length > 0 ? [formatSkipStatuses(neverChase)] : []),
     `Skip amounts below $${amount}.`,

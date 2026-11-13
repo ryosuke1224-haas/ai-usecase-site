@@ -3,6 +3,8 @@ import { expectAuthNext, expectNoHorizontalOverflow } from "../support/navigatio
 import {
   DEMO_PATH,
   FORBIDDEN_COPY,
+  JA_DEMO_PATH,
+  JA_KIT_PATH,
   KIT_PATH,
   demoRegion,
   loadWinbackSpec,
@@ -202,10 +204,12 @@ test.describe("Lapsed Customer Return Queue public demo", () => {
     await page.goto(DEMO_PATH);
     await expect(page.getByRole("button", { name: "Buy Premium" })).toHaveCount(0);
     await expect(page.locator("form[action*='pay'], form[action*='checkout']")).toHaveCount(0);
+    await expect(page.getByText("$49", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Sign in to purchase", exact: true })).toBeVisible();
     for (let step = 1; step <= TOTAL_STEPS; step += 1) {
       if (step > 1) await page.getByRole("button", { name: "Next step" }).click();
       await expect(stepLabel(page, step)).toBeVisible();
-      const text = await page.locator("body").innerText();
+      const text = await demoRegion(page).innerText();
       expect(text).not.toMatch(FORBIDDEN_COPY);
     }
   });
@@ -224,5 +228,61 @@ test.describe("Lapsed Customer Return Queue public demo", () => {
   }) => {
     await page.goto(KIT_PATH);
     await expectAuthNext(page, KIT_PATH);
+  });
+});
+
+test.describe("Lapsed Customer Return Queue Japanese public demo", () => {
+  test("Japanese demo uses the launch labels and keeps skip rules first", async ({ page }) => {
+    await page.goto(JA_DEMO_PATH);
+    await expect(page).not.toHaveURL(/\/auth/);
+    await expect(page.getByRole("heading", { level: 1, name: "久々のお客様の再来案内" })).toBeVisible();
+    await expect(page.getByText("プライベートプレビュー", { exact: true })).toBeVisible();
+    await expect(page.getByText("確認済み", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("要確認", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("AIの解釈", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("推奨アクション", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("自動では送信しません。").first()).toBeVisible();
+    const robots = await page.locator('meta[name="robots"]').getAttribute("content");
+    expect(robots).toContain("noindex");
+    expect(robots).toContain("nofollow");
+  });
+
+  test("Japanese demo keeps the canonical rows and links to the Japanese kit", async ({ page }) => {
+    await page.goto(JA_DEMO_PATH);
+    const table = page.getByRole("table", { name: "顧客の書き出し" });
+    await expect(table.locator("tbody tr")).toHaveCount(8);
+    await expect(table.getByText("J. Rivera", { exact: true }).first()).toBeVisible();
+    const next = page.getByRole("button", { name: "次へ" });
+    await expect(next).toBeEnabled();
+    await next.click();
+    await expect(page.getByText("ステップ 2 / 6", { exact: true })).toBeVisible();
+    await expect(page.getByText("先にスキップルール").first()).toBeVisible();
+    await expect(page.getByText(/離脱日より後に来た人は対象にしないでください/).first()).toBeVisible();
+    for (let step = 2; step < TOTAL_STEPS; step += 1) await next.click();
+    await expect(page.getByText("ステップ 6 / 6", { exact: true })).toBeVisible();
+    await expect(page.getByText("オファーリストにない割引は作らないでください。").first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /プライベートプレビュー/ })).toHaveAttribute(
+      "href",
+      JA_KIT_PATH,
+    );
+  });
+
+  test("Japanese demo does not scroll sideways", async ({ page }) => {
+    await page.goto(JA_DEMO_PATH);
+    const next = page.getByRole("button", { name: "次へ" });
+    await expect(next).toBeEnabled();
+    for (let step = 1; step <= TOTAL_STEPS; step += 1) {
+      if (step > 1) await next.click();
+      await expect(page.getByText(`ステップ ${step} / ${TOTAL_STEPS}`, { exact: true })).toBeVisible();
+      await expectNoHorizontalOverflow(page);
+    }
+  });
+
+  test("logged-out Japanese kit access redirects to Japanese auth", async ({ page }) => {
+    await page.goto(JA_KIT_PATH);
+    await expect(page).toHaveURL(/\/ja\/auth\?/);
+    const url = new URL(page.url());
+    expect(url.pathname).toBe("/ja/auth");
+    expect(url.searchParams.get("next")).toBe(JA_KIT_PATH);
   });
 });

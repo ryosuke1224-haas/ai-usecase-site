@@ -29,7 +29,7 @@ const sessionOnlyNotice =
 
 export const japaneseNoShowCopy: NoShowCopy = {
   publicEyebrow: "プライベートプレビュー",
-  publicTitle: "無断キャンセルの再予約",
+  publicTitle: "無断キャンセル再予約",
   publicBody:
     "来なかった予約を確認し、空いている枠で再予約の文面を1通下書きします。SMSは sms_consent が yes、contact_pref が sms のときだけ下書きします。メールの同意は SMS の同意を意味しません。sms_consent が no または空欄なら、SMSは下書きしません。送るかどうかは人が決めます。自動では送信しません。",
   labelsTitle: "ラベルの意味",
@@ -288,7 +288,7 @@ AIの解釈: 到着時刻がないときの遅刻などの推測。事実とし�
     "基準に達した繰り返しは、自動で下書きせず方針確認にした。",
     "宛先は自分の連絡先から選び、自分のSMSかメールから自分が送る。自動では送信しません。キットは何も変更しない。",
   ],
-  checkedLabel: (done, total) => `チェック ${done} / ${total}`,
+  checkedLabel: "チェック {done} / {total}",
   resetChecklist: "チェックを外す",
   reviewComplete:
     "この回の確認は終わりです。次の前にチェックを外してください。送るかは、まだ人が決めます。自動では送信しません。",

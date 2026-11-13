@@ -1,3 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { staffingCopy } from "./copy";
+
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
 
@@ -157,10 +160,17 @@ function linesOf(value: string): string[] {
     .filter(Boolean);
 }
 
-export function generateStaffingRules(input: StaffingRulesInput): RulesResult {
+export function generateStaffingRules(
+  input: StaffingRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
   const errors: string[] = [];
   const minimumStaff = parsePositiveInt(input.minimumStaff);
-  if (minimumStaff === null) errors.push(MINIMUM_STAFF_ERROR);
+  if (minimumStaff === null) {
+    errors.push(
+      locale === "ja" ? staffingCopy("ja").minimumStaffError : MINIMUM_STAFF_ERROR,
+    );
+  }
 
   const targetLow = parseNonNegativeNumber(input.targetLow);
   const targetHigh = parseNonNegativeNumber(input.targetHigh);
@@ -169,7 +179,9 @@ export function generateStaffingRules(input: StaffingRulesInput): RulesResult {
     targetHigh === null ||
     targetLow > targetHigh
   ) {
-    errors.push(TARGET_RANGE_ERROR);
+    errors.push(
+      locale === "ja" ? staffingCopy("ja").targetRangeError : TARGET_RANGE_ERROR,
+    );
   }
 
   if (errors.length > 0 || minimumStaff === null || targetLow === null || targetHigh === null) {
@@ -180,6 +192,21 @@ export function generateStaffingRules(input: StaffingRulesInput): RulesResult {
   const flagM = input.flagM.trim() || "4";
   const protectedRoles = linesOf(input.protectedRoles);
   const nonSales = linesOf(input.nonSalesDayParts);
+
+  if (locale === "ja") {
+    return {
+      ok: true,
+      rules: staffingCopy("ja").reviewRules({
+        minimumStaff: input.minimumStaff.trim(),
+        targetLow: input.targetLow.trim(),
+        targetHigh: input.targetHigh.trim(),
+        flagN,
+        flagM,
+        protectedRoles,
+        nonSalesDayParts: nonSales,
+      }),
+    };
+  }
 
   const lines = [
     `Minimum staff on floor: ${input.minimumStaff.trim()}.`,

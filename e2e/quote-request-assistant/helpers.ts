@@ -3,6 +3,8 @@ import { loadProductSpec } from "../support/product-spec";
 
 export const DEMO_PATH = "/blueprints/quote-request-assistant";
 export const KIT_PATH = "/blueprints/quote-request-assistant/kit";
+export const JA_DEMO_PATH = "/ja/blueprints/quote-request-assistant";
+export const JA_KIT_PATH = "/ja/blueprints/quote-request-assistant/kit";
 
 export const FORBIDDEN_COPY =
   /checkout|buy now|purchase|Buy Premium|\/month|per month|\d+%|ROI|hours saved/i;

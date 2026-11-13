@@ -2,6 +2,7 @@ import {
   COLLECTIONS_DEMO_PATH,
   COLLECTIONS_KIT_PATH,
 } from "@/src/lib/premium/ai-collections-assistant/demo-data";
+import { LAUNCH_PRODUCTS } from "./launch-catalog";
 
 export { COLLECTIONS_DEMO_PATH, COLLECTIONS_KIT_PATH };
 
@@ -14,10 +15,19 @@ export const COLLECTIONS_SUCCESS_PATH =
 export type PaidProduct = {
   slug: string;
   accessType: "lifetime";
-  priceEnv: "STRIPE_PRICE_AI_COLLECTIONS_ASSISTANT";
+  priceEnv?: "STRIPE_PRICE_AI_COLLECTIONS_ASSISTANT";
   successPath: string;
   cancelPath: string;
 };
+
+function launchPaidProduct(slug: string): PaidProduct {
+  return {
+    slug,
+    accessType: "lifetime",
+    successPath: `/blueprints/${slug}/checkout/success`,
+    cancelPath: `/blueprints/${slug}`,
+  };
+}
 
 const PAID_PRODUCTS: Record<string, PaidProduct> = {
   [COLLECTIONS_PRODUCT_SLUG]: {
@@ -29,6 +39,25 @@ const PAID_PRODUCTS: Record<string, PaidProduct> = {
   },
 };
 
+for (const item of LAUNCH_PRODUCTS) {
+  PAID_PRODUCTS[item.slug] = launchPaidProduct(item.slug);
+}
+
 export function getPaidProduct(slug: string): PaidProduct | undefined {
   return PAID_PRODUCTS[slug];
+}
+
+/** Unprefixed paths stay English. `/ja` and `/en` keep the same product slug. */
+export function productCommercePaths(
+  slug: string,
+  locale: "ja" | "en" | null,
+): { demo: string; kit: string; success: string } | null {
+  const product = getPaidProduct(slug);
+  if (!product) return null;
+  const prefix = locale ? `/${locale}` : "";
+  return {
+    demo: `${prefix}${product.cancelPath}`,
+    kit: `${prefix}/blueprints/${product.slug}/kit`,
+    success: `${prefix}${product.successPath}`,
+  };
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { staffingCopy } from "@/src/lib/premium/ai-staffing-optimizer/copy";
 import {
   ExportsStep,
   FactCheckStep,
@@ -9,25 +11,42 @@ import {
   RecommendationStep,
   YouEditStep,
 } from "./demo-steps";
+import {
+  JaExportsStep,
+  JaFactCheckStep,
+  JaFlagsStep,
+  JaOwnerRulesStep,
+  JaRecommendationStep,
+  JaYouEditStep,
+} from "./ja-demo-steps";
 import { FOCUS_RING, PRIMARY_BUTTON, SECONDARY_BUTTON } from "./styles";
+import { HydrationStatus } from "../shared/hydration-status";
 import { useHydrated } from "./use-hydrated";
 
-const STEPS: { title: string; Content: ComponentType }[] = [
-  { title: "The exports", Content: ExportsStep },
-  { title: "OWNER RULES FIRST", Content: OwnerRulesStep },
-  { title: "Day-by-hour grid and flags", Content: FlagsStep },
-  { title: "Check one flagged block", Content: FactCheckStep },
-  { title: "Coverage-safe recommendation and re-check", Content: RecommendationStep },
-  { title: "You edit the schedule", Content: YouEditStep },
+const ENGLISH_STEPS: ComponentType[] = [
+  ExportsStep,
+  OwnerRulesStep,
+  FlagsStep,
+  FactCheckStep,
+  RecommendationStep,
+  YouEditStep,
 ];
 
-export function GuidedDemo() {
+export function GuidedDemo({
+  locale = "en",
+  pathLocale = null,
+}: {
+  locale?: UiLocale;
+  pathLocale?: UiLocale | null;
+}) {
+  const copy = staffingCopy(locale);
   const [index, setIndex] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const movedByUser = useRef(false);
   const hydrated = useHydrated();
-  const total = STEPS.length;
-  const { title, Content } = STEPS[index];
+  const total = ENGLISH_STEPS.length;
+  const title = copy.stepTitles[index] ?? "";
+  const EnglishStep = ENGLISH_STEPS[index] ?? ExportsStep;
 
   useEffect(() => {
     if (movedByUser.current) headingRef.current?.focus();
@@ -39,11 +58,12 @@ export function GuidedDemo() {
   }
 
   return (
-    <section aria-label="Guided demo" className="min-w-0 rounded-2xl border border-border/60 bg-surface/50 p-4 sm:p-6">
+    <section aria-label={copy.demoAria} className="min-w-0 rounded-2xl border border-border/60 bg-surface/50 p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p aria-live="polite" className="text-sm font-semibold text-foreground">
-          Step {index + 1} of {total}
+          {copy.stepLabel(index + 1, total)}
         </p>
+        <HydrationStatus hydrated={hydrated} />
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -51,7 +71,7 @@ export function GuidedDemo() {
             onClick={() => goTo(index - 1)}
             disabled={!hydrated || index === 0}
           >
-            Previous step
+            {copy.previousStep}
           </button>
           <button
             type="button"
@@ -59,14 +79,14 @@ export function GuidedDemo() {
             onClick={() => goTo(index + 1)}
             disabled={!hydrated || index === total - 1}
           >
-            Next step
+            {copy.nextStep}
           </button>
         </div>
       </div>
       <div aria-hidden="true" className="mt-3 grid grid-cols-6 gap-1">
-        {STEPS.map((step, stepIndex) => (
+        {copy.stepTitles.map((stepTitle, stepIndex) => (
           <span
-            key={step.title}
+            key={stepTitle}
             className={`h-1.5 rounded-full ${stepIndex <= index ? "bg-accent" : "bg-border"}`}
           />
         ))}
@@ -81,9 +101,22 @@ export function GuidedDemo() {
           {title}
         </h2>
         <div className="mt-4">
-          <Content />
+          {locale === "ja" ? (
+            <JapaneseStep index={index} pathLocale={pathLocale ?? "ja"} />
+          ) : (
+            <EnglishStep />
+          )}
         </div>
       </div>
     </section>
   );
+}
+
+function JapaneseStep({ index, pathLocale }: { index: number; pathLocale: UiLocale | null }) {
+  if (index === 1) return <JaOwnerRulesStep />;
+  if (index === 2) return <JaFlagsStep />;
+  if (index === 3) return <JaFactCheckStep />;
+  if (index === 4) return <JaRecommendationStep />;
+  if (index === 5) return <JaYouEditStep pathLocale={pathLocale} />;
+  return <JaExportsStep />;
 }

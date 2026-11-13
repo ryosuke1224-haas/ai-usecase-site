@@ -7,13 +7,16 @@ import { CONTACT_EMAIL } from "@/src/lib/site";
 export const KNOWN_SUPPORT_EMAIL = CONTACT_EMAIL;
 
 export const JAPAN_PRODUCT_PRICE = "4,900円";
+export const JAPAN_BLUEPRINT_PRICE = "7,980円";
+export const US_BLUEPRINT_PRICE = "$49";
 
+/** Collections purchase panel. `price` is only the Collections price. */
 export const japanPurchaseDisclosure = {
   product: "AI Collections Assistant",
   quantity: "1件の買い切り",
   price: JAPAN_PRODUCT_PRICE,
   total: `${JAPAN_PRODUCT_PRICE}・買い切り`,
-  totalBody: `この ${JAPAN_PRODUCT_PRICE} が、AI Use Case Atlas を通じてお支払いいただく代金の総額です。`,
+  totalBody: `この ${JAPAN_PRODUCT_PRICE} が、AI Collections Assistant について AI Use Case Atlas を通じてお支払いいただく代金です。`,
   availability: "決済確認後、すぐに利用できます。",
   refundNotice: "デジタル商品のため、利用開始後のお客様都合による返金は原則としてお受けしていません。",
   payment: "支払いは Stripe の決済画面で完了した時点で確定します。カード情報は AI Use Case Atlas のサーバーには保存しません。",
@@ -27,7 +30,7 @@ export const japanPurchaseDisclosure = {
 export const japanSupportTopics = [
   {
     title: "購入後に開けないとき",
-    body: "ログインに使ったメールアドレスと、商品名 AI Collections Assistant を書いて送ってください。",
+    body: "ログインに使ったメールアドレスと、商品名を書いて送ってください。",
   },
   {
     title: "重複した支払い",
@@ -43,7 +46,7 @@ export const japanSupportTopics = [
   },
   {
     title: "商品についての質問",
-    body: `AI Collections Assistantは、未回収・入金遅延の請求を整理し、フォローアップを支援するAI活用テンプレートです。代金は ${JAPAN_PRODUCT_PRICE} の買い切りです。`,
+    body: `AI Collections Assistant は ${JAPAN_PRODUCT_PRICE} の買い切りです。プレミアムAI活用テンプレートは、1件 ${JAPAN_BLUEPRINT_PRICE} の買い切りです。販売価格は各商品ページに表示します。`,
   },
 ] as const;
 
@@ -61,8 +64,10 @@ export type LegalDocument = {
   sections: LegalSection[];
 };
 
-const priceNote = `AI Collections Assistantは、${JAPAN_PRODUCT_PRICE}の買い切り商品です。この${JAPAN_PRODUCT_PRICE}が、AI Use Case Atlasを通じてお支払いいただく代金の総額です。別途の販売手数料はかかりません。`;
-const tokushoPriceNote = `AI Collections Assistantは、${JAPAN_PRODUCT_PRICE}の買い切り商品です。お支払いいただく総額は${JAPAN_PRODUCT_PRICE}です。当サイトから別途手数料を加算することはありません。`;
+const priceOnPage = "販売価格は各商品ページに表示します。表示された金額が、その商品について AI Use Case Atlas を通じてお支払いいただく代金です。";
+const japanPriceExamples = `AI Collections Assistant は ${JAPAN_PRODUCT_PRICE} の買い切りです。プレミアムAI活用テンプレートは、1件 ${JAPAN_BLUEPRINT_PRICE} の買い切りです。`;
+const usBlueprintPriceNote = `英語の商品ページに表示するプレミアムAI活用テンプレートの価格は、1件 ${US_BLUEPRINT_PRICE} の買い切りです。`;
+const tokushoPriceNote = "販売価格は各商品ページに表示します。表示された金額が、その商品についてお支払いいただく代金です。当サイトから別途手数料を加算することはありません。";
 
 export const legalDocuments: Record<LegalDocument["slug"], LegalDocument> = {
   tokusho: {
@@ -81,7 +86,7 @@ export const legalDocuments: Record<LegalDocument["slug"], LegalDocument> = {
         heading: "お問い合わせ先",
         body: [`メール: ${KNOWN_SUPPORT_EMAIL}`],
       },
-      { heading: "販売価格", body: [tokushoPriceNote] },
+      { heading: "販売価格", body: [tokushoPriceNote, japanPriceExamples] },
       {
         heading: "商品代金以外に必要な料金",
         body: [
@@ -103,7 +108,10 @@ export const legalDocuments: Record<LegalDocument["slug"], LegalDocument> = {
       },
       {
         heading: "商品提供時期",
-        body: ["決済確認後、原則として直ちに購入したアカウントへ利用権を付与します。"],
+        body: [
+          "決済確認後、原則として直ちに購入したアカウントへ利用権を付与します。",
+          "プレミアムAI活用テンプレートは、同じ利用権でその商品の日本語版と英語版を開けます。",
+        ],
       },
       {
         heading: "返品・キャンセル・返金",
@@ -117,8 +125,8 @@ export const legalDocuments: Record<LegalDocument["slug"], LegalDocument> = {
         heading: "動作環境 / デジタル商品の提供条件",
         body: [
           "最新のデスクトップまたはモバイルブラウザと、ログインできるメールアドレスが必要です。",
-          "AI Collections Assistantは、請求内容を人が確認して使うテンプレートです。メールの自動送信は行いません。",
-          "商品はブラウザ上で提供します。",
+          "商品はブラウザ上で提供するデジタルコンテンツです。手順、プロンプト、整理、案内、確認の候補を示します。重要な内容はご自身で確認してください。",
+          "商品が明示していない限り、メールの自動送信や、外部の業務操作を自動では行いません。",
         ],
       },
     ],
@@ -145,17 +153,20 @@ export const legalDocuments: Record<LegalDocument["slug"], LegalDocument> = {
       {
         heading: "有料コンテンツ",
         body: [
-          priceNote,
-          "利用権は、お支払いを確認したアカウントに 1 件付与します。別の人への共有や転売は想定していません。",
+          priceOnPage,
+          "別途の販売手数料はかかりません。",
+          japanPriceExamples,
+          usBlueprintPriceNote,
+          "利用権は、お支払いを確認したアカウントに、購入した商品ごとに付与します。プレミアムAI活用テンプレートは、同じ利用権でその商品の日本語版と英語版を開けます。別の人への共有や転売は想定していません。",
           "手順の実行、送信、数値の確認は、ご自身で行ってください。",
         ],
       },
       {
         heading: "AIが生成する内容",
         body: [
-          "テンプレートが示す文章や整理結果は、AIが生成することがあります。その内容は不正確な場合や、不足している場合があります。",
+          "テンプレートが示す文章、手順、整理結果、案内、確認の候補は、AIが生成することがあります。その内容は不正確な場合や、不足している場合があります。",
           "金額、顧客への連絡、契約、請求など重要な出力は、業務で使う前にご自身で確認してください。",
-          "AI Use Case Atlas は、メールその他の連絡を自動では送りません。",
+          "商品が明示していない限り、メールその他の連絡を自動では送りません。外部の業務操作も、商品が明示していない限り自動では行いません。",
         ],
       },
       {
@@ -288,7 +299,7 @@ export const legalDocuments: Record<LegalDocument["slug"], LegalDocument> = {
       {
         heading: "利用権の付与後",
         body: [
-          "AI Collections Assistant は、決済確認後に購入したアカウントへ利用権を付与するデジタル商品です。",
+          "有料のデジタル商品は、決済確認後に購入したアカウントへ利用権を付与します。",
           "利用権の付与後は、お客様都合によるキャンセルおよび返金は原則としてお受けしません。",
         ],
       },

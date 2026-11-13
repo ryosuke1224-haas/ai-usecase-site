@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/src/lib/supabase/server";
+import { authPageForNext } from "@/src/lib/auth-redirect";
 import {
   DAILY_INBOX_STARTER_KIT_PATH,
   sanitizeNextPath,
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
     }
   }
 
-  const failure = new URL("/auth", origin);
+  const failure = new URL(authPageForNext(next), origin);
   failure.searchParams.set("next", next);
   failure.searchParams.set("error", "auth");
   return NextResponse.redirect(failure);

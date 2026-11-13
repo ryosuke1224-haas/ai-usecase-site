@@ -1,4 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
 import { secondaryPromptSetupStep } from "@/src/lib/premium/shared/setup-checklist";
+import { adsCopy } from "./copy";
 
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
@@ -142,15 +144,33 @@ export type RulesResult =
   | { ok: true; rules: string }
   | { ok: false; errors: string[] };
 
-export function generateMeasurementRules(input: MeasurementRulesInput): RulesResult {
+export function generateMeasurementRules(
+  input: MeasurementRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
   if (!input.qualifiedOutcome.trim()) {
-    return { ok: false, errors: [QUALIFIED_OUTCOME_ERROR] };
+    return {
+      ok: false,
+      errors: [locale === "ja" ? adsCopy("ja").qualifiedOutcomeError : QUALIFIED_OUTCOME_ERROR],
+    };
   }
 
   const skipCampaigns = input.outOfScope
     .split(/\r?\n/)
     .map((name) => name.trim())
     .filter(Boolean);
+
+  if (locale === "ja") {
+    return {
+      ok: true,
+      rules: adsCopy("ja").reviewRules({
+        qualifiedOutcome: input.qualifiedOutcome,
+        pageViewDoesNotCount: input.pageViewDoesNotCount,
+        addToCartDoesNotCount: input.addToCartDoesNotCount,
+        outOfScope: skipCampaigns,
+      }),
+    };
+  }
 
   const lines = [
     `Qualified outcome: ${input.qualifiedOutcome.trim()}.`,

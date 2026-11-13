@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { proposalCopy } from "@/src/lib/premium/ai-proposal-follow-up-assistant/copy";
 import {
   DEFAULT_RULES_INPUT,
   generateSilenceRules,
@@ -8,13 +10,15 @@ import {
 } from "@/src/lib/premium/ai-proposal-follow-up-assistant/kit-content";
 import { CopyButton } from "./copy-button";
 import { FOCUS_RING, PRE_BLOCK, PRIMARY_BUTTON } from "./styles";
+import { HydrationStatus } from "../shared/hydration-status";
 import { useHydrated } from "./use-hydrated";
 
 const FIELD =
   `mt-1 block w-full max-w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground ${FOCUS_RING}`;
 const FIELD_LABEL = "block text-sm font-medium text-foreground";
 
-export function RulesWorksheet() {
+export function RulesWorksheet({ locale = "en" }: { locale?: UiLocale }) {
+  const copy = locale === "ja" ? proposalCopy("ja") : null;
   const [values, setValues] = useState<SilenceRulesInput>(DEFAULT_RULES_INPUT);
   const [errors, setErrors] = useState<string[]>([]);
   const [rules, setRules] = useState<string | null>(null);
@@ -34,7 +38,7 @@ export function RulesWorksheet() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = generateSilenceRules(values);
+    const result = generateSilenceRules(values, locale);
     if (result.ok) {
       setErrors([]);
       setInputsChanged(false);
@@ -50,11 +54,12 @@ export function RulesWorksheet() {
 
   return (
     <div className="space-y-5">
+      <HydrationStatus hydrated={hydrated} />
       <form onSubmit={handleSubmit} noValidate>
         <fieldset disabled={!hydrated} className="min-w-0 space-y-4">
           <div>
             <label htmlFor={`${baseId}-silence`} className={FIELD_LABEL}>
-              Silence if sent before (YYYY-MM-DD)
+              {copy?.silenceDateLabel ?? "Silence if sent before (YYYY-MM-DD)"}
             </label>
             <input
               id={`${baseId}-silence`}
@@ -69,7 +74,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-minimum`} className={FIELD_LABEL}>
-              Owner minimum amount (USD)
+              {copy?.minimumAmountLabel ?? "Owner minimum amount (USD)"}
             </label>
             <input
               id={`${baseId}-minimum`}
@@ -83,7 +88,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-never-chase`} className={FIELD_LABEL}>
-              Statuses that are never chased (one per line)
+              {copy?.neverChaseLabel ?? "Statuses that are never chased (one per line)"}
             </label>
             <textarea
               id={`${baseId}-never-chase`}
@@ -95,7 +100,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-cadence`} className={FIELD_LABEL}>
-              Cadence ladder
+              {copy?.cadenceLabel ?? "Cadence ladder"}
             </label>
             <textarea
               id={`${baseId}-cadence`}
@@ -115,23 +120,28 @@ export function RulesWorksheet() {
             </div>
           ) : null}
           <button type="submit" className={PRIMARY_BUTTON}>
-            Generate My Silence Rules
+            {copy?.generateRules ?? "Generate My Silence Rules"}
           </button>
         </fieldset>
       </form>
 
       {inputsChanged ? (
         <p className="text-sm leading-relaxed text-foreground">
-          Inputs changed. Generate again before you copy the rules.
+          {copy?.inputsChanged ?? "Inputs changed. Generate again before you copy the rules."}
         </p>
       ) : null}
       {rules ? (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold tracking-tight text-foreground">
-            Your silence rules
+            {copy?.rulesTitle ?? "Your silence rules"}
           </h3>
           <pre className={PRE_BLOCK}>{rules}</pre>
-          <CopyButton text={rules} label="Copy rules" />
+          <CopyButton
+            text={rules}
+            label={copy?.copyRules ?? "Copy rules"}
+            copiedLabel={copy?.copied}
+            errorLabel={copy?.copyFailed}
+          />
         </div>
       ) : null}
     </div>

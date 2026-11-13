@@ -11,7 +11,7 @@ import { noShowCopy } from "@/src/lib/premium/no-show-recovery-assistant/copy";
 
 export const dynamic = "force-dynamic";
 
-const PAGE = "mx-auto w-full min-w-0 max-w-4xl overflow-x-auto px-4 py-10 sm:px-6 sm:py-12";
+const PAGE = "mx-auto w-full min-w-0 max-w-4xl overflow-x-auto launch-surface px-4 py-10 sm:px-6 sm:py-12";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -36,6 +36,7 @@ export default async function LocaleNoShowKitPage({ params }: PageProps) {
     const copy = noShowCopy(locale);
     return (
       <PremiumKitLocked
+        productSlug="no-show-recovery-assistant"
         demoPath={paths.demo}
         className={PAGE}
         linkClassName={FOCUS_RING}

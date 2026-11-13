@@ -1,4 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
 import { secondaryPromptSetupStep } from "@/src/lib/premium/shared/setup-checklist";
+import { unbilledCopy } from "./copy";
 
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
@@ -152,14 +154,31 @@ function linesOf(value: string): string[] {
     .filter(Boolean);
 }
 
-export function generateUnbilledSkipRules(input: UnbilledRulesInput): RulesResult {
+export function generateUnbilledSkipRules(
+  input: UnbilledRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
   const amount = parseNonNegativeAmount(input.minimumAmount);
   if (amount === null) {
-    return { ok: false, errors: [MINIMUM_AMOUNT_ERROR] };
+    return {
+      ok: false,
+      errors: [locale === "ja" ? unbilledCopy("ja").minimumAmountError : MINIMUM_AMOUNT_ERROR],
+    };
   }
 
   const neverBilled = linesOf(input.neverBilledStatuses);
   const skipList = linesOf(input.alwaysSkip);
+  if (locale === "ja") {
+    return {
+      ok: true,
+      rules: unbilledCopy("ja").reviewRules({
+        minimumAmount: String(amount),
+        neverBilled,
+        alwaysSkip: skipList,
+      }),
+    };
+  }
+
   const lines = [
     "Skip when invoice_id is present.",
     ...(neverBilled.length > 0

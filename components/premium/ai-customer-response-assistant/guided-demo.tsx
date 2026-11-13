@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { replyCopy } from "@/src/lib/premium/ai-customer-response-assistant/copy";
 import {
   CheckFactsStep,
   EscalateFirstStep,
@@ -9,26 +11,42 @@ import {
   MissingAnswersStep,
   YouSendItStep,
 } from "./demo-steps";
+import {
+  JaCheckFactsStep,
+  JaEscalateFirstStep,
+  JaFaqOnlyTimingStep,
+  JaFaqToneAndMessageStep,
+  JaMissingAnswersStep,
+  JaYouSendItStep,
+} from "./ja-demo-steps";
 import { FOCUS_RING, PRIMARY_BUTTON, SECONDARY_BUTTON } from "./styles";
 import { HydrationStatus } from "../shared/hydration-status";
 import { useHydrated } from "./use-hydrated";
 
-const STEPS: { title: string; Content: ComponentType }[] = [
-  { title: "The FAQ, tone sheet, and message", Content: FaqToneAndMessageStep },
-  { title: "ESCALATE RULES FIRST", Content: EscalateFirstStep },
-  { title: "FAQ-only timing", Content: FaqOnlyTimingStep },
-  { title: "Check the facts", Content: CheckFactsStep },
-  { title: "Missing answers stay labelled", Content: MissingAnswersStep },
-  { title: "You send it", Content: YouSendItStep },
+const ENGLISH_STEPS: ComponentType[] = [
+  FaqToneAndMessageStep,
+  EscalateFirstStep,
+  FaqOnlyTimingStep,
+  CheckFactsStep,
+  MissingAnswersStep,
+  YouSendItStep,
 ];
 
-export function GuidedDemo() {
+export function GuidedDemo({
+  locale = "en",
+  pathLocale = null,
+}: {
+  locale?: UiLocale;
+  pathLocale?: UiLocale | null;
+}) {
+  const copy = replyCopy(locale);
   const [index, setIndex] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const movedByUser = useRef(false);
   const hydrated = useHydrated();
-  const total = STEPS.length;
-  const { title, Content } = STEPS[index];
+  const total = ENGLISH_STEPS.length;
+  const title = copy.stepTitles[index] ?? "";
+  const EnglishStep = ENGLISH_STEPS[index] ?? FaqToneAndMessageStep;
 
   useEffect(() => {
     if (movedByUser.current) headingRef.current?.focus();
@@ -41,12 +59,12 @@ export function GuidedDemo() {
 
   return (
     <section
-      aria-label="Guided demo"
+      aria-label={copy.demoAria}
       className="min-w-0 overflow-x-clip rounded-2xl border border-border/60 bg-surface/50 p-4 sm:p-6"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p aria-live="polite" className="text-sm font-semibold text-foreground">
-          Step {index + 1} of {total}
+          {copy.stepLabel(index + 1, total)}
         </p>
         <HydrationStatus hydrated={hydrated} />
         <div className="flex flex-wrap gap-2">
@@ -56,7 +74,7 @@ export function GuidedDemo() {
             onClick={() => goTo(index - 1)}
             disabled={!hydrated || index === 0}
           >
-            Previous step
+            {copy.previousStep}
           </button>
           <button
             type="button"
@@ -64,14 +82,14 @@ export function GuidedDemo() {
             onClick={() => goTo(index + 1)}
             disabled={!hydrated || index === total - 1}
           >
-            Next step
+            {copy.nextStep}
           </button>
         </div>
       </div>
       <div aria-hidden="true" className="mt-3 grid grid-cols-6 gap-1">
-        {STEPS.map((step, stepIndex) => (
+        {copy.stepTitles.map((stepTitle, stepIndex) => (
           <span
-            key={step.title}
+            key={stepTitle}
             className={`h-1.5 rounded-full ${stepIndex <= index ? "bg-accent" : "bg-border"}`}
           />
         ))}
@@ -86,9 +104,22 @@ export function GuidedDemo() {
           {title}
         </h2>
         <div className="mt-4">
-          <Content />
+          {locale === "ja" ? (
+            <JapaneseStep index={index} pathLocale={pathLocale ?? "ja"} />
+          ) : (
+            <EnglishStep />
+          )}
         </div>
       </div>
     </section>
   );
+}
+
+function JapaneseStep({ index, pathLocale }: { index: number; pathLocale: UiLocale | null }) {
+  if (index === 1) return <JaEscalateFirstStep />;
+  if (index === 2) return <JaFaqOnlyTimingStep />;
+  if (index === 3) return <JaCheckFactsStep />;
+  if (index === 4) return <JaMissingAnswersStep />;
+  if (index === 5) return <JaYouSendItStep pathLocale={pathLocale} />;
+  return <JaFaqToneAndMessageStep />;
 }

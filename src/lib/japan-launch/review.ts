@@ -25,7 +25,7 @@ export const japanLaunchReviewItems: LaunchReviewItem[] = [
     label: "日本の価格",
     status: "REVIEW REQUIRED",
     href: "/ja/blueprints/ai-collections-assistant",
-    note: "Sandbox の代金は 4,900円の買い切りです。総額としての表示を確認してください。消費税の登録状況は記載していません。",
+    note: "AI Collections Assistant は 4,900円の買い切り、プレミアムAI活用テンプレートは 1件 7,980円の買い切りです。英語の商品ページではプレミアムAI活用テンプレートを $49 と表示します。販売価格は各商品ページに表示します。消費税の登録状況と、税込か税抜かは記載していません。",
   },
   {
     id: "tokusho",
@@ -67,7 +67,7 @@ export const japanLaunchReviewItems: LaunchReviewItem[] = [
     label: "購入前の表示",
     status: "REVIEW REQUIRED",
     href: "/ja/blueprints/ai-collections-assistant",
-    note: "購入ボタンの前に、4,900円、提供時期、返金条件、利用規約、返金ポリシー、特定商取引法のリンクを出しています。",
+    note: "Collections の購入ボタン付近には 4,900円、提供時期、返金条件、利用規約、返金ポリシー、特定商取引法のリンクを出しています。プレミアムAI活用テンプレートの購入ボタン付近には、各商品ページの価格、提供時期、返金条件、同じリンクを出しています。",
   },
   {
     id: "japan-sandbox",
@@ -75,6 +75,13 @@ export const japanLaunchReviewItems: LaunchReviewItem[] = [
     status: "PASS",
     href: "/ja/blueprints/ai-collections-assistant",
     note: "Japan Sandbox の購入確認は完了しています。この画面から新しい決済は始めません。",
+  },
+  {
+    id: "english-legal",
+    label: "英語の利用規約・プライバシー・返金",
+    status: "REVIEW REQUIRED",
+    href: "/legal/terms",
+    note: "英語の /legal/terms、/legal/privacy、/legal/refund を追加しました。/en/legal は作っていません。事業者名、住所、電話番号、準拠法、税込か税抜かは未記載です。人が確認するまで承認しません。",
   },
   {
     id: "production-stripe",

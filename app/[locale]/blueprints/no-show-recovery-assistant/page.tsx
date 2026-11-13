@@ -4,7 +4,9 @@ import { NoShowPublicView } from "@/components/premium/no-show-recovery-assistan
 import { noShowCopy } from "@/src/lib/premium/no-show-recovery-assistant/copy";
 import { isUiLocale, noShowPaths } from "@/src/lib/i18n/locale";
 
-type PageProps = { params: Promise<{ locale: string }> };
+export const dynamic = "force-dynamic";
+
+type PageProps = { params: Promise<{ locale: string }>; searchParams: Promise<{ checkout?: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -18,8 +20,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function LocaleNoShowPage({ params }: PageProps) {
+export default async function LocaleNoShowPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
+  const query = await searchParams;
   if (!isUiLocale(locale)) notFound();
-  return <NoShowPublicView locale={locale} pathLocale={locale} />;
+  return <NoShowPublicView locale={locale} pathLocale={locale} checkoutUnavailable={query.checkout === "unavailable"} />;
 }

@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/src/lib/auth";
-import { authPath } from "@/src/lib/blueprints";
+import { hasActiveEntitlement } from "@/src/lib/payments/access";
+import { checkoutGate } from "@/src/lib/payments/checkout-gate";
 import { parseUiLocale } from "@/src/lib/payments/preview-market";
 import { createHostedCheckoutUrl } from "@/src/lib/payments/start-checkout";
-import { COLLECTIONS_DEMO_PATH } from "@/src/lib/payments/products";
-import { collectionsPaths } from "@/src/lib/i18n/locale";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,11 +45,17 @@ async function readCheckoutBody(request: Request): Promise<{
 
 export async function POST(request: Request) {
   const body = await readCheckoutBody(request);
-  const paths = collectionsPaths(body.uiLocale);
   const user = await getCurrentUser();
-  if (!user) {
-    const signIn = body.uiLocale ? authPath(paths.demo, body.uiLocale) : authPath(COLLECTIONS_DEMO_PATH);
-    return NextResponse.redirect(new URL(signIn, request.url), 303);
+  const alreadyOwned = user ? await hasActiveEntitlement(user.id, body.productSlug) : false;
+  const gate = checkoutGate({
+    productSlug: body.productSlug,
+    uiLocale: body.uiLocale,
+    signedIn: Boolean(user),
+    alreadyOwned,
+  });
+  if (!user || gate.kind !== "start") {
+    const location = gate.kind === "start" ? "/auth" : gate.location;
+    return NextResponse.redirect(new URL(location, request.url), 303);
   }
 
   try {
@@ -64,7 +69,6 @@ export async function POST(request: Request) {
     });
     return NextResponse.redirect(url, 303);
   } catch {
-    const back = new URL(`${paths.demo}?checkout=unavailable`, request.url);
-    return NextResponse.redirect(back, 303);
+    return NextResponse.redirect(new URL(gate.failureLocation, request.url), 303);
   }
 }

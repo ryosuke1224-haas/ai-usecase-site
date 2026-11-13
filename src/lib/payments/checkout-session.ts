@@ -20,18 +20,13 @@ export type CheckoutBuildResult =
 
 const PRICE_ID = /^price_[A-Za-z0-9]+$/;
 
-const ALLOWED_RETURN_PATHS = new Set([
-  "/blueprints/ai-collections-assistant",
-  "/blueprints/ai-collections-assistant/checkout/success",
-  "/ja/blueprints/ai-collections-assistant",
-  "/ja/blueprints/ai-collections-assistant/checkout/success",
-  "/en/blueprints/ai-collections-assistant",
-  "/en/blueprints/ai-collections-assistant/checkout/success",
-]);
-
-function allowedReturnPath(path: string | undefined): string | undefined {
-  if (!path || !ALLOWED_RETURN_PATHS.has(path)) return undefined;
-  return path;
+function allowedReturnPath(path: string | undefined, slug: string): string | undefined {
+  const product = getPaidProduct(slug);
+  if (!path || !product) return undefined;
+  const allowed = new Set(
+    [product.cancelPath, product.successPath].flatMap((item) => [item, `/ja${item}`, `/en${item}`]),
+  );
+  return allowed.has(path) ? path : undefined;
 }
 
 export function serverPriceForProduct(
@@ -39,7 +34,7 @@ export function serverPriceForProduct(
   env: NodeJS.ProcessEnv = process.env,
 ): string | undefined {
   const product = getPaidProduct(slug);
-  if (!product) return undefined;
+  if (!product?.priceEnv) return undefined;
   return env[product.priceEnv]?.trim();
 }
 
@@ -100,8 +95,8 @@ export function buildCheckoutSessionCreateParams(input: {
     params: {
       mode: "payment",
       line_items: [{ price, quantity: 1 }],
-      success_url: `${origin}${allowedReturnPath(input.successPath) ?? product?.successPath ?? `/blueprints/${input.productSlug}/checkout/success`}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}${allowedReturnPath(input.cancelPath) ?? product?.cancelPath ?? `/blueprints/${input.productSlug}`}`,
+      success_url: `${origin}${allowedReturnPath(input.successPath, input.productSlug) ?? product?.successPath ?? `/blueprints/${input.productSlug}/checkout/success`}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}${allowedReturnPath(input.cancelPath, input.productSlug) ?? product?.cancelPath ?? `/blueprints/${input.productSlug}`}`,
       client_reference_id: input.userId,
       ...(email ? { customer_email: email } : {}),
       metadata: {

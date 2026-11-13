@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { AuthForm, type AuthFormCopy } from "@/components/auth/auth-form";
 import { getCurrentUser } from "@/src/lib/auth";
+import { localSandboxAuthUrl } from "@/src/lib/auth-redirect";
 import { DAILY_INBOX_STARTER_KIT_PATH, sanitizeNextPath } from "@/src/lib/blueprints";
 import { siteCopy } from "@/src/lib/i18n/copy";
 import { isUiLocale, localizedHref } from "@/src/lib/i18n/locale";
@@ -23,6 +25,12 @@ export default async function LocaleAuthPage({ params, searchParams }: PageProps
   const { locale } = await params;
   if (!isUiLocale(locale)) notFound();
   const query = await searchParams;
+  const host = (await headers()).get("host");
+  const search = new URLSearchParams();
+  if (query.next) search.set("next", query.next);
+  if (query.error) search.set("error", query.error);
+  const localAuth = localSandboxAuthUrl(host, `/${locale}/auth`, search.toString());
+  if (localAuth) redirect(localAuth);
   const fallback = localizedHref(locale, "/my-blueprints");
   const nextPath = sanitizeNextPath(query.next, fallback);
   const copy = siteCopy(locale).auth;

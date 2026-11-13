@@ -4,6 +4,7 @@ import { getStripe } from "@/src/lib/stripe/server";
 import { buildCheckoutSessionCreateParams } from "./checkout-session";
 import { loadRegistryProducts } from "./load-registry";
 import { commerceScopeForUiLocale, formatCheckoutPrice, parseUiLocale, previewCommerceScope, type UiCommerceLocale } from "./preview-market";
+import { productCommercePaths } from "./products";
 import { findRegistryMapping, resolveTrustedPriceId } from "./registry";
 
 export class CheckoutUnavailable extends Error {
@@ -50,6 +51,7 @@ export async function createHostedCheckoutUrl(input: {
     product_slug: input.productSlug,
     ...scope,
   });
+  const returnPaths = uiLocale ? productCommercePaths(input.productSlug, uiLocale) : null;
   const built = buildCheckoutSessionCreateParams({
     userId: input.userId,
     email: input.email,
@@ -58,10 +60,10 @@ export async function createHostedCheckoutUrl(input: {
     serverPriceId: resolved.priceId,
     clientPriceId: input.clientPriceId,
     registryStatus: row?.status ?? null,
-    ...(uiLocale
+    ...(returnPaths
       ? {
-          successPath: `/${uiLocale}/blueprints/ai-collections-assistant/checkout/success`,
-          cancelPath: `/${uiLocale}/blueprints/ai-collections-assistant`,
+          successPath: returnPaths.success,
+          cancelPath: returnPaths.demo,
         }
       : {}),
   });

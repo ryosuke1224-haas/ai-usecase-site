@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { magicLinkRedirectTo } from "@/src/lib/auth-redirect";
 import { createClient } from "@/src/lib/supabase/client";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -59,10 +60,18 @@ export function AuthForm({
     }
 
     try {
-      const supabase = createClient();
       const origin = window.location.origin;
-      const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+      const redirectTo = magicLinkRedirectTo(origin, nextPath);
+      if (new URL(redirectTo).origin !== origin) {
+        const nextUrl = new URL(window.location.href);
+        const allowed = new URL(redirectTo);
+        nextUrl.protocol = allowed.protocol;
+        nextUrl.host = allowed.host;
+        window.location.replace(nextUrl.toString());
+        return;
+      }
 
+      const supabase = createClient();
       const { error } = await supabase.auth.signInWithOtp({
         email: trimmed,
         options: {

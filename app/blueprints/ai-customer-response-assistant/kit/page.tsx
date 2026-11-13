@@ -40,6 +40,7 @@ export default async function OnBrandReplyReviewQueueKitPage() {
   if (!entitled) {
     return (
       <PremiumKitLocked
+        productSlug="ai-customer-response-assistant"
         demoPath={DEMO_PATH}
         note="You send it. Nothing is sent automatically."
         linkClassName={FOCUS_RING}
@@ -48,7 +49,7 @@ export default async function OnBrandReplyReviewQueueKitPage() {
   }
 
   return (
-    <div className="mx-auto w-full min-w-0 max-w-4xl overflow-x-clip px-4 py-10 sm:px-6 sm:py-12">
+    <div className="mx-auto w-full min-w-0 max-w-4xl overflow-x-clip launch-surface px-4 py-10 sm:px-6 sm:py-12">
       <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-accent">
         Premium · Private preview
       </p>

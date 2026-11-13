@@ -3,6 +3,8 @@ import { loadProductSpec } from "../support/product-spec";
 
 export const DEMO_PATH = "/blueprints/no-show-recovery-assistant";
 export const KIT_PATH = "/blueprints/no-show-recovery-assistant/kit";
+export const JA_DEMO_PATH = "/ja/blueprints/no-show-recovery-assistant";
+export const JA_KIT_PATH = "/ja/blueprints/no-show-recovery-assistant/kit";
 
 export const FORBIDDEN_COPY =
   /checkout|buy now|purchase|Buy Premium|\/month|per month|\$\d|\d+%|ROI|hours saved|recovery rate/i;

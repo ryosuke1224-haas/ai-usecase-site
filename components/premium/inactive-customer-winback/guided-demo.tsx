@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { winbackCopy } from "@/src/lib/premium/inactive-customer-winback/copy";
 import {
   CustomersStep,
   FactCheckStep,
@@ -9,25 +11,42 @@ import {
   SkipRulesStep,
   YouSendItStep,
 } from "./demo-steps";
+import {
+  JaCustomersStep,
+  JaFactCheckStep,
+  JaQueueDraftsStep,
+  JaReturnCheckStep,
+  JaSkipRulesStep,
+  JaYouSendItStep,
+} from "./ja-demo-steps";
 import { FOCUS_RING, PRIMARY_BUTTON, SECONDARY_BUTTON } from "./styles";
+import { HydrationStatus } from "../shared/hydration-status";
 import { useHydrated } from "./use-hydrated";
 
-const STEPS: { title: string; Content: ComponentType }[] = [
-  { title: "The customer export", Content: CustomersStep },
-  { title: "SKIP RULES FIRST", Content: SkipRulesStep },
-  { title: "VIP first, then drafts", Content: QueueDraftsStep },
-  { title: "Check the facts", Content: FactCheckStep },
-  { title: "Later export return check", Content: ReturnCheckStep },
-  { title: "You send it", Content: YouSendItStep },
+const ENGLISH_STEPS: ComponentType[] = [
+  CustomersStep,
+  SkipRulesStep,
+  QueueDraftsStep,
+  FactCheckStep,
+  ReturnCheckStep,
+  YouSendItStep,
 ];
 
-export function GuidedDemo() {
+export function GuidedDemo({
+  locale = "en",
+  pathLocale = null,
+}: {
+  locale?: UiLocale;
+  pathLocale?: UiLocale | null;
+}) {
+  const copy = winbackCopy(locale);
   const [index, setIndex] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const movedByUser = useRef(false);
   const hydrated = useHydrated();
-  const total = STEPS.length;
-  const { title, Content } = STEPS[index];
+  const total = ENGLISH_STEPS.length;
+  const title = copy.stepTitles[index] ?? "";
+  const EnglishStep = ENGLISH_STEPS[index] ?? CustomersStep;
 
   useEffect(() => {
     if (movedByUser.current) headingRef.current?.focus();
@@ -39,11 +58,12 @@ export function GuidedDemo() {
   }
 
   return (
-    <section aria-label="Guided demo" className="min-w-0 rounded-2xl border border-border/60 bg-surface/50 p-4 sm:p-6">
+    <section aria-label={copy.demoAria} className="min-w-0 rounded-2xl border border-border/60 bg-surface/50 p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p aria-live="polite" className="text-sm font-semibold text-foreground">
-          Step {index + 1} of {total}
+          {copy.stepLabel(index + 1, total)}
         </p>
+        <HydrationStatus hydrated={hydrated} />
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -51,7 +71,7 @@ export function GuidedDemo() {
             onClick={() => goTo(index - 1)}
             disabled={!hydrated || index === 0}
           >
-            Previous step
+            {copy.previousStep}
           </button>
           <button
             type="button"
@@ -59,7 +79,7 @@ export function GuidedDemo() {
             onClick={() => goTo(index + 1)}
             disabled={!hydrated || index === total - 1}
           >
-            Next step
+            {copy.nextStep}
           </button>
         </div>
       </div>
@@ -68,9 +88,9 @@ export function GuidedDemo() {
         className="mt-3 grid grid-cols-6 gap-1"
         data-demo-progress={`${index + 1}-of-${total}`}
       >
-        {STEPS.map((step, stepIndex) => (
+        {copy.stepTitles.map((stepTitle, stepIndex) => (
           <span
-            key={step.title}
+            key={stepTitle}
             className={`h-1.5 rounded-full ${stepIndex <= index ? "bg-accent" : "bg-border"}`}
           />
         ))}
@@ -85,9 +105,22 @@ export function GuidedDemo() {
           {title}
         </h2>
         <div className="mt-4">
-          <Content />
+          {locale === "ja" ? (
+            <JapaneseStep index={index} pathLocale={pathLocale ?? "ja"} />
+          ) : (
+            <EnglishStep />
+          )}
         </div>
       </div>
     </section>
   );
+}
+
+function JapaneseStep({ index, pathLocale }: { index: number; pathLocale: UiLocale | null }) {
+  if (index === 1) return <JaSkipRulesStep />;
+  if (index === 2) return <JaQueueDraftsStep />;
+  if (index === 3) return <JaFactCheckStep />;
+  if (index === 4) return <JaReturnCheckStep />;
+  if (index === 5) return <JaYouSendItStep pathLocale={pathLocale} />;
+  return <JaCustomersStep />;
 }

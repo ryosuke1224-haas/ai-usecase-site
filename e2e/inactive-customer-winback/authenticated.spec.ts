@@ -340,7 +340,7 @@ test.describe("Lapsed Customer Return Queue without a premium entitlement", () =
         name: "Lapsed Customer Return Queue",
       }),
     });
-    await expect(card.getByRole("link", { name: "Private preview" })).toHaveAttribute(
+    await expect(card.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
       "href",
       DEMO_PATH,
     );

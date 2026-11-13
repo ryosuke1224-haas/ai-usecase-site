@@ -126,7 +126,7 @@ export type NoShowCopy = {
   thresholdError: string;
   recoveryRules: (input: RecoveryRulesInput) => string;
   reviewItems: readonly string[];
-  checkedLabel: (done: number, total: number) => string;
+  checkedLabel: string;
   resetChecklist: string;
   reviewComplete: string;
   allowedOutcomesLabel: string;

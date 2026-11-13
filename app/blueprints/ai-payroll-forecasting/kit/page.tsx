@@ -35,7 +35,7 @@ export default async function AiPayrollForecastingKitPage() {
   const entitled = await hasActiveEntitlement(user.id, "ai-payroll-forecasting");
   if (!entitled) {
     return (
-      <div className="mx-auto w-full min-w-0 max-w-4xl overflow-x-clip px-4 py-10 sm:px-6 sm:py-12">
+      <div className="mx-auto w-full min-w-0 max-w-4xl overflow-x-clip launch-surface px-4 py-10 sm:px-6 sm:py-12">
         <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-accent">
           Premium · Private preview
         </p>
@@ -43,7 +43,7 @@ export default async function AiPayrollForecastingKitPage() {
           Premium is locked
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-          Your Atlas account is signed in. This Premium kit is a private preview.
+          Your Atlas account is signed in. This Premium kit is a private preview. One-time purchase is on the guided demo.
           Atlas has not recorded an entitlement for this account, so the kit
           stays closed. Access for this private preview is by entitlement only.
         </p>
@@ -58,7 +58,7 @@ export default async function AiPayrollForecastingKitPage() {
   }
 
   return (
-    <div className="mx-auto w-full min-w-0 max-w-4xl overflow-x-clip px-4 py-10 sm:px-6 sm:py-12">
+    <div className="mx-auto w-full min-w-0 max-w-4xl overflow-x-clip launch-surface px-4 py-10 sm:px-6 sm:py-12">
       <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-accent">
         Premium · Private preview
       </p>

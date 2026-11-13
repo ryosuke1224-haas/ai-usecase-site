@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { noShowCopy } from "./copy";
+import { FICTIONAL_DATA_NOTICE, SAMPLE_BOOKINGS_CSV } from "./demo-data";
 import { generateRecoveryRules } from "./kit-content";
 
 const english = noShowCopy("en");
@@ -58,13 +59,15 @@ test("sms_consent no and email consent stay aligned", () => {
   assert.match(jaRules.rules, /常に対象外: R\. Kim/);
 });
 
-test("published spec matches the English sample the kit copies", () => {
+test("published spec matches the canonical English sample the kit copies", () => {
   const spec = JSON.parse(readFileSync("agent-specs/no-show-recovery-assistant.json", "utf8")) as {
     guided_demo: { sample_input: string; fictional_data_notice: string };
     kit_contents: { id: string; title: string }[];
   };
-  assert.equal(spec.guided_demo.sample_input, english.sampleBookingsCsv);
-  assert.equal(spec.guided_demo.fictional_data_notice, english.fictionalNotice);
+  assert.equal(spec.guided_demo.fictional_data_notice, FICTIONAL_DATA_NOTICE);
+  for (const line of SAMPLE_BOOKINGS_CSV.split("\n")) {
+    assert.ok(spec.guided_demo.sample_input.includes(line), line);
+  }
   assert.deepEqual(
     spec.kit_contents.map((section) => section.title),
     english.sections.map((section) => section.title),

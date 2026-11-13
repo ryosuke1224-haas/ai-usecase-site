@@ -3,6 +3,8 @@ import { loadProductSpec } from "../support/product-spec";
 
 export const DEMO_PATH = "/blueprints/ai-staffing-optimizer";
 export const KIT_PATH = "/blueprints/ai-staffing-optimizer/kit";
+export const JA_DEMO_PATH = "/ja/blueprints/ai-staffing-optimizer";
+export const JA_KIT_PATH = "/ja/blueprints/ai-staffing-optimizer/kit";
 
 export const FORBIDDEN_COPY =
   /checkout|buy now|purchase|Buy Premium|\/month|per month|ROI|hours saved|you could save/i;

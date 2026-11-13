@@ -1,4 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
 import { secondaryPromptSetupStep } from "@/src/lib/premium/shared/setup-checklist";
+import { expenseCopy } from "./copy";
 
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
@@ -144,14 +146,31 @@ function linesOf(value: string): string[] {
     .filter(Boolean);
 }
 
-export function generateExpenseReviewRules(input: ExpenseRulesInput): RulesResult {
+export function generateExpenseReviewRules(
+  input: ExpenseRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
   const amount = parseNonNegativeAmount(input.minimumAmount);
   if (amount === null) {
-    return { ok: false, errors: [MINIMUM_AMOUNT_ERROR] };
+    return {
+      ok: false,
+      errors: [locale === "ja" ? expenseCopy("ja").minimumAmountError : MINIMUM_AMOUNT_ERROR],
+    };
   }
 
   const vendors = linesOf(input.essentialVendors);
   const categories = linesOf(input.overlapWatch);
+  if (locale === "ja") {
+    return {
+      ok: true,
+      rules: expenseCopy("ja").reviewRules({
+        vendors,
+        categories,
+        amount: amount.toFixed(2),
+      }),
+    };
+  }
+
   const lines = [
     ...(vendors.length > 0 ? [`Always keep: ${vendors.join("; ")}.`] : []),
     ...(categories.length > 0 ? [`Watch for overlap in: ${categories.join("; ")}.`] : []),

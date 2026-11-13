@@ -9,8 +9,9 @@ import { secondaryPromptSetupStep } from "./setup-checklist";
 
 test("locked CTA uses purchase wording only when a paid product exists", () => {
   assert.equal(lockedBlueprintCtaLabel("ai-collections-assistant"), PURCHASE_CTA_LABEL);
-  assert.equal(lockedBlueprintCtaLabel("google-ads-performance-coach"), PRIVATE_PREVIEW_CTA_LABEL);
-  assert.equal(lockedBlueprintCtaLabel("unbilled-work-review-queue"), PRIVATE_PREVIEW_CTA_LABEL);
+  assert.equal(lockedBlueprintCtaLabel("google-ads-performance-coach"), PURCHASE_CTA_LABEL);
+  assert.equal(lockedBlueprintCtaLabel("unbilled-work-review-queue"), PURCHASE_CTA_LABEL);
+  assert.equal(lockedBlueprintCtaLabel("security-readiness-action-pack"), PRIVATE_PREVIEW_CTA_LABEL);
   assert.equal(lockedBlueprintCtaLabel(undefined), PRIVATE_PREVIEW_CTA_LABEL);
 });
 

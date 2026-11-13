@@ -306,7 +306,7 @@ test.describe("Quiet Proposal Chase Queue without a premium entitlement", () => 
     const card = page.getByRole("listitem").filter({
       has: page.getByRole("heading", { level: 2, name: "Quiet Proposal Chase Queue" }),
     });
-    await expect(card.getByRole("link", { name: "Private preview" })).toHaveAttribute(
+    await expect(card.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
       "href",
       DEMO_PATH,
     );

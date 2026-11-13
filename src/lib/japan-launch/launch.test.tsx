@@ -11,7 +11,7 @@ import { hasJapaneseCatalogLabel, japaneseUseCase } from "@/src/lib/i18n/catalog
 import { japaneseBusinessArea } from "@/src/lib/i18n/business-areas";
 import { businessAreaDefinitions } from "@/src/lib/business-areas";
 import { collectionsPaths, localeFromPathname } from "@/src/lib/i18n/locale";
-import { KNOWN_SUPPORT_EMAIL, JAPAN_PRODUCT_PRICE, legalDocuments, legalPlainText } from "@/src/lib/japan-launch/legal";
+import { KNOWN_SUPPORT_EMAIL, JAPAN_BLUEPRINT_PRICE, JAPAN_PRODUCT_PRICE, legalDocuments, legalPlainText } from "@/src/lib/japan-launch/legal";
 import {
   JAPAN_LAUNCH_REVIEW_REQUIRED,
   isJapanLaunchReviewVisible,
@@ -86,6 +86,8 @@ test("Japanese purchase controls show yen and do not send a browser price", () =
   assert.equal(english.includes("¥4,900"), false);
   assert.equal(english.includes("4,900円"), false);
   assert.equal(english.includes("/ja/legal/terms"), false);
+  assert.match(english, /href="\/legal\/terms"/);
+  assert.match(english, /href="\/legal\/refund"/);
   assert.match(english, /name="uiLocale" value="en"/);
 
   const current = renderToStaticMarkup(<PremiumAccessPanel mode="buy" priceLabel="¥4,900" />);
@@ -110,14 +112,31 @@ test("legal drafts state known terms and do not invent operator facts", () => {
     assert.equal(headings("tokusho").includes(heading), true, heading);
   }
   const tokushoPrice = legalDocuments.tokusho.sections.find((section) => section.heading === "販売価格")?.body.join("\n") ?? "";
-  assert.match(tokushoPrice, /お支払いいただく総額は4,900円です。当サイトから別途手数料を加算することはありません。/);
+  assert.match(tokushoPrice, /販売価格は各商品ページに表示します。表示された金額が、その商品についてお支払いいただく代金です。当サイトから別途手数料を加算することはありません。/);
+  assert.match(tokushoPrice, new RegExp(JAPAN_PRODUCT_PRICE));
+  assert.match(tokushoPrice, new RegExp(JAPAN_BLUEPRINT_PRICE));
+  assert.equal(tokushoPrice.includes("$49"), false);
+  assert.equal(tokushoPrice.includes("総額"), false);
   assert.equal(tokushoPrice.includes("別途の販売手数料はかかりません"), false);
-  assert.equal(tokushoPrice.split("総額").length - 1, 1);
   assert.match(text, /法令上必要な手続を経たうえで適用します/);
   assert.equal(text.includes("同意したものとして扱います"), false);
   assert.match(text, /ご請求があった場合、遅滞なく開示/);
   assert.equal(text.split("遅滞なく開示").length - 1, 1);
   assert.match(text, new RegExp(JAPAN_PRODUCT_PRICE));
+  assert.match(text, new RegExp(JAPAN_BLUEPRINT_PRICE));
+  assert.match(text, /\$49/);
+  assert.match(text, /日本語版と英語版/);
+  assert.equal(text.includes("総額は4,900円"), false);
+  assert.equal(text.includes("総額は7,980円"), false);
+  assert.match(siteCopy("ja").purchase.oneTime, /販売価格は各商品ページに表示します/);
+  assert.equal(siteCopy("ja").purchase.oneTime.includes("4,900円"), false);
+  assert.equal(siteCopy("ja").purchase.oneTime.includes("7,980円"), false);
+  assert.match(siteCopy("ja").contact.productBody, /4,900円/);
+  assert.match(siteCopy("ja").contact.productBody, /7,980円/);
+  const blueprintPanel = readFileSync("components/premium/shared/launch-purchase-panel.tsx", "utf8");
+  assert.match(blueprintPanel, /japanPurchaseDisclosure\.availability/);
+  assert.match(blueprintPanel, /japanPurchaseDisclosure\.refundNotice/);
+  assert.match(blueprintPanel, /LAUNCH_JPY_AMOUNT/);
   assert.match(text, /デジタル商品のため送料はかかりません/);
   assert.match(text, /Stripeが提供する決済画面/);
   assert.match(text, /直ちに購入したアカウントへ利用権を付与/);
@@ -166,7 +185,6 @@ test("legal drafts state known terms and do not invent operator facts", () => {
   assert.equal(text.includes("税込"), false);
   assert.equal(text.includes("税抜"), false);
   assert.equal(/\d{2,4}-\d{2,4}-\d{4}/.test(text), false);
-  assert.equal(text.includes("$49"), false);
 });
 
 test("Japan launch stays blocked and the review pages exist", () => {
@@ -179,6 +197,8 @@ test("Japan launch stays blocked and the review pages exist", () => {
   assert.equal(japanLaunchReviewItems.find((item) => item.id === "japan-sandbox")?.status, "PASS");
   assert.equal(japanLaunchReviewItems.find((item) => item.id === "tokusho")?.status, "REVIEW REQUIRED");
   assert.equal(japanLaunchReviewItems.find((item) => item.id === "purchase-disclosure")?.status, "REVIEW REQUIRED");
+  assert.equal(japanLaunchReviewItems.find((item) => item.id === "english-legal")?.status, "REVIEW REQUIRED");
+  assert.equal(japanLaunchReviewItems.find((item) => item.id === "english-legal")?.href, "/legal/terms");
   assert.equal(japanLaunchReviewItems.some((item) => item.status === "APPROVED"), false);
   assert.match(readFileSync("src/lib/japan-launch/review.ts", "utf8"), /HUMAN LEGAL REVIEW/);
   assert.equal(isJapanLaunchReviewVisible({ VERCEL_ENV: "production" } as NodeJS.ProcessEnv), false);
@@ -234,6 +254,9 @@ test("the Japanese home chrome stays in Japanese and on /ja", () => {
   const englishFooter = renderToStaticMarkup(<Footer locale={null} />);
   assert.match(englishFooter, /Business Areas/);
   assert.match(englishFooter, /href="\/business-areas"/);
+  assert.match(englishFooter, /href="\/legal\/terms"/);
+  assert.match(englishFooter, /href="\/legal\/privacy"/);
+  assert.match(englishFooter, /href="\/legal\/refund"/);
 });
 
 test("published Japanese catalog labels cover the library names shown on /ja", () => {

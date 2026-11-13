@@ -1,3 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { payrollCopy } from "./copy";
+
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
 
@@ -153,13 +156,24 @@ function linesOf(value: string): string[] {
     .filter(Boolean);
 }
 
-export function generateLaborCheckRules(input: LaborRulesInput): RulesResult {
+export function generateLaborCheckRules(
+  input: LaborRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
   const errors: string[] = [];
   const loadFactor = parseLoadFactor(input.loadFactor);
-  if (loadFactor === null) errors.push(LOAD_FACTOR_ERROR);
+  if (loadFactor === null) {
+    errors.push(
+      locale === "ja" ? payrollCopy("ja").loadFactorError : LOAD_FACTOR_ERROR,
+    );
+  }
 
   const targetLabor = parseTargetLabor(input.targetLabor);
-  if (targetLabor === null) errors.push(TARGET_LABOR_ERROR);
+  if (targetLabor === null) {
+    errors.push(
+      locale === "ja" ? payrollCopy("ja").targetLaborError : TARGET_LABOR_ERROR,
+    );
+  }
 
   if (errors.length > 0 || loadFactor === null || targetLabor === null) {
     return { ok: false, errors };
@@ -170,6 +184,19 @@ export function generateLaborCheckRules(input: LaborRulesInput): RulesResult {
   const overtimeFlagRule =
     input.overtimeFlagRule.trim() ||
     "flag if any role has overtime hours > 0";
+
+  if (locale === "ja") {
+    return {
+      ok: true,
+      rules: payrollCopy("ja").reviewRules({
+        loadFactor: input.loadFactor.trim(),
+        targetLabor: input.targetLabor.trim(),
+        overtimeMultiplier,
+        overtimeFlagRule,
+        minimumCoverage: coverage,
+      }),
+    };
+  }
 
   const lines = [
     `Employer load factor: ${input.loadFactor.trim()}.`,

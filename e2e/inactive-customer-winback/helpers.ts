@@ -3,6 +3,8 @@ import { loadProductSpec } from "../support/product-spec";
 
 export const DEMO_PATH = "/blueprints/inactive-customer-winback";
 export const KIT_PATH = "/blueprints/inactive-customer-winback/kit";
+export const JA_DEMO_PATH = "/ja/blueprints/inactive-customer-winback";
+export const JA_KIT_PATH = "/ja/blueprints/inactive-customer-winback/kit";
 
 /** Matches price, checkout, and outcome claims banned on the demo and kit pages. */
 export const FORBIDDEN_COPY =

@@ -310,7 +310,7 @@ test.describe("Next-Pay Labor Check without a premium entitlement", () => {
     const card = page.getByRole("listitem").filter({
       has: page.getByRole("heading", { level: 2, name: "Next-Pay Labor Check" }),
     });
-    await expect(card.getByRole("link", { name: "Private preview" })).toHaveAttribute(
+    await expect(card.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
       "href",
       DEMO_PATH,
     );

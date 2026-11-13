@@ -274,7 +274,7 @@ test.describe("Quote Request Assistant without a premium entitlement", () => {
   test("signed-in kit stays locked", async ({ page }) => {
     await openAuthenticated(page, KIT_PATH);
     await expect(page.getByRole("heading", { name: "Premium is locked" })).toBeVisible();
-    await expect(page.getByText(/currently no checkout/i)).toBeVisible();
+    await expect(page.getByText(/One-time purchase is on the guided demo/i)).toBeVisible();
     await expect(page.getByText(/Access is granted by entitlement/i)).toBeVisible();
     await expect(page.getByRole("button", { name: "Buy Premium" })).toHaveCount(0);
     await expect(page.locator("#setup-checklist")).toHaveCount(0);
@@ -285,7 +285,7 @@ test.describe("Quote Request Assistant without a premium entitlement", () => {
     const card = page.getByRole("listitem").filter({
       has: page.getByRole("heading", { level: 2, name: "Quote Request Assistant" }),
     });
-    await expect(card.getByRole("link", { name: "Private preview" })).toHaveAttribute(
+    await expect(card.getByRole("link", { name: "Available to purchase" })).toHaveAttribute(
       "href",
       DEMO_PATH,
     );

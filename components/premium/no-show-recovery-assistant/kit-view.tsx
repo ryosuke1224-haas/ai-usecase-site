@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { UiLocale } from "@/src/lib/i18n/locale";
 import { noShowPaths } from "@/src/lib/i18n/locale";
 import { noShowCopy } from "@/src/lib/premium/no-show-recovery-assistant/copy";
+import { JapaneseKitSections } from "./ja-kit-sections";
 import {
   ActionReviewChecklistSection,
   AttendancePromptSection,
@@ -14,7 +15,7 @@ import {
 } from "./kit-sections";
 import { FOCUS_RING } from "./styles";
 
-const PAGE = "mx-auto w-full min-w-0 max-w-4xl overflow-x-auto px-4 py-10 sm:px-6 sm:py-12";
+const PAGE = "mx-auto w-full min-w-0 max-w-4xl overflow-x-auto launch-surface px-4 py-10 sm:px-6 sm:py-12";
 
 export function NoShowKitView({
   locale,
@@ -52,14 +53,20 @@ export function NoShowKitView({
         </ol>
       </nav>
       <div className="mt-8 space-y-6">
-        <SetupChecklistSection locale={locale} />
-        <AttendancePromptSection locale={locale} />
-        <RebookingDraftPromptSection locale={locale} />
-        <RulesWorksheetSection locale={locale} />
-        <RecoveryLogTemplateSection locale={locale} />
-        <ActionReviewChecklistSection locale={locale} />
-        <SampleBookingsSection locale={locale} />
-        <SafetyGuidanceSection locale={locale} />
+        {locale === "ja" ? (
+          <JapaneseKitSections />
+        ) : (
+          <>
+            <SetupChecklistSection />
+            <AttendancePromptSection />
+            <RebookingDraftPromptSection />
+            <RulesWorksheetSection />
+            <RecoveryLogTemplateSection />
+            <ActionReviewChecklistSection />
+            <SampleBookingsSection />
+            <SafetyGuidanceSection />
+          </>
+        )}
       </div>
       <Link href={paths.demo} className={`mt-8 inline-flex text-sm font-medium text-accent hover:underline ${FOCUS_RING}`}>
         {copy.backToDemo}

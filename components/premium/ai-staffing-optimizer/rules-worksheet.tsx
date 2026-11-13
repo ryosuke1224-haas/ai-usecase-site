@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { staffingCopy } from "@/src/lib/premium/ai-staffing-optimizer/copy";
 import {
   DEFAULT_RULES_INPUT,
   generateStaffingRules,
@@ -8,13 +10,15 @@ import {
 } from "@/src/lib/premium/ai-staffing-optimizer/kit-content";
 import { CopyButton } from "./copy-button";
 import { FOCUS_RING, PRE_BLOCK, PRIMARY_BUTTON } from "./styles";
+import { HydrationStatus } from "../shared/hydration-status";
 import { useHydrated } from "./use-hydrated";
 
 const FIELD =
   `mt-1 block w-full max-w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground ${FOCUS_RING}`;
 const FIELD_LABEL = "block text-sm font-medium text-foreground";
 
-export function RulesWorksheet() {
+export function RulesWorksheet({ locale = "en" }: { locale?: UiLocale }) {
+  const copy = locale === "ja" ? staffingCopy("ja") : null;
   const [values, setValues] = useState<StaffingRulesInput>(DEFAULT_RULES_INPUT);
   const [errors, setErrors] = useState<string[]>([]);
   const [rules, setRules] = useState<string | null>(null);
@@ -34,7 +38,7 @@ export function RulesWorksheet() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = generateStaffingRules(values);
+    const result = generateStaffingRules(values, locale);
     if (result.ok) {
       setErrors([]);
       setInputsChanged(false);
@@ -50,11 +54,12 @@ export function RulesWorksheet() {
 
   return (
     <div className="space-y-5">
+      <HydrationStatus hydrated={hydrated} />
       <form onSubmit={handleSubmit} noValidate>
         <fieldset disabled={!hydrated} className="min-w-0 space-y-4">
           <div>
             <label htmlFor={`${baseId}-minimum`} className={FIELD_LABEL}>
-              Minimum staff on floor
+              {copy?.minimumLabel ?? "Minimum staff on floor"}
             </label>
             <input
               id={`${baseId}-minimum`}
@@ -68,7 +73,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-low`} className={FIELD_LABEL}>
-              Target transactions per staff-hour (low)
+              {copy?.targetLowLabel ?? "Target transactions per staff-hour (low)"}
             </label>
             <input
               id={`${baseId}-low`}
@@ -82,7 +87,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-high`} className={FIELD_LABEL}>
-              Target transactions per staff-hour (high)
+              {copy?.targetHighLabel ?? "Target transactions per staff-hour (high)"}
             </label>
             <input
               id={`${baseId}-high`}
@@ -96,7 +101,7 @@ export function RulesWorksheet() {
           </div>
           <fieldset className="min-w-0 space-y-2">
             <legend className={FIELD_LABEL}>
-              Flag when outside target in at least N of M weeks
+              {copy?.flagLegend ?? "Flag when outside target in at least N of M weeks"}
             </legend>
             <div className="flex flex-wrap gap-4">
               <div>
@@ -112,7 +117,7 @@ export function RulesWorksheet() {
                   inputMode="numeric"
                   value={values.flagN}
                   onChange={(event) => update("flagN", event.target.value)}
-                  aria-label="Pattern weeks numerator (N)"
+                  aria-label={copy?.flagNAria ?? "Pattern weeks numerator (N)"}
                   className={`${FIELD} mt-0 inline-block w-20`}
                 />
               </div>
@@ -129,7 +134,7 @@ export function RulesWorksheet() {
                   inputMode="numeric"
                   value={values.flagM}
                   onChange={(event) => update("flagM", event.target.value)}
-                  aria-label="Pattern weeks denominator (M)"
+                  aria-label={copy?.flagMAria ?? "Pattern weeks denominator (M)"}
                   className={`${FIELD} mt-0 inline-block w-20`}
                 />
               </div>
@@ -137,7 +142,7 @@ export function RulesWorksheet() {
           </fieldset>
           <div>
             <label htmlFor={`${baseId}-roles`} className={FIELD_LABEL}>
-              Roles that cannot be cut (one per line)
+              {copy?.protectedRolesLabel ?? "Roles that cannot be cut (one per line)"}
             </label>
             <textarea
               id={`${baseId}-roles`}
@@ -149,48 +154,48 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-nonsales`} className={FIELD_LABEL}>
-              Non-sales day-parts (optional, one per line)
+              {copy?.nonSalesLabel ?? "Non-sales day-parts (optional, one per line)"}
             </label>
             <textarea
               id={`${baseId}-nonsales`}
               rows={3}
               value={values.nonSalesDayParts}
-              onChange={(event) =>
-                update("nonSalesDayParts", event.target.value)
-              }
+              onChange={(event) => update("nonSalesDayParts", event.target.value)}
               className={FIELD}
             />
           </div>
           {errors.length > 0 ? (
             <div id={errorId} role="alert" className="space-y-1">
               {errors.map((error) => (
-                <p
-                  key={error}
-                  className="text-sm font-medium text-red-700 dark:text-red-300"
-                >
+                <p key={error} className="text-sm font-medium text-red-700 dark:text-red-300">
                   {error}
                 </p>
               ))}
             </div>
           ) : null}
           <button type="submit" className={PRIMARY_BUTTON}>
-            Generate My Staffing Rules
+            {copy?.generateRules ?? "Generate My Staffing Rules"}
           </button>
         </fieldset>
       </form>
 
       {inputsChanged ? (
         <p className="text-sm leading-relaxed text-foreground">
-          Inputs changed. Generate again before you copy the rules.
+          {copy?.inputsChanged ?? "Inputs changed. Generate again before you copy the rules."}
         </p>
       ) : null}
       {rules ? (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold tracking-tight text-foreground">
-            Your staffing rules
+            {copy?.rulesTitle ?? "Your staffing rules"}
           </h3>
           <pre className={PRE_BLOCK}>{rules}</pre>
-          <CopyButton text={rules} label="Copy" />
+          <CopyButton
+            text={rules}
+            label={copy?.copyRules ?? "Copy"}
+            copiedLabel={copy?.copied}
+            errorLabel={copy?.copyFailed}
+          />
         </div>
       ) : null}
     </div>

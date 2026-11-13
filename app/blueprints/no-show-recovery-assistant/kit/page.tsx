@@ -8,7 +8,7 @@ import { DEMO_PATH, KIT_PATH } from "@/src/lib/premium/no-show-recovery-assistan
 
 export const dynamic = "force-dynamic";
 
-const PAGE = "mx-auto w-full min-w-0 max-w-4xl overflow-x-auto px-4 py-10 sm:px-6 sm:py-12";
+const PAGE = "mx-auto w-full min-w-0 max-w-4xl overflow-x-auto launch-surface px-4 py-10 sm:px-6 sm:py-12";
 
 export const metadata: Metadata = {
   title: "No-show Recovery Assistant Premium Kit",
@@ -24,6 +24,7 @@ export default async function NoShowRecoveryAssistantKitPage() {
   if (!entitled) {
     return (
       <PremiumKitLocked
+        productSlug="no-show-recovery-assistant"
         demoPath={DEMO_PATH}
         note="You review and send. Nothing is sent automatically. The kit changes nothing."
         className={PAGE}

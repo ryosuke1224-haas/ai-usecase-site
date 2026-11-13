@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth/auth-form";
 import { getCurrentUser } from "@/src/lib/auth";
+import { localSandboxAuthUrl } from "@/src/lib/auth-redirect";
 import {
   DAILY_INBOX_STARTER_KIT_PATH,
   MY_BLUEPRINTS_PATH,
@@ -46,6 +48,12 @@ function authCopyForDestination(nextPath: string) {
 
 export default async function AuthPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  const host = (await headers()).get("host");
+  const search = new URLSearchParams();
+  if (params.next) search.set("next", params.next);
+  if (params.error) search.set("error", params.error);
+  const localAuth = localSandboxAuthUrl(host, "/auth", search.toString());
+  if (localAuth) redirect(localAuth);
   // Preserve an explicit `next` destination. Bare /auth defaults to My Blueprints
   // so generic sign-in is not framed as the Starter Kit offer.
   const nextPath = sanitizeNextPath(params.next, MY_BLUEPRINTS_PATH);

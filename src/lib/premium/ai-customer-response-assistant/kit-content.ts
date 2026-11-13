@@ -1,4 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
 import { secondaryPromptSetupStep } from "@/src/lib/premium/shared/setup-checklist";
+import { replyCopy } from "./copy";
 
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
@@ -149,20 +151,34 @@ function linesOf(value: string): string[] {
     .filter(Boolean);
 }
 
-export function generateReplyRules(input: ReplyRulesInput): RulesResult {
+export function generateReplyRules(
+  input: ReplyRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
   const faqFacts = linesOf(input.faqFacts);
   const escalateList = linesOf(input.escalateList);
   const tone = input.toneRules.trim();
   const errors: string[] = [];
 
   if (escalateList.length === 0) {
-    errors.push(ESCALATE_LIST_ERROR);
+    errors.push(locale === "ja" ? replyCopy("ja").escalateListError : ESCALATE_LIST_ERROR);
   }
   if (faqFacts.length === 0) {
-    errors.push(FAQ_FACTS_ERROR);
+    errors.push(locale === "ja" ? replyCopy("ja").faqFactsError : FAQ_FACTS_ERROR);
   }
   if (errors.length > 0) {
     return { ok: false, errors };
+  }
+
+  if (locale === "ja") {
+    return {
+      ok: true,
+      rules: replyCopy("ja").reviewRules({
+        toneRules: input.toneRules,
+        faqFacts,
+        escalateList,
+      }),
+    };
   }
 
   const lines = [

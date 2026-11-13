@@ -47,7 +47,7 @@ export default async function LocaleKitPage({ params }: PageProps) {
   if (!entitled) {
     const priceLabel = displayPriceForUi(locale, await loadPreviewPriceLabel(COLLECTIONS_PRODUCT_SLUG, locale));
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-4xl launch-surface px-4 py-10 sm:px-6 sm:py-12">
         <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-accent">
           {copy.lockedEyebrow}
         </p>
@@ -62,7 +62,7 @@ export default async function LocaleKitPage({ params }: PageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
+    <div className="mx-auto max-w-4xl launch-surface px-4 py-10 sm:px-6 sm:py-12">
       <p className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-accent">
         {copy.openEyebrow}
       </p>

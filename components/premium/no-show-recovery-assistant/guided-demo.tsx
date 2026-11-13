@@ -11,11 +11,19 @@ import {
   RepeatPolicyStep,
   YouReviewAndSendStep,
 } from "./demo-steps";
+import {
+  JaBookingsStep,
+  JaConfirmAttendanceStep,
+  JaDraftStep,
+  JaFactCheckStep,
+  JaRepeatPolicyStep,
+  JaYouReviewAndSendStep,
+} from "./ja-demo-steps";
 import { FOCUS_RING, PRIMARY_BUTTON, SECONDARY_BUTTON } from "./styles";
 import { HydrationStatus } from "../shared/hydration-status";
 import { useHydrated } from "./use-hydrated";
 
-const STEP_COMPONENTS: ComponentType<{ locale: UiLocale; pathLocale: UiLocale | null }>[] = [
+const ENGLISH_STEPS: ComponentType[] = [
   BookingsStep,
   ConfirmAttendanceStep,
   DraftStep,
@@ -36,9 +44,9 @@ export function GuidedDemo({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const movedByUser = useRef(false);
   const hydrated = useHydrated();
-  const total = STEP_COMPONENTS.length;
+  const total = ENGLISH_STEPS.length;
   const title = copy.stepTitles[index] ?? "";
-  const Content = STEP_COMPONENTS[index] ?? BookingsStep;
+  const EnglishStep = ENGLISH_STEPS[index] ?? BookingsStep;
 
   useEffect(() => {
     if (movedByUser.current) headingRef.current?.focus();
@@ -92,9 +100,18 @@ export function GuidedDemo({
           {title}
         </h2>
         <div className="mt-4">
-          <Content locale={locale} pathLocale={pathLocale} />
+          {locale === "ja" ? <JapaneseStep index={index} pathLocale={pathLocale ?? "ja"} /> : <EnglishStep />}
         </div>
       </div>
     </section>
   );
+}
+
+function JapaneseStep({ index, pathLocale }: { index: number; pathLocale: UiLocale | null }) {
+  if (index === 1) return <JaConfirmAttendanceStep />;
+  if (index === 2) return <JaDraftStep />;
+  if (index === 3) return <JaFactCheckStep />;
+  if (index === 4) return <JaRepeatPolicyStep />;
+  if (index === 5) return <JaYouReviewAndSendStep pathLocale={pathLocale} />;
+  return <JaBookingsStep />;
 }

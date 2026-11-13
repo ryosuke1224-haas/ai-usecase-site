@@ -298,7 +298,7 @@ Do not invent. Do not send. You review and send. The kit changes nothing.`,
     "Repeat no-shows at the threshold were flagged instead of auto-drafted.",
     "I will pick the recipient from my own contacts and send from my own SMS or email tool myself. Nothing is sent automatically. The kit changes nothing.",
   ],
-  checkedLabel: (done, total) => `Checked ${done} of ${total}`,
+  checkedLabel: "Checked {done} of {total}",
   resetChecklist: "Reset checklist",
   reviewComplete:
     "Review complete for this run. Reset the checklist before the next one. You still choose whether any message is sent. Nothing is sent automatically.",

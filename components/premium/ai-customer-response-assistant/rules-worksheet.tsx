@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { replyCopy } from "@/src/lib/premium/ai-customer-response-assistant/copy";
 import {
   DEFAULT_RULES_INPUT,
   generateReplyRules,
@@ -15,7 +17,8 @@ const FIELD =
   `mt-1 block w-full max-w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground ${FOCUS_RING}`;
 const FIELD_LABEL = "block text-sm font-medium text-foreground";
 
-export function RulesWorksheet() {
+export function RulesWorksheet({ locale = "en" }: { locale?: UiLocale }) {
+  const copy = locale === "ja" ? replyCopy("ja") : null;
   const [values, setValues] = useState<ReplyRulesInput>(DEFAULT_RULES_INPUT);
   const [errors, setErrors] = useState<string[]>([]);
   const [rules, setRules] = useState<string | null>(null);
@@ -35,7 +38,7 @@ export function RulesWorksheet() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = generateReplyRules(values);
+    const result = generateReplyRules(values, locale);
     if (result.ok) {
       setErrors([]);
       setInputsChanged(false);
@@ -56,7 +59,7 @@ export function RulesWorksheet() {
         <fieldset disabled={!hydrated} className="min-w-0 space-y-4">
           <div>
             <label htmlFor={`${baseId}-tone`} className={FIELD_LABEL}>
-              Tone rules
+              {copy?.toneRulesLabel ?? "Tone rules"}
             </label>
             <input
               id={`${baseId}-tone`}
@@ -68,7 +71,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-faq`} className={FIELD_LABEL}>
-              FAQ facts (one per line)
+              {copy?.faqFactsLabel ?? "FAQ facts (one per line)"}
             </label>
             <textarea
               id={`${baseId}-faq`}
@@ -81,7 +84,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-escalate`} className={FIELD_LABEL}>
-              Escalate list (one per line)
+              {copy?.escalateListLabel ?? "Escalate list (one per line)"}
             </label>
             <textarea
               id={`${baseId}-escalate`}
@@ -102,23 +105,28 @@ export function RulesWorksheet() {
             </div>
           ) : null}
           <button type="submit" className={PRIMARY_BUTTON}>
-            Generate My Reply Rules
+            {copy?.generateRules ?? "Generate My Reply Rules"}
           </button>
         </fieldset>
       </form>
 
       {inputsChanged ? (
         <p className="text-sm leading-relaxed text-foreground">
-          Inputs changed. Generate again before you copy the rules.
+          {copy?.inputsChanged ?? "Inputs changed. Generate again before you copy the rules."}
         </p>
       ) : null}
       {rules ? (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold tracking-tight text-foreground">
-            Your reply rules
+            {copy?.rulesTitle ?? "Your reply rules"}
           </h3>
           <pre className={PRE_BLOCK}>{rules}</pre>
-          <CopyButton text={rules} label="Copy rules" />
+          <CopyButton
+            text={rules}
+            label={copy?.copyRules ?? "Copy rules"}
+            copiedLabel={copy?.copied}
+            errorLabel={copy?.copyFailed}
+          />
         </div>
       ) : null}
     </div>

@@ -1,3 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { proposalCopy } from "./copy";
+
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
 
@@ -154,13 +157,17 @@ function formatSkipStatuses(statuses: string[]): string {
   return `Skip ${head}, and ${statuses[statuses.length - 1]}.`;
 }
 
-export function generateSilenceRules(input: SilenceRulesInput): RulesResult {
+export function generateSilenceRules(
+  input: SilenceRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
   const errors: string[] = [];
   const silenceDate = input.silenceIfSentBefore.trim();
-  if (!silenceDate) errors.push(SILENCE_DATE_ERROR);
+  const ja = locale === "ja" ? proposalCopy("ja") : null;
+  if (!silenceDate) errors.push(ja?.silenceDateError ?? SILENCE_DATE_ERROR);
 
   const amount = parseNonNegativeAmount(input.ownerMinimum);
-  if (amount === null) errors.push(MINIMUM_AMOUNT_ERROR);
+  if (amount === null) errors.push(ja?.minimumAmountError ?? MINIMUM_AMOUNT_ERROR);
 
   if (errors.length > 0 || amount === null || !silenceDate) {
     return { ok: false, errors };
@@ -170,6 +177,18 @@ export function generateSilenceRules(input: SilenceRulesInput): RulesResult {
   const cadence =
     input.cadenceLadder.trim() ||
     "5-11 days recap; 12-20 days check-in; 21+ close-the-loop";
+
+  if (ja) {
+    return {
+      ok: true,
+      rules: ja.reviewRules({
+        silenceIfSentBefore: silenceDate,
+        ownerMinimum: amount,
+        neverChaseStatuses: neverChase,
+        cadenceLadder: cadence,
+      }),
+    };
+  }
 
   const lines = [
     ...(neverChase.length > 0 ? [formatSkipStatuses(neverChase)] : []),

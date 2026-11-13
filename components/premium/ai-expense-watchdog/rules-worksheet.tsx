@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import type { UiLocale } from "@/src/lib/i18n/locale";
+import { expenseCopy } from "@/src/lib/premium/ai-expense-watchdog/copy";
 import {
   DEFAULT_RULES_INPUT,
   generateExpenseReviewRules,
@@ -15,7 +17,8 @@ const FIELD =
   `mt-1 block w-full max-w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground ${FOCUS_RING}`;
 const FIELD_LABEL = "block text-sm font-medium text-foreground";
 
-export function RulesWorksheet() {
+export function RulesWorksheet({ locale = "en" }: { locale?: UiLocale }) {
+  const copy = locale === "ja" ? expenseCopy("ja") : null;
   const [values, setValues] = useState<ExpenseRulesInput>(DEFAULT_RULES_INPUT);
   const [errors, setErrors] = useState<string[]>([]);
   const [rules, setRules] = useState<string | null>(null);
@@ -35,7 +38,7 @@ export function RulesWorksheet() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = generateExpenseReviewRules(values);
+    const result = generateExpenseReviewRules(values, locale);
     if (result.ok) {
       setErrors([]);
       setInputsChanged(false);
@@ -56,7 +59,7 @@ export function RulesWorksheet() {
         <fieldset disabled={!hydrated} className="min-w-0 space-y-4">
           <div>
             <label htmlFor={`${baseId}-vendors`} className={FIELD_LABEL}>
-              Essential vendors to never flag for cancel (one per line)
+              {copy?.vendorsLabel ?? "Essential vendors to never flag for cancel (one per line)"}
             </label>
             <textarea
               id={`${baseId}-vendors`}
@@ -69,7 +72,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-overlap`} className={FIELD_LABEL}>
-              Overlap-watch categories (one per line)
+              {copy?.overlapWatchLabel ?? "Overlap-watch categories (one per line)"}
             </label>
             <textarea
               id={`${baseId}-overlap`}
@@ -81,7 +84,7 @@ export function RulesWorksheet() {
           </div>
           <div>
             <label htmlFor={`${baseId}-minimum`} className={FIELD_LABEL}>
-              Minimum amount to list as a price change (USD)
+              {copy?.minimumAmountLabel ?? "Minimum amount to list as a price change (USD)"}
             </label>
             <input
               id={`${baseId}-minimum`}
@@ -103,23 +106,28 @@ export function RulesWorksheet() {
             </div>
           ) : null}
           <button type="submit" className={PRIMARY_BUTTON}>
-            Generate My Expense Review Rules
+            {copy?.generateRules ?? "Generate My Expense Review Rules"}
           </button>
         </fieldset>
       </form>
 
       {inputsChanged ? (
         <p className="text-sm leading-relaxed text-foreground">
-          Inputs changed. Generate again before you copy the rules.
+          {copy?.inputsChanged ?? "Inputs changed. Generate again before you copy the rules."}
         </p>
       ) : null}
       {rules ? (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold tracking-tight text-foreground">
-            Your expense review rules
+            {copy?.rulesTitle ?? "Your expense review rules"}
           </h3>
           <pre className={PRE_BLOCK}>{rules}</pre>
-          <CopyButton text={rules} label="Copy rules" />
+          <CopyButton
+            text={rules}
+            label={copy?.copyRules ?? "Copy rules"}
+            copiedLabel={copy?.copied}
+            errorLabel={copy?.copyFailed}
+          />
         </div>
       ) : null}
     </div>

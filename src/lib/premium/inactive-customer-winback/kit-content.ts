@@ -1,4 +1,6 @@
+import type { UiLocale } from "@/src/lib/i18n/locale";
 import { secondaryPromptSetupStep } from "@/src/lib/premium/shared/setup-checklist";
+import { winbackCopy } from "./copy";
 
 export const PLAN_DIFFERENCE_NOTICE =
   "File upload support and data controls in ChatGPT, Claude, and Gemini differ by plan, account, and admin settings.";
@@ -189,22 +191,39 @@ function formatOffers(label: string, offers: string[]): string | null {
   return `${label}: ${offers.join("; ")}.`;
 }
 
-export function generateWinbackRules(input: WinbackRulesInput): RulesResult {
+export function generateWinbackRules(
+  input: WinbackRulesInput,
+  locale: UiLocale = "en",
+): RulesResult {
   const errors: string[] = [];
   const lapseBefore = input.lapseBefore.trim();
-  if (!lapseBefore) errors.push(LAPSE_DATE_ERROR);
+  const ja = locale === "ja" ? winbackCopy("ja") : null;
+  if (!lapseBefore) errors.push(ja?.lapseDateError ?? LAPSE_DATE_ERROR);
 
   const vipFloor = parseVipFloor(input.vipFloor);
-  if (vipFloor === null) errors.push(VIP_FLOOR_ERROR);
+  if (vipFloor === null) errors.push(ja?.vipFloorError ?? VIP_FLOOR_ERROR);
 
   const vipOffers = linesOf(input.vipOffers);
   const occasionalOffers = linesOf(input.occasionalOffers);
   if (vipOffers.length === 0 && occasionalOffers.length === 0) {
-    errors.push(OFFER_LIST_ERROR);
+    errors.push(ja?.offerListError ?? OFFER_LIST_ERROR);
   }
 
   if (errors.length > 0 || vipFloor === null || !lapseBefore) {
     return { ok: false, errors };
+  }
+
+  if (ja) {
+    return {
+      ok: true,
+      rules: ja.reviewRules({
+        lapseBefore,
+        vipFloor,
+        skipOneTime: input.skipOneTime,
+        vipOffers,
+        occasionalOffers,
+      }),
+    };
   }
 
   const lines = [
