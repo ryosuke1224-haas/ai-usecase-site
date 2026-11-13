@@ -60,10 +60,9 @@ function LiveFooter({ locale }: { locale: UiLocale | null }) {
               <h3 className="text-sm font-semibold text-foreground">{copy.footer.resources}</h3>
               <ul className="mt-4 space-y-2">
                 {[
-                  { href: "/ja/find-workflows", label: "ツールから探す" },
+                  { href: "/ja/use-cases", label: "AI活用テンプレート" },
                   { href: "/ja/apis", label: "API・ツール" },
                   { href: "/ja/data-sources", label: "データソース" },
-                  { href: "/ja/workflow-ideas", label: "AI活用アイデア" },
                 ].map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className={linkClass}>{link.label}</Link>

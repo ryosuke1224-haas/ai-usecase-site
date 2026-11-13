@@ -88,12 +88,20 @@ export default async function LocaleHomePage({ params }: PageProps) {
             </li>
           ))}
         </ol>
-        <p className="mt-8 text-sm text-muted">
-          {copy.toolsPrompt}{" "}
-          <Link href={locale === "ja" ? "/ja/find-workflows" : "/find-workflows"} className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
-            {copy.toolsLink}
-          </Link>
-        </p>
+        {locale === "ja" ? (
+          <p className="mt-8 text-sm text-muted">
+            <Link href="/ja/use-cases" className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+              AI活用テンプレートを見る
+            </Link>
+          </p>
+        ) : (
+          <p className="mt-8 text-sm text-muted">
+            {copy.toolsPrompt}{" "}
+            <Link href="/find-workflows" className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+              {copy.toolsLink}
+            </Link>
+          </p>
+        )}
       </section>
     </div>
   );

@@ -138,7 +138,7 @@ const useCases: Record<string, { title: string; summary: string }> = {
     summary: "放置された見込み客、空欄、次の予定がない商談を洗い出します。",
   },
   "ai-customer-response-assistant": {
-    title: "問い合わせ返信の下書き",
+    title: "問い合わせ返信レビュー",
     summary: "メールやフォームの問い合わせに、送る前に確認できる返信文を作ります。",
   },
   "ai-daily-inbox-briefing": {
@@ -146,8 +146,8 @@ const useCases: Record<string, { title: string; summary: string }> = {
     summary: "急ぐメール、返事待ち、予定の重なりを短くまとめて朝の確認を減らします。",
   },
   "ai-expense-watchdog": {
-    title: "経費の見落とし確認",
-    summary: "急に増えた支払い、重複している契約、削れそうな費用を拾います。",
+    title: "経費の定期点検",
+    summary: "カード明細の繰り返しを確認し、重複や値上がりの候補を出します。解約するかどうかは自分で決めます。",
   },
   "ai-follow-up-engine": {
     title: "フォロー漏れの確認",
@@ -174,7 +174,7 @@ const useCases: Record<string, { title: string; summary: string }> = {
     summary: "相手の課題に合わせて、数回に分けて送る文面の流れを作ります。",
   },
   "ai-payroll-forecasting": {
-    title: "人件費の見通し",
+    title: "次回人件費チェック",
     summary: "シフトと売上見込みから、次の人件費と売上に対する割合を見ます。",
   },
   "ai-personalized-outreach-writer": {
@@ -182,7 +182,7 @@ const useCases: Record<string, { title: string; summary: string }> = {
     summary: "公開情報と口コミから、相手ごとに違う営業メールの下書きを作ります。",
   },
   "ai-pipeline-risk-detector": {
-    title: "止まりそうな商談",
+    title: "停滞商談の確認",
     summary: "動きが止まった商談を、経過日数と連絡の有無から見つけます。",
   },
   "ai-pricing-impact-simulator": {
@@ -190,7 +190,7 @@ const useCases: Record<string, { title: string; summary: string }> = {
     summary: "価格を変えたときの売上と、離れそうな顧客の影響を先に試算します。",
   },
   "ai-proposal-follow-up-assistant": {
-    title: "提案後のフォロー",
+    title: "提案フォローの下書き",
     summary: "返事がない見積や提案を見つけ、内容に沿った再連絡の文面を作ります。",
   },
   "ai-revenue-scenario-planner": {
@@ -214,27 +214,29 @@ const useCases: Record<string, { title: string; summary: string }> = {
     summary: "手元の資料やメモから、現場がそのまま使える手順に整えます。",
   },
   "ai-staffing-optimizer": {
-    title: "シフトと需要の調整",
-    summary: "予約、売上、勤務時間を比べ、人が多すぎる時間と足りない時間を見ます。",
+    title: "シフト過不足チェック",
+    summary:
+      "POSの時間帯別取引と打刻時間を揃え、人が多い時間と足りない時間を確認します。シフトの変更は自分で行います。",
   },
   "google-ads-performance-coach": {
-    title: "Google Ads の見直し",
+    title: "Google Ads 運用チェック",
     summary: "広告とアクセス解析の書き出しから、数字の確認と次にやることを分けます。",
   },
   "inactive-customer-winback": {
-    title: "久々のお客様への再案内",
-    summary: "しばらく来ていないお客様を見つけ、再来を案内する文面を作ります。",
+    title: "久々のお客様の再来案内",
+    summary:
+      "しばらく来ていないお客様を同意とスキップルールで絞り、再来案内の文面を下書きします。送るかどうかは自分で決めます。",
   },
   "local-seo-content-assistant": {
     title: "地域向けのページ原稿",
     summary: "口コミで使われている言葉を使い、地域のサービスページやFAQの下書きを作ります。",
   },
   "no-show-recovery-assistant": {
-    title: "無断キャンセルの再予約",
+    title: "無断キャンセル再予約",
     summary: "来なかった予約を確認し、空いている枠で再予約の文面を下書きします。送るかどうかは自分で決めます。",
   },
   "quote-request-assistant": {
-    title: "見積依頼の整理",
+    title: "見積依頼レビュー",
     summary: "フォームやメールの見積依頼から、条件を抜き出して最初の返事を下書きします。",
   },
   "staff-training-assistant": {
@@ -242,7 +244,7 @@ const useCases: Record<string, { title: string; summary: string }> = {
     summary: "手順書をもとに、入社初日に使える確認問題と質問の答えを作ります。",
   },
   "unbilled-work-review-queue": {
-    title: "未請求作業の確認",
+    title: "未請求作業レビュー",
     summary:
       "仕事や工数の書き出しから未請求キューを作り、古い順に確認します。請求するかどうかは自分で決めます。",
   },

@@ -24,6 +24,22 @@ export function isPublicJapaneseCatalogUseCase(useCase: {
  * Premium products use the blueprint purchase page. The free starter uses its kit.
  * Records without a shipped experience stay on the metadata page.
  */
+export function useCaseMatchesProcess(
+  useCase: {
+    primaryBusinessProcess?: string;
+    relatedBusinessProcesses?: string[];
+    businessProcesses?: string[];
+  },
+  process: string,
+): boolean {
+  if (!process) return true;
+  const primary = useCase.primaryBusinessProcess ?? useCase.businessProcesses?.[0];
+  const related = (useCase.relatedBusinessProcesses ?? useCase.businessProcesses?.slice(1) ?? []).filter(
+    (name) => name !== primary,
+  );
+  return primary === process || related.includes(process);
+}
+
 export function japaneseCatalogHref(useCase: { slug: string; accessTier?: string }): string {
   const product = blueprintCatalog.find((item) => item.productSlug === useCase.slug || item.id === useCase.slug);
   if (product?.purchaseHref) return `/ja${product.purchaseHref}`;

@@ -8,18 +8,6 @@ import type { UiLocale } from "@/src/lib/i18n/locale";
 import { ExperienceTile } from "./use-case/experience/experience-tile";
 import { Badge } from "./ui/detail";
 
-const valueStyles = {
-  High: "success" as const,
-  Medium: "warning" as const,
-  Emerging: "info" as const,
-};
-
-const difficultyStyles = {
-  Beginner: "success" as const,
-  Intermediate: "warning" as const,
-  Advanced: "info" as const,
-};
-
 export function UseCaseCard({
   useCase,
   locale = null,
@@ -46,21 +34,11 @@ export function UseCaseCard({
       href={href}
       className="group flex h-full flex-col rounded-2xl border border-border/80 bg-card p-6 shadow-[0_1px_0_0_color-mix(in_srgb,var(--foreground)_5%,transparent)] transition-colors hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5">
-          <Badge>{japanese ? japaneseCatalogLabel(useCase.category) : useCase.category}</Badge>
-          {useCase.accessTier !== "free" && (
-            <Badge variant="accent">{japanese ? "プレミアム" : "Premium Blueprint"}</Badge>
-          )}
-        </div>
-        <div className="flex gap-1.5">
-          <Badge variant={difficultyStyles[useCase.difficulty]}>
-            {japanese ? japaneseCatalogLabel(useCase.difficulty) : useCase.difficulty}
-          </Badge>
-          <Badge variant={valueStyles[useCase.valuePotential]}>
-            {japanese ? japaneseCatalogLabel(useCase.valuePotential) : `${useCase.valuePotential} value`}
-          </Badge>
-        </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Badge>{japanese ? japaneseCatalogLabel(useCase.category) : useCase.category}</Badge>
+        {useCase.accessTier !== "free" && (
+          <Badge variant="accent">{japanese ? "プレミアム" : "Premium Blueprint"}</Badge>
+        )}
       </div>
 
       <h3 className="mt-4 text-lg font-semibold tracking-tight text-foreground group-hover:text-accent transition-colors">
@@ -71,6 +49,10 @@ export function UseCaseCard({
       )}
       <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
         {summary}
+      </p>
+      <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+        <span>{japanese ? japaneseCatalogLabel(useCase.difficulty) : useCase.difficulty}</span>
+        <span>{japanese ? japaneseCatalogLabel(useCase.valuePotential) : `${useCase.valuePotential} value`}</span>
       </p>
 
       {!japanese && outcome && (

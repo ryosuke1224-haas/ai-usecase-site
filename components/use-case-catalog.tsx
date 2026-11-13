@@ -11,7 +11,8 @@ import {
 } from "@/src/lib/discovery";
 import { UseCaseCard } from "./use-case-card";
 import { japaneseCatalogLabel, japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
-import { facetsUsedByCatalog, isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
+import { japaneseBusinessAreas } from "@/src/lib/i18n/business-areas";
+import { facetsUsedByCatalog, isPublicJapaneseCatalogUseCase, useCaseMatchesProcess } from "@/src/lib/i18n/japanese-catalog";
 import type { CatalogLabels } from "@/src/lib/i18n/copy";
 import type { UiLocale } from "@/src/lib/i18n/locale";
 import { englishSiteCopy, siteCopy } from "@/src/lib/i18n/copy";
@@ -66,6 +67,7 @@ export function UseCaseCatalog({
   const api = searchParams.get("api") ?? "";
   const difficulty = searchParams.get("difficulty") ?? "";
   const automation = searchParams.get("automation") ?? "";
+  const process = searchParams.get("process") ?? "";
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -99,7 +101,8 @@ export function UseCaseCatalog({
       (!dataSource || uc.requiredDataSources.includes(dataSource)) &&
       (!api || uc.requiredApis.includes(api)) &&
       (!difficulty || uc.difficulty === difficulty) &&
-      (!automation || uc.automationLevel === automation)
+      (!automation || uc.automationLevel === automation) &&
+      useCaseMatchesProcess(uc, process)
     );
   });
 
@@ -113,6 +116,7 @@ export function UseCaseCatalog({
       api: null,
       difficulty: null,
       automation: null,
+      process: null,
     });
 
   return (
@@ -175,6 +179,16 @@ export function UseCaseCatalog({
         ))}
       </FilterRow>
       </div>
+
+      {process ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <FilterChip
+            label={locale === "ja" ? japaneseBusinessAreas.find((area) => area.processes[process])?.processes[process] ?? process : process}
+            active
+            onClick={() => updateParams({ process: null })}
+          />
+        </div>
+      ) : null}
 
       <p className="mt-6 text-sm font-medium text-muted">
         {resolvedLabels.showing(filtered.length, useCases.length)}

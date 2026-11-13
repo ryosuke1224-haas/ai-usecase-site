@@ -5,57 +5,57 @@ const PREMIUM = [
   {
     slug: "google-ads-performance-coach",
     enTitle: "Google Ads Performance Coach",
-    jaTitle: "Google Ads の見直し",
+    jaTitle: "Google Ads 運用チェック",
   },
   {
     slug: "quote-request-assistant",
     enTitle: "Quote Request Assistant",
-    jaTitle: "見積依頼の整理",
+    jaTitle: "見積依頼レビュー",
   },
   {
     slug: "ai-expense-watchdog",
     enTitle: "AI Expense Watchdog",
-    jaTitle: "経費の見落とし確認",
+    jaTitle: "経費の定期点検",
   },
   {
     slug: "no-show-recovery-assistant",
     enTitle: "No-show Recovery Assistant",
-    jaTitle: "無断キャンセルの再予約",
+    jaTitle: "無断キャンセル再予約",
   },
   {
     slug: "unbilled-work-review-queue",
     enTitle: "Unbilled Work Review Queue",
-    jaTitle: "未請求作業の確認",
+    jaTitle: "未請求作業レビュー",
   },
   {
     slug: "ai-customer-response-assistant",
     enTitle: "On-brand Reply Review Queue",
-    jaTitle: "問い合わせ返信の下書き",
+    jaTitle: "問い合わせ返信レビュー",
   },
   {
     slug: "ai-pipeline-risk-detector",
     enTitle: "Stalled Deal Rescue Queue",
-    jaTitle: "止まりそうな商談",
+    jaTitle: "停滞商談の確認",
   },
   {
     slug: "inactive-customer-winback",
     enTitle: "Lapsed Customer Return Queue",
-    jaTitle: "久々のお客様への再案内",
+    jaTitle: "久々のお客様の再来案内",
   },
   {
     slug: "ai-staffing-optimizer",
     enTitle: "Shift Coverage vs Demand Check",
-    jaTitle: "シフトと需要の調整",
+    jaTitle: "シフト過不足チェック",
   },
   {
     slug: "ai-proposal-follow-up-assistant",
     enTitle: "Quiet Proposal Chase Queue",
-    jaTitle: "提案後のフォロー",
+    jaTitle: "提案フォローの下書き",
   },
   {
     slug: "ai-payroll-forecasting",
     enTitle: "Next-Pay Labor Check",
-    jaTitle: "人件費の見通し",
+    jaTitle: "次回人件費チェック",
   },
 ] as const;
 
@@ -168,6 +168,47 @@ test.describe("Launch catalog, collections, inbox, and legal", () => {
     await expect(footer.getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/legal/terms");
     await expect(footer.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/legal/privacy");
     await expect(footer.getByRole("link", { name: "Refunds" })).toHaveAttribute("href", "/legal/refund");
+  });
+
+  test("Japanese discovery hides empty categories and opens shipped products", async ({ page }) => {
+    await page.goto("/ja");
+    await expect(page.locator("header").getByRole("link", { name: "ツールから探す" })).toHaveCount(0);
+    await expect(page.locator("header").getByRole("link", { name: "AI活用アイデア" })).toHaveCount(0);
+    await expect(page.locator("footer").getByRole("link", { name: "ツールから探す" })).toHaveCount(0);
+    await expect(page.locator("footer").getByRole("link", { name: "AI活用アイデア" })).toHaveCount(0);
+    await expect(page.locator("#how-it-works").getByRole("link", { name: "AI活用テンプレートを見る" })).toHaveAttribute(
+      "href",
+      "/ja/use-cases",
+    );
+
+    await page.goto("/ja/business-areas/sales");
+    const quotes = page.getByRole("link", { name: /見積と提案/ });
+    await expect(quotes).toHaveAttribute("href", "/ja/use-cases?process=Quotes%20%26%20Proposals");
+    await expect(page.getByRole("link", { name: /売上予測/ })).toHaveAttribute(
+      "href",
+      "/ja/use-cases?process=Sales%20Forecasting",
+    );
+    await expect(page.getByText("0件")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "見込み客の受付と見極め" })).toHaveCount(0);
+
+    await quotes.click();
+    await expect(page).toHaveURL(/process=Quotes(%20|\+)%26(%20|\+)Proposals/);
+    await expect(page.getByRole("heading", { level: 3, name: "見積依頼レビュー" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 3, name: "提案フォローの下書き" })).toBeVisible();
+    await expect(page.locator('a[href="/ja/blueprints/quote-request-assistant"]').first()).toBeVisible();
+    await expect(page.locator('a[href="/ja/blueprints/ai-pipeline-risk-detector"]')).toHaveCount(0);
+  });
+
+  test("Japanese mobile navigation stays on shipped discovery", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/ja");
+    await page.getByRole("button", { name: "リソース" }).click();
+    const menu = page.locator("header");
+    await expect(menu.getByRole("link", { name: "ツールから探す" })).toHaveCount(0);
+    await expect(menu.getByRole("link", { name: "AI活用アイデア" })).toHaveCount(0);
+    await expect(menu.getByRole("link", { name: "業務から探す" })).toBeVisible();
+    await expect(menu.getByRole("link", { name: "AI活用テンプレート" })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
   });
 
   test("an auth callback without a code keeps the Japanese next path", async ({ page }) => {

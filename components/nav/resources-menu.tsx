@@ -88,7 +88,7 @@ export function resourceMenuLinks(locale: "ja" | "en" | null = null): ResourceLi
       }
       return [link];
     }
-    if (link.href === "/playbooks/google-ads-audit") return [];
+    if (link.href === "/playbooks/google-ads-audit" || link.href === "/find-workflows" || link.href === "/workflow-ideas") return [];
     const ja: Record<string, { href: string; label: string; description: string }> = {
       "/business-areas": { href: "/ja/business-areas", label: "業務から探す", description: "営業、経理、顧客対応などの業務から見る" },
       "/use-cases": { href: "/ja/use-cases", label: "AI活用テンプレート", description: "すぐ試せる手順" },

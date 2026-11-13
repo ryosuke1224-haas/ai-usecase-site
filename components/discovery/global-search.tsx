@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { usePublishedContent } from "@/src/content/content-context";
 import { globalSearch, type SearchResult } from "@/src/lib/discovery";
-import { isPublicJapaneseCatalogUseCase } from "@/src/lib/i18n/japanese-catalog";
+import { japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
+import { isPublicJapaneseCatalogUseCase, japaneseCatalogHref } from "@/src/lib/i18n/japanese-catalog";
 
 function localizeSearchHref(href: string): string {
   if (href.startsWith("/business-areas")) return href.replace("/business-areas", "/ja/business-areas");
   if (href.startsWith("/use-cases/") || href === "/use-cases") return "/ja/use-cases";
   if (href.startsWith("/apis")) return "/ja/apis";
   if (href.startsWith("/data-sources")) return "/ja/data-sources";
-  if (href.startsWith("/workflow-ideas")) return "/ja/workflow-ideas";
-  if (href.startsWith("/find-workflows")) return "/ja/find-workflows";
   if (href.startsWith("/contact")) return "/ja/contact";
   return href;
 }
@@ -49,8 +48,37 @@ export function GlobalSearch({
       setResults(matches);
       return;
     }
-    const listed = new Set(content.useCases.filter(isPublicJapaneseCatalogUseCase).map((useCase) => useCase.slug));
-    setResults(matches.filter((result) => result.type !== "use-case" || listed.has(result.slug)));
+    const q = query.trim().toLowerCase();
+    const listed = content.useCases.filter(isPublicJapaneseCatalogUseCase);
+    const listedSlugs = new Set(listed.map((useCase) => useCase.slug));
+    const fromEnglish = matches.flatMap((result) => {
+      if (result.type === "workflow") return [];
+      if (result.type === "use-case" && !listedSlugs.has(result.slug)) return [];
+      if (result.type !== "use-case") return [result];
+      const useCase = listed.find((item) => item.slug === result.slug);
+      const label = japaneseUseCase(result.slug);
+      return [{
+        ...result,
+        title: label?.title ?? result.title,
+        summary: label?.summary ?? result.summary,
+        href: useCase ? japaneseCatalogHref(useCase) : result.href,
+      }];
+    });
+    const seen = new Set(fromEnglish.filter((result) => result.type === "use-case").map((result) => result.slug));
+    const fromJapanese = listed.flatMap((useCase) => {
+      if (seen.has(useCase.slug)) return [];
+      const label = japaneseUseCase(useCase.slug);
+      const haystack = `${label?.title ?? ""} ${label?.summary ?? ""}`.toLowerCase();
+      if (!q || !haystack.includes(q)) return [];
+      return [{
+        type: "use-case" as const,
+        slug: useCase.slug,
+        title: label?.title ?? useCase.title,
+        summary: label?.summary ?? useCase.summary,
+        href: japaneseCatalogHref(useCase),
+      }];
+    });
+    setResults([...fromJapanese, ...fromEnglish]);
   }, [query, content, japanese]);
 
   useEffect(() => {

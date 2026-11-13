@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 import { LAUNCH_PRODUCTS } from "@/src/lib/payments/launch-catalog";
-import { facetsUsedByCatalog, isPublicJapaneseCatalogUseCase, japaneseCatalogHref } from "./japanese-catalog";
+import { facetsUsedByCatalog, isPublicJapaneseCatalogUseCase, japaneseCatalogHref, useCaseMatchesProcess } from "./japanese-catalog";
 
 const useCaseDir = "content/published/use-cases";
 
@@ -15,6 +15,9 @@ type CatalogRecord = {
   requiredApis: string[];
   difficulty: string;
   automationLevel: string;
+  primaryBusinessProcess?: string;
+  relatedBusinessProcesses?: string[];
+  businessProcesses?: string[];
 };
 
 function publishedUseCases(): CatalogRecord[] {
@@ -80,4 +83,16 @@ test("Japanese catalog filters use only visible products", () => {
     assert.equal(facets.dataSources.some((facet) => facet.slug === slug), false, slug);
   }
   assert.ok(hiddenOnlyData.length > 0);
+});
+
+test("process matching includes related products and excludes empty categories", () => {
+  const visible = publishedUseCases().filter(isPublicJapaneseCatalogUseCase);
+  const slugs = (process: string) =>
+    visible.filter((record) => useCaseMatchesProcess(record, process)).map((record) => record.slug).sort();
+
+  assert.deepEqual(slugs("Quotes & Proposals"), ["ai-proposal-follow-up-assistant", "quote-request-assistant"]);
+  assert.deepEqual(slugs("Sales Forecasting"), ["ai-pipeline-risk-detector"]);
+  assert.deepEqual(slugs("Follow-Up & Outreach"), ["ai-proposal-follow-up-assistant"]);
+  assert.deepEqual(slugs("Lead Capture & Qualification"), []);
+  assert.equal(useCaseMatchesProcess(visible[0], ""), true);
 });
