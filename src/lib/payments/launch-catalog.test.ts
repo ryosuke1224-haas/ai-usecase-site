@@ -6,15 +6,18 @@ import { checkoutGate } from "./checkout-gate";
 import { buildCheckoutSessionCreateParams } from "./checkout-session";
 import { entitlementFromCheckout, type CheckoutCompletion } from "./entitlement";
 import {
+  COLLECTIONS_JPY_AMOUNT,
   LAUNCH_JPY_AMOUNT,
   LAUNCH_PRODUCTS,
   LAUNCH_USD_CENTS,
+  launchLiveRegistryRows,
   launchRegistryRows,
 } from "./launch-catalog";
-import { formatCheckoutPrice } from "./preview-market";
+import { commerceScopeForUiLocale, formatCheckoutPrice, previewCommerceScope } from "./preview-market";
 import { LIVE_STRIPE_PROVISIONING_BLOCKED, provisionSandboxProduct } from "./provision";
 import { getPaidProduct, productCommercePaths } from "./products";
-import { mergeRegistryProducts, resolveTrustedPriceId } from "./registry";
+import { mappingKey, mergeRegistryProducts, resolveTrustedPriceId } from "./registry";
+import { isLiveStripeKey } from "./stripe-mode";
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -141,7 +144,11 @@ test("paid checkout grants the canonical slug and an owned buyer is not sent to 
 test("launch provisioning stays in sandbox and does not create a live price", async () => {
   const stripeServer = readFileSync("src/lib/stripe/server.ts", "utf8");
   assert.match(stripeServer, /environment: "SANDBOX"/);
-  assert.doesNotMatch(stripeServer, /environment: "LIVE"/);
+  assert.match(stripeServer, /stripeRuntimeMode\(\) === "live"/);
+  assert.match(stripeServer, /STRIPE_SECRET_KEY_JP_LIVE/);
+  assert.equal(stripeServer.includes("STRIPE_SECRET_KEY_US_LIVE"), false);
+  assert.equal(isLiveStripeKey("sk_test_not_live"), false);
+  assert.equal(isLiveStripeKey("sk_live_example"), true);
   const success = readFileSync("app/blueprints/[slug]/checkout/success/page.tsx", "utf8");
   assert.match(success, /hasActiveEntitlement/);
   assert.doesNotMatch(success, /grantCheckoutSession|upsertEntitlement/);
@@ -174,4 +181,108 @@ test("launch provisioning stays in sandbox and does not create a live price", as
   });
   assert.equal(blocked.ok, false);
   if (!blocked.ok) assert.equal(blocked.code, LIVE_STRIPE_PROVISIONING_BLOCKED);
+});
+
+test("production uses one Japanese account for yen and dollar prices", () => {
+  const live = launchLiveRegistryRows();
+  const sandbox = launchRegistryRows();
+  assert.equal(live.filter((row) => LAUNCH_PRODUCTS.some((item) => item.slug === row.product_slug)).length, 22);
+  const sandboxKeys = new Set(sandbox.map(mappingKey));
+  for (const item of LAUNCH_PRODUCTS) {
+    const yen = live.find((row) => row.product_slug === item.slug && row.currency === "jpy");
+    const dollar = live.find((row) => row.product_slug === item.slug && row.currency === "usd");
+    assert.equal(yen?.price_amount, LAUNCH_JPY_AMOUNT);
+    assert.equal(dollar?.price_amount, LAUNCH_USD_CENTS);
+    assert.equal(yen?.market, "JP");
+    assert.equal(dollar?.market, "JP");
+    assert.equal(yen?.locale, "ja");
+    assert.equal(dollar?.locale, "en");
+    assert.equal(yen?.stripe_environment, "LIVE");
+    assert.equal(dollar?.stripe_environment, "LIVE");
+    assert.equal(yen?.payment_type, "ONE_TIME");
+    assert.equal(dollar?.payment_type, "ONE_TIME");
+    assert.equal(yen?.stripe_price_id, null);
+    assert.equal(dollar?.stripe_price_id, null);
+    assert.equal(sandboxKeys.has(mappingKey(yen!)), false);
+    assert.equal(sandboxKeys.has(mappingKey(dollar!)), false);
+  }
+  const collections = live.filter((row) => row.product_slug === "ai-collections-assistant");
+  assert.equal(collections.length, 1);
+  assert.equal(collections[0]?.currency, "jpy");
+  assert.equal(collections[0]?.price_amount, COLLECTIONS_JPY_AMOUNT);
+  assert.equal(collections[0]?.stripe_environment, "LIVE");
+  assert.equal(live.some((row) => row.product_slug === "ai-daily-inbox-briefing"), false);
+  assert.equal(sandbox.some((row) => row.product_slug === "ai-daily-inbox-briefing"), false);
+
+  const slug = "quote-request-assistant";
+  const products = mergeRegistryProducts(sandbox, live).map((row) => {
+    if (row.product_slug !== slug) return row;
+    const priceId = `${row.stripe_environment === "LIVE" ? "price_live" : "price_sandbox"}${row.currency}`;
+    return { ...row, stripe_product_id: `prod_${row.stripe_environment.toLowerCase()}`, stripe_price_id: priceId };
+  });
+  const japan = commerceScopeForUiLocale("ja", { ATLAS_STRIPE_MODE: "live", ATLAS_COMMERCE_MARKET: "US" });
+  const english = commerceScopeForUiLocale("en", { ATLAS_STRIPE_MODE: "live", ATLAS_COMMERCE_MARKET: "US" });
+  assert.deepEqual(japan, { market: "JP", locale: "ja", currency: "jpy", stripe_environment: "LIVE" });
+  assert.deepEqual(english, { market: "JP", locale: "en", currency: "usd", stripe_environment: "LIVE" });
+  const liveYen = resolveTrustedPriceId(slug, { products, ...japan!, environment: japan!.stripe_environment });
+  const liveDollar = resolveTrustedPriceId(slug, { products, ...english!, environment: english!.stripe_environment });
+  assert.deepEqual(liveYen, { ok: true, priceId: "price_livejpy", source: "registry" });
+  assert.deepEqual(liveDollar, { ok: true, priceId: "price_liveusd", source: "registry" });
+  assert.equal(liveYen.ok && liveDollar.ok && liveYen.priceId !== liveDollar.priceId, true);
+
+  const sandboxJapan = commerceScopeForUiLocale("ja", {});
+  const sandboxEnglish = commerceScopeForUiLocale("en", {});
+  assert.equal(sandboxJapan?.stripe_environment, "SANDBOX");
+  assert.equal(sandboxEnglish?.market, "US");
+  const sandboxYen = resolveTrustedPriceId(slug, {
+    products,
+    ...sandboxJapan!,
+    environment: sandboxJapan!.stripe_environment,
+  });
+  const sandboxDollar = resolveTrustedPriceId(slug, {
+    products,
+    ...sandboxEnglish!,
+    environment: sandboxEnglish!.stripe_environment,
+  });
+  assert.deepEqual(sandboxYen, { ok: true, priceId: "price_sandboxjpy", source: "registry" });
+  assert.deepEqual(sandboxDollar, { ok: true, priceId: "price_sandboxusd", source: "registry" });
+  assert.equal(previewCommerceScope({ ATLAS_STRIPE_MODE: "live" })?.market, "JP");
+  assert.equal(previewCommerceScope({ ATLAS_STRIPE_MODE: "sandbox" })?.stripe_environment, "SANDBOX");
+
+  const crossed = resolveTrustedPriceId(slug, {
+    products,
+    market: "US",
+    locale: "en",
+    currency: "usd",
+    environment: "LIVE",
+  });
+  assert.deepEqual(crossed, { ok: false, error: "unknown_product" });
+  const sameSlug = entitlementFromCheckout(
+    {
+      id: "cs_live_same_slug",
+      payment_status: "paid",
+      status: "complete",
+      client_reference_id: USER_ID,
+      customer: "cus_live",
+      payment_intent: "pi_live",
+      metadata: { atlas_user_id: USER_ID, product_slug: slug },
+    },
+    new Date(),
+    products.filter((row) => row.stripe_environment === "LIVE").map((row) => row.product_slug),
+  );
+  const sandboxGrant = entitlementFromCheckout(
+    {
+      id: "cs_test_same_slug",
+      payment_status: "paid",
+      status: "complete",
+      client_reference_id: USER_ID,
+      customer: "cus_test",
+      payment_intent: "pi_test",
+      metadata: { atlas_user_id: USER_ID, product_slug: slug },
+    },
+    new Date(),
+    products.filter((row) => row.stripe_environment === "SANDBOX").map((row) => row.product_slug),
+  );
+  assert.equal("ok" in sameSlug && sameSlug.entitlement.product_slug, slug);
+  assert.equal("ok" in sandboxGrant && sandboxGrant.entitlement.product_slug, slug);
 });

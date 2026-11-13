@@ -214,9 +214,50 @@ test("japan sandbox webhooks use their own secret and a verified checkout grants
   assert.ok(verifyAt > 0 && grantAt > verifyAt);
   assert.match(route, /STRIPE_WEBHOOK_SECRET_JP_SANDBOX/);
   assert.match(route, /stripe-signature/);
+  const routeLive = readFileSync("app/api/stripe/webhook/route.ts", "utf8");
+  assert.match(routeLive, /STRIPE_WEBHOOK_SECRET_JP_LIVE/);
+  assert.match(routeLive, /verified\.event\.livemode \? "LIVE" : "SANDBOX"/);
   const success = readFileSync("app/blueprints/ai-collections-assistant/checkout/success/page.tsx", "utf8");
   assert.match(success, /hasActiveEntitlement/);
   assert.doesNotMatch(success, /grantCheckoutSession|upsertEntitlement/);
+});
+
+test("a livemode webhook verifies only with the live secret", () => {
+  const sandboxSecret = "whsec_sandbox_only";
+  const liveSecret = "whsec_live_only";
+  const secrets = [
+    { account: "JP" as const, secret: sandboxSecret, livemode: false },
+    { account: "JP" as const, secret: liveSecret, livemode: true },
+  ];
+  const livePayload = JSON.stringify({
+    id: "evt_live_ok",
+    object: "event",
+    type: "checkout.session.completed",
+    livemode: true,
+    data: { object: paidSession("cs_live_webhook") },
+  });
+  const liveSigned = Stripe.webhooks.generateTestHeaderString({ payload: livePayload, secret: liveSecret });
+  const liveSignedWithSandbox = Stripe.webhooks.generateTestHeaderString({ payload: livePayload, secret: sandboxSecret });
+  const accepted = verifyStripeEvent(livePayload, liveSigned, secrets);
+  assert.equal(accepted.ok, true);
+  if (accepted.ok) assert.equal(accepted.event.livemode, true);
+  assert.equal(verifyStripeEvent(livePayload, liveSignedWithSandbox, secrets).ok, false);
+  assert.equal(verifyStripeEvent(livePayload, liveSigned, [{ account: "JP", secret: sandboxSecret }]).ok, false);
+
+  const testPayload = JSON.stringify({
+    id: "evt_test_only",
+    object: "event",
+    type: "checkout.session.completed",
+    livemode: false,
+    data: { object: paidSession("cs_test_webhook") },
+  });
+  const testSigned = Stripe.webhooks.generateTestHeaderString({ payload: testPayload, secret: sandboxSecret });
+  const testSignedWithLive = Stripe.webhooks.generateTestHeaderString({ payload: testPayload, secret: liveSecret });
+  const sandboxAccepted = verifyStripeEvent(testPayload, testSigned, secrets);
+  assert.equal(sandboxAccepted.ok, true);
+  if (sandboxAccepted.ok) assert.equal(sandboxAccepted.event.livemode, false);
+  assert.equal(verifyStripeEvent(testPayload, testSignedWithLive, secrets).ok, false);
+  assert.equal(verifyStripeEvent(testPayload, testSigned, [{ account: "JP", secret: liveSecret, livemode: true }]).ok, false);
 });
 
 test("unpaid, unknown, and mismatched checkout sessions do not grant access", async () => {

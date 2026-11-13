@@ -2,14 +2,22 @@ import Stripe from "stripe";
 
 export type WebhookAccount = "US" | "JP";
 
+export type WebhookSecret = {
+  account: WebhookAccount;
+  secret: string;
+  /** True only for the production webhook secret. Omitted secrets verify test-mode events. */
+  livemode?: boolean;
+};
+
 /**
- * Verifies a Stripe signature with one of the configured sandbox secrets.
- * An unsigned or mismatched payload never verifies. A livemode event is rejected.
+ * Verifies a Stripe signature with one configured secret.
+ * A live event verifies only with a live secret.
+ * A test-mode event verifies only with a sandbox secret.
  */
 export function verifyStripeEvent(
   payload: string,
   signature: string | null,
-  secrets: ReadonlyArray<{ account: WebhookAccount; secret: string }>,
+  secrets: ReadonlyArray<WebhookSecret>,
 ): { ok: true; event: Stripe.Event; account: WebhookAccount } | { ok: false } {
   const header = signature?.trim() ?? "";
   if (!header) return { ok: false };
@@ -18,7 +26,7 @@ export function verifyStripeEvent(
   for (const item of configured) {
     try {
       const event = Stripe.webhooks.constructEvent(payload, header, item.secret.trim());
-      if (event.livemode) return { ok: false };
+      if (Boolean(event.livemode) !== (item.livemode === true)) continue;
       return { ok: true, event, account: item.account };
     } catch {
       continue;

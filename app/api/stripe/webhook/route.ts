@@ -3,7 +3,7 @@ import type Stripe from "stripe";
 import { grantCheckoutSession, type CheckoutCompletion } from "@/src/lib/payments/entitlement";
 import { upsertEntitlement } from "@/src/lib/payments/entitlement-store";
 import { loadRegistryProducts } from "@/src/lib/payments/load-registry";
-import { verifyStripeEvent, type WebhookAccount } from "@/src/lib/payments/webhook-verify";
+import { verifyStripeEvent, type WebhookSecret } from "@/src/lib/payments/webhook-verify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,17 +22,18 @@ function sessionFromEvent(event: Stripe.Event): CheckoutCompletion | null {
   };
 }
 
-function sandboxWebhookSecrets(): Array<{ account: WebhookAccount; secret: string }> {
+function webhookSecrets(): WebhookSecret[] {
   return [
-    { account: "US", secret: process.env.STRIPE_WEBHOOK_SECRET?.trim() ?? "" },
-    { account: "JP", secret: process.env.STRIPE_WEBHOOK_SECRET_JP_SANDBOX?.trim() ?? "" },
+    { account: "US", secret: process.env.STRIPE_WEBHOOK_SECRET?.trim() ?? "", livemode: false },
+    { account: "JP", secret: process.env.STRIPE_WEBHOOK_SECRET_JP_SANDBOX?.trim() ?? "", livemode: false },
+    { account: "JP", secret: process.env.STRIPE_WEBHOOK_SECRET_JP_LIVE?.trim() ?? "", livemode: true },
   ];
 }
 
 export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
   const payload = await request.text();
-  const verified = verifyStripeEvent(payload, signature, sandboxWebhookSecrets());
+  const verified = verifyStripeEvent(payload, signature, webhookSecrets());
   if (!verified.ok) {
     return NextResponse.json({ received: false, granted: false }, { status: 400 });
   }
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
   try {
     const products = await loadRegistryProducts();
     const activeSlugs = products
-      .filter((item) => item.status === "ACTIVE" && item.stripe_environment === "SANDBOX")
+      .filter((item) => item.status === "ACTIVE" && item.stripe_environment === (verified.event.livemode ? "LIVE" : "SANDBOX"))
       .map((item) => item.product_slug);
     const result = await grantCheckoutSession(session, { upsert: upsertEntitlement }, new Date(), activeSlugs);
     if (!result.granted) {

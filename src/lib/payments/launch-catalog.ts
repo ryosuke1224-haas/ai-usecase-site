@@ -26,12 +26,16 @@ export function isLaunchProduct(slug: string): slug is LaunchProductSlug {
   return LAUNCH_PRODUCTS.some((item) => item.slug === slug);
 }
 
+/** Japan Collections stays on its own yen price. It is not part of the ¥7,980 set. */
+export const COLLECTIONS_JPY_AMOUNT = 4900;
+
 function row(
-  item: (typeof LAUNCH_PRODUCTS)[number],
+  item: { slug: string; name: string },
   market: RegistryProduct["market"],
   locale: RegistryProduct["locale"],
   currency: RegistryProduct["currency"],
   amount: number,
+  environment: RegistryProduct["stripe_environment"],
 ): RegistryProduct {
   return {
     product_slug: item.slug,
@@ -45,18 +49,44 @@ function row(
     approved_price_amount: amount,
     currency,
     payment_type: "ONE_TIME",
-    stripe_environment: "SANDBOX",
+    stripe_environment: environment,
     status: "ACTIVE",
-    commercial_rationale: "Approved flat one-time launch price. Sandbox only.",
+    commercial_rationale:
+      environment === "LIVE"
+        ? "Approved one-time price on the Japanese production account. Price IDs are provisioned separately."
+        : "Approved flat one-time launch price. Sandbox only.",
     created_at: STAMP,
     updated_at: STAMP,
   };
 }
 
-/** Local catalog rows. A saved registry mapping with the same key replaces these. */
+/** Sandbox catalog rows. A saved sandbox mapping with the same key replaces these. */
 export function launchRegistryRows(): RegistryProduct[] {
   return LAUNCH_PRODUCTS.flatMap((item) => [
-    row(item, "US", "en", "usd", LAUNCH_USD_CENTS),
-    row(item, "JP", "ja", "jpy", LAUNCH_JPY_AMOUNT),
+    row(item, "US", "en", "usd", LAUNCH_USD_CENTS, "SANDBOX"),
+    row(item, "JP", "ja", "jpy", LAUNCH_JPY_AMOUNT, "SANDBOX"),
   ]);
+}
+
+/**
+ * Live catalog rows for the one Japanese production account.
+ * Stripe IDs stay empty until that account is provisioned.
+ * Both currencies use market JP so they cannot collide with the US sandbox rows.
+ */
+export function launchLiveRegistryRows(): RegistryProduct[] {
+  const blueprints = LAUNCH_PRODUCTS.flatMap((item) => [
+    row(item, "JP", "ja", "jpy", LAUNCH_JPY_AMOUNT, "LIVE"),
+    row(item, "JP", "en", "usd", LAUNCH_USD_CENTS, "LIVE"),
+  ]);
+  return [
+    ...blueprints,
+    row(
+      { slug: "ai-collections-assistant", name: "AI Collections Assistant" },
+      "JP",
+      "ja",
+      "jpy",
+      COLLECTIONS_JPY_AMOUNT,
+      "LIVE",
+    ),
+  ];
 }

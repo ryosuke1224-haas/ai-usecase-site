@@ -1,6 +1,6 @@
 import "server-only";
 
-import { launchRegistryRows } from "./launch-catalog";
+import { launchLiveRegistryRows, launchRegistryRows } from "./launch-catalog";
 import { mergeRegistryProducts, readRegistryFile, type RegistryProduct } from "./registry";
 import { readSupabaseRegistry } from "./registry-supabase";
 
@@ -8,5 +8,8 @@ import { readSupabaseRegistry } from "./registry-supabase";
 export async function loadRegistryProducts(): Promise<RegistryProduct[]> {
   const local = readRegistryFile();
   const remote = await readSupabaseRegistry();
-  return mergeRegistryProducts(launchRegistryRows(), mergeRegistryProducts(local, remote));
+  return mergeRegistryProducts(
+    mergeRegistryProducts(launchRegistryRows(), launchLiveRegistryRows()),
+    mergeRegistryProducts(local, remote),
+  );
 }

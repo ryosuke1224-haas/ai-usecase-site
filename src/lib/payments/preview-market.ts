@@ -5,12 +5,13 @@ import {
   type RegistryCurrency,
   type StripeEnvironment,
 } from "./registry";
+import { stripeRuntimeMode } from "./stripe-mode";
 
 export type PreviewCommerceScope = {
   market: MarketCode;
   locale: LocaleCode;
   currency: RegistryCurrency;
-  stripe_environment: Extract<StripeEnvironment, "SANDBOX">;
+  stripe_environment: StripeEnvironment;
 };
 
 /**
@@ -25,19 +26,33 @@ export function parseUiLocale(value: unknown): UiCommerceLocale | null {
 }
 
 /**
- * Prefixed pages choose a server-owned Sandbox mapping.
- * Unprefixed pages keep the deployment environment.
+ * Prefixed pages choose a server-owned mapping.
+ * Live mode sells both currencies from the Japanese account.
+ * Sandbox mode keeps the Japan sandbox yen price and the US sandbox dollar price.
  */
 export function commerceScopeForUiLocale(
   locale: UiCommerceLocale | null,
   env: NodeJS.ProcessEnv = process.env,
 ): PreviewCommerceScope | null {
-  if (locale === "ja") return { market: "JP", locale: "ja", currency: "jpy", stripe_environment: "SANDBOX" };
-  if (locale === "en") return { market: "US", locale: "en", currency: "usd", stripe_environment: "SANDBOX" };
+  if (locale === "ja" || locale === "en") return localeCommerceScope(locale, env);
   return previewCommerceScope(env);
 }
 
+function localeCommerceScope(locale: UiCommerceLocale, env: NodeJS.ProcessEnv): PreviewCommerceScope {
+  if (stripeRuntimeMode(env) === "live") {
+    return locale === "ja"
+      ? { market: "JP", locale: "ja", currency: "jpy", stripe_environment: "LIVE" }
+      : { market: "JP", locale: "en", currency: "usd", stripe_environment: "LIVE" };
+  }
+  return locale === "ja"
+    ? { market: "JP", locale: "ja", currency: "jpy", stripe_environment: "SANDBOX" }
+    : { market: "US", locale: "en", currency: "usd", stripe_environment: "SANDBOX" };
+}
+
 export function previewCommerceScope(env: NodeJS.ProcessEnv = process.env): PreviewCommerceScope | null {
+  if (stripeRuntimeMode(env) === "live") {
+    return localeCommerceScope(env.ATLAS_COMMERCE_LOCALE?.trim().toLowerCase() === "ja" ? "ja" : "en", env);
+  }
   const market = env.ATLAS_COMMERCE_MARKET?.trim().toUpperCase() ?? "";
   const locale = env.ATLAS_COMMERCE_LOCALE?.trim().toLowerCase() ?? "";
   if (!market && !locale) return { ...PREVIEW_PRICE_SCOPE, stripe_environment: "SANDBOX" };
