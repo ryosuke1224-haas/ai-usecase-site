@@ -157,10 +157,10 @@ export function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+      className={`shrink-0 rounded-full px-3.5 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
         active
           ? "bg-accent text-accent-foreground"
-          : "bg-surface text-muted hover:bg-border/40 hover:text-foreground"
+          : "border border-border/80 bg-surface text-muted hover:border-accent/30 hover:text-foreground"
       }`}
     >
       {label}

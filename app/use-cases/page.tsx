@@ -33,10 +33,10 @@ export default function UseCasesPage() {
   const { useCases } = loadPublishedContent();
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <header className="border-b border-border/60 pb-4">
-        <p className="font-mono text-xs text-muted">Reference · {useCases.length} entries</p>
-        <h1 className="mt-1 text-2xl font-bold">Use Case Library</h1>
+    <div className="launch-canvas mx-auto max-w-6xl px-6 py-10 sm:py-12">
+      <header className="border-b border-border/70 pb-6">
+        <p className="text-xs font-semibold tracking-wide text-accent">Reference · {useCases.length} entries</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Use Case Library</h1>
         <p className="mt-1 text-sm text-muted">
           Filter by tools you have, data you collect, or business type. Each entry
           includes a requirements checklist and build path comparison.

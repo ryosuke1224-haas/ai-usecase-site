@@ -35,12 +35,16 @@ export function LiveHomePage() {
   const areas = getBusinessAreaOverviews();
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10 sm:py-14">
-      <section className="rounded-2xl border border-border/60 bg-card px-6 py-10 sm:px-10 sm:py-12 lg:px-14">
-        <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-accent sm:text-xs">
+    <div className="launch-canvas mx-auto w-full max-w-6xl px-6 py-10 sm:py-16">
+      <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-card px-6 py-12 shadow-[0_1px_0_0_color-mix(in_srgb,var(--foreground)_6%,transparent)] sm:px-10 sm:py-14 lg:px-14">
+        <div className="absolute inset-y-0 left-0 w-1 bg-accent" aria-hidden="true" />
+        <p className="text-xs font-semibold tracking-wide text-accent">
           Practical AI workflows for small businesses
         </p>
-        <h1 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.6rem] lg:leading-tight">
+        <p className="mt-3 max-w-2xl text-sm font-medium text-foreground sm:text-base">
+          Practical US-tech workflow experience, applied to everyday business work.
+        </p>
+        <h1 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
           See where AI can save time across your business
         </h1>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
@@ -49,16 +53,16 @@ export function LiveHomePage() {
           customer service, and everyday administration.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Link
             href="/business-areas"
-            className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           >
             Explore business areas
           </Link>
           <Link
             href="/use-cases"
-            className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-surface px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:border-accent/40 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border/80 bg-surface px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:border-accent/40 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           >
             Browse all AI blueprints
           </Link>
@@ -92,7 +96,7 @@ export function LiveHomePage() {
           {steps.map((step) => (
             <li
               key={step.number}
-              className="rounded-xl border border-border/60 bg-surface/60 px-5 py-5"
+              className="rounded-2xl border border-border/70 bg-card px-5 py-6"
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-sm font-bold text-accent">
                 {step.number}

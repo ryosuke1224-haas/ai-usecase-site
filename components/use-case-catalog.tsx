@@ -117,12 +117,13 @@ export function UseCaseCatalog({
 
   return (
     <div className={isPending ? "opacity-70 transition-opacity" : ""}>
+      <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
       <input
         type="search"
         placeholder={resolvedLabels.search}
         defaultValue={query}
         onChange={(e) => updateParams({ q: e.target.value || null })}
-        className="w-full rounded-xl border border-border/60 bg-card px-4 py-3 text-sm outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/20"
+        className="w-full rounded-xl border border-border/80 bg-surface px-4 py-3 text-sm outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/20"
       />
 
       <FilterRow label={resolvedLabels.category}>
@@ -173,8 +174,9 @@ export function UseCaseCatalog({
           <FilterChip key={a} label={labelFor(a)} active={automation === a} onClick={() => updateParams({ automation: automation === a ? null : a })} />
         ))}
       </FilterRow>
+      </div>
 
-      <p className="mt-6 text-sm text-muted">
+      <p className="mt-6 text-sm font-medium text-muted">
         {resolvedLabels.showing(filtered.length, useCases.length)}
       </p>
 
@@ -194,7 +196,7 @@ export function UseCaseCatalog({
 function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mt-4">
-      <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
+      <p className="mb-2 text-xs font-semibold tracking-wide text-foreground">{label}</p>
       <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );
@@ -212,7 +214,7 @@ function EmptyState({
   return (
     <div className="mt-12 rounded-2xl border border-dashed border-border/60 px-6 py-16 text-center">
       <p className="text-lg font-medium">{title}</p>
-      <button type="button" onClick={onClear} className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground">
+      <button type="button" onClick={onClear} className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
         {clearLabel}
       </button>
     </div>

@@ -44,13 +44,13 @@ export function UseCaseCard({
   return (
     <Link
       href={href}
-      className="group flex flex-col rounded-2xl border border-border/60 bg-card p-6 transition-all hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5"
+      className="group flex h-full flex-col rounded-2xl border border-border/80 bg-card p-6 shadow-[0_1px_0_0_color-mix(in_srgb,var(--foreground)_5%,transparent)] transition-colors hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-wrap gap-1.5">
           <Badge>{japanese ? japaneseCatalogLabel(useCase.category) : useCase.category}</Badge>
           {useCase.accessTier !== "free" && (
-            <Badge variant="info">{japanese ? "プレミアム" : "Premium Blueprint"}</Badge>
+            <Badge variant="accent">{japanese ? "プレミアム" : "Premium Blueprint"}</Badge>
           )}
         </div>
         <div className="flex gap-1.5">
@@ -93,7 +93,7 @@ export function UseCaseCard({
         ))}
       </div> : null}
 
-      <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-accent">
+      <span className="mt-5 inline-flex items-center gap-1 border-t border-border/60 pt-4 text-sm font-semibold text-accent">
         {japanese ? "テンプレートを見る" : "View blueprint"}
         <span className="transition-transform group-hover:translate-x-0.5">→</span>
       </span>

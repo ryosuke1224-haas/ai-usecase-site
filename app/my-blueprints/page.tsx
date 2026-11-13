@@ -31,7 +31,7 @@ export default async function MyBlueprintsPage() {
   const blueprints = await listBlueprintCards(user.id);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 sm:py-12">
+    <div className="launch-canvas mx-auto max-w-4xl px-6 py-10 sm:py-14">
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
         My Blueprints
       </h1>
@@ -44,13 +44,15 @@ export default async function MyBlueprintsPage() {
         Signed in as {user.email ?? "your Atlas account"}
       </p>
 
-      <ul className="mt-8 space-y-3">
+      <ul className="mt-8 space-y-4">
         {blueprints.map((blueprint) => {
           const action = cardAction(blueprint);
           return (
             <li
               key={blueprint.id}
-              className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6"
+              className={`rounded-2xl border bg-card p-5 shadow-[0_1px_0_0_color-mix(in_srgb,var(--foreground)_5%,transparent)] sm:p-6 ${
+                blueprint.unlocked ? "border-emerald-600/35" : "border-border/80"
+              }`}
             >
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center rounded-md bg-accent/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-accent">
@@ -72,10 +74,10 @@ export default async function MyBlueprintsPage() {
               <p className="mt-1 text-sm leading-relaxed text-muted">
                 {blueprint.summary}
               </p>
-              <div className="mt-4">
+              <div className="mt-5">
                 <Link
                   href={action.href}
-                  className="inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:w-auto"
                 >
                   {action.label}
                 </Link>
@@ -86,7 +88,7 @@ export default async function MyBlueprintsPage() {
       </ul>
 
       {blueprints.length === 0 && (
-        <p className="mt-8 rounded-xl border border-border/60 bg-surface/60 px-5 py-4 text-sm text-muted">
+        <p className="mt-8 rounded-2xl border border-dashed border-border/80 bg-card px-5 py-8 text-sm text-muted">
           No blueprints are unlocked yet.
         </p>
       )}

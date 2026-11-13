@@ -30,22 +30,21 @@ export default async function LocaleUseCasesPage({ params }: PageProps) {
   const listed = locale === "ja" ? useCases.filter(isPublicJapaneseCatalogUseCase) : useCases;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <header className="border-b border-border/60 pb-4">
-        <p className="font-mono text-xs text-muted">{copy.eyebrow(listed.length)}</p>
-        <h1 className="mt-1 text-2xl font-bold">{copy.title}</h1>
-        <p className="mt-1 text-sm text-muted">{copy.body}</p>
-        <p className="mt-2 text-xs text-muted">
-          <Link href={locale === "ja" ? "/ja/business-areas" : "/business-areas"} className="text-accent hover:underline">
+    <div className="launch-canvas mx-auto max-w-6xl px-6 py-10 sm:py-12">
+      <header className="border-b border-border/70 pb-6">
+        <p className="text-xs font-semibold tracking-wide text-accent">{copy.eyebrow(listed.length)}</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{copy.title}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">{copy.body}</p>
+        <p className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+          <Link href={locale === "ja" ? "/ja/business-areas" : "/business-areas"} className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
             {siteCopy(locale).nav.businessAreas}
           </Link>
-          {" · "}
-          <Link href={localizedHref(locale, "/blueprints/ai-collections-assistant")} className="text-accent hover:underline">
+          <Link href={localizedHref(locale, "/blueprints/ai-collections-assistant")} className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
             AI Collections Assistant
           </Link>
         </p>
       </header>
-      <div className="mt-6">
+      <div className="mt-8">
         <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-surface" />}>
           <UseCaseCatalog catalogPath={localizedHref(locale, "/use-cases")} locale={locale} />
         </Suspense>

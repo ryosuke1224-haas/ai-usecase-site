@@ -28,7 +28,7 @@ export function BusinessAreaCard({
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col rounded-xl border border-border/60 bg-card px-5 py-5 transition-all hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      className="group flex h-full flex-col rounded-2xl border border-border/80 bg-card px-5 py-6 shadow-[0_1px_0_0_color-mix(in_srgb,var(--foreground)_5%,transparent)] transition-colors hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
     >
       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 text-accent">
         <BusinessAreaIcon area={area.slug} />

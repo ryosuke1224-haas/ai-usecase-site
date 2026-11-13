@@ -32,7 +32,7 @@ export function PremiumAccessPanel({
   return (
     <section
       aria-label={uiLocale === "ja" ? "プレミアムAI活用テンプレート" : "Premium access"}
-      className="mt-6 rounded-2xl border border-border/60 bg-card p-5 sm:p-6"
+      className="mt-8 rounded-2xl border border-accent/25 bg-card p-5 ring-1 ring-accent/10 sm:p-6"
     >
       {uiLocale === "ja" ? (
         <div>
