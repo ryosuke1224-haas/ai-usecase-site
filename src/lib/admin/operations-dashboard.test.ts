@@ -315,32 +315,68 @@ test("the project record is the dashboard source for status, roadmap, and change
   const model = buildOperationsDashboard(input());
   assert.deepEqual(
     model.statusGroups.find((group) => group.status === "LIVE")?.areas.map((area) => area.name),
-    ["Japanese site", "English site", "Stripe live checkout", "Auth", "My Blueprints", "Premium Blueprints", "Collections", "Daily Inbox"],
+    [
+      "Japanese site",
+      "English site",
+      "Stripe live checkout",
+      "Auth",
+      "My Blueprints",
+      "Premium Blueprints",
+      "Collections",
+      "Daily Inbox",
+      "Operations Dashboard",
+      "Vercel Analytics",
+      "Blog foundation",
+      "Newsletter signup",
+      "Review queue",
+    ],
   );
   assert.deepEqual(
     model.statusGroups.find((group) => group.status === "IN_PROGRESS")?.areas.map((area) => area.name),
-    ["Operations Dashboard", "Vercel Analytics", "Blog foundation", "Newsletter signup", "Review queue"],
+    [],
   );
   assert.deepEqual(
     model.statusGroups.find((group) => group.status === "PLANNED")?.areas.map((area) => area.name),
-    ["Newsletter sending", "Atlas weekly", "CS automation", "SNS automation"],
+    [
+      "Newsletter sending",
+      "Atlas weekly",
+      "News research automation",
+      "Blog and newsletter draft generation",
+      "Controlled publish",
+      "Scheduling",
+      "Analytics dashboard API",
+      "CS automation",
+      "SNS automation",
+      "Broader product automation",
+    ],
   );
-  assert.deepEqual(model.roadmap.now.map((item) => item.name), ["Analytics read", "Atlas content storage"]);
-  assert.deepEqual(model.roadmap.next.map((item) => item.name), ["Atlas Weekly Automation"]);
+  assert.deepEqual(model.roadmap.now.map((item) => item.name), [
+    "Atlas Weekly Automation",
+    "News research automation",
+    "Blog/newsletter draft generation",
+  ]);
+  assert.deepEqual(model.roadmap.next.map((item) => item.name), [
+    "Controlled Publish",
+    "Newsletter sending",
+    "Scheduling",
+    "Analytics dashboard API integration",
+  ]);
   assert.deepEqual(model.roadmap.later.map((item) => item.name), [
-    "Automated newsletter sending",
     "SNS automation",
     "CS automation",
-    "Full Atlas weekly orchestration",
+    "Broader product automation",
   ]);
-  assert.equal(model.recentChanges[0]?.date, "2026-11-13");
-  assert.match(model.recentChanges[0]?.title ?? "", /review queue/i);
+  assert.equal(model.recentChanges[0]?.date, "2026-11-14");
+  assert.match(model.recentChanges[0]?.title ?? "", /production growth and admin status/i);
   assert.equal(model.pipeline.some((item) => item.name === "Atlas weekly"), true);
   assert.equal(model.pipeline.some((item) => item.name === "Review queue"), false);
   assert.equal(model.pipeline.some((item) => item.name === "Blog foundation"), false);
   assert.equal(model.pipeline.some((item) => item.name === "Operations Dashboard"), false);
   assert.deepEqual(model.overview.find((card) => card.id === "collections")?.value, "LIVE");
-  assert.deepEqual(model.overview.find((card) => card.id === "blog")?.value, "IN_PROGRESS");
+  assert.deepEqual(model.overview.find((card) => card.id === "blog")?.value, "LIVE");
+  assert.match(model.overview.find((card) => card.id === "newsletter")?.value ?? "", /^LIVE \/ PLANNED$/);
+  assert.doesNotMatch(model.overview.find((card) => card.id === "blog")?.detail ?? "", /Apply the Atlas/);
+  assert.doesNotMatch(model.overview.find((card) => card.id === "newsletter")?.detail ?? "", /Apply the Atlas/);
   assert.equal(model.viewerEmail, "Owner@Example.com");
 
   const ids = projectOperations.areas.map((area) => area.id);
