@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { AtlasAnalytics } from "@/components/analytics/atlas-analytics";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { GoogleAdsConfig } from "@/components/google-ads-config";
@@ -74,6 +75,7 @@ export default async function RootLayout({
           <div className="flex-1">{children}</div>
           <Footer locale={locale} />
         </ContentProvider>
+        <AtlasAnalytics />
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
         {googleAdsId ? <GoogleAdsConfig adsId={googleAdsId} /> : null}
       </body>

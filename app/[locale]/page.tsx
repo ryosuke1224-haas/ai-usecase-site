@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BusinessAreaCard } from "@/components/business-areas/business-area-card";
 import { FeaturedLaunchProducts } from "@/components/home/featured-launch-products";
+import { NewsletterSignup } from "@/components/newsletter/signup-form";
 import { FeaturedTopics } from "@/components/topics/featured-topics";
 import { loadPublishedContent } from "@/src/content/load-published";
 import { siteCopy } from "@/src/lib/i18n/copy";
@@ -103,6 +104,12 @@ export default async function LocaleHomePage({ params }: PageProps) {
             </li>
           ))}
         </ol>
+        {locale === "ja" ? (
+          <section className="mt-10 rounded-2xl border border-border/80 bg-card p-5 sm:p-6">
+            <h3 className="text-lg font-semibold">ニュースレター</h3>
+            <NewsletterSignup source="ja-home" idPrefix="home" />
+          </section>
+        ) : null}
         {locale === "ja" ? (
           <p className="mt-8 text-sm text-muted">
             <Link href="/ja/use-cases" className="font-medium text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">

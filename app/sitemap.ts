@@ -4,11 +4,15 @@ import {
   getAllDataSourceSlugs,
   getAllUseCaseSlugs,
 } from "@/src/content/load-published";
+import { publishedSitemapPaths } from "@/src/lib/blog/model";
+import { loadSitemapArticles } from "@/src/lib/blog/store";
 import { BUSINESS_AREAS } from "@/src/lib/business-areas";
 import { isComingSoonMode } from "@/src/lib/site-mode";
 import { SITE_URL } from "@/src/lib/site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const dynamic = "force-dynamic";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (isComingSoonMode()) {
     return [
       {
@@ -28,6 +32,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticRoutes: MetadataRoute.Sitemap = [
     "",
+    "/ja/blog",
+    "/ja/newsletter",
     "/business-areas",
     "/use-cases",
     "/find-workflows",
@@ -77,11 +83,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }),
   );
 
+  let articleRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const articles = await loadSitemapArticles();
+    articleRoutes = publishedSitemapPaths(articles).map((path) => ({
+      url: `${SITE_URL}${path}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    }));
+  } catch {
+    articleRoutes = [];
+  }
+
   return [
     ...staticRoutes,
     ...businessAreaRoutes,
     ...useCaseRoutes,
     ...apiRoutes,
     ...dataSourceRoutes,
+    ...articleRoutes,
   ];
 }

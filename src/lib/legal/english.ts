@@ -124,6 +124,14 @@ export const englishLegalDocuments: Record<EnglishLegalDocument["slug"], English
           "Google Analytics is loaded only when a measurement ID is configured.",
           "A Google ads tag is loaded only when an ads measurement ID is configured.",
           "When those IDs are not set, those scripts are not loaded.",
+          "Vercel Web Analytics may record page views in production. It does not use a cookie banner.",
+        ],
+      },
+      {
+        heading: "Newsletter",
+        body: [
+          "An email address entered for the newsletter is stored so AI Use Case Atlas can send updates and newsletters.",
+          "Subscriber addresses are not published. Sending has not started.",
         ],
       },
       {

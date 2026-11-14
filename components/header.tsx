@@ -10,12 +10,16 @@ import { isComingSoonMode } from "@/src/lib/site-mode";
 function navLinks(locale: UiLocale | null) {
   const copy = siteCopy(locale ?? "en").nav;
   const href = (path: string, localized: boolean) => (locale && localized ? localizedHref(locale, path) : path);
-  return [
+  const links = [
     { href: locale === "ja" ? "/ja/business-areas" : "/business-areas", label: copy.businessAreas },
     { href: href("/use-cases", true), label: copy.blueprints },
     { href: href("/#how-it-works", true), label: copy.howItWorks },
     { href: href("/contact", true), label: copy.contact },
   ].filter((link) => locale !== "ja" || !link.href.includes("#how-it-works"));
+  if (locale === "ja") {
+    links.splice(2, 0, { href: "/ja/blog", label: "ブログ" }, { href: "/ja/newsletter", label: "ニュースレター" });
+  }
+  return links;
 }
 
 function BrandLink({ locale }: { locale: UiLocale | null }) {

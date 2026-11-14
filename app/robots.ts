@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: ["/", "/contact"],
         disallow: [
+          "/admin",
           "/business-areas",
           "/find-workflows",
           "/use-cases",
@@ -26,6 +27,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      disallow: ["/admin"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
