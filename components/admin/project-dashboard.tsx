@@ -61,6 +61,13 @@ function ItemCard({
       <h3 className="mt-1 text-sm font-semibold">{item.title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">{item.summary}</p>
       <p className="mt-2 text-xs text-muted">{item.createdAt ?? "No date"} · {item.qa}</p>
+      {item.sources && item.sources.length > 0 ? (
+        <ul className="mt-2 space-y-1 text-xs">
+          {item.sources.map((url) => (
+            <li key={url}><a className="break-all text-accent hover:underline" href={url} rel="noreferrer">{url}</a></li>
+          ))}
+        </ul>
+      ) : null}
       <p className="mt-2 text-xs">
         {item.previewHref ? <Link className="font-medium text-accent hover:underline" href={item.previewHref}>Preview</Link> : "No public preview"}
         {item.relatedHref ? <> · <Link className="font-medium text-accent hover:underline" href={item.relatedHref}>{item.relatedLabel ?? "Related"}</Link></> : null}
@@ -244,6 +251,7 @@ export function ProjectDashboard({
                   <li key={run.id} className="px-4 py-3 text-sm">
                     <span className="font-medium">{run.id}</span>
                     <span className="mt-1 block text-xs text-muted">{run.outcome} · {run.phase} · {run.mode}{run.updatedAt ? ` · ${run.updatedAt}` : ""}</span>
+                    {run.detail ? <span className="mt-1 block text-xs text-muted">{run.detail}</span> : null}
                   </li>
                 ))}
               </ul>

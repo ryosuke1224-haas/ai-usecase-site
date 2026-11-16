@@ -19,29 +19,27 @@ function readJson(file: string): unknown {
   }
 }
 
+function collectRuns(dir: string, into: AtlasRunSummary[]) {
+  if (!existsSync(dir)) return;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const parsed = parseRunRecord(readJson(path.join(/*turbopackIgnore: true*/ dir, entry.name, "run.json")));
+    if (parsed && !into.some((run) => run.id === parsed.id)) into.push(parsed);
+  }
+}
+
 export function readAtlasMemory(root = process.cwd()): {
   runs: AtlasRunSummary[];
   candidates: CandidateState[];
   japan: JapanProductState[];
 } {
-  const memory = path.join(root, "atlas-memory");
-  const runsDir = path.join(memory, "runs");
   const runs: AtlasRunSummary[] = [];
-  if (existsSync(runsDir)) {
-    const names = readdirSync(runsDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-      .sort()
-      .reverse()
-      .slice(0, 30);
-    for (const name of names) {
-      const parsed = parseRunRecord(readJson(path.join(runsDir, name, "run.json")));
-      if (parsed) runs.push(parsed);
-    }
-  }
+  collectRuns(path.join(/*turbopackIgnore: true*/ root, "atlas-memory", "runs"), runs);
+  collectRuns(path.join(/*turbopackIgnore: true*/ root, "atlas-memory", "weekly", "runs"), runs);
+  runs.sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""));
   return {
-    runs,
-    candidates: parseCandidateHistory(readJson(path.join(memory, "candidate-history.json"))),
-    japan: parseJapanBatch(readJson(path.join(memory, "japan", "batch.json"))),
+    runs: runs.slice(0, 30),
+    candidates: parseCandidateHistory(readJson(path.join(/*turbopackIgnore: true*/ root, "atlas-memory", "candidate-history.json"))),
+    japan: parseJapanBatch(readJson(path.join(/*turbopackIgnore: true*/ root, "atlas-memory", "japan", "batch.json"))),
   };
 }

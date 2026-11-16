@@ -38,6 +38,7 @@ export type ReviewItem = {
   relatedLabel: string | null;
   mutable: boolean;
   source: "articles" | "newsletter_issues" | "review_items" | "atlas-memory";
+  sources?: string[];
 };
 
 export function isReviewAction(value: string): value is ReviewAction {
@@ -64,6 +65,12 @@ export function candidateReviewStatus(status: string): string {
   if (status === "REJECTED") return "REJECTED";
   if (status === "BUILT" || status === "COMPLETED") return "PUBLISHED";
   return "DRAFT";
+}
+
+export function sourceLinks(value: string | null | undefined): string[] {
+  if (!value) return [];
+  const found = value.match(/https:\/\/[^\s<>)\]]+/g) ?? [];
+  return [...new Set(found.map((url) => url.replace(/[.,]$/, "")))].slice(0, 8);
 }
 
 export function queueItems(items: readonly ReviewItem[]): ReviewItem[] {

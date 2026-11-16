@@ -5,6 +5,7 @@ export type AtlasRunSummary = {
   mode: string;
   updatedAt: string | null;
   outcome: "running" | "failed" | "succeeded" | "waiting";
+  detail?: string | null;
 };
 
 export type JapanProductState = {
@@ -23,7 +24,17 @@ export type CandidateState = {
   summary: string;
 };
 
-const RUNNING = new Set(["RESEARCH", "SPEC", "BUILD"]);
+const RUNNING = new Set([
+  "RESEARCH",
+  "SELECT",
+  "BLOG_DRAFT",
+  "NEWSLETTER_DRAFT",
+  "BLUEPRINT_CANDIDATES",
+  "QA",
+  "REVIEW_QUEUE",
+  "SPEC",
+  "BUILD",
+]);
 const FAILED = new Set(["FAILED", "HUMAN_INTERVENTION_REQUIRED"]);
 const SUCCEEDED = new Set(["FINISHED", "READY_FOR_PREVIEW"]);
 
@@ -37,9 +48,25 @@ export function classifyRun(phase: string, status: string | null): AtlasRunSumma
 
 export function parseRunRecord(value: unknown): AtlasRunSummary | null {
   if (!value || typeof value !== "object") return null;
-  const row = value as { run_id?: unknown; phase?: unknown; status?: unknown; mode?: unknown; updated_at?: unknown };
+  const row = value as {
+    run_id?: unknown;
+    phase?: unknown;
+    status?: unknown;
+    mode?: unknown;
+    updated_at?: unknown;
+    counts?: unknown;
+    errors?: unknown;
+  };
   if (typeof row.run_id !== "string" || typeof row.phase !== "string") return null;
   const status = typeof row.status === "string" ? row.status : row.phase;
+  const counts = row.counts && typeof row.counts === "object" ? row.counts as Record<string, unknown> : null;
+  const countText = counts
+    ? ["researched", "selected", "blogs", "queued", "qaRejected", "duplicates"].flatMap((key) => (
+      typeof counts[key] === "number" ? [`${key} ${counts[key]}`] : []
+    )).join(", ")
+    : "";
+  const errors = Array.isArray(row.errors) ? row.errors.filter((item): item is string => typeof item === "string").slice(0, 2) : [];
+  const detail = [countText, ...errors].filter(Boolean).join(" · ");
   return {
     id: row.run_id,
     phase: row.phase,
@@ -47,6 +74,7 @@ export function parseRunRecord(value: unknown): AtlasRunSummary | null {
     mode: row.mode === "dry-run" || row.mode === "full" ? row.mode : "unknown",
     updatedAt: typeof row.updated_at === "string" ? row.updated_at : null,
     outcome: classifyRun(row.phase, status),
+    detail: detail || null,
   };
 }
 
@@ -169,5 +197,5 @@ export function nextOperationsAction(input: { runs: AtlasRunSummary[]; waitingRe
   if (input.waitingReviews > 0) return "Review the open items in the Review Queue. Approving does not publish or send.";
   const failed = input.runs.find((run) => run.outcome === "failed");
   if (failed) return `The latest failed record is ${failed.id}. Open the local Atlas run files before starting another build.`;
-  return "No automation is running from this page. Weekly Atlas stays disconnected until a later phase inserts drafts into the Review Queue.";
+  return "No automation is running from this page. npm run atlas:weekly can insert drafts into the Review Queue. It does not publish or send.";
 }

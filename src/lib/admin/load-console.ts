@@ -4,10 +4,11 @@ import { performanceProducts, shippedBlueprintPage } from "./catalog";
 import { loadArticleReviews } from "@/src/lib/blog/store";
 import { relatedBlueprintLinks } from "@/src/lib/blog/model";
 import { loadIssueReviews } from "@/src/lib/newsletter/store";
-import { nextOperationsAction, productOperationRows, type ProductOperationRow } from "./atlas-state";
+import { nextOperationsAction, productOperationRows, type AtlasRunSummary, type ProductOperationRow } from "./atlas-state";
 import { readAtlasMemory } from "./read-atlas";
 import { loadAdminActions, loadStoredReviewItems, type AdminActionRow } from "./review-store";
-import { candidateReviewStatus, queueItems, safePreviewPath, type ReviewItem } from "./review";
+import { loadWeeklyRuns } from "./weekly-runs";
+import { candidateReviewStatus, queueItems, safePreviewPath, sourceLinks, type ReviewItem } from "./review";
 
 export type ConsoleData = {
   storage: "ready" | "unavailable";
@@ -29,8 +30,10 @@ function articleItem(row: {
   reviewNote: string | null;
   createdAt: string | null;
   relatedBlueprints: string[];
+  sourceUrls: string[];
 }): ReviewItem {
   const related = relatedBlueprintLinks(row.relatedBlueprints)[0] ?? null;
+  const noted = sourceLinks(row.reviewNote);
   return {
     id: row.id,
     type: "BLOG",
@@ -44,16 +47,27 @@ function articleItem(row: {
     relatedLabel: related?.titleJa ?? null,
     mutable: true,
     source: "articles",
+    sources: row.sourceUrls.length > 0 ? row.sourceUrls : noted,
   };
+}
+
+function mergeRuns(local: AtlasRunSummary[], weekly: AtlasRunSummary[]): AtlasRunSummary[] {
+  const byId = new Map<string, AtlasRunSummary>();
+  for (const run of [...local, ...weekly]) {
+    const current = byId.get(run.id);
+    if (!current || (run.updatedAt ?? "") > (current.updatedAt ?? "")) byId.set(run.id, run);
+  }
+  return [...byId.values()].sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? "")).slice(0, 30);
 }
 
 export async function loadConsole(): Promise<ConsoleData> {
   const memory = readAtlasMemory();
-  const [articles, issues, stored, actions] = await Promise.all([
+  const [articles, issues, stored, actions, weeklyRuns] = await Promise.all([
     loadArticleReviews(),
     loadIssueReviews(),
     loadStoredReviewItems(),
     loadAdminActions(),
+    loadWeeklyRuns(),
   ]);
   const storage = articles && issues && stored ? "ready" : "unavailable";
   const articleItems = (articles ?? []).map(articleItem);
@@ -70,6 +84,7 @@ export async function loadConsole(): Promise<ConsoleData> {
     relatedLabel: null,
     mutable: true,
     source: "newsletter_issues",
+    sources: sourceLinks(row.reviewNote),
   }));
   const storedItems: ReviewItem[] = (stored ?? []).map((row) => ({
     id: row.id,
@@ -84,6 +99,7 @@ export async function loadConsole(): Promise<ConsoleData> {
     relatedLabel: row.relatedSlug,
     mutable: true,
     source: "review_items",
+    sources: sourceLinks(row.qaNote),
   }));
   const memoryItems: ReviewItem[] = [
     ...memory.candidates
@@ -120,6 +136,7 @@ export async function loadConsole(): Promise<ConsoleData> {
       })),
   ];
   const queue = queueItems([...articleItems, ...issueItems, ...storedItems, ...memoryItems]);
+  const runs = mergeRuns(memory.runs, weeklyRuns);
   return {
     storage,
     queue,
@@ -130,8 +147,8 @@ export async function loadConsole(): Promise<ConsoleData> {
       japan: memory.japan,
       candidates: memory.candidates,
     }),
-    runs: memory.runs,
-    nextAction: nextOperationsAction({ runs: memory.runs, waitingReviews: queue.length }),
+    runs,
+    nextAction: nextOperationsAction({ runs, waitingReviews: queue.length }),
     actions,
   };
 }

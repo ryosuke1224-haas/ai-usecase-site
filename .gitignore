@@ -20,6 +20,7 @@
 # Atlas agent QA output and local credentials. Never commit these.
 /agent-reports/
 /atlas-memory/product-registry.json
+/atlas-memory/weekly/
 /agent-secrets/
 
 # next.js

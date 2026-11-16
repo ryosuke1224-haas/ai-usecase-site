@@ -13,6 +13,7 @@
     "qa:prepare-session": "tsx scripts/atlas-qa/prepare-auth-session.ts",
     "agent:run": "tsx scripts/run-atlas-agent-loop.ts",
     "atlas:auto": "tsx scripts/run-atlas-auto.ts",
+    "atlas:weekly": "tsx scripts/atlas-weekly/index.ts",
     "atlas:commerce": "tsx scripts/run-atlas-commerce.ts",
     "atlas:setup-preview": "tsx scripts/run-atlas-setup-preview.ts",
     "test:e2e": "playwright test",

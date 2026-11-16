@@ -72,6 +72,7 @@ export type ArticleReviewRow = {
   reviewNote: string | null;
   createdAt: string | null;
   relatedBlueprints: string[];
+  sourceUrls: string[];
 };
 
 export async function loadArticleReviews(): Promise<ArticleReviewRow[] | null> {
@@ -79,7 +80,7 @@ export async function loadArticleReviews(): Promise<ArticleReviewRow[] | null> {
     const supabase = createServiceRoleClient();
     const { data, error } = await supabase
       .from("articles")
-      .select("id, slug, title, summary, status, review_note, created_at, related_blueprints")
+      .select("id, slug, title, summary, status, review_note, created_at, related_blueprints, source_urls")
       .limit(200);
     if (error || !data) return null;
     return data.flatMap((row) => {
@@ -87,6 +88,9 @@ export async function loadArticleReviews(): Promise<ArticleReviewRow[] | null> {
       if (typeof record.id !== "string" || typeof record.title !== "string" || typeof record.status !== "string") return [];
       const related = Array.isArray(record.related_blueprints)
         ? record.related_blueprints.filter((item): item is string => typeof item === "string")
+        : [];
+      const sourceUrls = Array.isArray(record.source_urls)
+        ? record.source_urls.filter((item): item is string => typeof item === "string" && item.startsWith("https://")).slice(0, 8)
         : [];
       return [{
         id: record.id,
@@ -97,6 +101,7 @@ export async function loadArticleReviews(): Promise<ArticleReviewRow[] | null> {
         reviewNote: typeof record.review_note === "string" ? record.review_note : null,
         createdAt: typeof record.created_at === "string" ? record.created_at : null,
         relatedBlueprints: related,
+        sourceUrls,
       }];
     });
   } catch {
