@@ -26,8 +26,10 @@ function storyProblems(source: SourceRecord | undefined, now: Date, seen: Set<st
   const reasons: string[] = [];
   if (!source) return ["missing source"];
   if (!source.canonicalUrl.startsWith("https://")) reasons.push("source is not https");
-  if (!source.publishedAt || Number.isNaN(Date.parse(source.publishedAt))) reasons.push("missing publish date");
-  else if (now.getTime() - Date.parse(source.publishedAt) > STALE_MS) reasons.push("stale story");
+  if (!source.evergreen) {
+    if (!source.publishedAt || Number.isNaN(Date.parse(source.publishedAt))) reasons.push("missing publish date");
+    else if (now.getTime() - Date.parse(source.publishedAt) > STALE_MS) reasons.push("stale story");
+  }
   if (source.summary.trim().length < 40) reasons.push("summary is too short");
   if (seen.has(source.canonicalUrl)) reasons.push("duplicate source");
   return reasons;

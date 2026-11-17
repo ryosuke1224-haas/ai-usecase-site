@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { describeSource, SOURCE_GROUPS, storedCategory, type SourceGroup } from "./editorial";
+import { chooseTip } from "./tips";
 import type { SourceRecord, WeeklyCategory } from "./types";
 
 const FOCUS = [
@@ -108,7 +109,7 @@ export function dedupeSources(records: readonly SourceRecord[]): SourceRecord[] 
 
 export function selectTopics(records: readonly SourceRecord[], limit = 4): SourceRecord[] {
   const pool = dedupeSources(records)
-    .filter((record) => record.relevance >= 12 && !describeSource(record).lowValue)
+    .filter((record) => !record.evergreen && record.relevance >= 12 && !describeSource(record).lowValue)
     .sort((a, b) => b.relevance - a.relevance || (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
   const selected: SourceRecord[] = [];
   const publisherKey = (record: SourceRecord) => record.publisher.trim().toLowerCase();
@@ -130,6 +131,43 @@ export function selectTopics(records: readonly SourceRecord[], limit = 4): Sourc
     selected.push(next);
   }
   return selected;
+}
+
+function editionLane(record: SourceRecord): "news" | "practical" {
+  const focus = describeSource(record).focus;
+  return focus === "ai-at-work" || focus === "enterprise" ? "practical" : "news";
+}
+
+/** News selection stays intact. This only reserves the weekly slots around it. */
+export function selectEdition(
+  records: readonly SourceRecord[],
+  weekKey: string,
+  knownUrls: readonly string[] = [],
+  retrievedAt = new Date().toISOString(),
+): SourceRecord[] {
+  const fresh = records.filter((record) => !record.evergreen);
+  const news = selectTopics(fresh.filter((record) => editionLane(record) === "news"), 2);
+  const usedPublishers = new Set(news.map((record) => record.publisher.trim().toLowerCase()));
+  const practical = selectTopics(
+    fresh.filter((record) => editionLane(record) === "practical" && !usedPublishers.has(record.publisher.trim().toLowerCase())),
+    1,
+  );
+  const chosen = chooseTip(weekKey, knownUrls);
+  if (!chosen) return [...news, ...practical];
+  const url = chosen.sourceUrls[0];
+  const tip: SourceRecord = {
+    url,
+    canonicalUrl: url,
+    title: chosen.sourceTitle,
+    publisher: "Atlas",
+    publishedAt: null,
+    retrievedAt,
+    summary: chosen.sourceSummary,
+    relevance: 40,
+    implication: "長く使える確認手順の下書きです。",
+    evergreen: true,
+  };
+  return [...news, ...practical, tip];
 }
 
 function decode(value: string): string {

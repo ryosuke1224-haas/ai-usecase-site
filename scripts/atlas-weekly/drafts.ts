@@ -1,4 +1,5 @@
 import { editorialArticle, isLowValueNews, supportingSources } from "./editorial";
+import { tipByUrl } from "./tips";
 import { sourceSlug } from "./research";
 import type { BlueprintCandidate, BlogDraft, NewsletterDraft, SourceRecord } from "./types";
 
@@ -56,6 +57,23 @@ export function blogDraft(
   products: readonly KnownProduct[],
   research: readonly SourceRecord[] = [],
 ): BlogDraft {
+  const tip = source.evergreen ? tipByUrl(source.canonicalUrl) : undefined;
+  if (tip) {
+    const related = tip.workflow && products.some((product) => product.slug === tip.workflow) ? tip.workflow : null;
+    return {
+      slug: sourceSlug(weekKey, source.canonicalUrl),
+      title: tip.title,
+      summary: clip(tip.summary, 180),
+      body: tip.body,
+      sourceUrls: [...tip.sourceUrls],
+      category: tip.category,
+      relatedBlueprints: related ? [related] : [],
+      seoTitle: clip(tip.title, 60),
+      seoDescription: clip(tip.summary, 140),
+      status: "READY_FOR_REVIEW",
+      canonicalUrl: source.canonicalUrl,
+    };
+  }
   const article = editorialArticle(source, supportingSources(source, research));
   const workflow = workflowFor(source);
   const related = workflow && products.some((product) => product.slug === workflow.slug) ? workflow.slug : null;

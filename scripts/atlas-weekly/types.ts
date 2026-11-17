@@ -23,6 +23,8 @@ export type SourceRecord = {
   summary: string;
   relevance: number;
   implication: string;
+  /** Documentation-backed advice that is not a news story. */
+  evergreen?: boolean;
 };
 
 export type BlogDraft = {

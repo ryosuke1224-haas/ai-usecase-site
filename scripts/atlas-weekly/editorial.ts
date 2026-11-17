@@ -276,6 +276,7 @@ export function editorialFailures(blog: Pick<BlogDraft, "title" | "body" | "sour
 export function supportingSources(primary: SourceRecord, research: readonly SourceRecord[]): SourceRecord[] {
   const focus = describeSource(primary).focus;
   return research
+    .filter((item) => !item.evergreen)
     .filter((item) => item.canonicalUrl !== primary.canonicalUrl)
     .filter((item) => item.publisher.toLowerCase() !== primary.publisher.toLowerCase())
     .filter((item) => !describeSource(item).lowValue)

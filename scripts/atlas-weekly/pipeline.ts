@@ -1,6 +1,6 @@
 import { blueprintCandidates, blogDraft, newsletterDraft, type KnownProduct } from "./drafts";
 import { reviewItems } from "./qa";
-import { selectTopics } from "./research";
+import { selectEdition } from "./research";
 import {
   WEEKLY_STAGES,
   emptyCounts,
@@ -113,9 +113,14 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       });
     }
     if (stage === "SELECT") {
-      const selected = selectTopics(active.research);
+      const selected = selectEdition(active.research, active.weekKey, deps.knownUrls, now.toISOString());
+      const research = [
+        ...active.research,
+        ...selected.filter((item) => item.evergreen && !active.research.some((record) => record.canonicalUrl === item.canonicalUrl)),
+      ];
       return finishStage(active, stage, now, {
         selected,
+        research,
         counts: { ...active.counts, selected: selected.length },
       });
     }
