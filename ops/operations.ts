@@ -153,9 +153,9 @@ export const projectOperations: ProjectOperations = {
       id: "controlled-publish",
       name: "Controlled publish",
       status: "PLANNED",
-      note: "An explicit owner action to publish an approved article or issue is not built.",
+      note: "Approved blog articles can be published from the Review Queue. Newsletter issues are not sent.",
       priority: "medium",
-      nextAction: "Keep publish separate from review decisions.",
+      nextAction: "Publish an approved blog article only after an explicit confirmation.",
     },
     {
       id: "scheduling",
@@ -224,7 +224,7 @@ export const projectOperations: ProjectOperations = {
       {
         id: "controlled-publish",
         name: "Controlled Publish",
-        note: "Publish an approved article or issue only from an explicit owner action. Not built.",
+        note: "Approved blog articles publish from the Review Queue after an explicit confirmation. Newsletter issues are not sent.",
       },
       {
         id: "newsletter-sending",
@@ -256,6 +256,13 @@ export const projectOperations: ProjectOperations = {
     ],
   },
   recentChanges: [
+    {
+      date: "2026-11-16",
+      kind: "content",
+      title: "Blog editorial workflow",
+      summary:
+        "An owner can save a personal note on a blog draft, compare the revised text, and publish only after approval and an explicit confirmation. Saving or revising a note does not publish. Newsletter issues are not sent.",
+    },
     {
       date: "2026-11-16",
       kind: "operations",

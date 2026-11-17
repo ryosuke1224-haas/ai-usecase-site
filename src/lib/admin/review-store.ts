@@ -68,7 +68,7 @@ export async function updateStoredReview(
 
 export async function recordAdminAction(input: {
   actorEmail: string;
-  action: "approve" | "needs_changes" | "reject";
+  action: "approve" | "needs_changes" | "reject" | "publish" | "save_editorial_note" | "apply_editorial_note" | "accept_revision" | "keep_revision";
   targetType: "blog" | "newsletter" | "review";
   targetId: string;
   targetTitle: string;

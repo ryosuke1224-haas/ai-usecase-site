@@ -3,6 +3,7 @@ import "server-only";
 import { performanceProducts, shippedBlueprintPage } from "./catalog";
 import { loadArticleReviews } from "@/src/lib/blog/store";
 import { relatedBlueprintLinks } from "@/src/lib/blog/model";
+import { noteApplied } from "./editorial";
 import { loadIssueReviews } from "@/src/lib/newsletter/store";
 import { nextOperationsAction, productOperationRows, type AtlasRunSummary, type ProductOperationRow } from "./atlas-state";
 import { readAtlasMemory } from "./read-atlas";
@@ -31,6 +32,12 @@ function articleItem(row: {
   createdAt: string | null;
   relatedBlueprints: string[];
   sourceUrls: string[];
+  body: string;
+  editorialNote: string;
+  proposedBody: string | null;
+  editorialAppliedNote: string | null;
+  publishedAt: string | null;
+  editorialEnabled: boolean;
 }): ReviewItem {
   const related = relatedBlueprintLinks(row.relatedBlueprints)[0] ?? null;
   const noted = sourceLinks(row.reviewNote);
@@ -48,6 +55,15 @@ function articleItem(row: {
     mutable: true,
     source: "articles",
     sources: row.sourceUrls.length > 0 ? row.sourceUrls : noted,
+    editorial: row.editorialEnabled
+      ? {
+          note: row.editorialNote,
+          applied: noteApplied(row.editorialNote, row.editorialAppliedNote),
+          body: row.body,
+          proposedBody: row.proposedBody,
+          publishedAt: row.publishedAt,
+        }
+      : null,
   };
 }
 

@@ -39,6 +39,13 @@ export type ReviewItem = {
   mutable: boolean;
   source: "articles" | "newsletter_issues" | "review_items" | "atlas-memory";
   sources?: string[];
+  editorial?: {
+    note: string;
+    applied: boolean;
+    body: string;
+    proposedBody: string | null;
+    publishedAt: string | null;
+  } | null;
 };
 
 export function isReviewAction(value: string): value is ReviewAction {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EditorialForm } from "@/components/admin/editorial-form";
 import { ReviewForm } from "@/components/admin/review-form";
 import {
   AnalyticsSection,
@@ -35,6 +36,12 @@ const NOTICES: Record<string, string> = {
   note: "Add a short note before requesting changes or rejecting.",
   refused: "That decision was not saved.",
   unavailable: "Review storage is not available yet. Apply the Atlas review migration.",
+  saved_note: "自分の視点を保存しました。公開はしていません。",
+  revision_ready: "反映後の本文を用意しました。採用するまで記事は変わりません。",
+  accepted: "反映後の本文を採用しました。公開には、あらためて承認が必要です。",
+  kept: "今の本文を残しました。",
+  published: "記事を公開しました。",
+  confirm: "公開する前に確認チェックが必要です。",
 };
 
 function targetFor(item: ReviewItem): "blog" | "newsletter" | "review" | null {
@@ -75,6 +82,7 @@ function ItemCard({
       {target ? <ReviewForm item={item} target={target} section={section} range={range} /> : (
         <p className="mt-3 text-xs leading-relaxed text-muted">This record comes from local Atlas memory. Decisions stay there until a later automation inserts a review item.</p>
       )}
+      {target === "blog" ? <EditorialForm item={item} section={section} range={range} /> : null}
     </article>
   );
 }

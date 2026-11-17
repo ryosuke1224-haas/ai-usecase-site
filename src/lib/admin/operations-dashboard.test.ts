@@ -366,7 +366,7 @@ test("the project record is the dashboard source for status, roadmap, and change
     "Broader product automation",
   ]);
   assert.equal(model.recentChanges[0]?.date, "2026-11-16");
-  assert.match(model.recentChanges[0]?.title ?? "", /analytics dashboard api/i);
+  assert.match(model.recentChanges[0]?.title ?? "", /blog editorial workflow/i);
   assert.equal(model.pipeline.some((item) => item.name === "Atlas weekly"), true);
   assert.equal(model.pipeline.some((item) => item.name === "Review queue"), false);
   assert.equal(model.pipeline.some((item) => item.name === "Blog foundation"), false);
