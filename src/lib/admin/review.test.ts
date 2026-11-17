@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { classifyRun, nextOperationsAction, parseRunRecord, productStage } from "./atlas-state";
+import { isPublicArticle } from "@/src/lib/blog/model";
 import { isReviewId, reviewDecision, safePreviewPath } from "./review";
 import { parseAdminSection } from "./range";
 
@@ -11,7 +12,10 @@ test("review decisions do not publish or send", () => {
   assert.deepEqual(reviewDecision("READY_FOR_REVIEW", "approve", ""), { ok: true, status: "APPROVED" });
   assert.deepEqual(reviewDecision("APPROVED", "needs_changes", "Fix the source"), { ok: true, status: "NEEDS_CHANGES" });
   assert.deepEqual(reviewDecision("DRAFT", "reject", "Out of scope"), { ok: true, status: "REJECTED" });
-  assert.equal(reviewDecision("NEEDS_CHANGES", "reject", "no").ok, false);
+  assert.deepEqual(reviewDecision("READY_FOR_REVIEW", "reject", ""), { ok: true, status: "REJECTED" });
+  assert.equal(reviewDecision("READY_FOR_REVIEW", "needs_changes", "no").ok, false);
+  assert.equal(isPublicArticle({ status: "REJECTED", publishedAt: null }), false);
+  assert.equal(isPublicArticle({ status: "REJECTED", publishedAt: "2026-11-16T00:00:00.000Z" }), false);
   assert.equal(reviewDecision("PUBLISHED", "approve", "").ok, false);
   assert.equal(reviewDecision("SENT", "reject", "stop this send").ok, false);
   assert.equal(reviewDecision("ARCHIVED", "approve", "").ok, false);
@@ -35,6 +39,17 @@ test("product stages and atlas runs stay descriptive", () => {
   assert.equal(parseAdminSection("shell"), "overview");
 });
 
+test("reject stays behind the allowlist and does not publish", () => {
+  const decide = readFileSync("src/lib/admin/decide.ts", "utf8");
+  const form = readFileSync("components/admin/review-form.tsx", "utf8");
+  const store = readFileSync("src/lib/blog/store.ts", "utf8");
+  assert.ok(decide.indexOf("adminAccessDecision") < decide.indexOf("await updateArticleReview"));
+  assert.match(form, /value="reject"/);
+  assert.doesNotMatch(form, /value="REJECTED"/);
+  const update = store.slice(store.indexOf("export async function updateArticleReview"), store.indexOf("async function updateArticleFields"));
+  assert.match(update, /status: toStatus/);
+  assert.doesNotMatch(update, /published_at|PUBLISHED|delete\(/);
+});
 test("admin decisions stay behind the allowlist and do not run commands", () => {
   const decide = readFileSync("src/lib/admin/decide.ts", "utf8");
   const page = readFileSync("app/admin/project/page.tsx", "utf8");

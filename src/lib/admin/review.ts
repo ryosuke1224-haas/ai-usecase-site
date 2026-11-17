@@ -17,7 +17,7 @@ export function reviewDecision(status: string, action: ReviewAction, note: strin
   if (CLOSED.has(status)) return { ok: false, reason: "closed" };
   if (!OPEN_REVIEW_STATUSES.includes(status as OpenReviewStatus)) return { ok: false, reason: "closed" };
   const trimmed = note.trim();
-  if ((action === "needs_changes" || action === "reject") && trimmed.length < 3) {
+  if (action === "needs_changes" && trimmed.length < 3) {
     return { ok: false, reason: "note" };
   }
   const next: OpenReviewStatus = action === "approve" ? "APPROVED" : action === "needs_changes" ? "NEEDS_CHANGES" : "REJECTED";
