@@ -13,11 +13,12 @@ import {
 import type { ConsoleData } from "@/src/lib/admin/load-console";
 import type { DashboardModel } from "@/src/lib/admin/dashboard-model";
 import { ADMIN_SECTIONS, adminProjectHref, type AdminSection, type DashboardRange } from "@/src/lib/admin/range";
+import { reviewStatusLabel, reviewTypeLabel } from "@/src/lib/admin/review-labels";
 import type { ReviewItem } from "@/src/lib/admin/review";
 
 const SECTION_LABELS: Record<AdminSection, string> = {
   overview: "Overview",
-  review: "Review Queue",
+  review: "確認キュー",
   products: "Products",
   content: "Content",
   operations: "Operations",
@@ -30,12 +31,12 @@ const SECTION_LABELS: Record<AdminSection, string> = {
 };
 
 const NOTICES: Record<string, string> = {
-  saved: "Decision saved. Nothing was published or sent.",
-  unchanged: "That item already has this decision.",
-  closed: "Published, sent, and archived items stay unchanged.",
-  note: "Add a short note before requesting changes or rejecting.",
-  refused: "That decision was not saved.",
-  unavailable: "Review storage is not available yet. Apply the Atlas review migration.",
+  saved: "判断を保存しました。公開も配信もしていません。",
+  unchanged: "この項目はすでに同じ判断です。",
+  closed: "公開済み、配信済み、保管済みの項目は変更しません。",
+  note: "修正が必要、または却下にするときは、短いメモを書いてください。",
+  refused: "その判断は保存されませんでした。",
+  unavailable: "確認の保存先はまだ使えません。Atlas の確認用マイグレーションを適用してください。",
   saved_note: "自分の視点を保存しました。公開はしていません。",
   revision_ready: "反映後の本文を用意しました。採用するまで記事は変わりません。",
   accepted: "反映後の本文を採用しました。公開には、あらためて承認が必要です。",
@@ -64,10 +65,10 @@ function ItemCard({
   const target = targetFor(item);
   return (
     <article className="rounded-2xl border border-border/80 bg-card p-4">
-      <p className="font-mono text-xs text-muted">{item.type} · {item.status}</p>
+      <p className="text-xs text-muted">{reviewTypeLabel(item.type)} · {reviewStatusLabel(item.status)}</p>
       <h3 className="mt-1 text-sm font-semibold">{item.title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">{item.summary}</p>
-      <p className="mt-2 text-xs text-muted">{item.createdAt ?? "No date"} · {item.qa}</p>
+      <p className="mt-2 text-xs text-muted">{item.createdAt ?? "日付なし"} · {item.qa}</p>
       {item.sources && item.sources.length > 0 ? (
         <ul className="mt-2 space-y-1 text-xs">
           {item.sources.map((url) => (
@@ -76,11 +77,11 @@ function ItemCard({
         </ul>
       ) : null}
       <p className="mt-2 text-xs">
-        {item.previewHref ? <Link className="font-medium text-accent hover:underline" href={item.previewHref}>Preview</Link> : "No public preview"}
-        {item.relatedHref ? <> · <Link className="font-medium text-accent hover:underline" href={item.relatedHref}>{item.relatedLabel ?? "Related"}</Link></> : null}
+        {item.previewHref ? <Link className="font-medium text-accent hover:underline" href={item.previewHref}>公開プレビュー</Link> : "公開プレビューなし"}
+        {item.relatedHref ? <> · <Link className="font-medium text-accent hover:underline" href={item.relatedHref}>{item.relatedLabel ?? "関連"}</Link></> : null}
       </p>
       {target ? <ReviewForm item={item} target={target} section={section} range={range} /> : (
-        <p className="mt-3 text-xs leading-relaxed text-muted">This record comes from local Atlas memory. Decisions stay there until a later automation inserts a review item.</p>
+        <p className="mt-3 text-xs leading-relaxed text-muted">この記録は手元の Atlas memory にあります。確認項目として保存されるまで、ここでは判断を記録できません。</p>
       )}
       {target === "blog" ? <EditorialForm item={item} section={section} range={range} /> : null}
     </article>
@@ -147,10 +148,10 @@ export function ProjectDashboard({
         {section === "history" ? <HistorySection model={model} actions={consoleData.actions} /> : null}
         {section === "review" ? (
           <section aria-labelledby="review-heading">
-            <h2 id="review-heading" className="text-xl font-semibold tracking-tight">Review Queue</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted">Blueprint candidates, blog drafts, newsletter drafts, and content updates. Approve, needs changes, and reject do not publish or send.</p>
-            {consoleData.storage === "unavailable" ? <p className="mt-4 text-sm text-muted">Article and newsletter storage is not available yet. Atlas memory can still be read on this machine.</p> : null}
-            {consoleData.queue.length === 0 ? <p className="mt-4 text-sm text-muted">Nothing is waiting for review.</p> : (
+            <h2 id="review-heading" className="text-xl font-semibold tracking-tight">確認キュー</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">Blueprint候補、ブログの下書き、ニュースレターの下書き、コンテンツ更新を確認します。承認しても、自動で公開・配信はされません。</p>
+            {consoleData.storage === "unavailable" ? <p className="mt-4 text-sm text-muted">ブログとニュースレターの保存先はまだ使えません。このマシンでは Atlas memory を読めます。</p> : null}
+            {consoleData.queue.length === 0 ? <p className="mt-4 text-sm text-muted">確認待ちの項目はありません。</p> : (
               <div className="mt-4 grid gap-3">
                 {consoleData.queue.map((item) => <ItemCard key={`${item.source}-${item.id}`} item={item} section={section} range={range} />)}
               </div>

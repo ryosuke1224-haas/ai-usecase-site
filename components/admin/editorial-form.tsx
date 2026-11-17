@@ -1,3 +1,4 @@
+import { reviewStatusLabel } from "@/src/lib/admin/review-labels";
 import type { AdminSection, DashboardRange } from "@/src/lib/admin/range";
 import { runEditorial } from "@/src/lib/admin/editorial-actions";
 import type { ReviewItem } from "@/src/lib/admin/review";
@@ -35,7 +36,7 @@ export function EditorialForm({
   return (
     <div className="mt-4 space-y-3 border-t border-border/80 pt-3">
       <p className="text-xs text-muted">
-        自分の視点: {editorial.applied ? "反映済み" : "未反映"} · 承認: {item.status} · 公開: 未公開
+        自分の視点: {editorial.applied ? "反映済み" : "未反映"} · {reviewStatusLabel(item.status)} · 公開: 未公開
       </p>
       <form action={runEditorial} className="space-y-2">
         <HiddenFields item={item} section={section} range={range} />
