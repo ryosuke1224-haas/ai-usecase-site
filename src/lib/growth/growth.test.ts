@@ -121,6 +121,16 @@ test("analytics skips admin routes and the public pages wire the foundation", ()
   assert.match(articlePage, /openGraph/);
   const home = readFileSync("app/[locale]/page.tsx", "utf8");
   assert.match(home, /source="ja-home"/);
+  const blog = readFileSync("app/ja/blog/page.tsx", "utf8");
+  assert.match(blog, /AIニュースや米国テックの動きを、実務目線で短くまとめます。/);
+  assert.doesNotMatch(blog, /短い日本語で公開します/);
+  const newsletter = readFileSync("app/ja/newsletter/page.tsx", "utf8");
+  assert.match(newsletter, /短く読みやすい日本語でお届けします/);
+  assert.match(newsletter, /lead=\{false\}/);
+  assert.doesNotMatch(newsletter, /送信はまだ始まりません/);
+  const form = readFileSync("components/newsletter/signup-form.tsx", "utf8");
+  assert.match(form, /配信目的でのみ使用します/);
+  assert.doesNotMatch(form, /送信はまだ始まりません/);
   const privacy = readFileSync("src/lib/japan-launch/legal.ts", "utf8");
   assert.match(privacy, /ニュースレターを送るために保存します/);
   const store = readFileSync("src/lib/newsletter/store.ts", "utf8");

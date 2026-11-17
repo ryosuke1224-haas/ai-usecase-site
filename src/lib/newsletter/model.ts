@@ -56,7 +56,7 @@ export function allowSignupAttempt(timestamps: number[], now: number): boolean {
 }
 
 export const SIGNUP_MESSAGES = {
-  success: "登録しました。更新情報の送信は、準備ができてから始めます。",
+  success: "登録しました。配信が始まってからお届けします。",
   duplicate: "このメールアドレスは登録済みです。",
   invalid: "メールアドレスの形式を確認してください。",
   limited: "短時間に何度も送信されています。しばらくしてからもう一度お試しください。",

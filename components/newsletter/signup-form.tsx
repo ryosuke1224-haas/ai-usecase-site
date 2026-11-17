@@ -9,17 +9,23 @@ const initial: SubscribeResult | null = null;
 export function NewsletterSignup({
   source,
   idPrefix,
+  lead = true,
 }: {
   source: NewsletterSource;
   idPrefix: string;
+  lead?: boolean;
 }) {
   const [state, action, pending] = useActionState(subscribeToNewsletter, initial);
   const emailId = `${idPrefix}-email`;
   return (
     <form action={action} className="mt-4" noValidate>
-      <p className="text-sm leading-relaxed text-muted">
-        入力されたメールアドレスは、AI Use Case Atlas の更新情報とニュースレターをお届けするために使います。送信はまだ始まりません。
-      </p>
+      {lead ? (
+        <div className="space-y-3 text-sm leading-relaxed text-muted">
+          <p>AIや米国テックの最新動向を、短く読みやすい日本語でお届けします。</p>
+          <p>現在、ニュースレター配信機能を準備しています。メールアドレスを登録しておくと、配信開始後に受け取れます。</p>
+          <p>入力されたメールアドレスは、AI Use Case Atlasのニュースレターおよび更新情報の配信目的でのみ使用します。</p>
+        </div>
+      ) : null}
       <input type="hidden" name="source" value={source} />
       <label className="sr-only" aria-hidden="true">
         会社サイト
@@ -43,7 +49,7 @@ export function NewsletterSignup({
           disabled={pending}
           className="inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:opacity-60"
         >
-          {pending ? "送信しています…" : "登録する"}
+          {pending ? "登録しています…" : "登録する"}
         </button>
       </div>
       {state ? (

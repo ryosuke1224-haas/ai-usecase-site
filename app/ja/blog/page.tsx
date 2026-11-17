@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const loaded = await loadPublishedArticles();
-  const description = "AIニュース、米国テック、実務でのAI活用を日本語で短くまとめます。";
+  const description = "AIニュースや米国テックの動きを、実務目線で短くまとめます。";
   return {
     title: "ブログ",
     description,
@@ -67,9 +67,10 @@ export default async function JapaneseBlogPage({
     <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <p className="text-xs font-semibold text-accent">日本語ブログ</p>
       <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">ブログ</h1>
-      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-        AIニュース、米国のテック、仕事ですぐ使えるAI活用を、短い日本語で公開します。
-      </p>
+      <div className="mt-3 max-w-2xl space-y-3 text-sm leading-relaxed text-muted sm:text-base">
+        <p>AIニュースや米国テックの動きを、実務目線で短くまとめます。</p>
+        <p>「何が変わったのか」だけでなく、「仕事でどう使えるのか」まで、わかりやすく紹介します。</p>
+      </div>
 
       <nav aria-label="カテゴリ" className="mt-6 flex flex-wrap gap-2">
         <Link
@@ -97,7 +98,7 @@ export default async function JapaneseBlogPage({
         <div className="mt-10 rounded-2xl border border-border/80 bg-card p-6">
           <h2 className="text-lg font-semibold">{category ? "このカテゴリの公開記事はまだありません" : "公開中の記事はまだありません"}</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            実務に関係するAIニュースと、テンプレートの更新をここから公開します。下書きは公開ページには出ません。
+            AIニュースや米国テックの動きを、実務目線で短くまとめていきます。
           </p>
           <Link href="/ja/newsletter" className="mt-4 inline-flex text-sm font-medium text-accent hover:underline">
             更新をメールで受け取る
