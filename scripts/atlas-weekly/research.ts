@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { describeSource, SOURCE_GROUPS, storedCategory, type SourceGroup } from "./editorial";
 import type { SourceRecord, WeeklyCategory } from "./types";
 
 const FOCUS = [
@@ -66,12 +67,8 @@ export function practicalImplication(title: string, summary: string): string {
   return "中小企業の担当者が今週確認すべき変更かを判断する材料になります。";
 }
 
-export function categoryFor(title: string, summary: string): WeeklyCategory {
-  const text = `${title} ${summary}`.toLowerCase();
-  if (/san francisco|startup|silicon|funding|vercel|cursor/.test(text)) return "us-tech";
-  if (/workflow|small business|customer|sales|support|invoice/.test(text)) return "practical-ai";
-  if (/api|sdk|benchmark|architecture|open-weight|technical/.test(text)) return "technical";
-  return "ai-news";
+export function categoryFor(title: string, summary: string, publisher = ""): WeeklyCategory {
+  return storedCategory(describeSource({ title, summary, publisher }).focus);
 }
 
 export function normalizeSource(input: {
@@ -110,10 +107,29 @@ export function dedupeSources(records: readonly SourceRecord[]): SourceRecord[] 
 }
 
 export function selectTopics(records: readonly SourceRecord[], limit = 4): SourceRecord[] {
-  return dedupeSources(records)
-    .filter((record) => record.relevance >= 12)
-    .sort((a, b) => b.relevance - a.relevance || b.publishedAt?.localeCompare(a.publishedAt ?? "") || 0)
-    .slice(0, limit);
+  const pool = dedupeSources(records)
+    .filter((record) => record.relevance >= 12 && !describeSource(record).lowValue)
+    .sort((a, b) => b.relevance - a.relevance || (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
+  const selected: SourceRecord[] = [];
+  const publisherKey = (record: SourceRecord) => record.publisher.trim().toLowerCase();
+  const focusCount = (focus: string) => selected.filter((item) => describeSource(item).focus === focus).length;
+  while (selected.length < limit) {
+    const unused = pool.filter((record) =>
+      !selected.some((item) => item.canonicalUrl === record.canonicalUrl) &&
+      !selected.some((item) => publisherKey(item) === publisherKey(record)),
+    );
+    const missingGroups = SOURCE_GROUPS.filter((group) => !selected.some((item) => describeSource(item).group === group));
+    const diversified = unused.filter((record) => missingGroups.includes(describeSource(record).group as SourceGroup));
+    const groupPool = diversified.length > 0 ? diversified : unused;
+    const balanced = groupPool.filter((record) => {
+      if (focusCount(describeSource(record).focus) < 2) return true;
+      return !unused.some((other) => focusCount(describeSource(other).focus) < 2);
+    });
+    const next = (balanced.length > 0 ? balanced : [])[0];
+    if (!next) break;
+    selected.push(next);
+  }
+  return selected;
 }
 
 function decode(value: string): string {

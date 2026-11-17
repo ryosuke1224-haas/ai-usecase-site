@@ -1,3 +1,4 @@
+import { editorialFailures } from "./editorial";
 import type { BlueprintCandidate, BlogDraft, NewsletterDraft, QaDecision, SourceRecord } from "./types";
 
 const STALE_MS = 21 * 24 * 60 * 60 * 1000;
@@ -44,17 +45,22 @@ export function reviewItems(input: {
 }): QaDecision[] {
   const byUrl = new Map(input.sources.map((source) => [source.canonicalUrl, source]));
   const seen = new Set(input.knownUrls);
+  const publishers = new Set<string>();
   const decisions: QaDecision[] = [];
 
   for (const blog of input.blogs) {
     const source = byUrl.get(blog.canonicalUrl);
-    const reasons = storyProblems(source, input.now, seen);
+    const reasons = [...storyProblems(source, input.now, seen), ...(source ? editorialFailures(blog, source) : [])];
+    if (source && publishers.has(source.publisher.trim().toLowerCase())) reasons.push("publisher concentration");
     if (source && unsupported(blog.body, source.summary)) reasons.push("unsupported claim");
     for (const slug of blog.relatedBlueprints) {
       if (!input.knownSlugs.includes(slug)) reasons.push(`unknown blueprint ${slug}`);
     }
     const pass = reasons.length === 0;
-    if (pass && source) seen.add(source.canonicalUrl);
+    if (pass && source) {
+      seen.add(source.canonicalUrl);
+      publishers.add(source.publisher.trim().toLowerCase());
+    }
     decisions.push({ kind: "blog", slug: blog.slug, pass, reasons });
   }
 
@@ -72,6 +78,8 @@ export function reviewItems(input: {
     const source = byUrl.get(candidate.canonicalUrl);
     const reasons = storyProblems(source, input.now, new Set(input.knownUrls));
     if (candidate.recommendation === "skip") reasons.push("skip recommendation");
+    if (candidate.workflow.trim().length < 12 || candidate.problem.trim().length < 20) reasons.push("missing workflow problem");
+    if (/gateway|now available|利用可能/i.test(`${candidate.jaTitle} ${candidate.enTitle}`)) reasons.push("blueprint is not a workflow");
     if (candidate.relatedSlug && !input.knownSlugs.includes(candidate.relatedSlug)) reasons.push("unknown related product");
     if (input.knownTitles.some((title) => nearDuplicate(title, candidate.enTitle) || nearDuplicate(title, candidate.jaTitle))) {
       reasons.push("near-duplicate blueprint");

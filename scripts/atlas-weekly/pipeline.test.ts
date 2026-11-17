@@ -49,7 +49,7 @@ test("duplicate sources collapse to one topic", () => {
     source({
       url: "https://example.com/other-gemini",
       canonicalUrl: "https://example.com/other-gemini",
-      title: "Gemini release notes for developers",
+      publisher: "Google",
       summary: "Google published Gemini release notes for developers who review model changes before updating a workflow.",
       relevance: 30,
     }),

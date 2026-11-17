@@ -120,7 +120,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       });
     }
     if (stage === "BLOG_DRAFT") {
-      const blogs = active.selected.map((source) => blogDraft(source, active.weekKey, deps.products));
+      const blogs = active.selected.map((source) => blogDraft(source, active.weekKey, deps.products, active.research));
       return finishStage(active, stage, now, {
         blogs,
         counts: { ...active.counts, blogs: blogs.length },
