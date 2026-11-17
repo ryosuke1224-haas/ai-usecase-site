@@ -211,12 +211,13 @@ export function ProjectDashboard({
               </table>
             </div>
             <h3 className="mt-8 text-sm font-semibold">Checkout performance</h3>
-            <p className="mt-2 text-sm text-muted">{model.rangeLabel}. Page views stay pending until analytics can be read.</p>
+            <p className="mt-2 text-sm text-muted">{model.rangeLabel}. {model.analytics.state === "value" ? "Product page views count blueprint pages in this range. Admin routes are excluded." : "Product page views are not available for this range."}</p>
             <div className="mt-3 overflow-x-auto">
               <table className="w-full min-w-[40rem] text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-muted">
                     <th scope="col" className="py-2 pr-3 font-medium">Product</th>
+                    <th scope="col" className="py-2 pr-3 font-medium">Page views</th>
                     <th scope="col" className="py-2 pr-3 font-medium">Purchases</th>
                     <th scope="col" className="py-2 pr-3 font-medium">Revenue</th>
                     <th scope="col" className="py-2 font-medium">Conversion</th>
@@ -226,6 +227,7 @@ export function ProjectDashboard({
                   {model.products.map((product) => (
                     <tr key={product.slug} className="border-b border-border/70">
                       <td className="py-2 pr-3">{product.titleJa}</td>
+                      <td className="py-2 pr-3">{product.pageViews}</td>
                       <td className="py-2 pr-3">{product.purchases}</td>
                       <td className="py-2 pr-3">{product.revenue}</td>
                       <td className="py-2">{product.conversion}</td>

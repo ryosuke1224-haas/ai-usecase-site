@@ -43,7 +43,7 @@ export type ProjectOperations = {
 };
 
 export const projectOperations: ProjectOperations = {
-  updated: "2026-11-14",
+  updated: "2026-11-16",
   areas: [
     {
       id: "japanese-site",
@@ -103,7 +103,7 @@ export const projectOperations: ProjectOperations = {
       id: "vercel-analytics",
       name: "Vercel Analytics",
       status: "LIVE",
-      note: "Web Analytics tracking is live on production. /admin is excluded. The dashboard does not read visitor numbers yet.",
+      note: "Web Analytics tracking is live on production. /admin is excluded. The dashboard reads visitors and page views when the server token is set.",
     },
     {
       id: "blog",
@@ -168,10 +168,8 @@ export const projectOperations: ProjectOperations = {
     {
       id: "analytics-read",
       name: "Analytics dashboard API",
-      status: "PLANNED",
-      note: "Tracking is live. Reading visitors, page views, top pages, and referrers into the dashboard is not built.",
-      priority: "medium",
-      nextAction: "Connect a server-only Vercel read token.",
+      status: "LIVE",
+      note: "The dashboard reads Vercel Web Analytics for the selected range when VERCEL_WEB_ANALYTICS_TOKEN is set on the server. Without that token, the counts stay Not available. /admin traffic is excluded.",
     },
     {
       id: "review-queue",
@@ -238,11 +236,6 @@ export const projectOperations: ProjectOperations = {
         name: "Scheduling",
         note: "Choose when an approved item is published or sent. Not built.",
       },
-      {
-        id: "analytics-dashboard-api",
-        name: "Analytics dashboard API integration",
-        note: "Read visitors, page views, top pages, and referrers into /admin/project with a server-only Vercel token. Tracking is already live.",
-      },
     ],
     later: [
       {
@@ -263,6 +256,13 @@ export const projectOperations: ProjectOperations = {
     ],
   },
   recentChanges: [
+    {
+      date: "2026-11-16",
+      kind: "operations",
+      title: "Analytics dashboard API",
+      summary:
+        "The admin dashboard can read Vercel Web Analytics visitors, page views, product page views, top pages, and referrers. The server token stays off the browser. Missing or failed reads stay Not available.",
+    },
     {
       date: "2026-11-14",
       kind: "operations",

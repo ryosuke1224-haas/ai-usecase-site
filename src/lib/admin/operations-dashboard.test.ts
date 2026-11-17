@@ -179,7 +179,7 @@ test("entitlements count only live checkout ids and do not keep the session id",
 
 test("a disconnected dashboard shows Not connected and does not invent traffic", () => {
   const model = buildOperationsDashboard(input());
-  for (const id of ["visitors", "page-views", "checkout-starts", "purchases", "revenue", "customers"]) {
+  for (const id of ["visitors", "page-views", "product-page-views", "checkout-starts", "purchases", "revenue", "customers"]) {
     assert.equal(kpi(model, id).display, "Not connected");
   }
   assert.equal(model.analytics.state, "not_connected");
@@ -328,6 +328,7 @@ test("the project record is the dashboard source for status, roadmap, and change
       "Vercel Analytics",
       "Blog foundation",
       "Newsletter signup",
+      "Analytics dashboard API",
       "Review queue",
     ],
   );
@@ -344,7 +345,6 @@ test("the project record is the dashboard source for status, roadmap, and change
       "Blog and newsletter draft generation",
       "Controlled publish",
       "Scheduling",
-      "Analytics dashboard API",
       "CS automation",
       "SNS automation",
       "Broader product automation",
@@ -359,15 +359,14 @@ test("the project record is the dashboard source for status, roadmap, and change
     "Controlled Publish",
     "Newsletter sending",
     "Scheduling",
-    "Analytics dashboard API integration",
   ]);
   assert.deepEqual(model.roadmap.later.map((item) => item.name), [
     "SNS automation",
     "CS automation",
     "Broader product automation",
   ]);
-  assert.equal(model.recentChanges[0]?.date, "2026-11-14");
-  assert.match(model.recentChanges[0]?.title ?? "", /production growth and admin status/i);
+  assert.equal(model.recentChanges[0]?.date, "2026-11-16");
+  assert.match(model.recentChanges[0]?.title ?? "", /analytics dashboard api/i);
   assert.equal(model.pipeline.some((item) => item.name === "Atlas weekly"), true);
   assert.equal(model.pipeline.some((item) => item.name === "Review queue"), false);
   assert.equal(model.pipeline.some((item) => item.name === "Blog foundation"), false);
@@ -396,21 +395,46 @@ test("launch products have Japanese titles and shipped pages, without invented a
   assert.equal(vercelAnalyticsInstalled(), true);
 });
 
-test("installed Vercel Analytics stays pending until a read token exists", () => {
-  const model = buildOperationsDashboard(
+test("installed Vercel Analytics stays Not available until a read succeeds", () => {
+  const missing = buildOperationsDashboard(
     input({
       analytics: auditAnalytics({ gaCollectionConfigured: false, vercelAnalyticsInstalled: true }),
       blog: { state: "value", published: 1, drafts: 2, readyForReview: 3, approved: 0, needsChanges: 0, rejected: 0, archived: 4, total: 10 },
       newsletter: { state: "value", active: 5, recent: 1, unsubscribed: 2 },
     }),
   );
-  assert.equal(model.analytics.state, "collecting");
-  assert.equal(model.analytics.headline, "Analytics collecting / dashboard integration pending");
-  assert.equal(kpi(model, "visitors").display, model.analytics.headline);
-  assert.equal(kpi(model, "page-views").display, model.analytics.headline);
-  assert.equal(model.blog.state === "value" && model.blog.published, 1);
-  assert.equal(model.newsletter.state === "value" && model.newsletter.active, 5);
-  assert.equal("email" in model.newsletter, false);
+  assert.equal(missing.analytics.state, "not_available");
+  assert.equal(missing.analytics.headline, "Not available");
+  assert.equal(kpi(missing, "visitors").display, "Not available");
+  assert.equal(kpi(missing, "page-views").display, "Not available");
+  assert.equal(kpi(missing, "product-page-views").display, "Not available");
+  assert.equal(missing.products.every((product) => product.pageViews === "Not available"), true);
+  const read = buildOperationsDashboard(
+    input({
+      analytics: auditAnalytics({
+        gaCollectionConfigured: false,
+        vercelAnalyticsInstalled: true,
+        read: {
+          state: "value",
+          visitors: 3,
+          pageViews: 7,
+          productPageViews: 4,
+          topPages: [{ path: "/ja", pageViews: 3 }],
+          referrers: [{ host: "google.com", pageViews: 2 }],
+          productPageViewsBySlug: { "quote-request-assistant": 4, "ai-expense-watchdog": 0 },
+        },
+      }),
+    }),
+  );
+  assert.equal(kpi(read, "visitors").display, "3");
+  assert.equal(kpi(read, "page-views").display, "7");
+  assert.equal(kpi(read, "product-page-views").display, "4");
+  assert.equal(read.products.find((product) => product.slug === "quote-request-assistant")?.pageViews, "4");
+  assert.equal(read.products.find((product) => product.slug === "ai-expense-watchdog")?.pageViews, "0");
+  assert.equal(kpi(read, "purchases").display, "Not connected");
+  assert.equal(missing.blog.state === "value" && missing.blog.published, 1);
+  assert.equal(missing.newsletter.state === "value" && missing.newsletter.active, 5);
+  assert.equal("email" in missing.newsletter, false);
 });
 
 test("the admin route is private in source and does not publish secrets", () => {

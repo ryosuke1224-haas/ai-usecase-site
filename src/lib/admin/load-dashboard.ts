@@ -11,6 +11,7 @@ import { loadArticleStatuses } from "@/src/lib/blog/store";
 import { summarizeSubscribers } from "@/src/lib/newsletter/model";
 import { loadSubscriberRows } from "@/src/lib/newsletter/store";
 import { performanceProducts, premiumBlueprintCount, vercelAnalyticsInstalled } from "./catalog";
+import { readVercelAnalytics } from "./analytics-query";
 import {
   auditAnalytics,
   buildOperationsDashboard,
@@ -161,11 +162,22 @@ export async function loadOperationsDashboard(input: {
 }): Promise<DashboardModel> {
   const now = new Date();
   const createdGte = Math.floor(rangeStart(input.range, now).getTime() / 1000);
-  const [stripe, customers, blog, newsletter] = await Promise.all([
+  const products = performanceProducts();
+  const vercelInstalled = vercelAnalyticsInstalled();
+  const [stripe, customers, blog, newsletter, analyticsRead] = await Promise.all([
     loadStripe(createdGte),
     loadCustomers(),
     loadBlog(),
     loadNewsletter(now),
+    vercelInstalled
+      ? readVercelAnalytics({
+          range: input.range,
+          now,
+          productSlugs: products.map((product) => product.slug),
+          env: process.env,
+          request: requestVercelAnalytics,
+        })
+      : Promise.resolve(null),
   ]);
   return buildOperationsDashboard({
     now,
@@ -178,9 +190,24 @@ export async function loadOperationsDashboard(input: {
     newsletter,
     analytics: auditAnalytics({
       gaCollectionConfigured: Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim()),
-      vercelAnalyticsInstalled: vercelAnalyticsInstalled(),
+      vercelAnalyticsInstalled: vercelInstalled,
+      read: analyticsRead,
     }),
-    products: performanceProducts(),
+    products,
     premiumBlueprintCount: premiumBlueprintCount(),
   });
+}
+
+async function requestVercelAnalytics(url: string, token: string): Promise<{ ok: boolean; body: unknown }> {
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!response.ok) return { ok: false, body: null };
+  try {
+    return { ok: true, body: await response.json() };
+  } catch {
+    return { ok: false, body: null };
+  }
 }

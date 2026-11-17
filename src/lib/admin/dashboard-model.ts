@@ -1,5 +1,6 @@
 import { projectOperations, PROJECT_STATUSES, type ProjectArea, type ProjectStatus } from "@/ops/operations";
 import { japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
+import type { AnalyticsPageRow, AnalyticsRead, AnalyticsReferrerRow } from "./analytics-query";
 import type { PerformanceProduct } from "./catalog";
 import {
   formatTokyoDateTime,
@@ -40,10 +41,16 @@ export type CustomerSnapshot =
   | { state: "value"; rows: EntitlementFact[]; truncated: boolean; emailsIncomplete: boolean };
 
 export type AnalyticsAudit = {
-  state: "not_connected" | "collecting";
+  state: "not_connected" | "not_available" | "value";
   headline: string;
   providerNeeded: string;
   detail: string;
+  visitors: number | null;
+  pageViews: number | null;
+  productPageViews: number | null;
+  topPages: AnalyticsPageRow[] | null;
+  referrers: AnalyticsReferrerRow[] | null;
+  productPageViewsBySlug: Record<string, number> | null;
 };
 
 export type BlogSnapshot =
@@ -110,7 +117,7 @@ export type ProductPerformanceRow = {
   titleJa: string;
   slug: string;
   liveLabel: "Live" | "Not live";
-  pageViews: "Not connected";
+  pageViews: string;
   checkoutStarts: string;
   purchases: string;
   revenue: string;
@@ -246,20 +253,43 @@ export function entitlementFact(
   };
 }
 
-const ANALYTICS_PENDING = "Analytics collecting / dashboard integration pending";
+const EMPTY_ANALYTICS = {
+  visitors: null,
+  pageViews: null,
+  productPageViews: null,
+  topPages: null,
+  referrers: null,
+  productPageViewsBySlug: null,
+} as const;
 
 export function auditAnalytics(input: {
   gaCollectionConfigured: boolean;
   vercelAnalyticsInstalled: boolean;
+  read?: AnalyticsRead | null;
 }): AnalyticsAudit {
   if (input.vercelAnalyticsInstalled) {
+    if (input.read?.state === "value") {
+      return {
+        state: "value",
+        headline: "Vercel Web Analytics",
+        providerNeeded: "Connected with the server-only Vercel Web Analytics token.",
+        detail: "Production visitors and page views for this range. /admin routes are excluded. A zero is a real count.",
+        visitors: input.read.visitors,
+        pageViews: input.read.pageViews,
+        productPageViews: input.read.productPageViews,
+        topPages: input.read.topPages,
+        referrers: input.read.referrers,
+        productPageViewsBySlug: input.read.productPageViewsBySlug,
+      };
+    }
     return {
-      state: "collecting",
-      headline: ANALYTICS_PENDING,
-      providerNeeded:
-        "A server-only Vercel token that can read Web Analytics for this project. Do not use a NEXT_PUBLIC variable. With that token, /admin/project can request visitors, page views, top pages, and referrers.",
-      detail:
-        "Vercel Web Analytics is installed and skips /admin. Production page views are collected when Web Analytics is enabled for the Vercel project. This dashboard does not read visitors, page views, top pages, or referrers yet.",
+      state: "not_available",
+      headline: "Not available",
+      providerNeeded: "Set the server-only VERCEL_WEB_ANALYTICS_TOKEN. Do not use a NEXT_PUBLIC variable.",
+      detail: input.read?.state === "not_available"
+        ? input.read.detail
+        : "Vercel Web Analytics is installed. Visitors and page views are not available until the server can read them.",
+      ...EMPTY_ANALYTICS,
     };
   }
   if (!input.gaCollectionConfigured) {
@@ -269,6 +299,7 @@ export function auditAnalytics(input: {
       providerNeeded: "Google Analytics Data API (GA4) or Vercel Web Analytics",
       detail:
         "No analytics provider is connected. Vercel Web Analytics is not installed, and Google Analytics has no measurement ID on this server. Visitor counts and product page views are Not connected.",
+      ...EMPTY_ANALYTICS,
     };
   }
   return {
@@ -277,7 +308,14 @@ export function auditAnalytics(input: {
     providerNeeded: "Google Analytics Data API (GA4) with a server-side read credential",
     detail:
       "Google Analytics is configured to collect browser page views. This dashboard cannot read those reports, so visitor counts, product page views, and page-view conversion stay Not connected.",
+    ...EMPTY_ANALYTICS,
   };
+}
+
+function analyticsMetric(analytics: AnalyticsAudit, value: number | null): { display: string; state: MetricState } {
+  if (analytics.state === "value" && typeof value === "number") return { display: String(value), state: "value" };
+  if (analytics.state === "not_available" || analytics.state === "value") return { display: "Not available", state: "not_available" };
+  return { display: "Not connected", state: "not_connected" };
 }
 
 function productTitle(slug: string | null, products: readonly PerformanceProduct[]): string {
@@ -405,7 +443,12 @@ export function buildOperationsDashboard(input: DashboardInput): DashboardModel 
       titleJa: product.titleJa,
       slug: product.slug,
       liveLabel: product.live ? ("Live" as const) : ("Not live" as const),
-      pageViews: "Not connected" as const,
+      pageViews:
+        input.analytics.state === "not_connected"
+          ? "Not connected"
+          : input.analytics.productPageViewsBySlug
+            ? String(input.analytics.productPageViewsBySlug[product.slug] ?? 0)
+            : "Not available",
       checkoutStarts: commerceState === "value" ? String(starts) : commerceState === "not_available" ? "Not available" : "Not connected",
       purchases: commerceState === "value" ? String(sold.length) : commerceState === "not_available" ? "Not available" : "Not connected",
       revenue:
@@ -427,20 +470,30 @@ export function buildOperationsDashboard(input: DashboardInput): DashboardModel 
     };
   });
 
+  const visitors = analyticsMetric(input.analytics, input.analytics.visitors);
+  const pageViews = analyticsMetric(input.analytics, input.analytics.pageViews);
+  const productPageViews = analyticsMetric(input.analytics, input.analytics.productPageViews);
   const kpis: KpiCard[] = [
     {
       id: "visitors",
       label: "Visitors",
-      display: input.analytics.headline,
+      display: visitors.display,
       detail: input.analytics.detail,
-      state: "not_connected",
+      state: visitors.state,
     },
     {
       id: "page-views",
-      label: "Product page views",
-      display: input.analytics.state === "collecting" ? input.analytics.headline : "Not connected",
+      label: "Page views",
+      display: pageViews.display,
       detail: input.analytics.detail,
-      state: "not_connected",
+      state: pageViews.state,
+    },
+    {
+      id: "product-page-views",
+      label: "Product page views",
+      display: productPageViews.display,
+      detail: "Views of live blueprint pages, including Japanese and English paths. Kit and checkout pages are not included.",
+      state: productPageViews.state,
     },
     {
       id: "checkout-starts",

@@ -56,21 +56,75 @@ export function OverviewSection({ model, waiting }: { model: DashboardModel; wai
 }
 
 export function AnalyticsSection({ model }: { model: DashboardModel }) {
+  const analytics = model.analytics;
+  const count = (value: number | null) => (analytics.state === "value" && typeof value === "number" ? String(value) : analytics.headline);
   return (
     <section aria-labelledby="analytics-heading">
       <h2 id="analytics-heading" className="text-xl font-semibold tracking-tight">Analytics</h2>
-      <p className="mt-2 text-sm font-medium">{model.analytics.headline}</p>
-      <p className="mt-2 text-sm leading-relaxed text-muted">{model.analytics.detail}</p>
-      <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-        {["Visitors", "Page views", "Top pages", "Referrers"].map((label) => (
-          <div key={label} className="rounded-2xl border border-border/80 bg-card p-4">
-            <dt className="text-sm text-muted">{label}</dt>
-            <dd className="mt-1 text-sm font-medium">{model.analytics.headline}</dd>
-          </div>
-        ))}
+      <p className="mt-2 text-sm font-medium">{analytics.headline}</p>
+      <p className="mt-2 text-sm leading-relaxed text-muted">{analytics.detail}</p>
+      <dl className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-border/80 bg-card p-4">
+          <dt className="text-sm text-muted">Visitors</dt>
+          <dd className="mt-1 text-sm font-medium">{count(analytics.visitors)}</dd>
+        </div>
+        <div className="rounded-2xl border border-border/80 bg-card p-4">
+          <dt className="text-sm text-muted">Page views</dt>
+          <dd className="mt-1 text-sm font-medium">{count(analytics.pageViews)}</dd>
+        </div>
+        <div className="rounded-2xl border border-border/80 bg-card p-4">
+          <dt className="text-sm text-muted">Product page views</dt>
+          <dd className="mt-1 text-sm font-medium">{count(analytics.productPageViews)}</dd>
+        </div>
       </dl>
-      <p className="mt-4 text-sm leading-relaxed text-foreground">Next integration: {model.analytics.providerNeeded}</p>
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <AnalyticsList
+          title="Top pages"
+          empty="No pages in this range."
+          rows={analytics.topPages?.map((row) => ({ key: row.path, label: row.path, pageViews: row.pageViews })) ?? null}
+          unavailable={analytics.headline}
+        />
+        <AnalyticsList
+          title="Referrers"
+          empty="No referrers in this range."
+          rows={analytics.referrers?.map((row) => ({ key: row.host, label: row.host, pageViews: row.pageViews })) ?? null}
+          unavailable={analytics.headline}
+        />
+      </div>
+      {analytics.state === "value" ? null : (
+        <p className="mt-4 text-sm leading-relaxed text-foreground">Next integration: {analytics.providerNeeded}</p>
+      )}
     </section>
+  );
+}
+
+function AnalyticsList({
+  title,
+  empty,
+  rows,
+  unavailable,
+}: {
+  title: string;
+  empty: string;
+  rows: { key: string; label: string; pageViews: number }[] | null;
+  unavailable: string;
+}) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold">{title}</h3>
+      {rows === null ? <p className="mt-2 text-sm text-muted">{unavailable}</p> : rows.length === 0 ? (
+        <p className="mt-2 text-sm text-muted">{empty}</p>
+      ) : (
+        <ol className="mt-2 divide-y divide-border/70 rounded-2xl border border-border/80 bg-card">
+          {rows.map((row) => (
+            <li key={row.key} className="flex items-baseline justify-between gap-4 px-4 py-2 text-sm">
+              <span className="break-all">{row.label}</span>
+              <span className="shrink-0 font-medium">{row.pageViews}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
   );
 }
 
