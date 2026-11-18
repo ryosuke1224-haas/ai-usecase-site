@@ -54,6 +54,53 @@ function reviewItem(patch: Partial<ReviewItem> & Pick<ReviewItem, "id" | "status
   };
 }
 
+test("blog review items carry the full body separately from source links", () => {
+  const body = [
+    "論点です。",
+    "",
+    "## Atlasの見方",
+    "",
+    "仕事の確認を残します。",
+    "",
+    "## 明日試すなら",
+    "",
+    "一つだけ試します。",
+  ].join("\n");
+  const blog = reviewItem({
+    id: "blog-1",
+    type: "BLOG",
+    status: "READY_FOR_REVIEW",
+    sources: ["https://example.com/source"],
+    editorial: {
+      note: "",
+      applied: false,
+      body,
+      proposedBody: null,
+      publishedAt: null,
+    },
+  });
+  const newsletter = reviewItem({
+    id: "news-1",
+    type: "NEWSLETTER",
+    status: "READY_FOR_REVIEW",
+    source: "newsletter_issues",
+    sources: ["https://example.com/note"],
+  });
+  assert.equal(blog.editorial?.body.includes("Atlasの見方"), true);
+  assert.deepEqual(blog.sources, ["https://example.com/source"]);
+  assert.equal(newsletter.editorial, undefined);
+  assert.deepEqual(newsletter.sources, ["https://example.com/note"]);
+  const dashboard = readFileSync("components/admin/project-dashboard.tsx", "utf8");
+  assert.match(dashboard, /現在の本文/);
+  assert.match(dashboard, /参照元/);
+  assert.match(dashboard, /isBlog/);
+  assert.match(dashboard, /item\.type === "BLOG"/);
+  assert.ok(dashboard.indexOf("現在の本文") < dashboard.indexOf("参照元"));
+  assert.ok(dashboard.indexOf("<EditorialForm") < dashboard.indexOf("<ReviewForm"));
+  assert.equal(newsletter.type, "NEWSLETTER");
+  assert.equal(newsletter.editorial, undefined);
+});
+
 test("the main review queue keeps only actionable statuses", () => {
   const items = [
     reviewItem({ id: "1", type: "BLOG", status: "READY_FOR_REVIEW", title: "Ready", createdAt: "2026-11-17T02:00:00.000Z" }),

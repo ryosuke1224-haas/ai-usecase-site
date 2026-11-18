@@ -30,6 +30,12 @@ test("review queue labels are Japanese and the stored enums stay in place", () =
   assert.match(dashboard, /reviewStatusLabel\(item\.status\)/);
   assert.match(dashboard, /公開待ち/);
   assert.match(dashboard, /publishPending/);
+  assert.match(dashboard, /現在の本文/);
+  assert.match(dashboard, /参照元/);
+  assert.match(dashboard, /ArticleBody/);
+  assert.match(dashboard, /item\.editorial\?\.body/);
+  assert.ok(dashboard.indexOf("現在の本文") < dashboard.indexOf("参照元"));
+  assert.ok(dashboard.indexOf("EditorialForm") < dashboard.indexOf("ReviewForm"));
   assert.doesNotMatch(dashboard, /No public preview/);
   const history = readFileSync("components/admin/monitor-sections.tsx", "utf8");
   assert.match(history, /確認の履歴/);

@@ -57,15 +57,9 @@ export function EditorialForm({
       </form>
       {pending ? (
         <div className="space-y-2">
-          <div className="grid gap-2 md:grid-cols-2">
-            <div>
-              <p className="text-xs font-medium">現在の本文</p>
-              <pre className="mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-xs">{editorial.body}</pre>
-            </div>
-            <div>
-              <p className="text-xs font-medium">反映後の本文</p>
-              <pre className="mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-xs">{pending}</pre>
-            </div>
+          <div>
+            <p className="text-xs font-medium">反映後の本文</p>
+            <pre className="mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-xs">{pending}</pre>
           </div>
           <div className="flex flex-wrap gap-2">
             <form action={runEditorial}>

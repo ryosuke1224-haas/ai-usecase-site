@@ -10,6 +10,7 @@ import {
   RevenueSection,
   RoadmapSection,
 } from "@/components/admin/monitor-sections";
+import { ArticleBody } from "@/components/blog/article-body";
 import type { ConsoleData } from "@/src/lib/admin/load-console";
 import type { DashboardModel } from "@/src/lib/admin/dashboard-model";
 import { ADMIN_SECTIONS, adminProjectHref, type AdminSection, type DashboardRange } from "@/src/lib/admin/range";
@@ -63,15 +64,45 @@ function ItemCard({
   range: DashboardRange;
 }) {
   const target = targetFor(item);
+  const isBlog = item.type === "BLOG";
+  const body = item.editorial?.body?.trim() ? item.editorial.body : null;
+  const sources = item.sources ?? [];
   return (
     <article className="rounded-2xl border border-border/80 bg-card p-4">
       <p className="text-xs text-muted">{reviewTypeLabel(item.type)} · {reviewStatusLabel(item.status)}</p>
       <h3 className="mt-1 text-sm font-semibold">{item.title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">{item.summary}</p>
       <p className="mt-2 text-xs text-muted">{item.createdAt ?? "日付なし"} · {item.qa}</p>
-      {item.sources && item.sources.length > 0 ? (
+      {isBlog ? (
+        <div className="mt-4 space-y-4 border-t border-border/80 pt-4">
+          <div>
+            <h4 className="text-sm font-semibold">現在の本文</h4>
+            {body ? (
+              <div className="mt-2 max-h-[36rem] overflow-auto rounded-xl border border-border/80 bg-background p-4 text-sm">
+                <ArticleBody body={body} />
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-muted">本文はまだ読めません。</p>
+            )}
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold">参照元</h4>
+            {sources.length > 0 ? (
+              <ul className="mt-2 space-y-1 text-sm">
+                {sources.map((url) => (
+                  <li key={url}>
+                    <a className="break-all text-accent hover:underline" href={url} rel="noreferrer">{url}</a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-muted">参照元はまだありません。</p>
+            )}
+          </div>
+        </div>
+      ) : sources.length > 0 ? (
         <ul className="mt-2 space-y-1 text-xs">
-          {item.sources.map((url) => (
+          {sources.map((url) => (
             <li key={url}><a className="break-all text-accent hover:underline" href={url} rel="noreferrer">{url}</a></li>
           ))}
         </ul>
@@ -80,10 +111,10 @@ function ItemCard({
         {item.previewHref ? <Link className="font-medium text-accent hover:underline" href={item.previewHref}>公開プレビュー</Link> : "公開プレビューなし"}
         {item.relatedHref ? <> · <Link className="font-medium text-accent hover:underline" href={item.relatedHref}>{item.relatedLabel ?? "関連"}</Link></> : null}
       </p>
+      {target === "blog" ? <EditorialForm item={item} section={section} range={range} /> : null}
       {target ? <ReviewForm item={item} target={target} section={section} range={range} /> : (
         <p className="mt-3 text-xs leading-relaxed text-muted">この記録は手元の Atlas memory にあります。確認項目として保存されるまで、ここでは判断を記録できません。</p>
       )}
-      {target === "blog" ? <EditorialForm item={item} section={section} range={range} /> : null}
     </article>
   );
 }
