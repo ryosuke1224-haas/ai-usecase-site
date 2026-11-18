@@ -1,12 +1,12 @@
-import { randomUUID } from "node:crypto";
 import { LAUNCH_PRODUCTS } from "@/src/lib/payments/launch-catalog";
 import { COLLECTIONS_PRODUCT_SLUG } from "@/src/lib/payments/products";
 import { loadAtlasLocalEnv } from "../atlas-auto/local-env";
 import { WEEKLY_FEEDS } from "./feeds";
-import { readWeeklyState, writeWeeklyState } from "./files";
-import { createRun, runUntilSettled } from "./pipeline";
+import { writeWeeklyState } from "./files";
+import { runUntilSettled } from "./pipeline";
 import { dedupeSources, fetchFeed } from "./research";
 import { knownQueueKeys, rememberRun, supabaseQueue } from "./remote";
+import { resolveWeeklyRun } from "./resolve-run";
 import type { SourceRecord } from "./types";
 
 const products = [
@@ -30,18 +30,31 @@ async function research(now: Date): Promise<{ records: SourceRecord[]; errors: s
 
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
+  const rerun = process.argv.includes("--rerun");
   loadAtlasLocalEnv();
   const now = new Date();
   const root = process.cwd();
-  const fresh = createRun(now, `weekly-${randomUUID()}`);
-  const existing = readWeeklyState(root, fresh.weekKey);
-  const state = existing ?? fresh;
-  if (!existing) state.errors = [];
+  const resolved = resolveWeeklyRun({ root, now, rerun });
+  const state = resolved.state;
+  if (resolved.reusedCompleted) {
+    console.log(
+      `${state.weekKey} ${state.status} ${state.stage} queued ${state.counts.queued} rejected ${state.counts.qaRejected}`,
+    );
+    console.log("Completed week reused. Pass --rerun to generate a new edition.");
+    return;
+  }
+  if (!state.completed.includes("RESEARCH")) state.errors = [];
+  if (resolved.rerun) {
+    console.log(`Rerun of ${resolved.baseWeekKey} as ${state.weekKey}`);
+  }
   const fetched = state.completed.includes("RESEARCH")
     ? null
     : await research(now);
   if (fetched) state.errors = [...state.errors, ...fetched.errors].slice(-20);
-  const known = await knownQueueKeys().catch(() => ({ urls: [] as string[], titles: [] as string[] }));
+  const known = await knownQueueKeys({ ignoreRejected: resolved.rerun }).catch(() => ({
+    urls: [] as string[],
+    titles: [] as string[],
+  }));
   const finished = await runUntilSettled(state, {
     now,
     products,

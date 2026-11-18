@@ -93,29 +93,36 @@ export async function rememberRun(state: WeeklyState): Promise<void> {
   if (error) throw new Error("Weekly run history was not saved.");
 }
 
-export async function knownQueueKeys(): Promise<{ urls: string[]; titles: string[] }> {
+export async function knownQueueKeys(options?: {
+  /** When true, REJECTED rows do not block a fresh edition from reusing sources. */
+  ignoreRejected?: boolean;
+}): Promise<{ urls: string[]; titles: string[] }> {
   const supabase = client();
   if (!supabase) return { urls: [], titles: [] };
+  const ignoreRejected = options?.ignoreRejected === true;
   const [articles, issues, reviews] = await Promise.all([
-    supabase.from("articles").select("source_urls, title").limit(500),
-    supabase.from("newsletter_issues").select("title, review_note").limit(200),
-    supabase.from("review_items").select("title").eq("item_type", "BLUEPRINT").limit(200),
+    supabase.from("articles").select("source_urls, title, status").limit(500),
+    supabase.from("newsletter_issues").select("title, review_note, status").limit(200),
+    supabase.from("review_items").select("title, status").eq("item_type", "BLUEPRINT").limit(200),
   ]);
   const urls: string[] = [];
   const titles: string[] = [];
   for (const row of articles.data ?? []) {
-    const record = row as { source_urls?: unknown; title?: unknown };
+    const record = row as { source_urls?: unknown; title?: unknown; status?: unknown };
+    if (ignoreRejected && record.status === "REJECTED") continue;
     if (Array.isArray(record.source_urls)) {
       for (const url of record.source_urls) if (typeof url === "string") urls.push(url);
     }
     if (typeof record.title === "string") titles.push(record.title);
   }
   for (const row of issues.data ?? []) {
-    const record = row as { title?: unknown };
+    const record = row as { title?: unknown; status?: unknown };
+    if (ignoreRejected && record.status === "REJECTED") continue;
     if (typeof record.title === "string") titles.push(record.title);
   }
   for (const row of reviews.data ?? []) {
-    const record = row as { title?: unknown };
+    const record = row as { title?: unknown; status?: unknown };
+    if (ignoreRejected && record.status === "REJECTED") continue;
     if (typeof record.title === "string") titles.push(record.title);
   }
   return { urls, titles };

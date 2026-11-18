@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { WeeklyState } from "./types";
 
@@ -8,6 +8,16 @@ export function weeklyDir(root: string): string {
 
 export function statePath(root: string, weekKey: string): string {
   return path.join(weeklyDir(root), `${weekKey}.json`);
+}
+
+export function listWeeklyStateKeys(root: string): string[] {
+  try {
+    return readdirSync(weeklyDir(root))
+      .filter((name) => name.endsWith(".json"))
+      .map((name) => name.slice(0, -".json".length));
+  } catch {
+    return [];
+  }
 }
 
 export function readWeeklyState(root: string, weekKey: string): WeeklyState | null {

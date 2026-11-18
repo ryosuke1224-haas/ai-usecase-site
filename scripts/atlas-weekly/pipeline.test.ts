@@ -161,7 +161,9 @@ test("a failed research stage resumes without repeating a finished fetch", async
 });
 
 test("weekly command does not publish, send, deploy, or create Stripe objects", () => {
-  const files = ["index.ts", "pipeline.ts", "remote.ts", "drafts.ts", "qa.ts"].map((file) => readFileSync(`scripts/atlas-weekly/${file}`, "utf8")).join("\n");
+  const files = ["index.ts", "pipeline.ts", "remote.ts", "drafts.ts", "qa.ts", "resolve-run.ts"].map((file) => readFileSync(`scripts/atlas-weekly/${file}`, "utf8")).join("\n");
   assert.doesNotMatch(files, /checkout\.sessions\.create|stripe\.products|vercel deploy|git push|published_at:\s*now|status:\s*"PUBLISHED"|status:\s*"SENT"/);
   assert.match(files, /READY_FOR_REVIEW/);
+  assert.match(readFileSync("scripts/atlas-weekly/index.ts", "utf8"), /--rerun/);
+  assert.match(readFileSync("scripts/atlas-weekly/index.ts", "utf8"), /Completed week reused/);
 });

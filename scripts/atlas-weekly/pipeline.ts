@@ -31,11 +31,11 @@ export function weekKey(date: Date): string {
   return `${utc.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
 }
 
-export function createRun(now: Date, runId: string): WeeklyState {
+export function createRun(now: Date, runId: string, weekKeyOverride?: string): WeeklyState {
   const stamp = now.toISOString();
   return {
     runId,
-    weekKey: weekKey(now),
+    weekKey: weekKeyOverride ?? weekKey(now),
     stage: "RESEARCH",
     status: "running",
     startedAt: stamp,
@@ -52,6 +52,24 @@ export function createRun(now: Date, runId: string): WeeklyState {
     qa: [],
     queued: [],
   };
+}
+
+/** Strip a rerun suffix so tip rotation still follows the ISO week. */
+export function baseWeekKey(value: string): string {
+  return value.replace(/-r\d+$/i, "");
+}
+
+/** Next explicit edition key for the same ISO week, e.g. 2026-W47 → 2026-W47-r2. */
+export function nextRerunWeekKey(existingKeys: readonly string[], base: string): string {
+  const escaped = base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^${escaped}(?:-r(\\d+))?$`, "i");
+  let highest = 0;
+  for (const key of existingKeys) {
+    const match = pattern.exec(key);
+    if (!match) continue;
+    highest = Math.max(highest, match[1] ? Number(match[1]) : 1);
+  }
+  return `${base}-r${highest + 1}`;
 }
 
 function nextStage(stage: WeeklyStage): WeeklyStage | "DONE" {
