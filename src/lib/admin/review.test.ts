@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { classifyRun, nextOperationsAction, parseRunRecord, productStage } from "./atlas-state";
 import { isPublicArticle } from "@/src/lib/blog/model";
-import { isReviewId, reviewDecision, safePreviewPath } from "./review";
+import { historyReviewItems, isReviewId, publishPendingItems, queueItems, reviewDecision, safePreviewPath, type ReviewItem } from "./review";
 import { parseAdminSection } from "./range";
 
 const ID = "11111111-1111-4111-8111-111111111111";
@@ -37,6 +37,35 @@ test("product stages and atlas runs stay descriptive", () => {
   assert.match(nextOperationsAction({ runs: [], waitingReviews: 2 }), /Review Queue/);
   assert.equal(parseAdminSection("review"), "review");
   assert.equal(parseAdminSection("shell"), "overview");
+});
+
+function reviewItem(patch: Partial<ReviewItem> & Pick<ReviewItem, "id" | "status" | "type">): ReviewItem {
+  return {
+    title: patch.title ?? "Item",
+    summary: "",
+    createdAt: patch.createdAt ?? "2026-11-17T00:00:00.000Z",
+    qa: "",
+    previewHref: null,
+    relatedHref: null,
+    relatedLabel: null,
+    mutable: true,
+    source: patch.source ?? "articles",
+    ...patch,
+  };
+}
+
+test("the main review queue keeps only actionable statuses", () => {
+  const items = [
+    reviewItem({ id: "1", type: "BLOG", status: "READY_FOR_REVIEW", title: "Ready", createdAt: "2026-11-17T02:00:00.000Z" }),
+    reviewItem({ id: "2", type: "BLOG", status: "NEEDS_CHANGES", title: "Needs", createdAt: "2026-11-17T01:00:00.000Z" }),
+    reviewItem({ id: "3", type: "BLOG", status: "APPROVED", title: "Approved blog", editorial: { note: "", applied: false, body: "", proposedBody: null, publishedAt: null } }),
+    reviewItem({ id: "4", type: "BLOG", status: "REJECTED", title: "Rejected" }),
+    reviewItem({ id: "5", type: "BLOG", status: "PUBLISHED", title: "Published" }),
+    reviewItem({ id: "6", type: "NEWSLETTER", status: "APPROVED", title: "Approved newsletter", source: "newsletter_issues" }),
+  ];
+  assert.deepEqual(queueItems(items).map((item) => item.title), ["Ready", "Needs"]);
+  assert.deepEqual(publishPendingItems(items).map((item) => item.title), ["Approved blog"]);
+  assert.deepEqual(historyReviewItems(items).map((item) => item.title), ["Rejected", "Published", "Approved newsletter"]);
 });
 
 test("reject stays behind the allowlist and does not publish", () => {

@@ -80,8 +80,42 @@ export function sourceLinks(value: string | null | undefined): string[] {
   return [...new Set(found.map((url) => url.replace(/[.,]$/, "")))].slice(0, 8);
 }
 
+const ACTIONABLE = new Set(["READY_FOR_REVIEW", "NEEDS_CHANGES"]);
+
+function byNewest(items: readonly ReviewItem[]): ReviewItem[] {
+  return items.slice().sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+}
+
+/** Main 確認キュー: only items that still need a review decision. */
 export function queueItems(items: readonly ReviewItem[]): ReviewItem[] {
-  return items
-    .filter((item) => !CLOSED.has(item.status))
-    .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+  return byNewest(items.filter((item) => ACTIONABLE.has(item.status)));
+}
+
+/** BLOG items that are approved and still need an explicit Publish. */
+export function publishPendingItems(items: readonly ReviewItem[]): ReviewItem[] {
+  return byNewest(
+    items.filter(
+      (item) =>
+        item.type === "BLOG" &&
+        item.status === "APPROVED" &&
+        !item.editorial?.publishedAt,
+    ),
+  );
+}
+
+/** Completed or non-actionable review records for History. */
+export function historyReviewItems(items: readonly ReviewItem[]): ReviewItem[] {
+  return byNewest(
+    items.filter((item) => {
+      if (ACTIONABLE.has(item.status)) return false;
+      if (item.type === "BLOG" && item.status === "APPROVED" && !item.editorial?.publishedAt) return false;
+      return (
+        item.status === "REJECTED" ||
+        item.status === "PUBLISHED" ||
+        item.status === "SENT" ||
+        item.status === "ARCHIVED" ||
+        item.status === "APPROVED"
+      );
+    }),
+  );
 }

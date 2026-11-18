@@ -1,4 +1,6 @@
 import type { DashboardModel, KpiCard, MetricState, OverviewCard } from "@/src/lib/admin/dashboard-model";
+import { reviewStatusLabel, reviewTypeLabel } from "@/src/lib/admin/review-labels";
+import type { ReviewItem } from "@/src/lib/admin/review";
 
 function stateClass(state: MetricState): string {
   if (state === "value") return "text-3xl font-semibold tracking-tight text-foreground";
@@ -336,9 +338,11 @@ export function BacklogSection({ model }: { model: DashboardModel }) {
 export function HistorySection({
   model,
   actions,
+  completed = [],
 }: {
   model: DashboardModel;
   actions: { action: string; targetTitle: string; fromStatus: string; toStatus: string; createdAt: string | null }[] | null;
+  completed?: ReviewItem[];
 }) {
   return (
     <section aria-labelledby="history-heading">
@@ -352,6 +356,20 @@ export function HistorySection({
           </li>
         ))}
       </ol>
+      <h3 className="mt-8 text-sm font-semibold">確認の履歴</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted">公開済み、却下済み、承認済みのまま残っているニュースレターなど、確認キューから外した項目です。</p>
+      {completed.length === 0 ? <p className="mt-3 text-sm text-muted">確認の履歴はまだありません。</p> : (
+        <ul className="mt-3 divide-y divide-border/70 rounded-2xl border border-border/80 bg-card">
+          {completed.map((item) => (
+            <li key={`${item.source}-${item.id}`} className="px-4 py-3 text-sm">
+              <span className="font-medium">{item.title}</span>
+              <span className="mt-1 block text-xs text-muted">
+                {reviewTypeLabel(item.type)} · {reviewStatusLabel(item.status)}{item.createdAt ? ` · ${item.createdAt}` : ""}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
       <h3 className="mt-8 text-sm font-semibold">Admin decisions</h3>
       {actions === null ? <p className="mt-2 text-sm text-muted">The action log is not available until the Atlas review migration is applied.</p> : actions.length === 0 ? <p className="mt-2 text-sm text-muted">No approve, reject, or needs-changes decisions yet.</p> : (
         <ul className="mt-3 divide-y divide-border/70 rounded-2xl border border-border/80 bg-card">

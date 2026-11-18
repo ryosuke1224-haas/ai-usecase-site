@@ -145,15 +145,26 @@ export function ProjectDashboard({
         {section === "revenue" ? <RevenueSection model={model} /> : null}
         {section === "roadmap" ? <RoadmapSection model={model} /> : null}
         {section === "backlog" ? <BacklogSection model={model} /> : null}
-        {section === "history" ? <HistorySection model={model} actions={consoleData.actions} /> : null}
+        {section === "history" ? (
+          <HistorySection model={model} actions={consoleData.actions} completed={consoleData.completed} />
+        ) : null}
         {section === "review" ? (
           <section aria-labelledby="review-heading">
             <h2 id="review-heading" className="text-xl font-semibold tracking-tight">確認キュー</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted">Blueprint候補、ブログの下書き、ニュースレターの下書き、コンテンツ更新を確認します。承認しても、自動で公開・配信はされません。</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">確認待ちと修正待ちだけをここに出します。承認しても、自動で公開・配信はされません。</p>
             {consoleData.storage === "unavailable" ? <p className="mt-4 text-sm text-muted">ブログとニュースレターの保存先はまだ使えません。このマシンでは Atlas memory を読めます。</p> : null}
             {consoleData.queue.length === 0 ? <p className="mt-4 text-sm text-muted">確認待ちの項目はありません。</p> : (
               <div className="mt-4 grid gap-3">
                 {consoleData.queue.map((item) => <ItemCard key={`${item.source}-${item.id}`} item={item} section={section} range={range} />)}
+              </div>
+            )}
+            <h3 id="publish-pending-heading" className="mt-10 text-lg font-semibold tracking-tight">公開待ち</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">承認済みのブログで、まだ公開していないものです。公開は明示的な操作です。</p>
+            {consoleData.publishPending.length === 0 ? <p className="mt-4 text-sm text-muted">公開待ちの記事はありません。</p> : (
+              <div className="mt-4 grid gap-3">
+                {consoleData.publishPending.map((item) => (
+                  <ItemCard key={`${item.source}-${item.id}`} item={item} section={section} range={range} />
+                ))}
               </div>
             )}
           </section>

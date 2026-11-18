@@ -9,11 +9,21 @@ import { nextOperationsAction, productOperationRows, type AtlasRunSummary, type 
 import { readAtlasMemory } from "./read-atlas";
 import { loadAdminActions, loadStoredReviewItems, type AdminActionRow } from "./review-store";
 import { loadWeeklyRuns } from "./weekly-runs";
-import { candidateReviewStatus, queueItems, safePreviewPath, sourceLinks, type ReviewItem } from "./review";
+import {
+  candidateReviewStatus,
+  historyReviewItems,
+  publishPendingItems,
+  queueItems,
+  safePreviewPath,
+  sourceLinks,
+  type ReviewItem,
+} from "./review";
 
 export type ConsoleData = {
   storage: "ready" | "unavailable";
   queue: ReviewItem[];
+  publishPending: ReviewItem[];
+  completed: ReviewItem[];
   articles: ReviewItem[];
   issues: ReviewItem[];
   products: ProductOperationRow[];
@@ -151,11 +161,16 @@ export async function loadConsole(): Promise<ConsoleData> {
         source: "atlas-memory" as const,
       })),
   ];
-  const queue = queueItems([...articleItems, ...issueItems, ...storedItems, ...memoryItems]);
+  const allItems = [...articleItems, ...issueItems, ...storedItems, ...memoryItems];
+  const queue = queueItems(allItems);
+  const publishPending = publishPendingItems(allItems);
+  const completed = historyReviewItems(allItems);
   const runs = mergeRuns(memory.runs, weeklyRuns);
   return {
     storage,
     queue,
+    publishPending,
+    completed,
     articles: articleItems,
     issues: issueItems,
     products: productOperationRows({
@@ -164,7 +179,7 @@ export async function loadConsole(): Promise<ConsoleData> {
       candidates: memory.candidates,
     }),
     runs,
-    nextAction: nextOperationsAction({ runs, waitingReviews: queue.length }),
+    nextAction: nextOperationsAction({ runs, waitingReviews: queue.length + publishPending.length }),
     actions,
   };
 }
