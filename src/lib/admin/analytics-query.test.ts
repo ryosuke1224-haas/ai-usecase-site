@@ -178,6 +178,27 @@ test("country codes become readable labels with visitor share", () => {
   assert.deepEqual(rows.map((row) => row.label), ["United States", "Japan", "Singapore"]);
   assert.equal(rows[0]?.visitors, 7);
   assert.equal(rows[0]?.share, 63.6);
+  assert.equal(rows.every((row) => row.share === null || row.share <= 100), true);
+});
+
+test("country share is omitted when country counts are incompatible with the Visitors KPI", () => {
+  const incompatible = summarizeCountries(
+    [
+      { key: "US", pageViews: 20, visitors: 13 },
+      { key: "JP", pageViews: 4, visitors: 2 },
+    ],
+    11,
+  );
+  assert.equal(incompatible[0]?.visitors, 13);
+  assert.equal(incompatible[0]?.share, null);
+  assert.equal(incompatible.every((row) => row.share === null || row.share <= 100), true);
+
+  const pageViewOnly = summarizeCountries(
+    [{ key: "US", pageViews: 13, visitors: null }],
+    11,
+  );
+  assert.equal(pageViewOnly[0]?.visitors, 13);
+  assert.equal(pageViewOnly[0]?.share, null);
 });
 
 test("referrer hosts normalize into useful traffic sources", () => {

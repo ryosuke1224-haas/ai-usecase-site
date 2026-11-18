@@ -190,21 +190,46 @@ export function summarizeCountries(
   totalVisitors: number,
   limit = 10,
 ): AnalyticsCountryRow[] {
-  const totals = new Map<string, number>();
+  const totals = new Map<string, { count: number; fromVisitors: boolean }>();
   for (const row of rows) {
     const code = row.key.trim().toUpperCase() || "ZZ";
-    const count = row.visitors ?? row.pageViews;
-    totals.set(code, (totals.get(code) ?? 0) + count);
+    const fromVisitors = row.visitors !== null;
+    const count = fromVisitors ? row.visitors! : row.pageViews;
+    const current = totals.get(code);
+    if (!current) {
+      totals.set(code, { count, fromVisitors });
+      continue;
+    }
+    totals.set(code, {
+      count: current.count + count,
+      fromVisitors: current.fromVisitors && fromVisitors,
+    });
   }
-  return [...totals.entries()]
-    .map(([code, visitors]) => ({
+  const ranked = [...totals.entries()]
+    .map(([code, value]) => ({
       code,
       label: countryLabel(code),
-      visitors,
-      share: totalVisitors > 0 ? Math.round((visitors / totalVisitors) * 1000) / 10 : null,
+      visitors: value.count,
+      fromVisitors: value.fromVisitors,
     }))
     .sort((a, b) => b.visitors - a.visitors || a.label.localeCompare(b.label))
     .slice(0, limit);
+
+  // Share is only shown when every country count is a visitor count that cannot
+  // exceed the Visitors KPI. Otherwise the metrics are incompatible.
+  const shareCompatible =
+    totalVisitors > 0 &&
+    ranked.length > 0 &&
+    ranked.every((row) => row.fromVisitors && row.visitors <= totalVisitors);
+
+  return ranked.map((row) => ({
+    code: row.code,
+    label: row.label,
+    visitors: row.visitors,
+    share: shareCompatible
+      ? Math.min(100, Math.round((row.visitors / totalVisitors) * 1000) / 10)
+      : null,
+  }));
 }
 
 export function summarizeNamedCounts(
