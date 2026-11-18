@@ -1,6 +1,12 @@
 import { projectOperations, PROJECT_STATUSES, type ProjectArea, type ProjectStatus } from "@/ops/operations";
 import { japaneseUseCase } from "@/src/lib/i18n/catalog-labels";
-import type { AnalyticsPageRow, AnalyticsRead, AnalyticsReferrerRow } from "./analytics-query";
+import type {
+  AnalyticsCountryRow,
+  AnalyticsNamedCountRow,
+  AnalyticsPageRow,
+  AnalyticsRead,
+  AnalyticsReferrerRow,
+} from "./analytics-query";
 import type { PerformanceProduct } from "./catalog";
 import {
   formatTokyoDateTime,
@@ -50,6 +56,10 @@ export type AnalyticsAudit = {
   productPageViews: number | null;
   topPages: AnalyticsPageRow[] | null;
   referrers: AnalyticsReferrerRow[] | null;
+  countries: AnalyticsCountryRow[] | null;
+  devices: AnalyticsNamedCountRow[] | null;
+  browsers: AnalyticsNamedCountRow[] | null;
+  operatingSystems: AnalyticsNamedCountRow[] | null;
   productPageViewsBySlug: Record<string, number> | null;
 };
 
@@ -259,6 +269,10 @@ const EMPTY_ANALYTICS = {
   productPageViews: null,
   topPages: null,
   referrers: null,
+  countries: null,
+  devices: null,
+  browsers: null,
+  operatingSystems: null,
   productPageViewsBySlug: null,
 } as const;
 
@@ -279,6 +293,10 @@ export function auditAnalytics(input: {
         productPageViews: input.read.productPageViews,
         topPages: input.read.topPages,
         referrers: input.read.referrers,
+        countries: input.read.countries,
+        devices: input.read.devices,
+        browsers: input.read.browsers,
+        operatingSystems: input.read.operatingSystems,
         productPageViewsBySlug: input.read.productPageViewsBySlug,
       };
     }

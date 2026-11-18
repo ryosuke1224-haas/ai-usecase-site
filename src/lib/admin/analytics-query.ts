@@ -2,11 +2,22 @@ import { rangeStart, type DashboardRange } from "./range";
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const PRODUCT_PATH = /^\/(?:(?:ja|en)\/)?blueprints\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/;
+const REGION_NAMES = new Intl.DisplayNames(["en"], { type: "region" });
 
 export const ADMIN_EXCLUSION_FILTER = "not (requestPath eq '/admin' or startswith(requestPath, '/admin/'))";
 
+export type AnalyticsDimension =
+  | "requestPath"
+  | "referrerHostname"
+  | "country"
+  | "deviceType"
+  | "browserName"
+  | "osName";
+
 export type AnalyticsPageRow = { path: string; pageViews: number };
-export type AnalyticsReferrerRow = { host: string; pageViews: number };
+export type AnalyticsReferrerRow = { label: string; pageViews: number };
+export type AnalyticsCountryRow = { code: string; label: string; visitors: number; share: number | null };
+export type AnalyticsNamedCountRow = { label: string; visitors: number };
 
 export type AnalyticsRead =
   | { state: "not_available"; detail: string }
@@ -17,10 +28,15 @@ export type AnalyticsRead =
       productPageViews: number | null;
       topPages: AnalyticsPageRow[] | null;
       referrers: AnalyticsReferrerRow[] | null;
+      countries: AnalyticsCountryRow[] | null;
+      devices: AnalyticsNamedCountRow[] | null;
+      browsers: AnalyticsNamedCountRow[] | null;
+      operatingSystems: AnalyticsNamedCountRow[] | null;
       productPageViewsBySlug: Record<string, number> | null;
     };
 
 type AnalyticsResponse = { ok: boolean; body: unknown };
+type DimensionRow = { key: string; pageViews: number; visitors: number | null };
 
 export function analyticsRange(range: DashboardRange, now: Date): { since: string; until: string } {
   return {
@@ -53,26 +69,79 @@ export function parseVisitCount(value: unknown): { visitors: number; pageViews: 
 
 export function parseDimensionRows(
   value: unknown,
-  dimension: "requestPath" | "referrerHostname",
-): { rows: { key: string; pageViews: number }[]; groupedRemainder: boolean } | null {
+  dimension: AnalyticsDimension,
+): { rows: DimensionRow[]; groupedRemainder: boolean } | null {
   if (!value || typeof value !== "object") return null;
   const data = (value as { data?: unknown }).data;
   if (!Array.isArray(data)) return null;
-  const rows: { key: string; pageViews: number }[] = [];
+  const rows: DimensionRow[] = [];
   let groupedRemainder = false;
   for (const item of data) {
     if (!item || typeof item !== "object") return null;
     const record = item as Record<string, unknown>;
     const key = record[dimension];
     const pageViews = record.pageviews;
+    const visitors = record.visitors;
     if (typeof key !== "string" || !isCount(pageViews)) return null;
+    if (visitors !== undefined && !isCount(visitors)) return null;
     if (key === "Others") {
       groupedRemainder = true;
       continue;
     }
-    rows.push({ key, pageViews });
+    rows.push({ key, pageViews, visitors: isCount(visitors) ? visitors : null });
   }
   return { rows, groupedRemainder };
+}
+
+export function countryLabel(code: string): string {
+  const normalized = code.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(normalized)) return code.trim() || "Unknown";
+  try {
+    return REGION_NAMES.of(normalized) ?? normalized;
+  } catch {
+    return normalized;
+  }
+}
+
+export function normalizeReferrerHost(host: string): string {
+  const raw = host.trim().toLowerCase().replace(/^www\./, "");
+  if (!raw || raw === "-" || raw === "(direct)" || raw === "direct") return "Direct";
+  if (raw === "google.com" || raw.endsWith(".google.com") || /^google\.[a-z.]+$/.test(raw)) return "Google";
+  if (raw === "bing.com" || raw.endsWith(".bing.com")) return "Bing";
+  if (raw === "chatgpt.com" || raw === "chat.openai.com" || raw.endsWith(".chatgpt.com")) return "ChatGPT";
+  if (raw === "reddit.com" || raw.endsWith(".reddit.com")) return "Reddit";
+  if (raw === "linkedin.com" || raw.endsWith(".linkedin.com") || raw === "lnkd.in") return "LinkedIn";
+  if (raw === "x.com" || raw === "twitter.com" || raw === "t.co" || raw.endsWith(".twitter.com") || raw.endsWith(".x.com")) {
+    return "X / Twitter";
+  }
+  return raw;
+}
+
+export function normalizeDeviceLabel(value: string): string {
+  const key = value.trim().toLowerCase();
+  if (key === "desktop") return "Desktop";
+  if (key === "mobile") return "Mobile";
+  if (key === "tablet") return "Tablet";
+  return "Other";
+}
+
+export function normalizeBrowserLabel(value: string): string {
+  const key = value.trim().toLowerCase();
+  if (key.includes("chrome") && !key.includes("edge")) return "Chrome";
+  if (key.includes("safari") && !key.includes("chrome")) return "Safari";
+  if (key.includes("edge")) return "Edge";
+  if (key.includes("firefox")) return "Firefox";
+  return "Other";
+}
+
+export function normalizeOsLabel(value: string): string {
+  const key = value.trim().toLowerCase().replace(/\s+/g, "");
+  if (key.includes("windows")) return "Windows";
+  if (key.includes("mac") || key.includes("darwin")) return "macOS";
+  if (key.includes("ios") || key === "iphone" || key === "ipad") return "iOS";
+  if (key.includes("android")) return "Android";
+  if (key.includes("linux")) return "Linux";
+  return "Other";
 }
 
 export function summarizePages(
@@ -104,6 +173,55 @@ export function summarizePages(
   return { topPages, productPageViews, productPageViewsBySlug: bySlug };
 }
 
+export function summarizeReferrers(rows: readonly DimensionRow[], limit = 8): AnalyticsReferrerRow[] {
+  const totals = new Map<string, number>();
+  for (const row of rows) {
+    const label = normalizeReferrerHost(row.key);
+    totals.set(label, (totals.get(label) ?? 0) + row.pageViews);
+  }
+  return [...totals.entries()]
+    .map(([label, pageViews]) => ({ label, pageViews }))
+    .sort((a, b) => b.pageViews - a.pageViews || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+export function summarizeCountries(
+  rows: readonly DimensionRow[],
+  totalVisitors: number,
+  limit = 10,
+): AnalyticsCountryRow[] {
+  const totals = new Map<string, number>();
+  for (const row of rows) {
+    const code = row.key.trim().toUpperCase() || "ZZ";
+    const count = row.visitors ?? row.pageViews;
+    totals.set(code, (totals.get(code) ?? 0) + count);
+  }
+  return [...totals.entries()]
+    .map(([code, visitors]) => ({
+      code,
+      label: countryLabel(code),
+      visitors,
+      share: totalVisitors > 0 ? Math.round((visitors / totalVisitors) * 1000) / 10 : null,
+    }))
+    .sort((a, b) => b.visitors - a.visitors || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+export function summarizeNamedCounts(
+  rows: readonly DimensionRow[],
+  normalize: (value: string) => string,
+  order: readonly string[],
+): AnalyticsNamedCountRow[] {
+  const totals = new Map<string, number>();
+  for (const label of order) totals.set(label, 0);
+  for (const row of rows) {
+    const label = normalize(row.key);
+    const count = row.visitors ?? row.pageViews;
+    totals.set(label, (totals.get(label) ?? 0) + count);
+  }
+  return order.map((label) => ({ label, visitors: totals.get(label) ?? 0 }));
+}
+
 export function analyticsRequestUrl(input: {
   endpoint: "count" | "aggregate";
   projectId: string;
@@ -112,7 +230,7 @@ export function analyticsRequestUrl(input: {
   since: string;
   until: string;
   filter: string;
-  by?: "requestPath" | "referrerHostname";
+  by?: AnalyticsDimension;
   limit?: number;
 }): string {
   const url = new URL(`https://api.vercel.com/v1/query/web-analytics/visits/${input.endpoint}`);
@@ -133,6 +251,29 @@ function isCount(value: unknown): value is number {
 
 function safeSlug(slug: string): boolean {
   return SLUG.test(slug);
+}
+
+async function readDimension(
+  request: (url: string, token: string) => Promise<AnalyticsResponse>,
+  token: string,
+  shared: {
+    projectId: string;
+    teamId: string | null;
+    teamSlug: string | null;
+    since: string;
+    until: string;
+    filter: string;
+  },
+  by: AnalyticsDimension,
+  limit: number,
+): Promise<{ rows: DimensionRow[]; groupedRemainder: boolean } | null> {
+  try {
+    const response = await request(analyticsRequestUrl({ ...shared, endpoint: "aggregate", by, limit }), token);
+    if (!response.ok) return null;
+    return parseDimensionRows(response.body, by);
+  } catch {
+    return null;
+  }
 }
 
 export async function readVercelAnalytics(input: {
@@ -176,12 +317,14 @@ export async function readVercelAnalytics(input: {
     if (!countResponse.ok) return unavailable();
     const totals = parseVisitCount(countResponse.body);
     if (!totals) return unavailable();
-    const [pagesResponse, referrerResponse] = await Promise.all([
-      input.request(analyticsRequestUrl({ ...shared, endpoint: "aggregate", by: "requestPath", limit: 100 }), token),
-      input.request(analyticsRequestUrl({ ...shared, endpoint: "aggregate", by: "referrerHostname", limit: 8 }), token),
+    const [pages, referrers, countries, devices, browsers, operatingSystems] = await Promise.all([
+      readDimension(input.request, token, shared, "requestPath", 100),
+      readDimension(input.request, token, shared, "referrerHostname", 20),
+      readDimension(input.request, token, shared, "country", 10),
+      readDimension(input.request, token, shared, "deviceType", 10),
+      readDimension(input.request, token, shared, "browserName", 10),
+      readDimension(input.request, token, shared, "osName", 10),
     ]);
-    const pages = pagesResponse.ok ? parseDimensionRows(pagesResponse.body, "requestPath") : null;
-    const referrers = referrerResponse.ok ? parseDimensionRows(referrerResponse.body, "referrerHostname") : null;
     const summary = pages ? summarizePages(pages.rows, slugs, pages.groupedRemainder) : null;
     return {
       state: "value",
@@ -189,12 +332,12 @@ export async function readVercelAnalytics(input: {
       pageViews: totals.pageViews,
       productPageViews: summary ? summary.productPageViews : null,
       topPages: summary ? summary.topPages : null,
-      referrers: referrers
-        ? referrers.rows
-            .slice()
-            .sort((a, b) => b.pageViews - a.pageViews || a.key.localeCompare(b.key))
-            .slice(0, 8)
-            .map((row) => ({ host: row.key, pageViews: row.pageViews }))
+      referrers: referrers ? summarizeReferrers(referrers.rows) : null,
+      countries: countries ? summarizeCountries(countries.rows, totals.visitors) : null,
+      devices: devices ? summarizeNamedCounts(devices.rows, normalizeDeviceLabel, ["Desktop", "Mobile", "Tablet", "Other"]) : null,
+      browsers: browsers ? summarizeNamedCounts(browsers.rows, normalizeBrowserLabel, ["Chrome", "Safari", "Edge", "Firefox", "Other"]) : null,
+      operatingSystems: operatingSystems
+        ? summarizeNamedCounts(operatingSystems.rows, normalizeOsLabel, ["Windows", "macOS", "iOS", "Android", "Linux", "Other"])
         : null,
       productPageViewsBySlug: summary ? summary.productPageViewsBySlug : null,
     };

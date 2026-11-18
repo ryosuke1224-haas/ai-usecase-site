@@ -268,7 +268,7 @@ export const projectOperations: ProjectOperations = {
       kind: "operations",
       title: "Analytics dashboard API",
       summary:
-        "The admin dashboard can read Vercel Web Analytics visitors, page views, product page views, top pages, and referrers. The server token stays off the browser. Missing or failed reads stay Not available.",
+        "The admin dashboard can read Vercel Web Analytics visitors, page views, product page views, top pages, countries, referrers, devices, browsers, and operating systems. The server token stays off the browser. Missing or failed reads stay Not available.",
     },
     {
       date: "2026-11-14",

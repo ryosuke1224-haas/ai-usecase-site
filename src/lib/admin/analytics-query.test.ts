@@ -5,16 +5,29 @@ import {
   ADMIN_EXCLUSION_FILTER,
   analyticsRange,
   analyticsRequestUrl,
+  countryLabel,
   isAdminPath,
+  normalizeBrowserLabel,
+  normalizeDeviceLabel,
+  normalizeOsLabel,
+  normalizeReferrerHost,
   productSlugFromPath,
   readVercelAnalytics,
+  summarizeCountries,
+  summarizeNamedCounts,
   summarizePages,
+  summarizeReferrers,
 } from "./analytics-query";
 import { rangeStart } from "./range";
 
 const NOW = new Date("2026-11-16T03:00:00.000Z");
 const TOKEN = "server-analytics-token";
 const SLUGS = ["quote-request-assistant", "ai-expense-watchdog"];
+
+function emptyAggregates(url: string) {
+  if (url.includes("/visits/count")) return { ok: true, body: { data: { visitors: 0, pageviews: 0 } } };
+  return { ok: true, body: { data: [] } };
+}
 
 test("analytics ranges use the Tokyo reporting window", () => {
   for (const range of ["today", "7d", "30d"] as const) {
@@ -38,8 +51,7 @@ test("an empty analytics response is zero, not a fabricated list", async () => {
     env: { VERCEL_WEB_ANALYTICS_TOKEN: TOKEN, VERCEL_PROJECT_ID: "prj_test", VERCEL_TEAM_ID: "team_test" },
     request: async (url) => {
       urls.push(url);
-      if (url.includes("/visits/count")) return { ok: true, body: { data: { visitors: 0, pageviews: 0 } } };
-      return { ok: true, body: { data: [] } };
+      return emptyAggregates(url);
     },
   });
   assert.equal(read.state, "value");
@@ -49,11 +61,22 @@ test("an empty analytics response is zero, not a fabricated list", async () => {
   assert.equal(read.productPageViews, 0);
   assert.deepEqual(read.topPages, []);
   assert.deepEqual(read.referrers, []);
+  assert.deepEqual(read.countries, []);
+  assert.deepEqual(read.devices, [
+    { label: "Desktop", visitors: 0 },
+    { label: "Mobile", visitors: 0 },
+    { label: "Tablet", visitors: 0 },
+    { label: "Other", visitors: 0 },
+  ]);
   assert.deepEqual(read.productPageViewsBySlug, {
     "quote-request-assistant": 0,
     "ai-expense-watchdog": 0,
   });
   assert.equal(urls.every((url) => new URL(url).searchParams.get("filter") === ADMIN_EXCLUSION_FILTER && !url.includes(TOKEN)), true);
+  assert.equal(urls.some((url) => url.includes("by=country")), true);
+  assert.equal(urls.some((url) => url.includes("by=deviceType")), true);
+  assert.equal(urls.some((url) => url.includes("by=browserName")), true);
+  assert.equal(urls.some((url) => url.includes("by=osName")), true);
 });
 
 test("a failed analytics response stays Not available and ignores any numbers in the body", async () => {
@@ -66,6 +89,39 @@ test("a failed analytics response stays Not available and ignores any numbers in
   });
   assert.equal(read.state, "not_available");
   assert.equal(JSON.stringify(read).includes("99"), false);
+});
+
+test("individual breakdown failures stay Not available without dropping KPI totals", async () => {
+  const read = await readVercelAnalytics({
+    range: "30d",
+    now: NOW,
+    productSlugs: SLUGS,
+    env: { VERCEL_WEB_ANALYTICS_TOKEN: TOKEN, VERCEL_PROJECT_ID: "prj_test", VERCEL_TEAM_ID: "team_test" },
+    request: async (url) => {
+      if (url.includes("/visits/count")) return { ok: true, body: { data: { visitors: 11, pageviews: 20 } } };
+      if (url.includes("by=country")) return { ok: false, body: { data: [{ country: "US", visitors: 99, pageviews: 99 }] } };
+      if (url.includes("by=referrerHostname")) {
+        return { ok: true, body: { data: [{ referrerHostname: "www.google.com", pageviews: 4, visitors: 3 }] } };
+      }
+      if (url.includes("by=deviceType")) {
+        return { ok: true, body: { data: [{ deviceType: "desktop", pageviews: 8, visitors: 5 }] } };
+      }
+      if (url.includes("by=requestPath")) {
+        return { ok: true, body: { data: [{ requestPath: "/ja", pageviews: 6, visitors: 4 }] } };
+      }
+      return { ok: false, body: { data: [] } };
+    },
+  });
+  assert.equal(read.state, "value");
+  if (read.state !== "value") return;
+  assert.equal(read.visitors, 11);
+  assert.equal(read.pageViews, 20);
+  assert.equal(read.countries, null);
+  assert.deepEqual(read.referrers, [{ label: "Google", pageViews: 4 }]);
+  assert.equal(read.devices?.[0]?.label, "Desktop");
+  assert.equal(read.devices?.[0]?.visitors, 5);
+  assert.equal(read.browsers, null);
+  assert.equal(read.operatingSystems, null);
 });
 
 test("admin routes are excluded from pages and product counts", () => {
@@ -107,6 +163,76 @@ test("product page views add locale pages and skip kit or unknown paths", () => 
   assert.equal(incomplete.topPages[0]?.path, "/blueprints/quote-request-assistant");
 });
 
+test("country codes become readable labels with visitor share", () => {
+  assert.equal(countryLabel("US"), "United States");
+  assert.equal(countryLabel("JP"), "Japan");
+  assert.equal(countryLabel("sg"), "Singapore");
+  const rows = summarizeCountries(
+    [
+      { key: "US", pageViews: 10, visitors: 7 },
+      { key: "JP", pageViews: 4, visitors: 3 },
+      { key: "SG", pageViews: 1, visitors: 1 },
+    ],
+    11,
+  );
+  assert.deepEqual(rows.map((row) => row.label), ["United States", "Japan", "Singapore"]);
+  assert.equal(rows[0]?.visitors, 7);
+  assert.equal(rows[0]?.share, 63.6);
+});
+
+test("referrer hosts normalize into useful traffic sources", () => {
+  assert.equal(normalizeReferrerHost(""), "Direct");
+  assert.equal(normalizeReferrerHost("www.google.com"), "Google");
+  assert.equal(normalizeReferrerHost("google.co.jp"), "Google");
+  assert.equal(normalizeReferrerHost("bing.com"), "Bing");
+  assert.equal(normalizeReferrerHost("chat.openai.com"), "ChatGPT");
+  assert.equal(normalizeReferrerHost("reddit.com"), "Reddit");
+  assert.equal(normalizeReferrerHost("lnkd.in"), "LinkedIn");
+  assert.equal(normalizeReferrerHost("t.co"), "X / Twitter");
+  assert.equal(normalizeReferrerHost("x.com"), "X / Twitter");
+  assert.deepEqual(
+    summarizeReferrers([
+      { key: "www.google.com", pageViews: 3, visitors: 2 },
+      { key: "google.co.jp", pageViews: 2, visitors: 1 },
+      { key: "news.ycombinator.com", pageViews: 1, visitors: 1 },
+    ]),
+    [
+      { label: "Google", pageViews: 5 },
+      { label: "news.ycombinator.com", pageViews: 1 },
+    ],
+  );
+});
+
+test("device browser and OS values group into stable labels", () => {
+  assert.equal(normalizeDeviceLabel("desktop"), "Desktop");
+  assert.equal(normalizeDeviceLabel("mobile"), "Mobile");
+  assert.equal(normalizeDeviceLabel("tablet"), "Tablet");
+  assert.equal(normalizeDeviceLabel("tv"), "Other");
+  assert.equal(normalizeBrowserLabel("Chrome Mobile"), "Chrome");
+  assert.equal(normalizeBrowserLabel("Mobile Safari"), "Safari");
+  assert.equal(normalizeBrowserLabel("Edge"), "Edge");
+  assert.equal(normalizeBrowserLabel("Firefox"), "Firefox");
+  assert.equal(normalizeOsLabel("Mac OS X"), "macOS");
+  assert.equal(normalizeOsLabel("iOS"), "iOS");
+  assert.equal(normalizeOsLabel("Android"), "Android");
+  assert.deepEqual(
+    summarizeNamedCounts(
+      [
+        { key: "desktop", pageViews: 8, visitors: 5 },
+        { key: "mobile", pageViews: 4, visitors: 3 },
+      ],
+      normalizeDeviceLabel,
+      ["Desktop", "Mobile", "Tablet", "Other"],
+    ),
+    [
+      { label: "Desktop", visitors: 5 },
+      { label: "Mobile", visitors: 3 },
+      { label: "Tablet", visitors: 0 },
+      { label: "Other", visitors: 0 },
+    ],
+  );
+});
+
 test("the analytics request keeps the token out of the URL and the client bundle", () => {
   const url = analyticsRequestUrl({
     endpoint: "count",
@@ -127,4 +253,7 @@ test("the analytics request keeps the token out of the URL and the client bundle
   ].map((file) => readFileSync(file, "utf8")).join("\n");
   assert.match(source, /VERCEL_WEB_ANALYTICS_TOKEN/);
   assert.doesNotMatch(source, /NEXT_PUBLIC_VERCEL|NEXT_PUBLIC_.*ANALYTICS/);
+  assert.match(readFileSync("components/admin/monitor-sections.tsx", "utf8"), /Visitors by country/);
+  assert.match(readFileSync("components/admin/monitor-sections.tsx", "utf8"), /Top referrers/);
+  assert.match(readFileSync("components/admin/monitor-sections.tsx", "utf8"), /Devices/);
 });

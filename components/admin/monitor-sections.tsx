@@ -57,38 +57,65 @@ export function OverviewSection({ model, waiting }: { model: DashboardModel; wai
 
 export function AnalyticsSection({ model }: { model: DashboardModel }) {
   const analytics = model.analytics;
-  const count = (value: number | null) => (analytics.state === "value" && typeof value === "number" ? String(value) : analytics.headline);
+  const unavailable = analytics.state === "value" ? "Not available" : analytics.headline;
   return (
     <section aria-labelledby="analytics-heading">
       <h2 id="analytics-heading" className="text-xl font-semibold tracking-tight">Analytics</h2>
       <p className="mt-2 text-sm font-medium">{analytics.headline}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted">{analytics.detail}</p>
-      <dl className="mt-4 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border/80 bg-card p-4">
-          <dt className="text-sm text-muted">Visitors</dt>
-          <dd className="mt-1 text-sm font-medium">{count(analytics.visitors)}</dd>
-        </div>
-        <div className="rounded-2xl border border-border/80 bg-card p-4">
-          <dt className="text-sm text-muted">Page views</dt>
-          <dd className="mt-1 text-sm font-medium">{count(analytics.pageViews)}</dd>
-        </div>
-        <div className="rounded-2xl border border-border/80 bg-card p-4">
-          <dt className="text-sm text-muted">Product page views</dt>
-          <dd className="mt-1 text-sm font-medium">{count(analytics.productPageViews)}</dd>
-        </div>
-      </dl>
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {model.kpis.map((card) => (
+          <Kpi key={card.id} card={card} />
+        ))}
+      </div>
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <AnalyticsList
           title="Top pages"
           empty="No pages in this range."
-          rows={analytics.topPages?.map((row) => ({ key: row.path, label: row.path, pageViews: row.pageViews })) ?? null}
-          unavailable={analytics.headline}
+          rows={analytics.topPages?.map((row) => ({ key: row.path, label: row.path, value: String(row.pageViews) })) ?? null}
+          unavailable={unavailable}
         />
         <AnalyticsList
-          title="Referrers"
+          title="Visitors by country"
+          empty="No countries in this range."
+          rows={
+            analytics.countries?.map((row) => ({
+              key: row.code,
+              label: row.label,
+              value: row.share === null ? String(row.visitors) : `${row.visitors} · ${row.share}%`,
+            })) ?? null
+          }
+          unavailable={unavailable}
+        />
+        <AnalyticsList
+          title="Top referrers"
           empty="No referrers in this range."
-          rows={analytics.referrers?.map((row) => ({ key: row.host, label: row.host, pageViews: row.pageViews })) ?? null}
-          unavailable={analytics.headline}
+          rows={analytics.referrers?.map((row) => ({ key: row.label, label: row.label, value: String(row.pageViews) })) ?? null}
+          unavailable={unavailable}
+        />
+        <AnalyticsList
+          title="Devices"
+          empty="No devices in this range."
+          rows={analytics.devices?.map((row) => ({ key: row.label, label: row.label, value: String(row.visitors) })) ?? null}
+          unavailable={unavailable}
+        />
+        <AnalyticsList
+          title="Browsers"
+          empty="No browsers in this range."
+          rows={analytics.browsers?.map((row) => ({ key: row.label, label: row.label, value: String(row.visitors) })) ?? null}
+          unavailable={unavailable}
+        />
+        <AnalyticsList
+          title="Operating systems"
+          empty="No operating systems in this range."
+          rows={
+            analytics.operatingSystems?.map((row) => ({
+              key: row.label,
+              label: row.label,
+              value: String(row.visitors),
+            })) ?? null
+          }
+          unavailable={unavailable}
         />
       </div>
       {analytics.state === "value" ? null : (
@@ -106,7 +133,7 @@ function AnalyticsList({
 }: {
   title: string;
   empty: string;
-  rows: { key: string; label: string; pageViews: number }[] | null;
+  rows: { key: string; label: string; value: string }[] | null;
   unavailable: string;
 }) {
   return (
@@ -119,7 +146,7 @@ function AnalyticsList({
           {rows.map((row) => (
             <li key={row.key} className="flex items-baseline justify-between gap-4 px-4 py-2 text-sm">
               <span className="break-all">{row.label}</span>
-              <span className="shrink-0 font-medium">{row.pageViews}</span>
+              <span className="shrink-0 font-medium">{row.value}</span>
             </li>
           ))}
         </ol>
