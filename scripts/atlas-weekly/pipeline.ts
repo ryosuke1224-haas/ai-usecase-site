@@ -164,20 +164,34 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       });
     }
     if (stage === "QA") {
-      const qa = reviewItems({
+      const qaWithoutLetter = reviewItems({
         now,
         sources: active.research,
         blogs: active.blogs,
-        newsletter: active.newsletter,
+        newsletter: null,
         blueprints: active.blueprints,
         knownUrls: deps.knownUrls,
         knownSlugs: deps.products.map((product) => product.slug),
         knownTitles: deps.knownTitles,
       });
+      const passingBlogs = active.blogs.filter((blog) =>
+        qaWithoutLetter.some((item) => item.kind === "blog" && item.slug === blog.slug && item.pass),
+      );
+      const newsletter = newsletterDraft(active.weekKey, passingBlogs);
+      const passingUrls = new Set(passingBlogs.map((blog) => blog.canonicalUrl));
+      const qa = [...qaWithoutLetter];
+      if (newsletter) {
+        const reasons: string[] = [];
+        if (newsletter.sourceUrls.length === 0) reasons.push("newsletter has no sources");
+        if (newsletter.sourceUrls.every((url) => !passingUrls.has(url))) reasons.push("newsletter stories did not pass");
+        qa.push({ kind: "newsletter", slug: newsletter.slug, pass: reasons.length === 0, reasons });
+      }
       return finishStage(active, stage, now, {
+        newsletter,
         qa,
         counts: {
           ...active.counts,
+          newsletter: newsletter ? 1 : 0,
           qaPassed: qa.filter((item) => item.pass).length,
           qaRejected: qa.filter((item) => !item.pass).length,
         },

@@ -3,6 +3,7 @@ import type { BlueprintCandidate, BlogDraft, NewsletterDraft, QaDecision, Source
 
 const STALE_MS = 21 * 24 * 60 * 60 * 1000;
 const CLAIM = /(\d+(?:\.\d+)?\s?(?:%|％|\$|usd|jpy|円))/i;
+const AUTHORITATIVE = new Set(["openai", "anthropic", "google", "microsoft", "aws", "nist", "meta"]);
 
 export function tokens(value: string): Set<string> {
   return new Set(value.toLowerCase().split(/[^a-z0-9\u3040-\u30ff\u4e00-\u9faf]+/).filter((token) => token.length > 3));
@@ -15,6 +16,10 @@ export function nearDuplicate(left: string, right: string): boolean {
   let shared = 0;
   for (const token of a) if (b.has(token)) shared += 1;
   return shared / Math.min(a.size, b.size) >= 0.72;
+}
+
+function normalizeText(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
 function unsupported(body: string, source: string): boolean {
@@ -33,6 +38,93 @@ function storyProblems(source: SourceRecord | undefined, now: Date, seen: Set<st
   if (source.summary.trim().length < 40) reasons.push("summary is too short");
   if (seen.has(source.canonicalUrl)) reasons.push("duplicate source");
   return reasons;
+}
+
+function sectionAfter(body: string, heading: string): string {
+  const match = body.match(new RegExp(`##\\s*${heading}\\s*\\n+([\\s\\S]*?)(?=\\n##\\s|$)`));
+  return match?.[1]?.replace(/\s+/g, " ").trim() ?? "";
+}
+
+export type BlogTopicSignals = {
+  title: string;
+  thesis: string;
+  takeaway: string;
+  work: string;
+};
+
+/** Reader-facing signals used to spot same-topic blogs inside one edition. */
+export function blogTopicSignals(blog: Pick<BlogDraft, "title" | "summary" | "body">): BlogTopicSignals {
+  const thesis = blog.summary.trim() || blog.body.split(/\n{2,}/)[0]?.trim() || "";
+  return {
+    title: blog.title.trim(),
+    thesis,
+    takeaway: sectionAfter(blog.body, "明日試すなら"),
+    work: sectionAfter(blog.body, "仕事で変わること"),
+  };
+}
+
+/** True when two blogs would read as the same weekly topic for the owner. */
+export function overlappingBlogTopics(
+  left: Pick<BlogDraft, "title" | "summary" | "body">,
+  right: Pick<BlogDraft, "title" | "summary" | "body">,
+): boolean {
+  const a = blogTopicSignals(left);
+  const b = blogTopicSignals(right);
+  if (!a.title || !b.title) return false;
+  if (normalizeText(a.title) === normalizeText(b.title)) return true;
+  if (nearDuplicate(a.title, b.title)) return true;
+  if (a.thesis && b.thesis && (normalizeText(a.thesis) === normalizeText(b.thesis) || nearDuplicate(a.thesis, b.thesis))) {
+    return true;
+  }
+  if (a.takeaway && b.takeaway && (normalizeText(a.takeaway) === normalizeText(b.takeaway) || nearDuplicate(a.takeaway, b.takeaway))) {
+    return true;
+  }
+  if (a.work && b.work && (normalizeText(a.work) === normalizeText(b.work) || nearDuplicate(a.work, b.work))) {
+    return true;
+  }
+  return false;
+}
+
+/** Higher score wins when two candidate blogs cover the same topic. */
+export function blogTopicStrength(blog: BlogDraft, source?: SourceRecord): number {
+  let score = source?.relevance ?? 0;
+  score += Math.min(blog.sourceUrls.length, 4) * 18;
+  score += Math.min(Math.floor(blog.body.trim().length / 40), 25);
+  if (blog.relatedBlueprints.length > 0) score += 10;
+  if (source && AUTHORITATIVE.has(source.publisher.trim().toLowerCase())) score += 14;
+  if (/仕事|営業|サポート|担当|管理|経理|顧客|手順/.test(blog.body)) score += 6;
+  if (/明日試すなら/.test(blog.body) && sectionAfter(blog.body, "明日試すなら").length >= 40) score += 8;
+  if (/Atlasの見方/.test(blog.body)) score += 4;
+  return score;
+}
+
+function rejectWeakerDuplicateTopics(
+  blogs: readonly BlogDraft[],
+  byUrl: Map<string, SourceRecord>,
+  decisions: QaDecision[],
+): void {
+  const bySlug = new Map(decisions.filter((item) => item.kind === "blog").map((item) => [item.slug, item]));
+  const provisional = blogs
+    .filter((blog) => bySlug.get(blog.slug)?.pass)
+    .map((blog) => ({
+      blog,
+      source: byUrl.get(blog.canonicalUrl),
+      strength: blogTopicStrength(blog, byUrl.get(blog.canonicalUrl)),
+    }))
+    .sort((left, right) => right.strength - left.strength || left.blog.slug.localeCompare(right.blog.slug));
+
+  const kept: BlogDraft[] = [];
+  for (const candidate of provisional) {
+    const overlap = kept.find((item) => overlappingBlogTopics(item, candidate.blog));
+    if (!overlap) {
+      kept.push(candidate.blog);
+      continue;
+    }
+    const decision = bySlug.get(candidate.blog.slug);
+    if (!decision) continue;
+    decision.pass = false;
+    decision.reasons = [...decision.reasons, "duplicate topic"];
+  }
 }
 
 export function reviewItems(input: {
@@ -65,6 +157,8 @@ export function reviewItems(input: {
     }
     decisions.push({ kind: "blog", slug: blog.slug, pass, reasons });
   }
+
+  rejectWeakerDuplicateTopics(input.blogs, byUrl, decisions);
 
   const passingUrls = new Set(
     input.blogs.filter((blog) => decisions.find((item) => item.slug === blog.slug && item.pass)).map((blog) => blog.canonicalUrl),
