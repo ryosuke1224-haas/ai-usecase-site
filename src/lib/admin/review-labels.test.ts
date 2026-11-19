@@ -15,9 +15,9 @@ test("review queue labels are Japanese and the stored enums stay in place", () =
   assert.equal(reviewDecisionHelp("newsletter"), "承認しても、自動で配信はされません。");
 
   const form = readFileSync("components/admin/review-form.tsx", "utf8");
-  assert.match(form, /value="approve"/);
-  assert.match(form, /value="needs_changes"/);
-  assert.match(form, /value="reject"/);
+  assert.match(form, /formAction=\{approveReview\}/);
+  assert.match(form, /formAction=\{needsChangesReview\}/);
+  assert.match(form, /formAction=\{rejectReview\}/);
   assert.match(form, /承認/);
   assert.match(form, /修正が必要/);
   assert.match(form, /却下/);

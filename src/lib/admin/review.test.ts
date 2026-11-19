@@ -120,8 +120,13 @@ test("reject stays behind the allowlist and does not publish", () => {
   const form = readFileSync("components/admin/review-form.tsx", "utf8");
   const store = readFileSync("src/lib/blog/store.ts", "utf8");
   assert.ok(decide.indexOf("adminAccessDecision") < decide.indexOf("await updateArticleReview"));
-  assert.match(form, /value="reject"/);
+  assert.match(decide, /revalidatePath\("\/admin\/project"\)/);
+  assert.match(decide, /export async function rejectReview/);
+  assert.match(form, /formAction=\{rejectReview\}/);
+  assert.match(form, /type="submit"/);
   assert.doesNotMatch(form, /value="REJECTED"/);
+  assert.equal(reviewDecision("READY_FOR_REVIEW", "reject", "").ok, true);
+  assert.deepEqual(reviewDecision("READY_FOR_REVIEW", "reject", ""), { ok: true, status: "REJECTED" });
   const update = store.slice(store.indexOf("export async function updateArticleReview"), store.indexOf("async function updateArticleFields"));
   assert.match(update, /status: toStatus/);
   assert.doesNotMatch(update, /published_at|PUBLISHED|delete\(/);
