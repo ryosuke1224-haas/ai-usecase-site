@@ -100,7 +100,7 @@ test("an already queued tip rotates to the next documentation topic", () => {
 test("every tip is specific, sourced, and free of invented figures", () => {
   for (const topic of TIP_TOPICS) {
     assert.ok(topic.body.length >= 800, topic.id);
-    assert.ok(topic.body.length <= 1800, topic.id);
+    assert.ok(topic.body.length <= 2600, topic.id);
     assert.match(topic.body, /明日試すなら\n\n.{20,}/s);
     assert.match(topic.body, /Atlasの見方/);
     assert.match(topic.body, /仕事|営業|サポート|担当|管理|経理/);

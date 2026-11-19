@@ -7,8 +7,11 @@ import {
   editorialArticle,
   editorialFailures,
   hasConcreteWorkflow,
+  hasDecisionFramework,
+  hasDeepWorkflow,
   hasGenericTakeaway,
   hasMetaEditorialLanguage,
+  hasSourceSpecificFacts,
   isLowValueNews,
   paraphrasesSource,
   titleRepeatsSource,
@@ -103,11 +106,15 @@ test("changelog announcements are filtered and do not become the article", () =>
   assert.equal(draft.body.includes(source().summary.slice(0, 40)), false);
   assert.equal(draft.sourceUrls[0], source().canonicalUrl);
   assert.ok(draft.body.length >= 900, `body too short: ${draft.body.length}`);
-  assert.ok(draft.body.length <= 2400, `body too long: ${draft.body.length}`);
+  assert.ok(draft.body.length <= 2800, `body too long: ${draft.body.length}`);
   assert.equal(hasMetaEditorialLanguage(draft.body), false);
+  assert.equal(hasSourceSpecificFacts(draft.body, source()), true);
   assert.equal(concreteRoleCount(draft.body) >= 2, true);
+  assert.equal(hasDeepWorkflow(draft.body), true);
   assert.equal(hasConcreteWorkflow(draft.body), true);
+  assert.equal(hasDecisionFramework(draft.body), true);
   assert.equal(hasGenericTakeaway(draft.body), false);
+  assert.match(draft.body, /OpenAI/);
 });
 
 test("a single-source paraphrase or translated headline is rejected", () => {
@@ -176,14 +183,39 @@ test("meta language, thin examples, and generic takeaways are rejected", () => {
   }, item);
   assert.equal(meta.includes("meta editorial language"), true);
   assert.equal(meta.includes("missing concrete work examples"), true);
-  assert.equal(meta.includes("missing concrete workflow"), true);
+  assert.equal(meta.includes("missing deep workflow"), true);
+  assert.equal(meta.includes("missing source-specific facts"), true);
+  assert.equal(meta.includes("missing decision framework"), true);
   assert.equal(meta.includes("generic practical takeaway"), true);
+
+  const shallow = editorialFailures({
+    title: "顧客対応の確認",
+    body: [
+      "OpenAIが公開した案内の主題は「agent update」です。",
+      "",
+      "## 仕事で変わること",
+      "",
+      "営業もサポートも、AIが下書きを作り人が確認します。",
+      "",
+      "## Atlasの見方",
+      "",
+      "頻度と入力と検証は見ます。今すぐ試しません。",
+      "",
+      "## 明日試すなら",
+      "",
+      "最新機能を確認しましょう。",
+    ].join("\n"),
+    sourceUrls: [item.canonicalUrl],
+  }, item);
+  assert.equal(shallow.includes("missing deep workflow") || shallow.includes("shallow generic examples"), true);
+  assert.equal(shallow.includes("generic practical takeaway") || shallow.includes("generic phrasing"), true);
 
   const good = editorialArticle(item);
   assert.deepEqual(editorialFailures({ title: good.title, body: good.body, sourceUrls: good.sourceUrls }, item), []);
   assert.equal(hasMetaEditorialLanguage(good.body), false);
   assert.ok(concreteRoleCount(good.body) >= 2);
-  assert.equal(hasConcreteWorkflow(good.body), true);
+  assert.equal(hasDeepWorkflow(good.body), true);
+  assert.equal(hasDecisionFramework(good.body), true);
   assert.equal(hasGenericTakeaway(good.body), false);
 });
 

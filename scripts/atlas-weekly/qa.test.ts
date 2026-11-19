@@ -81,11 +81,10 @@ test("near-duplicate titles keep only one blog", () => {
     summary: "Microsoft described a support workflow that helps teams review AI reply drafts before anything is sent to a customer.",
     relevance: 40,
   });
+  const drafted = blogDraft(secondSource, "2026-W47", PRODUCTS);
   const second: BlogDraft = {
-    ...blogDraft(secondSource, "2026-W47", PRODUCTS),
+    ...drafted,
     title: `${first.title}：現場での確認`,
-    summary: first.summary,
-    body: first.body,
   };
   assert.equal(overlappingBlogTopics(first, second), true);
   const decisions = decide([first, second], [firstSource, secondSource]);
