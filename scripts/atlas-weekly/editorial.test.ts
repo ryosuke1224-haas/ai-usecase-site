@@ -2,9 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { blogDraft, blueprintCandidates, newsletterDraft } from "./drafts";
 import {
+  concreteRoleCount,
   describeSource,
   editorialArticle,
   editorialFailures,
+  hasConcreteWorkflow,
+  hasGenericTakeaway,
+  hasMetaEditorialLanguage,
   isLowValueNews,
   paraphrasesSource,
   titleRepeatsSource,
@@ -98,7 +102,12 @@ test("changelog announcements are filtered and do not become the article", () =>
   assert.equal(draft.body.includes("Qwen4-Max"), false);
   assert.equal(draft.body.includes(source().summary.slice(0, 40)), false);
   assert.equal(draft.sourceUrls[0], source().canonicalUrl);
-  assert.equal(draft.body.length >= 800 && draft.body.length <= 1800, true);
+  assert.ok(draft.body.length >= 900, `body too short: ${draft.body.length}`);
+  assert.ok(draft.body.length <= 2400, `body too long: ${draft.body.length}`);
+  assert.equal(hasMetaEditorialLanguage(draft.body), false);
+  assert.equal(concreteRoleCount(draft.body) >= 2, true);
+  assert.equal(hasConcreteWorkflow(draft.body), true);
+  assert.equal(hasGenericTakeaway(draft.body), false);
 });
 
 test("a single-source paraphrase or translated headline is rejected", () => {
@@ -132,6 +141,9 @@ test("editorial drafts need a thesis, work relevance, a takeaway, and real sourc
   assert.match(article.body, /仕事/);
   assert.match(article.body, /明日試すなら/);
   assert.equal(article.sourceUrls.includes(item.canonicalUrl), true);
+  assert.doesNotMatch(article.body, /発表の見出しや製品の宣伝文は、この記事の構成にしていません/);
+  assert.doesNotMatch(article.body, /Atlasの記事が足すのは/);
+  assert.doesNotMatch(article.body, /読者が得るのは、元の発表を短くしたものではなく/);
   assert.equal(editorialFailures({ title: article.title, body: article.body, sourceUrls: [] }, item).includes("missing source url"), true);
   const thin = editorialFailures({
     title: "担当者の仕事は確認だけになる",
@@ -140,6 +152,39 @@ test("editorial drafts need a thesis, work relevance, a takeaway, and real sourc
   }, item);
   assert.equal(thin.includes("missing editorial thesis"), true);
   assert.equal(thin.includes("missing practical takeaway"), true);
+});
+
+test("meta language, thin examples, and generic takeaways are rejected", () => {
+  const item = source();
+  const metaBody = [
+    "顧客対応が変わっています。",
+    "",
+    "発表の見出しや製品の宣伝文は、この記事の構成にしていません。Atlasの記事が足すのは発表の言い換えではなく、判断です。読者が得るのは、元の発表を短くしたものではなく、次の一手です。",
+    "",
+    "## Atlasの見方",
+    "",
+    "まだ早いです。",
+    "",
+    "## 明日試すなら",
+    "",
+    "AIを導入して生産性を上げてください。",
+  ].join("\n");
+  const meta = editorialFailures({
+    title: "顧客対応の確認",
+    body: metaBody,
+    sourceUrls: [item.canonicalUrl],
+  }, item);
+  assert.equal(meta.includes("meta editorial language"), true);
+  assert.equal(meta.includes("missing concrete work examples"), true);
+  assert.equal(meta.includes("missing concrete workflow"), true);
+  assert.equal(meta.includes("generic practical takeaway"), true);
+
+  const good = editorialArticle(item);
+  assert.deepEqual(editorialFailures({ title: good.title, body: good.body, sourceUrls: good.sourceUrls }, item), []);
+  assert.equal(hasMetaEditorialLanguage(good.body), false);
+  assert.ok(concreteRoleCount(good.body) >= 2);
+  assert.equal(hasConcreteWorkflow(good.body), true);
+  assert.equal(hasGenericTakeaway(good.body), false);
 });
 
 test("unsupported numbers and a second post from the same publisher are rejected", () => {
