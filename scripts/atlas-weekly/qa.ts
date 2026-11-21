@@ -59,7 +59,7 @@ export function blogTopicSignals(blog: Pick<BlogDraft, "title" | "summary" | "bo
     title: blog.title.trim(),
     thesis,
     takeaway: sectionAfter(blog.body, "明日試すなら"),
-    work: sectionAfter(blog.body, "仕事で変わること"),
+    work: sectionAfter(blog.body, "仕事でどう使える？") || sectionAfter(blog.body, "仕事で変わること"),
   };
 }
 

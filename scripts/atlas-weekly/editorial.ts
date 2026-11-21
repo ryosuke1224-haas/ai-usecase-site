@@ -75,6 +75,35 @@ const GENERIC_PHRASES = [
   /どこを任せるかが問われ/,
 ];
 
+const FAKE_FIRST_PERSON = [
+  /私も使ってみました/,
+  /私も試しました/,
+  /実際に試したところ/,
+  /自分の会社では/,
+  /私の仕事では/,
+  /個人的に使っていて/,
+  /私が使った/,
+  /私は試した/,
+  /自分で検証した/,
+];
+
+const CONSULTING_PROSE = [
+  /実務の分岐点/,
+  /運用上の可逆性/,
+  /責任主体/,
+  /業務適用可能性/,
+  /実行フェーズ/,
+  /価値提供/,
+];
+
+const GENERIC_ATLAS = [
+  /AIを活用/,
+  /生産性を上げ/,
+  /最新機能を確認/,
+  /うまく使いこな/,
+  /積極的に導入/,
+];
+
 const ROLE_MARKERS = [
   "営業",
   "サポート",
@@ -149,66 +178,37 @@ const TOPIC: Topic[] = [
     id: "customer-review",
     test: /support|customer|reply|inbox/,
     focus: "ai-at-work",
-    title: "顧客への返信は、下書きと送信を分けて設計する",
-    thesis: "顧客対応で実務の単位になっているのは、文面速度より、送る前に止める確認の置き方です。",
-    why: "一次案が速く出るほど、確認なし送信のリスクも増えます。速く返すことと、間違った約束をしないことは別の仕事です。",
+    title: "顧客への返信は、下書きと送信を分けておく",
+    thesis: "ここが面白いところです。顧客対応で効くのは、文面の速さそのものより、送る前に一度止められるかどうかです。",
+    why: "一次案が速く出るほど、確認なしで送ってしまうリスクも増えます。速く返すことと、間違った約束をしないことは、別の仕事です。",
     deepWorkflow: [
-      "サポート窓口の深い例: ",
-      "入力は受信メール、顧客区分、返金可否の社内ルール → ",
-      "AIが返信件名・依頼要約・返金可否欄つきの下書きを作る → ",
-      "担当者が宛先、期日、禁止表現、約束範囲だけを確認する → ",
-      "顧客への送信は人が押す。",
-      "見る指標は、確認なし送信ゼロと、担当者が直す時間です。",
+      "たとえばサポートなら、受信メールと返金ルールを渡す → AIが返信下書きを作る → 担当者が宛先・期日・約束範囲だけ確認する → 送信は人が押す、という流れが現実的です。",
     ].join(""),
-    secondary: [
-      "営業は、見積前提の確認文だけを作り、金額と納期の断定は人が足します。",
-      "経理連携の問い合わせでは、入金事実欄だけを埋め、値引き文言は人が決めます。",
-      "マネージャーは、確認欄が空のまま送られた件数を週次で点検します。",
-    ].join(""),
-    who: "向いているのは、同じ型の問い合わせが毎週繰り返され窓口です。まだ向いていないのは、例外が大半で確認欄を三つ書けない少人数窓口です。",
-    review: "顧客送信、返金、例外対応、個人情報の開示は人が残します。社内ラベル付けだけなら確認を軽くできます。",
-    framework: [
-      "判断は五つの軸で切ります。",
-      "頻度: 同じ型が繰り返されるか。",
-      "入力: 依頼文とルールがある程度揃っているか。",
-      "検証: 人が送信前に結果を見られるか。",
-      "可逆性: 外に出す前に止められるか。",
-      "責任: 送信者が名前で残るか。",
-      "五つ揃うなら今試せます。責任か可逆性が欠けるなら待ちます。",
-    ].join(""),
-    takeaway: "明日試すなら、繰り返し問い合わせを一件選び、AIには返信案だけを作らせ、宛先・期日・禁止表現の三欄を担当者が確認してから送信してください。一週間、確認なし送信がゼロかを数えます。",
+    secondary: "営業でも同じで、見積の前提確認までは任せても、金額や納期の断定は人が足した方が安全です。",
+    who: "同じ型の問い合わせが毎週ある窓口なら試しやすいです。例外ばかりで確認欄を書けない少人数窓口は、まだ急がなくていいと思います。",
+    review: "顧客への送信、返金、個人情報の開示は人が決めます。社内のラベル付けだけなら、もう少し任せても構いません。",
+    framework:
+      "Atlasでは、返信案を速く作ることより、送信ボタンを人の手元に残す設計の方を重視しています。繰り返す問い合わせで、送る前に確認できるなら今から試してよい。確認なしで外に出る運用なら、まだ早いです。",
+    takeaway:
+      "明日なら、よく来る問い合わせを一件選んで、AIには返信案だけ作らせてみてください。宛先・期日・禁止表現だけ自分で見てから送る。それだけで、下書きと送信を分ける感覚がつかめます。",
   },
   {
     id: "invoice-review",
     test: /invoice|payment|overdue|collection/,
     focus: "ai-at-work",
-    title: "未入金フォローは、候補づくりと送信判断を分ける",
-    thesis: "請求フォローで効くのは、催促文の上手さより、今日見る案件を人が見逃さない仕組みです。",
-    why: "滞留は文章品質より抜け漏れで遅れます。一覧と送信判断を同じ操作にすると、関係を壊しやすい相手へも流れます。",
+    title: "未入金フォローは、候補づくりと送信を分ける",
+    thesis: "請求フォローで効くのは、催促文の上手さより、今日見る案件を人が見逃さないことです。",
+    why: "滞留は文章の質より抜け漏れで遅れます。一覧と送信判断を同じ操作にすると、関係を壊しやすい相手へも流れます。",
     deepWorkflow: [
-      "経理の深い例: ",
-      "入力は未入金一覧、遅延日数、金額、相手区分 → ",
-      "AIが優先三件と事実欄つき催促下書きを作る → ",
-      "担当者が金額・相手関係・前回約束を確認する → ",
-      "送る/保留は人が別操作で選ぶ。",
-      "見る指標は、誤送信と、保留理由の再利用です。",
+      "たとえば経理なら、未入金一覧を渡す → AIが優先三件と催促下書きを作る → 担当者が金額と相手関係を確認する → 送る／保留は人が別操作で選ぶ、が使いやすいです。",
     ].join(""),
-    secondary: [
-      "営業事務は、取引先ごとの未入金メモを短く整理し、電話する順番だけを人が決めます。",
-      "分析担当は滞留日数の偏りをまとめ、値引き判断には入りません。",
-      "マネージャーは、止めた理由を週次で見て除外条件を更新します。",
-    ].join(""),
-    who: "向いているのは件数が多い経理・営業事務です。まだ向いていないのは、件数が少なく相手事情が毎回違う少人数運用です。",
-    review: "督促送信、入金消込、値引き交渉は人が残します。候補の並べ替えだけなら自動化して構いません。",
-    framework: [
-      "頻度: 毎週候補が生まれるか。",
-      "入力: 金額と遅延日が揃っているか。",
-      "検証: 送信前に相手関係を見られるか。",
-      "可逆性: 保留に戻せるか。",
-      "責任: 送った人が残るか。",
-      "金額確認欄が無い運用は止め、五つ揃うまで自動送信は繋ぎません。",
-    ].join(""),
-    takeaway: "明日試すなら、未入金一覧から三件だけ選び、AIに文面下書きを作らせ、送るか保留かは担当者が別操作で決めてください。一週間、誤送信と保留理由をメモします。",
+    secondary: "営業事務でも、未入金メモの整理までは任せて、電話する順番だけ人が決める形が現実的です。",
+    who: "件数が多いチームなら試しやすいです。件数が少なく、相手事情が毎回違うなら、まだ手作業の方が速いこともあります。",
+    review: "督促の送信、入金消込、値引き交渉は人が決めます。候補の並べ替えだけなら任せて構いません。",
+    framework:
+      "Atlasでは、催促文の自動化より、送る前に相手関係を見られるかの方が大事だと考えています。毎週候補が生まれ、保留に戻せるなら今試してよい。金額確認なしで自動送信する運用は避けた方がいいです。",
+    takeaway:
+      "明日なら、未入金一覧から三件だけ選んで、AIに文面下書きを作らせてみてください。送るか保留かは、自分で別の操作として決める。その感覚が分かれば十分です。",
   },
   {
     id: "long-work",
@@ -216,130 +216,72 @@ const TOPIC: Topic[] = [
     focus: "ai-news",
     title: "チャットからタスク実行へ。買う・送る前で止める",
     thesis:
-      "チャットは答えを返し、タスク実行は依頼を置いたまま複数ステップを進める。実務の分岐点は速さではなく、支払い・送信・予約変更の前に人が止められるかどうかです。",
-    why: "一問一答なら誤答は会話の中で直せます。裏で進む作業は、途中成果を見ないまま対外操作へ繋がると取り返しがつきません。だから確認は完了ボタンと同じ場所に置かない方が安全です。",
+      "これは結構大きな変化です。これまでのAIは、基本的には『聞いたら答える』ものでした。Tasksはもう少し『これやっといて』に近い。",
+    why: "ただ、全部任せればいいわけではありません。一問一答なら誤答は会話の中で直せます。裏で進む作業は、途中を見ないまま買う・送る・予約確定まで行くと取り返しがつきません。",
     deepWorkflow: [
-      "事務・調整の深い例: ",
-      "入力は依頼文、希望条件、接続してよいアプリ → ",
-      "AIが候補の調査・下ごしらえ・下書きを裏で進める → ",
-      "途中成果（候補一覧・下書き・予約案）を人が確認する → ",
-      "支払い・送信・確定予約は人が承認してから進める。",
-      "見る指標は、承認前に止めた件数と、承認後のやり直しです。",
+      "実務で考えると、話はもう少しシンプルです。依頼条件を渡す → AIが調査や下書きを裏で進める → 候補や下書きを人が確認する → 支払い・送信・確定だけ人が押す。この一段を分けるだけで、かなり使いやすくなります。",
     ].join(""),
-    secondary: [
-      "営業Opsは商談メモの整理とフォロー候補までを任せ、顧客送信は人が残します。",
-      "サポートは過去対応の要点整理までを任せ、顧客説明の送信は人が押します。",
-      "経理は明細の整理候補までを任せ、支払い承認は人が残します。",
-    ].join(""),
-    who: "向いているのは、同じ型の調査・予約・下書きが繰り返され、途中成果の確認者がいる個人や小チームです。まだ向いていないのは、支払い・送信・契約が同じ操作に繋がっている場合や、確認者が不在のまま常時接続する運用です。",
-    review: "支払い、顧客送信、契約・予約の確定、権限変更は人が残します。候補収集と社内下書きは任せて構いません。",
-    framework: [
-      "この公開で見る判断は「今すぐ全自動か」ではなく「どこで止めるか」です。",
-      "頻度: 同じ長作業が繰り返されるか。",
-      "入力: 依頼条件と接続範囲を書けるか。",
-      "検証: 途中成果を人が見られるか。",
-      "可逆性: 支払い・送信の前に止められるか。",
-      "責任: 最終承認者の名前が残るか。",
-      "五つ揃うなら今試し、可逆性か責任が欠けるなら待ちます。",
-    ].join(""),
+    secondary: "たとえば営業なら、商談メモの整理とフォロー候補まで任せて、顧客への送信は自分で残す。サポートも、過去対応の要点整理までは任せて、説明文の送信は人が押す形が現実的です。",
+    who: "同じ型の調査や下書きが繰り返され、途中で確認できる人なら試しやすいです。確認者がいないまま常時接続する運用や、支払いと送信が同じボタンになっている場合は、まだ早いと思います。",
+    review: "支払い、顧客送信、予約や契約の確定は人が決めます。候補集めや社内下書きは任せて構いません。",
+    framework:
+      "Atlasでは、今回の変化を『聞く』から『任せる』への寄りだと見ています。面白いのは無料になったこと以上に、途中成果を置いておける点です。ただ今すぐ全自動にする必要はありません。調査や下書きまで任せて、買う・送る前で人に返す。このくらいが今は一番使いやすいと思います。",
     takeaway:
-      "明日試すなら、繰り返しの調査か下書きを一つ選び、AIには途中成果まで作らせ、支払い・送信・確定の前に人の承認を挟んでください。一週間、承認前に止めた件数を数えます。",
+      "明日なら、今週すでに何度かやった調査や下書きを一つ選んで、途中までAIに任せてみるのがいいです。最後の送信や確定だけ自分でやる。それだけでも、チャットとタスク実行の違いはかなり分かります。",
   },
   {
     id: "documents",
     test: /document|context|pdf|contract/,
     focus: "ai-at-work",
     title: "長い資料は、見る項目を先に決めてから渡す",
-    thesis: "長い資料を一度に渡せるようになっても、実務で効くのは全文要約より、人が見る箇所を先に絞ることです。",
+    thesis: "長い資料を一度に渡せるようになっても、効くのは全文要約より、人が見る箇所を先に絞ることです。",
     why: "全文を短くしただけでは、信じる数字と条件は決まりません。抜けた条件の方が高くつきます。",
     deepWorkflow: [
-      "法務の深い例: ",
-      "入力は契約PDFと確認したい三項目 → ",
-      "AIが解約・損害賠償の該当箇所候補を示す → ",
-      "担当者が原文へ戻って解釈・確認する → ",
-      "承認や送付は人が行う。",
-      "見る指標は、抜けた確認項目の有無です。",
+      "たとえば契約書なら、確認したい三項目を先に書く → AIが該当箇所の候補を示す → 担当者が原文に戻って確認する → 承認や送付は人が行う、が安全です。",
     ].join(""),
-    secondary: [
-      "営業は提案書の約束事項を三項目に整理し、顧客説明前に人が文言を確定します。",
-      "経理は請求条件ページだけを渡し、支払サイト解釈は人が残します。",
-      "運用は手順書の該当ステップだけを抜き、本番可否は人が決めます。",
-    ].join(""),
-    who: "向いているのは同じ形式の長い資料が毎週来る部署です。まだ向いていないのは、毎回フォーマットが違い確認項目を三つ書けない場合です。",
-    review: "契約承認、価格確定、法的解釈は人が残します。該当ページの候補出しは任せて構いません。",
-    framework: [
-      "頻度: 同じ形式の資料が繰り返されるか。",
-      "入力: 確認したい項目を先に書けるか。",
-      "検証: 原文に戻って見られるか。",
-      "可逆性: 承認前に止められるか。",
-      "責任: 承認者が明確か。",
-      "項目を三つ書けないなら、要約より観点整理が先です。",
-    ].join(""),
-    takeaway: "明日試すなら、長い資料を一件選び、確認したい項目を三つ書いてからAIに該当箇所を探させ、判断は原文に戻って行ってください。抜けた項目が無かったかを一回で点検します。",
+    secondary: "提案書でも同じで、約束事項を三項目に整理してから渡し、顧客説明の前に人が文言を確定した方が抜けが減ります。",
+    who: "同じ形式の資料が毎週来る部署なら試しやすいです。毎回フォーマットが違うなら、先に確認項目を揃える方が先です。",
+    review: "契約承認、価格確定、法的な解釈は人が決めます。該当ページの候補出しは任せて構いません。",
+    framework:
+      "Atlasでは、長い資料ほど『何を見るか』を先に決める方が大事だと考えています。確認項目を三つ書けるなら今試してよい。書けないなら、要約より観点整理が先です。",
+    takeaway:
+      "明日なら、長い資料を一件選んで、確認したい項目を三つ書いてからAIに該当箇所を探させてみてください。判断は原文に戻って行う。抜けが無かったかを一度見るだけで十分です。",
   },
   {
     id: "enterprise",
     test: /enterprise|governance|copilot|crm|operating/,
     focus: "enterprise",
-    title: "企業のAIは、全社配布より既存手順の一段から始める",
-    thesis: "企業でのAIは、試用デモから、誰がどの手順で使うかの運用へ移っています。",
-    why: "発表の規模より、毎週同じ入力と出力がある一段を切れるかが現場の変化です。試験で一度うまくいっても、毎週の確認が残らなければ手順になりません。",
+    title: "企業のAIは、全社配布より既存手順の一段から",
+    thesis: "企業でのAIは、試用デモから、誰がどの手順で使うかの話へ移っています。",
+    why: "発表の規模より、毎週同じ入力と出力がある一段を切れるかが現場の変化です。一度うまくいっても、毎週の確認が残らなければ手順になりません。",
     deepWorkflow: [
-      "営業マネージャーの深い例: ",
-      "入力は商談メモと次回アクション欄 → ",
-      "AIが次アクション候補を作る → ",
-      "担当者が顧客への連絡文だけを確認・確定する → ",
-      "送信は人が行う。",
-      "見る指標は、承認条件を満たさない候補の割合です。",
+      "たとえば営業マネージャーなら、商談メモを渡す → AIが次アクション候補を作る → 担当者が連絡文だけ確認する → 送信は人が行う、が始めやすいです。",
     ].join(""),
-    secondary: [
-      "経理は科目候補を出し、承認者は金額と勘定科目だけを見ます。",
-      "サポート運用は問い合わせ種別の分類を任せ、例外起票は人が行います。",
-      "開発リードはレビュー観点リスト案を作り、マージ判断は人が残します。",
-    ].join(""),
-    who: "向いているのは手順書がある中規模チームです。まだ向いていないのは、手順が属人的で入力欄と承認者を書けない組織です。",
-    review: "顧客連絡、支払い承認、権限変更は人が残します。社内候補リスト作成は任せて構いません。",
-    framework: [
-      "頻度: 毎週同じ作業か。",
-      "入力: 欄が定義されているか。",
-      "検証: 承認者が途中で見られるか。",
-      "可逆性: 外に出す前に止められるか。",
-      "責任: 承認者が一人に決まるか。",
-      "五つ書けない導入計画は、全社展開より先に一段の定義へ戻します。",
-    ].join(""),
-    takeaway: "明日試すなら、チームで毎週発生している作業を一つ書き出し、AIが作るものとマネージャーが承認するものを分け、一週間その分担を守ってください。",
+    secondary: "経理でも、科目候補まで任せて、金額と勘定科目の承認だけ人が見る形が現実的です。",
+    who: "手順書があるチームなら試しやすいです。入力欄も承認者も書けない属人運用なら、先に一段を定義した方がいいです。",
+    review: "顧客連絡、支払い承認、権限変更は人が決めます。社内の候補リスト作成は任せて構いません。",
+    framework:
+      "Atlasでは、全社展開の前に『毎週同じ一段』を切れるかを見ています。入力と承認者が言えるなら今試してよい。言えない導入計画は、機能配布より先に手順定義へ戻した方がいいと思います。",
+    takeaway:
+      "明日なら、チームで毎週起きている作業を一つ書き出して、AIが作るものとマネージャーが承認するものを分けてみてください。一週間その分担を守るだけで、向き不向きが見えます。",
   },
   {
     id: "us-tech",
     test: /funding|startup|silicon|san francisco|regulat|antitrust/,
     focus: "us-tech",
-    title: "米国テックの動きは、自社サービスの制約確認に落とす",
-    thesis: "米国の技術や規制ニュースは、製品名暗記より、自社の仕事の制約が変わるかを見る材料です。",
-    why: "資金・規制・大手方針はすぐ画面を変えるとは限りません。見るべきは、外部サービスの契約条件と顧客へ説明できる範囲です。",
+    title: "米国テックの動きは、自社の制約確認に落とす",
+    thesis: "米国の技術や規制ニュースは、製品名を覚える材料というより、自社の仕事の制約が変わるかを見る材料です。",
+    why: "資金や規制の話は、すぐ画面を変えるとは限りません。見るべきは、外部サービスの契約条件と、顧客へ説明できる範囲です。",
     deepWorkflow: [
-      "事業担当の深い例: ",
-      "入力は今回の公開要点と利用中サービス一覧 → ",
-      "AIが影響しそうな項目候補を洗う → ",
-      "担当者が契約・データ条件を確認する → ",
-      "手順変更の有無は人が決める。",
-      "見る指標は、今週変えた手順が本当に必要だったかです。",
+      "たとえば事業担当なら、今回の公開要点と利用中サービス一覧を渡す → AIが影響しそうな項目候補を洗う → 担当者が契約やデータ条件を確認する → 手順を変えるかは人が決める、が現実的です。",
     ].join(""),
-    secondary: [
-      "法務はデータ条項の改定要否だけを見ます。",
-      "開発・運用は接続先条件が変わったときだけ手順を更新します。",
-      "営業は説明範囲が変わるときだけ文面を直し、変わらなければ提案を据え置きます。",
-    ].join(""),
-    who: "向いているのは外部サービス依存が大きいチームです。まだ向いていないのは、自社完結業務だけでサービス一覧が無い場合です。",
-    review: "契約変更承認、顧客説明確定、サービス停止判断は人が残します。影響候補の洗い出しは任せて構いません。",
-    framework: [
-      "頻度: 自社サービスに関係しうる動きか。",
-      "入力: 利用サービス一覧があるか。",
-      "検証: 契約条件を人が確認できるか。",
-      "可逆性: 手順を今週変えなくても困らないか。",
-      "責任: 変更判断者が明確か。",
-      "一覧が無いなら、ニュース購読より棚卸しが先です。",
-    ].join(""),
-    takeaway: "明日試すなら、今使っている外部サービスを三つ書き、今回の動きが契約条件かデータの扱いに触れるかだけを確認し、触れなければ今週の手順は変えないでください。",
+    secondary: "説明範囲が変わらないなら、営業文面まで毎週直す必要はありません。変わったときだけ直せば十分です。",
+    who: "外部サービス依存が大きいチームなら確認の価値があります。自社完結だけでサービス一覧が無いなら、先に棚卸しです。",
+    review: "契約変更の承認、顧客説明の確定、サービス停止判断は人が決めます。影響候補の洗い出しは任せて構いません。",
+    framework:
+      "Atlasでは、こうしたニュースを『今週すぐ手順を変える材料か』で見ています。契約やデータの扱いに触れるなら確認する。触れなければ、今週の手順はそのままでいいと思います。",
+    takeaway:
+      "明日なら、今使っている外部サービスを三つ書いて、今回の動きが契約条件かデータの扱いに触れるかだけ見てください。触れなければ、今週は手順を変えない。それで十分です。",
   },
 ];
 
@@ -347,33 +289,18 @@ const DEFAULT_TOPIC: Topic = {
   id: "work-shift",
   focus: "ai-news",
   title: "新しい発表は、繰り返す確認作業の前段に落とす",
-  thesis: "新しい発表の価値は、機能一覧ではなく、毎週繰り返している確認・下書き・調査を前段に出せるかで決まります。",
-  why: "モデルやツール更新だけでは手順は変わりません。結果を見ない仕事は、速くなった分だけ誤りの確認が遅れます。前段に出せるのは、入力が揃い、採用前に止められる一段だけです。",
+  thesis: "重要なのは、新機能そのものより使い方です。毎週繰り返している確認・下書き・調査を、どこまで前段に出せるか。",
+  why: "モデルやツールの更新だけでは、手順は変わりません。結果を見ない仕事は、速くなった分だけ誤りの確認が遅れます。",
   deepWorkflow: [
-    "企画・運用の深い例: ",
-    "入力は今週すでに二度以上やった作業の素材 → ",
-    "AIが初稿または整理案を作る → ",
-    "担当者が事実と約束表現を確認する → ",
-    "採用・送信・反映は人が行う。",
-    "見る指標は、修正時間と差し戻し理由です。",
+    "たとえば、今週すでに二度やった作業の素材を渡す → AIが初稿や整理案を作る → 担当者が事実と約束表現を確認する → 採用や送信は人が行う、が使いやすいです。",
   ].join(""),
-  secondary: [
-    "開発は調査メモの一次稿までを任せ、採用変更はレビュー担当が選びます。",
-    "サポートはFAQ候補を作り、公開回答はマネージャーが承認します。",
-    "経理は社内説明の下書きだけを作り、数字の確定は人が残します。",
-  ].join(""),
-  who: "向いているのは繰り返し作業があり、採用者が一人に決まるチームです。まだ向いていないのは、毎回条件が違う例外作業で確認者が決まっていない場合です。",
-  review: "顧客向け送信、価格決定、本番反映は人が残します。社内初稿は任せて構いません。",
-  framework: [
-    "頻度: 今週すでに二度以上あるか。",
-    "入力: 同じ形で渡せるか。",
-    "検証: 人が採用前に見られるか。",
-    "可逆性: 外に出す前に止められるか。",
-    "責任: 採用者が一人に決まるか。",
-    "五つ揃うなら今試し、確認者が決まっていない機能追加は待ちます。",
-  ].join(""),
+  secondary: "開発なら調査メモの一次稿まで、サポートならFAQ候補まで任せて、採用や公開は人が決める形が現実的です。",
+  who: "繰り返し作業があり、採用者が一人に決まるチームなら試しやすいです。毎回条件が違う例外作業は、まだ急がなくていいです。",
+  review: "顧客向け送信、価格決定、本番反映は人が決めます。社内初稿は任せて構いません。",
+  framework:
+    "Atlasでは、発表を機能一覧として読まず、繰り返す確認の前段に落とせるかで見ています。確認者が決まっているなら今試してよい。決まっていない機能追加は、まだ待つ方がいいと思います。",
   takeaway:
-    "明日試すなら、今週すでに二度以上やった作業を一つ選び、AIには初稿だけを作らせ、採用する担当者を一人決め、一週間の修正時間を比べてください。",
+    "明日なら、今週すでに二度以上やった作業を一つ選んで、AIには初稿だけ作らせてみてください。採用する人を一人決める。修正が減るかだけ見れば十分です。",
 };
 
 function topicFor(source: SourceRecord): Topic {
@@ -416,27 +343,23 @@ function factFromSummary(source: SourceRecord): string {
   if (/invoice|payment|overdue|collection/.test(lower)) bits.push("請求・入金フォロー");
   if (/governance|enterprise|copilot|operating/.test(lower)) bits.push("企業内の運用・確認手順");
   if (bits.length >= 1) {
-    return `公開文面で確認できる変化は、${bits.join("、")}に関する案内です。数値・価格・ベンチマークの細部は出典の原文を優先します。`;
+    return `${bits.join("、")}についての案内です。`;
   }
-  return "公開ページに書かれた範囲の事実だけを前提にします。";
+  return "公開ページに書かれた範囲の事実を前提にします。";
 }
 
 /** Source-supported lead: publisher, timing, and publicly stated subject only. */
 export function sourceFactLead(source: SourceRecord, support: readonly SourceRecord[] = []): string {
   const published = dateLabel(source.publishedAt);
-  const when = published ? `${published}付で` : "";
+  const when = published ? `${published}に` : "";
   const subject = clip(source.title, 110);
-  const primary = `${source.publisher}が${when}公開した案内の主題は「${subject}」です。${factFromSummary(source)}`;
-  if (support.length === 0) {
-    return [primary, "ここから先は、その事実を仕事の手順に落とす話です。"].join("");
-  }
+  const primary = `${source.publisher}が${when}出した「${subject}」は、${factFromSummary(source)}`;
+  if (support.length === 0) return primary;
   const related = support
     .slice(0, 3)
-    .map((item) => `${item.publisher}の「${clip(item.title, 60)}」`)
-    .join("、");
-  const synthesis =
-    `関連公開として${related}も確認しました。あわせて読むと、個別機能名より「一問一答から、途中確認つきの実行へ移る」点が重なります。`;
-  return [primary, synthesis, "ここから先は、その共通点を仕事の手順に落とす話です。"].join("");
+    .map((item) => `${item.publisher}の「${clip(item.title, 50)}」`)
+    .join("や");
+  return `${primary}あわせて${related}も見ると、個別の機能名より「聞いたら答える」から「途中まで進めてもらう」へ寄っている点が重なります。`;
 }
 
 export function editorialArticle(source: SourceRecord, support: readonly SourceRecord[] = []): {
@@ -465,7 +388,7 @@ export function editorialArticle(source: SourceRecord, support: readonly SourceR
     "",
     topic.why,
     "",
-    "## 仕事で変わること",
+    "## 仕事でどう使える？",
     "",
     topic.deepWorkflow,
     "",
@@ -509,7 +432,7 @@ export function titleRepeatsSource(title: string, sourceTitle: string): boolean 
 
 export function paraphrasesSource(body: string, source: Pick<SourceRecord, "title" | "summary">): boolean {
   // Compare analysis sections only; the lead may name the source title as a fact.
-  const idx = body.search(/##\s*仕事で変わること/);
+  const idx = body.search(/##\s*仕事で/);
   const analysis = idx >= 0 ? body.slice(idx) : body;
   const summary = cleanText(source.summary);
   if (summary.length >= 40 && analysis.includes(summary.slice(0, 80))) return true;
@@ -533,7 +456,10 @@ export function concreteRoleCount(body: string): number {
 
 export function hasDeepWorkflow(body: string): boolean {
   const arrows = (body.match(/→/g) ?? []).length;
-  return arrows >= 2 && /(入力|渡)/.test(body) && /(確認|レビュー|承認)/.test(body) && /(送信|採用|人が|残)/.test(body);
+  if (arrows >= 2 && /(渡|依頼|入力)/.test(body) && /(確認|レビュー|承認)/.test(body) && /(送信|採用|購入|確定|人が|自分)/.test(body)) {
+    return true;
+  }
+  return /(渡|依頼).{0,40}(進|作|整理).{0,40}(確認|見る).{0,40}(送信|購入|確定|押)/.test(body);
 }
 
 export function hasConcreteWorkflow(body: string): boolean {
@@ -542,26 +468,63 @@ export function hasConcreteWorkflow(body: string): boolean {
 
 export function hasSourceSpecificFacts(body: string, source: Pick<SourceRecord, "publisher" | "title" | "publishedAt">): boolean {
   if (!body.includes(source.publisher)) return false;
-  if (!/公開/.test(body)) return false;
+  if (!/(公開|出した|案内)/.test(body)) return false;
   const published = dateLabel(source.publishedAt);
   if (published && body.includes(published)) return true;
   const titleToken = cleanText(source.title).split(/[^a-zA-Z0-9\u3040-\u30ff\u4e00-\u9faf]+/).find((token) => token.length >= 4);
   if (titleToken && body.includes(titleToken.slice(0, Math.min(titleToken.length, 24)))) return true;
-  return /主題は「/.test(body);
+  return /「[^」]{4,}」/.test(body);
 }
 
+function atlasSection(body: string): string {
+  return body.match(/##\s*Atlasの見方\s*\n+([\s\S]*?)(?=\n##\s|$)/)?.[1]?.trim() ?? "";
+}
+
+/** Labeled checklist dump in the public article — keep the axes internal. */
+export function hasExcessiveFrameworkFormatting(body: string): boolean {
+  const labeled = (body.match(/(頻度|入力|検証|可逆性|責任)\s*[:：]/g) ?? []).length;
+  return labeled >= 3 || /判断は五つの軸/.test(body);
+}
+
+export function hasFabricatedFirstPerson(body: string): boolean {
+  return FAKE_FIRST_PERSON.some((pattern) => pattern.test(body));
+}
+
+export function hasConsultingProse(body: string): boolean {
+  return CONSULTING_PROSE.some((pattern) => pattern.test(body));
+}
+
+export function hasGenericAtlasConclusion(body: string): boolean {
+  const section = atlasSection(body);
+  if (!section) return true;
+  if (GENERIC_ATLAS.some((pattern) => pattern.test(section))) return true;
+  // A conclusion that never names a concrete action/topic is too reusable.
+  if (!/(送|買|確認|待|試し|任|止|下書き|調査|返信|請求|資料|手順|Tasks|タスク)/.test(section)) return true;
+  return false;
+}
+
+export function hasRepetitiveRoleListing(body: string): boolean {
+  const listed = ROLE_MARKERS.filter((role) => new RegExp(`${role}(は|なら|でも|では)`).test(body)).length;
+  return listed >= 4 && !hasDeepWorkflow(body);
+}
+
+/** Atlas judgment in prose — not a five-axis checklist dump. */
 export function hasDecisionFramework(body: string): boolean {
-  const axes = [/頻度/, /入力/, /検証/, /可逆/, /責任/].filter((pattern) => pattern.test(body)).length;
-  return body.includes("Atlasの見方") && axes >= 3 && /(今|待つ|向いて|試し)/.test(body);
+  if (!body.includes("Atlasの見方")) return false;
+  const section = atlasSection(body);
+  if (section.length < 40) return false;
+  if (hasExcessiveFrameworkFormatting(section)) return false;
+  if (hasGenericAtlasConclusion(body)) return false;
+  return /(今|試し|待つ|現実的|向いて|まだ|思います|見ています|大事|重視)/.test(section);
 }
 
 export function hasGenericTakeaway(body: string): boolean {
   const match = body.match(/##\s*明日試すなら\s*\n+([\s\S]*?)(?=\n##\s|$)/);
   const takeaway = match?.[1]?.trim() ?? "";
   if (!takeaway) return true;
-  if (takeaway.length < 40) return true;
+  if (takeaway.length < 30) return true;
   if (GENERIC_TAKEAWAY.test(takeaway)) return true;
-  if (!/(選|書|作|確認|比|残|決|保存|開|移|出|戻|止|分|直|見)/.test(takeaway)) return true;
+  if (!/(選|書|作|確認|比|残|決|保存|開|移|出|戻|止|分|直|見|任|試)/.test(takeaway)) return true;
   return false;
 }
 
@@ -578,27 +541,33 @@ export function editorialFailures(
   const reasons: string[] = [];
   if (titleRepeatsSource(blog.title, source.title)) reasons.push("translated source title");
   if (paraphrasesSource(blog.body, source)) reasons.push("source paraphrase");
-  if (!blog.body.includes("Atlasの見方") || blog.body.trim().length < 400) reasons.push("missing editorial thesis");
+  // Substantive short articles may pass; reject only empty shells.
+  if (!blog.body.includes("Atlasの見方") || blog.body.trim().length < 280) reasons.push("missing editorial thesis");
   if (!/仕事|営業|サポート|担当|管理|経理|顧客|手順/.test(blog.body)) reasons.push("missing work relevance");
   if (!/明日試すなら/.test(blog.body)) reasons.push("missing practical takeaway");
   if (!blog.sourceUrls.some((url) => url.startsWith("https://"))) reasons.push("missing source url");
-  if (/私は試した|私が使った|自分で検証した/.test(blog.body)) reasons.push("fabricated personal experience");
+  if (hasFabricatedFirstPerson(blog.body)) reasons.push("fabricated personal experience");
   if (hasMetaEditorialLanguage(blog.body)) reasons.push("meta editorial language");
   if (GENERIC_PHRASES.some((pattern) => pattern.test(blog.body))) reasons.push("generic phrasing");
+  if (hasConsultingProse(blog.body)) reasons.push("consulting prose");
+  if (hasExcessiveFrameworkFormatting(blog.body)) reasons.push("excessive framework formatting");
+  if (hasGenericAtlasConclusion(blog.body)) reasons.push("generic Atlas conclusion");
+  if (hasRepetitiveRoleListing(blog.body)) reasons.push("repetitive role listing");
   if (!hasSourceSpecificFacts(blog.body, source) && !source.evergreen) reasons.push("missing source-specific facts");
-  if (concreteRoleCount(blog.body) < 2) reasons.push("missing concrete work examples");
+  if (!hasDeepWorkflow(blog.body) && concreteRoleCount(blog.body) < 1) reasons.push("missing concrete work examples");
   if (!hasDeepWorkflow(blog.body)) reasons.push("missing deep workflow");
   if (hasShallowGenericExamplesOnly(blog.body)) reasons.push("shallow generic examples");
   if (!hasDecisionFramework(blog.body)) reasons.push("missing decision framework");
   if (hasGenericTakeaway(blog.body)) reasons.push("generic practical takeaway");
   if (!source.evergreen && researchQuestionFor(source).trim().length < 12) reasons.push("missing research question");
   if (!hasResearchSynthesis(blog.body)) reasons.push("sources not synthesized");
-  // More URLs alone do not prove research depth.
   if (blog.sourceUrls.length >= 3 && !hasResearchSynthesis(blog.body)) reasons.push("source count without research depth");
   if (research.length > 0) {
     const weak = weakSupportingUrls(source, blog.sourceUrls, research);
     if (weak.length > 0) reasons.push("weak supporting source");
   }
+  // Source attribution must survive voice edits.
+  if (blog.sourceUrls.length > 0 && !/##\s*出典/.test(blog.body)) reasons.push("missing source attribution");
   return reasons;
 }
 

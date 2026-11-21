@@ -2,13 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { blogDraft, blueprintCandidates, newsletterDraft } from "./drafts";
 import {
-  concreteRoleCount,
   describeSource,
   editorialArticle,
   editorialFailures,
   hasConcreteWorkflow,
   hasDecisionFramework,
   hasDeepWorkflow,
+  hasExcessiveFrameworkFormatting,
+  hasFabricatedFirstPerson,
+  hasGenericAtlasConclusion,
   hasGenericTakeaway,
   hasMetaEditorialLanguage,
   hasSourceSpecificFacts,
@@ -105,16 +107,17 @@ test("changelog announcements are filtered and do not become the article", () =>
   assert.equal(draft.body.includes("Qwen4-Max"), false);
   assert.equal(draft.body.includes(source().summary.slice(0, 40)), false);
   assert.equal(draft.sourceUrls[0], source().canonicalUrl);
-  assert.ok(draft.body.length >= 900, `body too short: ${draft.body.length}`);
+  // Length is secondary; a substantive shorter article may pass.
+  assert.ok(draft.body.length >= 500, `body too short: ${draft.body.length}`);
   assert.ok(draft.body.length <= 2800, `body too long: ${draft.body.length}`);
   assert.equal(hasMetaEditorialLanguage(draft.body), false);
   assert.equal(hasSourceSpecificFacts(draft.body, source()), true);
-  assert.equal(concreteRoleCount(draft.body) >= 2, true);
   assert.equal(hasDeepWorkflow(draft.body), true);
   assert.equal(hasConcreteWorkflow(draft.body), true);
   assert.equal(hasDecisionFramework(draft.body), true);
   assert.equal(hasGenericTakeaway(draft.body), false);
   assert.match(draft.body, /OpenAI/);
+  assert.match(draft.body, /## 出典/);
 });
 
 test("a single-source paraphrase or translated headline is rejected", () => {
@@ -213,10 +216,67 @@ test("meta language, thin examples, and generic takeaways are rejected", () => {
   const good = editorialArticle(item);
   assert.deepEqual(editorialFailures({ title: good.title, body: good.body, sourceUrls: good.sourceUrls }, item), []);
   assert.equal(hasMetaEditorialLanguage(good.body), false);
-  assert.ok(concreteRoleCount(good.body) >= 2);
   assert.equal(hasDeepWorkflow(good.body), true);
   assert.equal(hasDecisionFramework(good.body), true);
   assert.equal(hasGenericTakeaway(good.body), false);
+  assert.doesNotMatch(good.body, /(頻度|入力|検証|可逆性|責任)\s*[:：]/);
+});
+
+test("human voice rejects fake experience, checklist dumps, and generic Atlas conclusions", () => {
+  const item = source();
+  const checklist = [
+    "OpenAIが2026-11-14に出した「agent update」は、顧客対応の返信確認についての案内です。",
+    "",
+    "## 仕事でどう使える？",
+    "",
+    "依頼を渡す → AIが下書きを作る → 人が確認する → 送信は人が押す。",
+    "",
+    "## Atlasの見方",
+    "",
+    "頻度: 毎週あるか。入力: 揃っているか。検証: 確認できるか。可逆性: 止められるか。責任: 誰か。五つ揃うなら今試し、欠けたら待ちます。",
+    "",
+    "## 明日試すなら",
+    "",
+    "明日、繰り返し問い合わせを一件選んで返信案だけ作らせてみてください。",
+    "",
+    "## 出典",
+    "",
+    `[OpenAI](${item.canonicalUrl})`,
+  ].join("\n");
+  assert.equal(hasExcessiveFrameworkFormatting(checklist), true);
+  assert.ok(editorialFailures({ title: "確認", body: checklist, sourceUrls: [item.canonicalUrl] }, item).includes("excessive framework formatting"));
+
+  const fake = checklist.replace("五つ揃うなら今試し、欠けたら待ちます。", "私も使ってみました。実際に試したところ便利でした。");
+  assert.equal(hasFabricatedFirstPerson(fake), true);
+  assert.ok(editorialFailures({ title: "確認", body: fake, sourceUrls: [item.canonicalUrl] }, item).includes("fabricated personal experience"));
+
+  const genericAtlas = [
+    "OpenAIが2026-11-14に出した「agent update」は、顧客対応の返信確認についての案内です。",
+    "",
+    "## 仕事でどう使える？",
+    "",
+    "依頼を渡す → AIが下書きを作る → 人が確認する → 送信は人が押す。",
+    "",
+    "## Atlasの見方",
+    "",
+    "AIを活用して生産性を上げることが大切です。最新機能を確認しましょう。",
+    "",
+    "## 明日試すなら",
+    "",
+    "明日、繰り返し問い合わせを一件選んで返信案だけ作らせてみてください。",
+    "",
+    "## 出典",
+    "",
+    `[OpenAI](${item.canonicalUrl})`,
+  ].join("\n");
+  assert.equal(hasGenericAtlasConclusion(genericAtlas), true);
+  const reasons = editorialFailures({ title: "確認", body: genericAtlas, sourceUrls: [item.canonicalUrl] }, item);
+  assert.ok(reasons.includes("generic Atlas conclusion") || reasons.includes("meta editorial language") || reasons.includes("generic phrasing"));
+
+  const shortButReal = editorialArticle(item);
+  assert.deepEqual(editorialFailures({ title: shortButReal.title, body: shortButReal.body, sourceUrls: shortButReal.sourceUrls }, item), []);
+  assert.match(shortButReal.body, /## 出典/);
+  assert.match(shortButReal.body, /OpenAI/);
 });
 
 test("unsupported numbers and a second post from the same publisher are rejected", () => {

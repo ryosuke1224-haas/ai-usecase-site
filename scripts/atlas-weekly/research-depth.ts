@@ -214,9 +214,9 @@ export function canSustainResearchedArticle(primary: SourceRecord, research: rea
 }
 
 export function hasResearchSynthesis(body: string): boolean {
-  const opens = (body.match(/が[^。\n]{0,40}公開した/g) ?? []).length;
+  const opens = (body.match(/が[^。\n]{0,40}(公開した|出した)/g) ?? []).length;
   if (opens <= 1) return true;
-  return /あわせて|共通|一方|制限|途中|確認前|製品案内|関連公開|同じ変化|ここまで/.test(body);
+  return /あわせて|共通|一方|制限|途中|確認前|製品案内|関連公開|同じ変化|ここまで|重なります/.test(body);
 }
 
 export function weakSupportingUrls(

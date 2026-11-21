@@ -33,11 +33,10 @@ function tip(parts: TipParts): TipTopic {
   const links = parts.sourceUrls.map((url) => `[公式ドキュメント](${url})`).join("\n");
   const workflow = parts.work.includes("→")
     ? parts.work
-    : `具体的な流れは、入力を渡す → AIが候補を作る → 人が確認する → 採用または差し戻し、です。${parts.work}`;
-  const framework = [
-    parts.view,
-    "判断は、頻度（繰り返すか）、入力（型が揃っているか）、検証（人が結果を見られるか）、可逆性（外に出す前に止められるか）、責任（最終判断者が明確か）で切ります。五つ揃うなら今試し、欠けているなら先に手順を直します。",
-  ].join("");
+    : `たとえば、材料を渡す → AIが候補を作る → 人が確認する → 採用か差し戻しを決める、が使いやすいです。${parts.work}`;
+  const view = /思います|見ています|大事|現実的|試して/.test(parts.view)
+    ? parts.view
+    : `${parts.view}繰り返す作業で、結果を人が確認でき、外に出す前に止められるなら今試してよいと思います。確認者が決まっていないなら、先に手順を直した方がいいです。`;
   const body = [
     parts.thesis,
     "",
@@ -47,13 +46,13 @@ function tip(parts: TipParts): TipTopic {
     "",
     parts.detail,
     "",
-    "## 仕事で変わること",
+    "## 仕事でどう使える？",
     "",
     workflow,
     "",
     "## Atlasの見方",
     "",
-    framework,
+    view,
     "",
     "## 明日試すなら",
     "",
