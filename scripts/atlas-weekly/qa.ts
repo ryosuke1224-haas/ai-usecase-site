@@ -1,9 +1,9 @@
 import { editorialFailures } from "./editorial";
+import { isAuthoritativePublisher } from "./research-depth";
 import type { BlueprintCandidate, BlogDraft, NewsletterDraft, QaDecision, SourceRecord } from "./types";
 
 const STALE_MS = 21 * 24 * 60 * 60 * 1000;
 const CLAIM = /(\d+(?:\.\d+)?\s?(?:%|％|\$|usd|jpy|円))/i;
-const AUTHORITATIVE = new Set(["openai", "anthropic", "google", "microsoft", "aws", "nist", "meta"]);
 
 export function tokens(value: string): Set<string> {
   return new Set(value.toLowerCase().split(/[^a-z0-9\u3040-\u30ff\u4e00-\u9faf]+/).filter((token) => token.length > 3));
@@ -88,13 +88,15 @@ export function overlappingBlogTopics(
 /** Higher score wins when two candidate blogs cover the same topic. */
 export function blogTopicStrength(blog: BlogDraft, source?: SourceRecord): number {
   let score = source?.relevance ?? 0;
-  score += Math.min(blog.sourceUrls.length, 4) * 18;
-  score += Math.min(Math.floor(blog.body.trim().length / 40), 25);
+  // Prefer synthesis and judgment over raw source count or length padding.
+  if (/あわせて|共通|一方|制限|途中確認/.test(blog.body)) score += 16;
+  score += Math.min(blog.sourceUrls.length, 2) * 6;
+  score += Math.min(Math.floor(blog.body.trim().length / 80), 12);
   if (blog.relatedBlueprints.length > 0) score += 10;
-  if (source && AUTHORITATIVE.has(source.publisher.trim().toLowerCase())) score += 14;
+  if (source && isAuthoritativePublisher(source.publisher)) score += 18;
   if (/仕事|営業|サポート|担当|管理|経理|顧客|手順/.test(blog.body)) score += 6;
   if (/明日試すなら/.test(blog.body) && sectionAfter(blog.body, "明日試すなら").length >= 40) score += 8;
-  if (/Atlasの見方/.test(blog.body)) score += 4;
+  if (/Atlasの見方/.test(blog.body) && /今試し|待ちます|向いて/.test(blog.body)) score += 8;
   return score;
 }
 
@@ -144,7 +146,10 @@ export function reviewItems(input: {
 
   for (const blog of input.blogs) {
     const source = byUrl.get(blog.canonicalUrl);
-    const reasons = [...storyProblems(source, input.now, seen), ...(source ? editorialFailures(blog, source) : [])];
+    const reasons = [
+      ...storyProblems(source, input.now, seen),
+      ...(source ? editorialFailures(blog, source, input.sources) : []),
+    ];
     if (source && publishers.has(source.publisher.trim().toLowerCase())) reasons.push("publisher concentration");
     if (source && unsupported(blog.body, source.summary)) reasons.push("unsupported claim");
     for (const slug of blog.relatedBlueprints) {

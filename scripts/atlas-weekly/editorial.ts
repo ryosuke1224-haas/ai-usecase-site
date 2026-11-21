@@ -1,3 +1,10 @@
+import {
+  buildResearchBrief,
+  hasResearchSynthesis,
+  researchQuestionFor,
+  supportingSourcesRelevant,
+  weakSupportingUrls,
+} from "./research-depth";
 import type { BlogDraft, SourceRecord, WeeklyCategory } from "./types";
 
 export const SOURCE_GROUPS = ["labs", "enterprise", "us-tech", "developer", "official"] as const;
@@ -205,37 +212,38 @@ const TOPIC: Topic[] = [
   },
   {
     id: "long-work",
-    test: /agent|long-running|workflow|hours|tasks?/,
+    test: /agent|long-running|workflow|hours|tasks?|spark|computer use/,
     focus: "ai-news",
-    title: "長時間タスクは、途中成果と完了判断を分ける",
+    title: "チャットからタスク実行へ。買う・送る前で止める",
     thesis:
-      "公開された長時間タスク機能の要点は、一問一答の速さではなく、依頼を置いたまま調査や下ごしらえを進め、人が区切りで途中成果を見られることです。",
-    why: "短答の速さより、数時間分の下ごしらえを途中で止められるかが実務の変化です。長い作業ほど、途中の誤りが最後まで残り、完了ボタンと途中確認を同じ操作にすると取り返しがつきません。",
+      "チャットは答えを返し、タスク実行は依頼を置いたまま複数ステップを進める。実務の分岐点は速さではなく、支払い・送信・予約変更の前に人が止められるかどうかです。",
+    why: "一問一答なら誤答は会話の中で直せます。裏で進む作業は、途中成果を見ないまま対外操作へ繋がると取り返しがつきません。だから確認は完了ボタンと同じ場所に置かない方が安全です。",
     deepWorkflow: [
-      "営業Opsの深い例: ",
-      "入力は商談メモとCRMの更新欄 → ",
-      "AIが停滞理由とフォロー候補を整理する → ",
-      "担当者が事実と優先順位を確認する → ",
-      "顧客への送信と商談判断は人が行う。",
-      "見る指標は、候補の修正回数と、翌週の未対応件数です。",
+      "事務・調整の深い例: ",
+      "入力は依頼文、希望条件、接続してよいアプリ → ",
+      "AIが候補の調査・下ごしらえ・下書きを裏で進める → ",
+      "途中成果（候補一覧・下書き・予約案）を人が確認する → ",
+      "支払い・送信・確定予約は人が承認してから進める。",
+      "見る指標は、承認前に止めた件数と、承認後のやり直しです。",
     ].join(""),
     secondary: [
-      "開発は調査メモや差分候補までを任せ、本番変更は人が選びます。",
-      "分析は抜け確認リストだけを作り、報告数字は人が確定します。",
-      "サポートは過去対応の要点整理までを任せ、顧客説明文は人が仕上げます。",
+      "営業Opsは商談メモの整理とフォロー候補までを任せ、顧客送信は人が残します。",
+      "サポートは過去対応の要点整理までを任せ、顧客説明の送信は人が押します。",
+      "経理は明細の整理候補までを任せ、支払い承認は人が残します。",
     ].join(""),
-    who: "向いているのは、毎週同じ調査・整理があり、途中成果の置き場と確認者が決まっているチームです。まだ向いていないのは、一回きりの例外作業で途中確認者がいない場合や、完了と送信が同じボタンになっている運用です。",
-    review: "対外送信、本番変更、契約条件、金額確定は人が残します。途中メモの整理と候補の並べ替えは任せて構いません。",
+    who: "向いているのは、同じ型の調査・予約・下書きが繰り返され、途中成果の確認者がいる個人や小チームです。まだ向いていないのは、支払い・送信・契約が同じ操作に繋がっている場合や、確認者が不在のまま常時接続する運用です。",
+    review: "支払い、顧客送信、契約・予約の確定、権限変更は人が残します。候補収集と社内下書きは任せて構いません。",
     framework: [
+      "この公開で見る判断は「今すぐ全自動か」ではなく「どこで止めるか」です。",
       "頻度: 同じ長作業が繰り返されるか。",
-      "入力: 参照資料と依頼文が渡せるか。",
+      "入力: 依頼条件と接続範囲を書けるか。",
       "検証: 途中成果を人が見られるか。",
-      "可逆性: 完了前に止められるか。",
-      "責任: 完了判断者の名前が残るか。",
-      "五つ揃うなら今試し、途中成果の確認者がいないなら待ちます。",
+      "可逆性: 支払い・送信の前に止められるか。",
+      "責任: 最終承認者の名前が残るか。",
+      "五つ揃うなら今試し、可逆性か責任が欠けるなら待ちます。",
     ].join(""),
     takeaway:
-      "明日試すなら、毎週繰り返す確認作業を一つ選び、AIには途中成果だけを作らせ、完了判断は担当者の名前を残してください。一週間、途中成果の修正回数と、完了前に止めた件数を数えます。",
+      "明日試すなら、繰り返しの調査か下書きを一つ選び、AIには途中成果まで作らせ、支払い・送信・確定の前に人の承認を挟んでください。一週間、承認前に止めた件数を数えます。",
   },
   {
     id: "documents",
@@ -419,10 +427,16 @@ export function sourceFactLead(source: SourceRecord, support: readonly SourceRec
   const when = published ? `${published}付で` : "";
   const subject = clip(source.title, 110);
   const primary = `${source.publisher}が${when}公開した案内の主題は「${subject}」です。${factFromSummary(source)}`;
-  const secondary = support[0]
-    ? `あわせて${support[0].publisher}の公開（「${clip(support[0].title, 80)}」）も出典に残しています。本稿の事実の核は${source.publisher}の案内です。`
-    : "";
-  return [primary, secondary, "ここから先は、その事実を仕事の手順に落とす話です。"].filter(Boolean).join("");
+  if (support.length === 0) {
+    return [primary, "ここから先は、その事実を仕事の手順に落とす話です。"].join("");
+  }
+  const related = support
+    .slice(0, 3)
+    .map((item) => `${item.publisher}の「${clip(item.title, 60)}」`)
+    .join("、");
+  const synthesis =
+    `関連公開として${related}も確認しました。あわせて読むと、個別機能名より「一問一答から、途中確認つきの実行へ移る」点が重なります。`;
+  return [primary, synthesis, "ここから先は、その共通点を仕事の手順に落とす話です。"].join("");
 }
 
 export function editorialArticle(source: SourceRecord, support: readonly SourceRecord[] = []): {
@@ -432,13 +446,18 @@ export function editorialArticle(source: SourceRecord, support: readonly SourceR
   focus: EditorialFocus;
   category: WeeklyCategory;
   sourceUrls: string[];
+  researchQuestion: string;
 } {
   const topic = topicFor(source);
   const profile = describeSource(source);
   const focus = topic.focus ?? profile.focus;
-  const secondary = support.find((item) => item.canonicalUrl !== source.canonicalUrl && !describeSource(item).lowValue);
-  const supportList = secondary ? [secondary] : [];
+  const brief = buildResearchBrief(source, support.length > 0 ? [source, ...support] : [source], 3);
+  const supportList = brief.supports.map((item) => item.source);
   const facts = sourceFactLead(source, supportList);
+  const links = [
+    `[${source.publisher}](${source.canonicalUrl})`,
+    ...supportList.map((item) => `[${item.publisher}](${item.canonicalUrl})`),
+  ];
   const body = [
     facts,
     "",
@@ -466,17 +485,16 @@ export function editorialArticle(source: SourceRecord, support: readonly SourceR
     "",
     "## 出典",
     "",
-    `[${source.publisher}](${source.canonicalUrl})`,
-    secondary ? `[${secondary.publisher}](${secondary.canonicalUrl})` : "",
+    ...links,
   ].filter((line) => line !== "").join("\n");
-  const sourceUrls = [source.canonicalUrl, ...(secondary ? [secondary.canonicalUrl] : [])];
   return {
     title: topic.title,
     summary: topic.thesis,
     body,
     focus,
     category: storedCategory(focus),
-    sourceUrls,
+    sourceUrls: [source.canonicalUrl, ...supportList.map((item) => item.canonicalUrl)],
+    researchQuestion: brief.question || researchQuestionFor(source),
   };
 }
 
@@ -552,7 +570,11 @@ export function hasShallowGenericExamplesOnly(body: string): boolean {
   return /下書き/.test(body) && /確認/.test(body) && concreteRoleCount(body) >= 2;
 }
 
-export function editorialFailures(blog: Pick<BlogDraft, "title" | "body" | "sourceUrls">, source: SourceRecord): string[] {
+export function editorialFailures(
+  blog: Pick<BlogDraft, "title" | "body" | "sourceUrls">,
+  source: SourceRecord,
+  research: readonly SourceRecord[] = [],
+): string[] {
   const reasons: string[] = [];
   if (titleRepeatsSource(blog.title, source.title)) reasons.push("translated source title");
   if (paraphrasesSource(blog.body, source)) reasons.push("source paraphrase");
@@ -569,17 +591,17 @@ export function editorialFailures(blog: Pick<BlogDraft, "title" | "body" | "sour
   if (hasShallowGenericExamplesOnly(blog.body)) reasons.push("shallow generic examples");
   if (!hasDecisionFramework(blog.body)) reasons.push("missing decision framework");
   if (hasGenericTakeaway(blog.body)) reasons.push("generic practical takeaway");
+  if (!source.evergreen && researchQuestionFor(source).trim().length < 12) reasons.push("missing research question");
+  if (!hasResearchSynthesis(blog.body)) reasons.push("sources not synthesized");
+  // More URLs alone do not prove research depth.
+  if (blog.sourceUrls.length >= 3 && !hasResearchSynthesis(blog.body)) reasons.push("source count without research depth");
+  if (research.length > 0) {
+    const weak = weakSupportingUrls(source, blog.sourceUrls, research);
+    if (weak.length > 0) reasons.push("weak supporting source");
+  }
   return reasons;
 }
 
 export function supportingSources(primary: SourceRecord, research: readonly SourceRecord[]): SourceRecord[] {
-  const focus = describeSource(primary).focus;
-  return research
-    .filter((item) => !item.evergreen)
-    .filter((item) => item.canonicalUrl !== primary.canonicalUrl)
-    .filter((item) => item.publisher.toLowerCase() !== primary.publisher.toLowerCase())
-    .filter((item) => !describeSource(item).lowValue)
-    .filter((item) => describeSource(item).focus === focus)
-    .sort((a, b) => b.relevance - a.relevance)
-    .slice(0, 1);
+  return supportingSourcesRelevant(primary, research, 3);
 }

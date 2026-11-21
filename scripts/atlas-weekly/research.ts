@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { describeSource, SOURCE_GROUPS, storedCategory, type SourceGroup } from "./editorial";
+import { canSustainResearchedArticle } from "./research-depth";
 import { chooseTip } from "./tips";
 import type { SourceRecord, WeeklyCategory } from "./types";
 
@@ -138,7 +139,7 @@ function editionLane(record: SourceRecord): "news" | "practical" {
   return focus === "ai-at-work" || focus === "enterprise" ? "practical" : "news";
 }
 
-/** News selection stays intact. This only reserves the weekly slots around it. */
+/** Prefer researched depth over filling every weekly slot. */
 export function selectEdition(
   records: readonly SourceRecord[],
   weekKey: string,
@@ -146,12 +147,13 @@ export function selectEdition(
   retrievedAt = new Date().toISOString(),
 ): SourceRecord[] {
   const fresh = records.filter((record) => !record.evergreen);
-  const news = selectTopics(fresh.filter((record) => editionLane(record) === "news"), 2);
+  const news = selectTopics(fresh.filter((record) => editionLane(record) === "news"), 2)
+    .filter((record) => canSustainResearchedArticle(record, records));
   const usedPublishers = new Set(news.map((record) => record.publisher.trim().toLowerCase()));
   const practical = selectTopics(
     fresh.filter((record) => editionLane(record) === "practical" && !usedPublishers.has(record.publisher.trim().toLowerCase())),
     1,
-  );
+  ).filter((record) => canSustainResearchedArticle(record, records));
   const chosen = chooseTip(weekKey, knownUrls);
   if (!chosen) return [...news, ...practical];
   const url = chosen.sourceUrls[0];
