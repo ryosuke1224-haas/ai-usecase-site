@@ -13,9 +13,11 @@ import {
   hasGenericAtlasConclusion,
   hasGenericTakeaway,
   hasMetaEditorialLanguage,
+  hasMismatchedTaskSynthesis,
   hasSourceSpecificFacts,
   isLowValueNews,
   paraphrasesSource,
+  synthesizeSupportBridge,
   titleRepeatsSource,
 } from "./editorial";
 import { reviewItems } from "./qa";
@@ -302,6 +304,65 @@ test("unsupported numbers and a second post from the same publisher are rejected
   assert.equal(decisions[0]?.pass, true);
   assert.match(decisions[1]?.reasons.join(" ") ?? "", /unsupported claim/);
   assert.match(decisions[1]?.reasons.join(" ") ?? "", /publisher concentration/);
+});
+
+test("supporting-source synthesis follows the article topic, not Gemini Tasks", () => {
+  const supportArticle = source({
+    url: "https://openai.com/support-agent",
+    canonicalUrl: "https://openai.com/support-agent",
+    title: "OpenAI agent update for support teams",
+    summary: "OpenAI described an agent update that helps support teams review replies before anything is sent to a customer.",
+  });
+  const docs = source({
+    url: "https://platform.openai.com/docs/guides/replies",
+    canonicalUrl: "https://platform.openai.com/docs/guides/replies",
+    publisher: "OpenAI",
+    title: "Review replies before send",
+    summary: "Product documentation about reviewing customer replies with human approval before anything is sent.",
+  });
+  const article = editorialArticle(supportArticle, [docs]);
+  assert.match(article.body, /返信案づくりと送信判断を分ける|外に出す前の確認/);
+  assert.doesNotMatch(article.body, /聞いたら答える/);
+  assert.doesNotMatch(article.body, /途中まで進めてもらう/);
+  assert.equal(hasMismatchedTaskSynthesis(article.body, supportArticle), false);
+  assert.doesNotMatch(article.body, /PRIMARY_FACT|PRODUCT_DOC|COUNTERPOINT/);
+  assert.deepEqual(
+    editorialFailures({ title: article.title, body: article.body, sourceUrls: article.sourceUrls }, supportArticle, [supportArticle, docs]),
+    [],
+  );
+
+  const gemini = source({
+    publisher: "Google",
+    url: "https://blog.google/tasks",
+    canonicalUrl: "https://blog.google/tasks",
+    title: "Put Gemini to work for you",
+    summary: "Tasks in Gemini is now free of charge in six countries, with chat-to-task execution and human confirmation before purchases.",
+  });
+  const safety = source({
+    publisher: "OpenAI",
+    url: "https://openai.com/index/computer-using-agent",
+    canonicalUrl: "https://openai.com/index/computer-using-agent",
+    title: "Computer-using agent safety guidance",
+    summary: "OpenAI describes guardrails for computer use, including human confirmation before consequential actions like purchases.",
+  });
+  const tasks = editorialArticle(gemini, [safety]);
+  assert.match(tasks.body, /買う・送る|途中まで/);
+  assert.doesNotMatch(tasks.body, /COUNTERPOINT|PRODUCT_DOC/);
+  assert.equal(hasMismatchedTaskSynthesis(tasks.body, gemini), false);
+
+  const leaked = `${article.body}\n聞いたら答えるから途中まで進めてもらうへ寄っています。`;
+  assert.equal(hasMismatchedTaskSynthesis(leaked, supportArticle), true);
+  assert.ok(
+    editorialFailures({ title: article.title, body: leaked, sourceUrls: article.sourceUrls }, supportArticle).includes(
+      "mismatched research synthesis",
+    ),
+  );
+
+  const bridge = synthesizeSupportBridge("customer-review", [
+    { source: docs, role: "PRODUCT_DOC" },
+  ]);
+  assert.match(bridge, /返信案づくりと送信判断/);
+  assert.doesNotMatch(bridge, /聞いたら答える/);
 });
 
 test("blueprint candidates require a repeatable workflow and stay optional", () => {

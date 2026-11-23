@@ -1,9 +1,11 @@
 import {
   buildResearchBrief,
+  classifySourceRole,
   hasResearchSynthesis,
   researchQuestionFor,
   supportingSourcesRelevant,
   weakSupportingUrls,
+  type SourceRole,
 } from "./research-depth";
 import type { BlogDraft, SourceRecord, WeeklyCategory } from "./types";
 
@@ -348,18 +350,80 @@ function factFromSummary(source: SourceRecord): string {
   return "公開ページに書かれた範囲の事実を前提にします。";
 }
 
-/** Source-supported lead: publisher, timing, and publicly stated subject only. */
-export function sourceFactLead(source: SourceRecord, support: readonly SourceRecord[] = []): string {
+type SupportWithRole = {
+  source: Pick<SourceRecord, "title" | "publisher" | "canonicalUrl">;
+  role: SourceRole;
+};
+
+/**
+ * One synthesis sentence for supporting sources.
+ * Must follow the article's topic — never reuse the Gemini Tasks bridge for other stories.
+ * Role labels stay internal; only natural Japanese prose is returned.
+ */
+export function synthesizeSupportBridge(topicId: string, supports: readonly SupportWithRole[]): string {
+  if (supports.length === 0) return "";
+  const related = supports
+    .slice(0, 3)
+    .map((item) => `${item.source.publisher}の「${clip(item.source.title, 50)}」`)
+    .join("や");
+  const hasCounter = supports.some((item) => item.role === "COUNTERPOINT");
+  const hasDoc = supports.some((item) => item.role === "PRODUCT_DOC");
+
+  switch (topicId) {
+    case "long-work":
+      if (hasCounter) {
+        return `あわせて${related}も見ると、途中まで任せることと、買う・送る・確定の前で止めることが同じ話として重なります。`;
+      }
+      if (hasDoc) {
+        return `あわせて${related}も見ると、個別の機能名より「聞いたら答える」から「途中まで進めてもらう」へ寄っている点が重なります。`;
+      }
+      return `あわせて${related}も見ると、チャット回答と、裏で進む作業を分ける見方が共通しています。`;
+    case "customer-review":
+      return hasCounter
+        ? `あわせて${related}も見ると、下書きを速くすることより、外に出す前の確認を残す点が重なります。`
+        : `あわせて${related}も見ると、返信案づくりと送信判断を分ける設計が共通しています。`;
+    case "invoice-review":
+      return `あわせて${related}も見ると、候補づくりと、実際に送る判断を分ける必要が共通しています。`;
+    case "documents":
+      return `あわせて${related}も見ると、全文要約より、先に見る項目を決める方が実務に効く点が重なります。`;
+    case "enterprise":
+      return `あわせて${related}も見ると、全社配布より、毎週同じ確認手順を一段切り出せるかが共通の論点です。`;
+    case "us-tech":
+      return `あわせて${related}も見ると、製品名の追跡より、自社の契約や説明範囲に触れるかの確認が先になります。`;
+    default:
+      return hasCounter
+        ? `あわせて${related}も見ると、速く進めることより、人が止まれる位置を残す点が重なります。`
+        : `あわせて${related}も見ると、機能一覧より、繰り返す確認の前段をどこまで出せるかが共通しています。`;
+  }
+}
+
+/** True when a non-task article reused the Gemini Tasks chat→task synthesis bridge. */
+export function hasMismatchedTaskSynthesis(body: string, source: SourceRecord): boolean {
+  if (topicFor(source).id === "long-work") return false;
+  return /聞いたら答える/.test(body) && /途中まで進めてもらう/.test(body);
+}
+
+/** Source-supported lead: publisher, timing, subject, plus topic-aware synthesis when supports exist. */
+export function sourceFactLead(
+  source: SourceRecord,
+  support: readonly SourceRecord[] = [],
+  options: {
+    topicId?: string;
+    roles?: ReadonlyArray<{ url: string; role: SourceRole }>;
+  } = {},
+): string {
   const published = dateLabel(source.publishedAt);
   const when = published ? `${published}に` : "";
   const subject = clip(source.title, 110);
   const primary = `${source.publisher}が${when}出した「${subject}」は、${factFromSummary(source)}`;
   if (support.length === 0) return primary;
-  const related = support
-    .slice(0, 3)
-    .map((item) => `${item.publisher}の「${clip(item.title, 50)}」`)
-    .join("や");
-  return `${primary}あわせて${related}も見ると、個別の機能名より「聞いたら答える」から「途中まで進めてもらう」へ寄っている点が重なります。`;
+  const topicId = options.topicId ?? topicFor(source).id;
+  const roleByUrl = new Map((options.roles ?? []).map((item) => [item.url, item.role]));
+  const withRoles: SupportWithRole[] = support.slice(0, 3).map((item) => ({
+    source: item,
+    role: roleByUrl.get(item.canonicalUrl) ?? classifySourceRole(source, item),
+  }));
+  return `${primary}${synthesizeSupportBridge(topicId, withRoles)}`;
 }
 
 export function editorialArticle(source: SourceRecord, support: readonly SourceRecord[] = []): {
@@ -376,7 +440,10 @@ export function editorialArticle(source: SourceRecord, support: readonly SourceR
   const focus = topic.focus ?? profile.focus;
   const brief = buildResearchBrief(source, support.length > 0 ? [source, ...support] : [source], 3);
   const supportList = brief.supports.map((item) => item.source);
-  const facts = sourceFactLead(source, supportList);
+  const facts = sourceFactLead(source, supportList, {
+    topicId: topic.id,
+    roles: brief.supports.map((item) => ({ url: item.source.canonicalUrl, role: item.role })),
+  });
   const links = [
     `[${source.publisher}](${source.canonicalUrl})`,
     ...supportList.map((item) => `[${item.publisher}](${item.canonicalUrl})`),
@@ -562,12 +629,17 @@ export function editorialFailures(
   if (!source.evergreen && researchQuestionFor(source).trim().length < 12) reasons.push("missing research question");
   if (!hasResearchSynthesis(blog.body)) reasons.push("sources not synthesized");
   if (blog.sourceUrls.length >= 3 && !hasResearchSynthesis(blog.body)) reasons.push("source count without research depth");
+  if (hasMismatchedTaskSynthesis(blog.body, source)) reasons.push("mismatched research synthesis");
   if (research.length > 0) {
     const weak = weakSupportingUrls(source, blog.sourceUrls, research);
     if (weak.length > 0) reasons.push("weak supporting source");
   }
   // Source attribution must survive voice edits.
   if (blog.sourceUrls.length > 0 && !/##\s*出典/.test(blog.body)) reasons.push("missing source attribution");
+  // Internal source-role labels must never appear in public copy.
+  if (/\b(PRIMARY_FACT|PRODUCT_DOC|SUPPORTING_EVIDENCE|CONTEXT|COUNTERPOINT)\b/.test(blog.body)) {
+    reasons.push("exposed internal source role");
+  }
   return reasons;
 }
 
