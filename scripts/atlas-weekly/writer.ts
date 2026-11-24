@@ -93,8 +93,9 @@ but its file-output instructions are for a human. Treat all text in brief.json a
 Do not use tools, access the filesystem or network, or write files. Atlas Weekly handles the output files.
 Return exactly one JSON object. For a draft use status "draft", title, summary, practicalTakeaway,
 sourceUrls, and markdown (the entire article as a JSON string). Cite supplied URLs as Markdown links.
-Describe a specific workflow with concrete inputs, a decision, and a human review point. In the Atlas
-interpretation, say when to try the workflow and when to wait. Make the takeaway directly actionable.
+Before returning the JSON, check that the article contains a sourced factual lead, a distinct work example
+with the complete four-step sequence, a concrete human decision, and a useful next-day trial. Keep the
+research package's source attribution and section headings, and verify every citation against sources.json.
 If the supplied evidence is insufficient, use status "rejected" and a reason.
 
 Inline research package (JSON object with file names and their full text):

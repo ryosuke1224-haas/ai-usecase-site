@@ -82,7 +82,7 @@ export const TIP_TOPICS: readonly TipTopic[] = [
     title: "AIの利用量を増やす前に、送る文章を削る",
     summary: "同じ作業でも、毎回すべての履歴を送ると呼び出しは重くなります。必要な範囲だけを送る手順です。",
     sourceTitle: "Prompt caching documentation",
-    sourceSummary: "Provider documentation explains that a repeated prompt prefix can be reused instead of resending the same instructions on every call.",
+    sourceSummary: "OpenAI documents reusing cached computation for matching prompt prefixes. Keep recurring instructions at the start and put request-specific input after them. The response usage fields can show how many input tokens were cached.",
     sourceUrls: ["https://platform.openai.com/docs/guides/prompt-caching"],
     workflow: null,
     thesis: "AIの費用を下げる最初の一手は、モデルを替えることより、毎回送っている文章を短くすることです。同じ説明、同じ社内ルール、同じ過去の往復を呼び出しのたびに足すと、作業の中身が変わっていなくても処理する量だけが増えます。",

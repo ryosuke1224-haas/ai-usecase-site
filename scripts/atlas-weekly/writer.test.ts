@@ -52,7 +52,7 @@ function fixture(t: TestContext) {
     research: [
       primary,
       { ...primary, url: supportingUrl, canonicalUrl: supportingUrl, publisher: "Docs",
-        summary: "The support agent exposes reply approvals for customer support teams. It supports up to 3% sampling." },
+        summary: '<img src="https://docs.example.com/preview.png">The support agent exposes reply approvals for customer support teams. It supports up to 3% sampling.' },
       { ...primary, url: otherUrl, canonicalUrl: otherUrl, publisher: "NATO", title: "NATO defence procurement",
         summary: "NATO announces military purchases for allied government and procurement." },
     ],
@@ -77,12 +77,22 @@ test("research artifacts contain relevant evidence, dates, claims, and known blu
   const sources = JSON.parse(read("sources.json"));
   assert.ok(brief.question.length > 12);
   assert.equal(brief.primarySourceUrl, primary.canonicalUrl);
+  assert.deepEqual(brief.primaryAttribution, {
+    publisher: "OpenAI",
+    publicationDate: "2026-11-14",
+    evidenceType: "publisher feed",
+  });
   assert.deepEqual(brief.supportingSourceUrls, [supportingUrl]);
   assert.equal(brief.existingBlueprints[0].path, "/blueprints/ai-customer-response-assistant");
   assert.equal(sources[0].publishedAt, primary.publishedAt);
   assert.deepEqual(sources[1].quantitativeClaims, ["3%"]);
+  assert.ok(!sources[1].factExcerpt.includes("preview.png"));
   assert.ok(!read("sources.json").includes(otherUrl));
   assert.match(read("instructions.md"), /Japanese editorial/);
+  assert.match(read("instructions.md"), /仕事でどう使える？/);
+  assert.match(read("instructions.md"), /arrows .*four stages/);
+  assert.match(read("instructions.md"), /YYYY-MM-DD/);
+  assert.match(read("instructions.md"), /今試してよい.*現実的.*待つ/);
 });
 
 test("Cursor uses ask mode and confines its workspace to the candidate package", async (t) => {
