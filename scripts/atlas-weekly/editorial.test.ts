@@ -146,6 +146,31 @@ test("a single-source paraphrase or translated headline is rejected", () => {
   assert.equal(reasons.includes("missing practical takeaway"), true);
 });
 
+const citationSource = source({
+  title: "Amazon Bedrock expands enterprise governance",
+  summary: "Customers can configure permissions for automated deployments and centralize operational monitoring.",
+  canonicalUrl: "https://aws.amazon.com/bedrock/enterprise-governance-customers-configure-permissions-automated-deployments-centralize-operational-monitoring",
+});
+
+test("a long source citation URL alone does not count as paraphrasing", () => {
+  for (const citation of [citationSource.canonicalUrl, `<${citationSource.canonicalUrl}>`]) {
+    assert.equal(paraphrasesSource(`## 仕事で使う\n確認は担当者が行います。\n## 出典\n${citation}`, citationSource), false);
+  }
+});
+
+test("overlapping prose still counts as paraphrasing even with a citation URL", () => {
+  const prose = "With enterprise governance in Bedrock, customers can centralize monitoring and configure permissions before automated deployments.";
+  assert.equal(paraphrasesSource(`## 仕事で使う\n${prose}\n${citationSource.canonicalUrl}`, citationSource), true);
+});
+
+test("markdown link targets are ignored but link labels and surrounding prose count", () => {
+  const destination = `${citationSource.canonicalUrl}(archive)`;
+  assert.equal(paraphrasesSource(`[出典](${destination} "Enterprise governance")`, citationSource), false);
+  assert.equal(paraphrasesSource(`[出典](</reference/${citationSource.canonicalUrl.split("/").at(-1)}>)`, citationSource), false);
+  assert.equal(paraphrasesSource("[Bedrock enterprise governance](/reference) lets customers configure permissions.", citationSource), true);
+  assert.equal(paraphrasesSource(`[${citationSource.summary}](${destination})`, citationSource), true);
+});
+
 test("editorial drafts need a thesis, work relevance, a takeaway, and real source links", () => {
   const item = source();
   const article = editorialArticle(item);

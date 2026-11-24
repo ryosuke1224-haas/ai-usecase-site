@@ -500,7 +500,10 @@ export function titleRepeatsSource(title: string, sourceTitle: string): boolean 
 export function paraphrasesSource(body: string, source: Pick<SourceRecord, "title" | "summary">): boolean {
   // Compare analysis sections only; the lead may name the source title as a fact.
   const idx = body.search(/##\s*仕事で/);
-  const analysis = idx >= 0 ? body.slice(idx) : body;
+  const analysis = (idx >= 0 ? body.slice(idx) : body)
+    // Keep link labels in the prose, then remove any bare or autolinked URLs.
+    .replace(/\[([^\]\n]*)\]\((?:<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))*)(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'))?\)/g, "$1")
+    .replace(/https?:\/\/[^\s<>`"\[\]、。！？「」]+/gi, " ");
   const summary = cleanText(source.summary);
   if (summary.length >= 40 && analysis.includes(summary.slice(0, 80))) return true;
   const distinctive = `${source.title} ${summary}`
