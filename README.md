@@ -120,7 +120,7 @@ npm.cmd run atlas:weekly -- --dry-run --rerun
 
 Each package lives at `atlas-memory/weekly/<edition>/research/<id>/`. It contains a research brief, primary and directly relevant supporting evidence, and instructions. Feed and documentation excerpts are attributed to their publishers. Dates and quantitative claims are tied to the supplied evidence.
 
-Cursor requires an authenticated `agent` CLI on PATH. Codex requires a recent `codex` CLI on PATH with a local ChatGPT login. Both run in a read-only mode from the candidate directory with a five-minute timeout. The adapter captures their response and writes the validated Markdown and metadata into `drafts/`. Writer failure stops the edition without switching providers. A writer rejection stays local as a failed QA decision.
+Cursor requires an authenticated `agent` CLI on PATH. Codex requires a recent `codex` CLI on PATH with a local ChatGPT login. Both run in a read-only mode from the candidate directory with a five-minute timeout. Atlas Weekly reads the three research files and sends their contents to Codex over stdin so its sandbox does not need filesystem tools. The adapter captures each writer’s response and writes the validated Markdown and metadata into `drafts/`. Writer failure stops the edition without switching providers. A writer rejection stays local as a failed QA decision.
 
 Outside dry run, only QA-passing items can be inserted as `READY_FOR_REVIEW`. Existing queue sources and titles, including rejected ones, are checked for duplicates. Approval and publishing are separate human actions in the admin console.
 

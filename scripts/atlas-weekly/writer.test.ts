@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import test, { type TestContext } from "node:test";
 import { AgentTimeoutError } from "../atlas-agent/cursor-cli";
@@ -108,8 +108,11 @@ test("Cursor uses ask mode and confines its workspace to the candidate package",
   assert.equal(readFileSync(file + ".md", "utf8").trim(), draft.body.trim());
 });
 
-test("Codex exec is read-only, headless, and receives the prompt over stdin", async (t) => {
-  const { candidate } = fixture(t);
+test("read-only Codex receives all research over stdin and the host writes only draft artifacts", async (t) => {
+  const { candidate, file, otherUrl } = fixture(t);
+  const packageFiles = ["brief.json", "sources.json", "instructions.md"];
+  const read = (name: string) => readFileSync(path.join(candidate.researchDir, name), "utf8");
+  const packageContent = Object.fromEntries(packageFiles.map((name) => [name, read(name)]));
   const executable = codexLaunch("codex.exe");
   assert.deepEqual(executable.args.slice(0, 6), ["--ask-for-approval", "never", "exec", "--sandbox", "read-only", "--ephemeral"]);
   assert.equal(executable.args.at(-1), "-");
@@ -124,12 +127,39 @@ test("Codex exec is read-only, headless, and receives the prompt over stdin", as
       assert.equal(timeout, 1_000);
       assert.equal(env.OPENAI_API_KEY, undefined);
       assert.equal(options.cwd, candidate.researchDir);
-      assert.match(options.stdin!, /Do not run commands that change files/);
-      return { status: 0, stdout: JSON.stringify({ status: "rejected", reason: "Thin evidence" }), stderr: "" };
+      assert.match(options.stdin!, /Do not use tools, access the filesystem or network, or write files/);
+      assert.ok(command.args.every((arg) => !arg.includes(candidate.outputDir)));
+      assert.ok(!command.args.includes("--add-dir"));
+      assert.ok(!options.stdin?.includes(otherUrl));
+      assert.deepEqual(JSON.parse(options.stdin!.split("\n").at(-1)!), packageContent);
+      assert.deepEqual(readdirSync(candidate.outputDir), []);
+      return { status: 0, stdout: JSON.stringify({ ...metadata, markdown: draft.body }), stderr: "" };
     },
     timeoutMs: 1_000,
   });
-  assert.deepEqual(result, { status: "rejected", reason: "Thin evidence" });
+  assert.equal(result.status, "draft");
+  assert.deepEqual(readdirSync(candidate.outputDir).sort(), [candidate.id + ".json", candidate.id + ".md"]);
+  assert.deepEqual(JSON.parse(readFileSync(file + ".json", "utf8")), metadata);
+  assert.equal(readFileSync(file + ".md", "utf8").trim(), draft.body.trim());
+  assert.deepEqual(readdirSync(candidate.researchDir).sort(), packageFiles.slice().sort());
+  assert.deepEqual(Object.fromEntries(packageFiles.map((name) => [name, read(name)])), packageContent);
+});
+
+test("missing or unreadable research produces a structured rejection without invoking Codex", async (t) => {
+  for (const name of ["brief.json", "sources.json", "instructions.md"]) {
+    const { candidate, file } = fixture(t);
+    const input = path.join(candidate.researchDir, name);
+    unlinkSync(input);
+    if (name === "sources.json") mkdirSync(input);
+    const result = await writeArticle({
+      writer: "codex", candidate, lookup: () => "codex.exe",
+      execute: async () => assert.fail("Codex was invoked with an incomplete package"),
+    });
+    if (result.status !== "rejected") assert.fail(JSON.stringify(result));
+    assert.ok(result.reason.includes(name));
+    assert.deepEqual(JSON.parse(readFileSync(file + ".json", "utf8")), result);
+    assert.ok(!existsSync(file + ".md"));
+  }
 });
 
 test("manual mode waits for files and parses a successful draft without executing a CLI", async (t) => {
