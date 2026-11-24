@@ -101,6 +101,8 @@ AI-generated workflow blueprints can contain incorrect API scopes, outdated tool
 
 ## Atlas Weekly writer
 
+On Windows, open the Desktop launcher `Run Atlas Weekly.bat` for a normal weekly run. It changes to the isolated writer checkout and prompts for Codex, Cursor, or no external writer, followed by Normal weekly, Explicit rerun, or Back. It checks PATH for the selected CLI before starting. Normal weekly reuses an already completed edition, and Explicit rerun passes `--rerun` to request a new edition. Back returns to writer selection. The choices apply only to that launcher execution. After the Weekly command returns, the launcher opens the admin project page and pauses so you can read the result.
+
 Run these from the isolated clone in PowerShell. Dry runs use a separate edition key ending in `-dry` (or `-dry-rN` for a rerun). They fetch public research feeds and use local state and QA without contacting Supabase, including for run history. The Cursor and Codex commands each start a fresh dry-run edition.
 
 ```powershell
