@@ -1,6 +1,7 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { StringDecoder } from "node:string_decoder";
 import {
   CLEANUP_DEADLINE_MS,
   destroyStdio,
@@ -76,14 +77,19 @@ export function agentCliExists(): boolean {
   return findOnPath("agent") !== null;
 }
 
-export function cursorAgentLaunch(assignment: string, role: CursorAgentRole): CursorLaunch {
-  const entry = findOnPath("agent");
+export function cursorAgentLaunch(
+  assignment: string,
+  role: CursorAgentRole,
+  workspace = process.cwd(),
+  lookup = findOnPath,
+): CursorLaunch {
+  const entry = lookup("agent");
   if (!entry) {
     throw new Error("Cursor Agent CLI `agent` is not on PATH.");
   }
   const agentArgs =
     role === "builder"
-      ? ["-p", "--force", "--trust", "--output-format", "text", "--workspace", process.cwd(), assignment]
+      ? ["-p", "--force", "--trust", "--output-format", "text", "--workspace", workspace, assignment]
       : [
           "-p",
           "--mode",
@@ -92,7 +98,7 @@ export function cursorAgentLaunch(assignment: string, role: CursorAgentRole): Cu
           "--output-format",
           "text",
           "--workspace",
-          process.cwd(),
+          workspace,
           assignment,
         ];
   if (agentArgs.some((arg) => FORBIDDEN_FLAGS.includes(arg))) {
@@ -146,14 +152,14 @@ export function runCursorAgent(
   launch: CursorLaunch,
   env: NodeJS.ProcessEnv,
   timeoutMs: number,
-  options: { echo?: boolean; role?: CursorAgentRole; io?: Partial<AgentRunIo> } = {},
+  options: { echo?: boolean; role?: CursorAgentRole; io?: Partial<AgentRunIo>; cwd?: string; stdin?: string } = {},
 ): Promise<{ status: number | null; stdout: string; stderr: string }> {
   const echo = options.echo ?? true;
   const role = options.role ?? "builder";
   const io = { ...defaultIo, ...options.io };
   return new Promise((resolve, reject) => {
     const child = io.spawn(launch.command, launch.args, {
-      cwd: process.cwd(),
+      cwd: options.cwd ?? process.cwd(),
       env,
       shell: launch.shell,
       windowsHide: true,
@@ -195,12 +201,19 @@ export function runCursorAgent(
       const wall = io.wallNow() - startedWall;
       if (mono >= timeoutMs || wall >= timeoutMs) expire();
     }, 1000);
+    const decoders = { stdout: new StringDecoder("utf8"), stderr: new StringDecoder("utf8") };
     const push = (target: "stdout" | "stderr", chunk: Buffer) => {
-      const text = chunk.toString();
+      const text = decoders[target].write(chunk);
       if (target === "stdout") stdout = (stdout + text).slice(-200_000);
       else stderr = (stderr + text).slice(-100_000);
       if (echo) process.stdout.write(text);
     };
+    if (options.stdin !== undefined && child.stdin) {
+      child.stdin.on("error", () => {
+        // The process may exit before reading stdin. Its exit status reports failure.
+      });
+      child.stdin.end(options.stdin, "utf8");
+    }
     child.stdout?.on("data", (chunk: Buffer) => push("stdout", chunk));
     child.stderr?.on("data", (chunk: Buffer) => push("stderr", chunk));
     child.on("error", (error) => {
@@ -210,7 +223,7 @@ export function runCursorAgent(
       // Exit without close still completes; timeout path already settled.
     });
     child.on("close", (status) => {
-      settle(() => resolve({ status, stdout, stderr }));
+      settle(() => resolve({ status, stdout: stdout + decoders.stdout.end(), stderr: stderr + decoders.stderr.end() }));
     });
   });
 }
@@ -244,7 +257,7 @@ function formatCommand(command: string, args: string[]): string {
     .join(" ");
 }
 
-function findOnPath(name: string): string | null {
+export function findOnPath(name: string): string | null {
   const finder = process.platform === "win32" ? "where.exe" : "which";
   const result = spawnSync(finder, [name], {
     encoding: "utf8",

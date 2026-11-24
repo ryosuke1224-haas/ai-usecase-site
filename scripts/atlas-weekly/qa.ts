@@ -1,9 +1,8 @@
 import { editorialFailures } from "./editorial";
-import { isAuthoritativePublisher } from "./research-depth";
+import { isAuthoritativePublisher, normalizeClaim, quantitativeClaims } from "./research-depth";
 import type { BlueprintCandidate, BlogDraft, NewsletterDraft, QaDecision, SourceRecord } from "./types";
 
 const STALE_MS = 21 * 24 * 60 * 60 * 1000;
-const CLAIM = /(\d+(?:\.\d+)?\s?(?:%|％|\$|usd|jpy|円))/i;
 
 export function tokens(value: string): Set<string> {
   return new Set(value.toLowerCase().split(/[^a-z0-9\u3040-\u30ff\u4e00-\u9faf]+/).filter((token) => token.length > 3));
@@ -23,8 +22,9 @@ function normalizeText(value: string): string {
 }
 
 function unsupported(body: string, source: string): boolean {
-  const claims = body.match(new RegExp(CLAIM, "gi")) ?? [];
-  return claims.some((claim) => !source.toLowerCase().includes(claim.toLowerCase()));
+  const claims = quantitativeClaims(body);
+  const supported = new Set(quantitativeClaims(source).map(normalizeClaim));
+  return claims.some((claim) => !supported.has(normalizeClaim(claim)));
 }
 
 function storyProblems(source: SourceRecord | undefined, now: Date, seen: Set<string>): string[] {
@@ -151,7 +151,12 @@ export function reviewItems(input: {
       ...(source ? editorialFailures(blog, source, input.sources) : []),
     ];
     if (source && publishers.has(source.publisher.trim().toLowerCase())) reasons.push("publisher concentration");
-    if (source && unsupported(blog.body, source.summary)) reasons.push("unsupported claim");
+    const citedEvidence = blog.sourceUrls.map((url) => byUrl.get(url)?.summary ?? "").join("\n");
+    if (source && unsupported([blog.title, blog.summary, blog.body].join("\n"), citedEvidence)) reasons.push("unsupported claim");
+    if (input.knownTitles.some((title) =>
+      normalizeText(title) === normalizeText(blog.title) || nearDuplicate(title, blog.title))) {
+      reasons.push("near-duplicate article");
+    }
     for (const slug of blog.relatedBlueprints) {
       if (!input.knownSlugs.includes(slug)) reasons.push(`unknown blueprint ${slug}`);
     }

@@ -1,5 +1,13 @@
 import type { SourceRecord } from "./types";
 
+export function normalizeClaim(claim: string): string {
+  return claim.normalize("NFKC").toLowerCase().replace(/[\s,]/g, "");
+}
+
+export function quantitativeClaims(text: string): string[] {
+  return text.match(/(?:[$¥]\s*\d+(?:[.,]\d+)*|\d+(?:[.,]\d+)*\s?(?:%|％|\$|usd|jpy|円))/gi) ?? [];
+}
+
 const LOW_VALUE = [
   /ai gateway/i,
   /now available/i,

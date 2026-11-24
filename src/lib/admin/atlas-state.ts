@@ -27,6 +27,7 @@ export type CandidateState = {
 const RUNNING = new Set([
   "RESEARCH",
   "SELECT",
+  "RESEARCH_PACKAGE",
   "BLOG_DRAFT",
   "NEWSLETTER_DRAFT",
   "BLUEPRINT_CANDIDATES",
