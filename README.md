@@ -99,6 +99,31 @@ AI-generated workflow blueprints can contain incorrect API scopes, outdated tool
 | `npm run generate:suggestion` | Placeholder — writes example draft to `content/suggestions/` |
 | `npm run research:sources` | Placeholder — lists registered research sources |
 
+## Atlas Weekly writer
+
+On Windows, open the Desktop launcher `Run Atlas Weekly.bat` for a normal weekly run. It changes to the isolated writer checkout and prompts for Codex, Cursor, or no external writer, followed by Normal weekly, Explicit rerun, or Back. It checks PATH for the selected CLI before starting. Normal weekly reuses an already completed edition, and Explicit rerun passes `--rerun` to request a new edition. Back returns to writer selection. The choices apply only to that launcher execution. After the Weekly command returns, the launcher opens the admin project page and pauses so you can read the result.
+
+Run these from the isolated clone in PowerShell. Dry runs use a separate edition key ending in `-dry` (or `-dry-rN` for a rerun). They fetch public research feeds and use local state and QA without contacting Supabase, including for run history. The Cursor and Codex commands each start a fresh dry-run edition.
+
+```powershell
+$env:ATLAS_WRITER = 'none'
+npm.cmd run atlas:weekly -- --dry-run
+
+$env:ATLAS_WRITER = 'cursor'
+npm.cmd run atlas:weekly -- --dry-run --rerun
+
+$env:ATLAS_WRITER = 'codex'
+npm.cmd run atlas:weekly -- --dry-run --rerun
+```
+
+`none` is the default. It saves research packages and pauses until each candidate has a manual draft or rejection. Write `<id>.md` and `<id>.json` in the edition's `drafts/` directory using the contract in the package's `instructions.md`. Repeat the first command to validate those files. Use `--edition <edition>` with `--dry-run` to resume a specific dry-run edition. Set `ATLAS_WRITER` to the writer you intend to use for any missing drafts. Existing artifacts are reused.
+
+Each package lives at `atlas-memory/weekly/<edition>/research/<id>/`. It contains a research brief, primary and directly relevant supporting evidence, and instructions. Feed and documentation excerpts are attributed to their publishers. Dates and quantitative claims are tied to the supplied evidence.
+
+Cursor requires an authenticated `agent` CLI on PATH. Codex requires a recent `codex` CLI on PATH with a local ChatGPT login. Both run in a read-only mode from the candidate directory with a five-minute timeout. Atlas Weekly reads the three research files and sends their contents to Codex over stdin so its sandbox does not need filesystem tools. The adapter captures each writer’s response and writes the validated Markdown and metadata into `drafts/`. Writer failure stops the edition without switching providers. A writer rejection stays local as a failed QA decision.
+
+Outside dry run, only QA-passing items can be inserted as `READY_FOR_REVIEW`. Existing queue sources and titles, including rejected ones, are checked for duplicates. Approval and publishing are separate human actions in the admin console.
+
 ## Deploy on Vercel
 
 Standard Next.js deployment. Ensure `npm run build` (which runs validation) passes in CI.

@@ -51,6 +51,12 @@ function workflowFor(source: SourceRecord) {
   return WORKFLOW.find((item) => item.pattern.test(text)) ?? null;
 }
 
+export function relatedBlueprints(source: SourceRecord, products: readonly KnownProduct[]): string[] {
+  const tip = source.evergreen ? tipByUrl(source.canonicalUrl) : undefined;
+  const slug = tip ? tip.workflow : workflowFor(source)?.slug;
+  return slug && products.some((product) => product.slug === slug) ? [slug] : [];
+}
+
 export function blogDraft(
   source: SourceRecord,
   weekKey: string,
@@ -59,7 +65,6 @@ export function blogDraft(
 ): BlogDraft {
   const tip = source.evergreen ? tipByUrl(source.canonicalUrl) : undefined;
   if (tip) {
-    const related = tip.workflow && products.some((product) => product.slug === tip.workflow) ? tip.workflow : null;
     return {
       slug: sourceSlug(weekKey, source.canonicalUrl),
       title: tip.title,
@@ -67,7 +72,7 @@ export function blogDraft(
       body: tip.body,
       sourceUrls: [...tip.sourceUrls],
       category: tip.category,
-      relatedBlueprints: related ? [related] : [],
+      relatedBlueprints: relatedBlueprints(source, products),
       seoTitle: clip(tip.title, 60),
       seoDescription: clip(tip.summary, 140),
       status: "READY_FOR_REVIEW",
@@ -75,8 +80,6 @@ export function blogDraft(
     };
   }
   const article = editorialArticle(source, supportingSources(source, research));
-  const workflow = workflowFor(source);
-  const related = workflow && products.some((product) => product.slug === workflow.slug) ? workflow.slug : null;
   return {
     slug: sourceSlug(weekKey, source.canonicalUrl),
     title: article.title,
@@ -84,7 +87,7 @@ export function blogDraft(
     body: article.body,
     sourceUrls: article.sourceUrls,
     category: article.category,
-    relatedBlueprints: related ? [related] : [],
+    relatedBlueprints: relatedBlueprints(source, products),
     seoTitle: clip(article.title, 60),
     seoDescription: clip(article.summary, 140),
     status: "READY_FOR_REVIEW",

@@ -29,6 +29,24 @@ function source(patch: Partial<SourceRecord> = {}): SourceRecord {
   };
 }
 
+test("research questions follow the primary capability rather than incidental feed text", () => {
+  const search = source({
+    title: "A more tailored Google Search",
+    summary: '<img src="pContext_Drive.webp"> Personal Intelligence can use opted-in information from Drive.',
+  });
+  const bedrock = source({
+    title: "Amazon Bedrock Trusted Access API",
+    summary: "The API provides a way to discover, request, and enroll in provider programs.",
+  });
+  const caching = source({
+    title: "Prompt caching documentation",
+    summary: "OpenAI explains how to check reused prompt prefixes.",
+  });
+  assert.match(researchQuestionFor(search), /検索.*連携.*原資料/);
+  assert.match(researchQuestionFor(bedrock), /申請.*誰が何を確認/);
+  assert.match(researchQuestionFor(caching), /前置き.*案件別.*再利用/);
+});
+
 test("weakly related second source is rejected", () => {
   const primary = source({
     publisher: "Google",

@@ -30,7 +30,7 @@ export function readWeeklyState(root: string, weekKey: string): WeeklyState | nu
   }
 }
 
-export function writeWeeklyState(root: string, state: WeeklyState): void {
+export function writeWeeklyState(root: string, state: WeeklyState, dryRun = false): void {
   const dir = weeklyDir(root);
   mkdirSync(dir, { recursive: true });
   writeFileSync(statePath(root, state.weekKey), `${JSON.stringify(state)}\n`);
@@ -40,7 +40,7 @@ export function writeWeeklyState(root: string, state: WeeklyState): void {
     run_id: state.runId,
     phase: state.status === "succeeded" && state.stage === "DONE" ? "FINISHED" : state.stage,
     status: state.status === "failed" ? "FAILED" : state.status === "succeeded" ? "SUCCEEDED" : state.stage,
-    mode: "full",
+    mode: dryRun ? "dry-run" : "full",
     updated_at: state.updatedAt,
     started_at: state.startedAt,
     finished_at: state.finishedAt,

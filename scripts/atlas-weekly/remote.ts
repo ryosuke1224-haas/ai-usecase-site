@@ -93,37 +93,33 @@ export async function rememberRun(state: WeeklyState): Promise<void> {
   if (error) throw new Error("Weekly run history was not saved.");
 }
 
-export async function knownQueueKeys(options?: {
-  /** When true, REJECTED rows do not block a fresh edition from reusing sources. */
-  ignoreRejected?: boolean;
-}): Promise<{ urls: string[]; titles: string[] }> {
+type QueueKey = { title: unknown; source_urls?: unknown };
+
+async function queueKeys(
+  page: (from: number, to: number) => PromiseLike<{ data: QueueKey[] | null; error: unknown }>,
+): Promise<QueueKey[]> {
+  const rows: QueueKey[] = [];
+  const pageSize = 200;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await page(from, from + pageSize - 1);
+    if (error || !data) throw new Error("Could not check existing Review Queue items.");
+    rows.push(...data);
+    if (data.length < pageSize) return rows;
+  }
+}
+
+export async function knownQueueKeys(): Promise<{ urls: string[]; titles: string[] }> {
   const supabase = client();
   if (!supabase) return { urls: [], titles: [] };
-  const ignoreRejected = options?.ignoreRejected === true;
+  // Include every status, including REJECTED, in duplicate checks for all editions.
   const [articles, issues, reviews] = await Promise.all([
-    supabase.from("articles").select("source_urls, title, status").limit(500),
-    supabase.from("newsletter_issues").select("title, review_note, status").limit(200),
-    supabase.from("review_items").select("title, status").eq("item_type", "BLUEPRINT").limit(200),
+    queueKeys((from, to) => supabase.from("articles").select("source_urls, title").order("id").range(from, to)),
+    queueKeys((from, to) => supabase.from("newsletter_issues").select("title").order("id").range(from, to)),
+    queueKeys((from, to) => supabase.from("review_items").select("title").eq("item_type", "BLUEPRINT").order("id").range(from, to)),
   ]);
-  const urls: string[] = [];
-  const titles: string[] = [];
-  for (const row of articles.data ?? []) {
-    const record = row as { source_urls?: unknown; title?: unknown; status?: unknown };
-    if (ignoreRejected && record.status === "REJECTED") continue;
-    if (Array.isArray(record.source_urls)) {
-      for (const url of record.source_urls) if (typeof url === "string") urls.push(url);
-    }
-    if (typeof record.title === "string") titles.push(record.title);
-  }
-  for (const row of issues.data ?? []) {
-    const record = row as { title?: unknown; status?: unknown };
-    if (ignoreRejected && record.status === "REJECTED") continue;
-    if (typeof record.title === "string") titles.push(record.title);
-  }
-  for (const row of reviews.data ?? []) {
-    const record = row as { title?: unknown; status?: unknown };
-    if (ignoreRejected && record.status === "REJECTED") continue;
-    if (typeof record.title === "string") titles.push(record.title);
-  }
-  return { urls, titles };
+  return {
+    urls: articles.flatMap(({ source_urls }) =>
+      Array.isArray(source_urls) ? source_urls.filter((url): url is string => typeof url === "string") : []),
+    titles: [...articles, ...issues, ...reviews].flatMap(({ title }) => typeof title === "string" ? [title] : []),
+  };
 }

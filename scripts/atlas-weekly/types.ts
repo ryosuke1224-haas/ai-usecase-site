@@ -1,6 +1,7 @@
 export const WEEKLY_STAGES = [
   "RESEARCH",
   "SELECT",
+  "RESEARCH_PACKAGE",
   "BLOG_DRAFT",
   "NEWSLETTER_DRAFT",
   "BLUEPRINT_CANDIDATES",
@@ -91,6 +92,9 @@ export type WeeklyCounts = {
 };
 
 export type WeeklyState = {
+  writerVersion?: 1;
+  pendingDrafts?: string[];
+  writerRejections?: QaDecision[];
   runId: string;
   weekKey: string;
   stage: WeeklyStage | "DONE";

@@ -1,9 +1,13 @@
-import { blueprintCandidates, blogDraft, newsletterDraft, type KnownProduct } from "./drafts";
+import { blueprintCandidates, newsletterDraft, type KnownProduct } from "./drafts";
 import { reviewItems } from "./qa";
 import { selectEdition } from "./research";
+import { researchPackage, saveResearchPackage } from "./research-package";
+import { writeArticle, type Writer } from "./writer";
 import {
   WEEKLY_STAGES,
   emptyCounts,
+  type BlogDraft,
+  type QaDecision,
   type QueueInsert,
   type QueueWrite,
   type WeeklyStage,
@@ -13,6 +17,9 @@ import {
 export type { KnownProduct };
 
 export type WeeklyDeps = {
+  root: string;
+  writer?: Writer;
+  writeArticle?: typeof writeArticle;
   now: Date;
   products: readonly KnownProduct[];
   knownUrls: readonly string[];
@@ -34,6 +41,7 @@ export function weekKey(date: Date): string {
 export function createRun(now: Date, runId: string, weekKeyOverride?: string): WeeklyState {
   const stamp = now.toISOString();
   return {
+    writerVersion: 1,
     runId,
     weekKey: weekKeyOverride ?? weekKey(now),
     stage: "RESEARCH",
@@ -142,9 +150,36 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
         counts: { ...active.counts, selected: selected.length },
       });
     }
-    if (stage === "BLOG_DRAFT") {
-      const blogs = active.selected.map((source) => blogDraft(source, active.weekKey, deps.products, active.research));
+    if (stage === "RESEARCH_PACKAGE" || stage === "BLOG_DRAFT") {
+      const packages = active.selected.map((primary) => researchPackage({
+        root: deps.root,
+        edition: active.weekKey,
+        primary,
+        research: active.research,
+        products: deps.products,
+      }));
+      if (stage === "RESEARCH_PACKAGE") {
+        for (const pkg of packages) saveResearchPackage(pkg);
+        return finishStage(active, stage, now, {});
+      }
+
+      const blogs: BlogDraft[] = [];
+      const pendingDrafts: string[] = [];
+      const writerRejections: QaDecision[] = [];
+      const write = deps.writeArticle ?? writeArticle;
+      for (const { candidate } of packages) {
+        const outcome = await write({ writer: deps.writer ?? "none", candidate });
+        if (outcome.status === "failed") return fail(active, now, `${candidate.id}: ${outcome.reason}`);
+        if (outcome.status === "pending") pendingDrafts.push(candidate.id);
+        if (outcome.status === "draft") blogs.push(outcome.draft);
+        if (outcome.status === "rejected") {
+          writerRejections.push({ kind: "blog", slug: candidate.id, pass: false, reasons: [outcome.reason] });
+        }
+      }
+      if (pendingDrafts.length > 0) return { ...active, pendingDrafts, updatedAt: now.toISOString() };
       return finishStage(active, stage, now, {
+        pendingDrafts,
+        writerRejections,
         blogs,
         counts: { ...active.counts, blogs: blogs.length },
       });
@@ -179,7 +214,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       );
       const newsletter = newsletterDraft(active.weekKey, passingBlogs);
       const passingUrls = new Set(passingBlogs.map((blog) => blog.canonicalUrl));
-      const qa = [...qaWithoutLetter];
+      const qa = [...(active.writerRejections ?? []), ...qaWithoutLetter];
       if (newsletter) {
         const reasons: string[] = [];
         if (newsletter.sourceUrls.length === 0) reasons.push("newsletter has no sources");
@@ -198,15 +233,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       });
     }
     const plan = queuePlan(active);
-    if (deps.dryRun) {
-      return {
-        ...active,
-        stage: "REVIEW_QUEUE",
-        status: "succeeded",
-        finishedAt: null,
-        updatedAt: now.toISOString(),
-      };
-    }
+    if (deps.dryRun) return finishStage(active, "REVIEW_QUEUE", now, {});
     if (!deps.queue) return fail(active, now, "Review Queue storage is not configured.");
     const queued = [...active.queued];
     let inserted = 0;
@@ -243,8 +270,8 @@ export async function runUntilSettled(state: WeeklyState, deps: WeeklyDeps): Pro
     if (current.status === "succeeded" && current.stage === "DONE") return current;
     if (current.status !== "running") current = { ...current, status: "running" };
     current = await advance(current, deps);
-    if (current.status === "failed") return current;
-    if (current.status === "succeeded" && (current.stage === "DONE" || deps.dryRun)) return current;
+    if (current.status === "failed" || current.pendingDrafts?.length) return current;
+    if (current.status === "succeeded" && current.stage === "DONE") return current;
   }
   return current;
 }

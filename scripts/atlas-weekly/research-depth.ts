@@ -1,5 +1,13 @@
 import type { SourceRecord } from "./types";
 
+export function normalizeClaim(claim: string): string {
+  return claim.normalize("NFKC").toLowerCase().replace(/[\s,]/g, "");
+}
+
+export function quantitativeClaims(text: string): string[] {
+  return text.match(/(?:[$¥]\s*\d+(?:[.,]\d+)*|\d+(?:[.,]\d+)*\s?(?:%|％|\$|usd|jpy|円))/gi) ?? [];
+}
+
 const LOW_VALUE = [
   /ai gateway/i,
   /now available/i,
@@ -54,7 +62,16 @@ export function isAuthoritativePublisher(publisher: string): boolean {
 }
 
 export function researchQuestionFor(source: SourceRecord): string {
-  const text = `${source.title} ${source.summary}`.toLowerCase();
+  const text = `${source.title} ${source.summary}`.replace(/<[^>]*>/g, " ").toLowerCase();
+  if (/personal intelligence|personalized search|tailored google search/.test(text)) {
+    return "検索が個人のアプリ情報を参照できると、どの検索で連携を許し、どの回答を原資料で確認すべきか";
+  }
+  if (/trusted access api|enterprise frontier safeguards/.test(text)) {
+    return "モデル提供元のデータ管理プログラムに申請する前に、誰が何を確認し、どの業務で試すべきか";
+  }
+  if (/prompt cach|repeated prompt prefix|stable prefix reuse/.test(text)) {
+    return "同じ指示を繰り返す業務で、共通の前置きと案件別の入力をどう分け、再利用の効果をどう確認するか";
+  }
   if (/tasks?|spark|agent|long-running|workflow|computer use|multi-?step/.test(text)) {
     return "チャット回答から複数ステップの仕事実行へ移るとき、どこまで任せてどこで人が止めるべきか";
   }

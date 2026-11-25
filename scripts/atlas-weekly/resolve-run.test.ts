@@ -1,15 +1,22 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import test from "node:test";
+import test, { type TestContext } from "node:test";
 import { createRun, nextRerunWeekKey, weekKey } from "./pipeline";
 import { resolveWeeklyRun } from "./resolve-run";
 
+function testRoot(t: TestContext): string {
+  const parent = path.resolve("test-results");
+  mkdirSync(parent, { recursive: true });
+  const root = mkdtempSync(path.join(parent, "weekly-resolve-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  return root;
+}
+
 const NOW = new Date("2026-11-17T12:00:00.000Z");
 
-test("a completed week is reused without --rerun", () => {
-  const root = mkdtempSync(path.join(tmpdir(), "atlas-weekly-"));
+test("a completed week is reused without --rerun", (t) => {
+  const root = testRoot(t);
   const dir = path.join(root, "atlas-memory", "weekly");
   mkdirSync(dir, { recursive: true });
   const base = weekKey(NOW);
@@ -27,8 +34,8 @@ test("a completed week is reused without --rerun", () => {
   assert.equal(resolved.state.stage, "DONE");
 });
 
-test("explicit --rerun starts a fresh edition without overwriting the original week key", () => {
-  const root = mkdtempSync(path.join(tmpdir(), "atlas-weekly-"));
+test("explicit --rerun starts a fresh edition without overwriting the original week key", (t) => {
+  const root = testRoot(t);
   const dir = path.join(root, "atlas-memory", "weekly");
   mkdirSync(dir, { recursive: true });
   const base = weekKey(NOW);
@@ -51,8 +58,21 @@ test("explicit --rerun starts a fresh edition without overwriting the original w
   assert.deepEqual(resolved.state.completed, []);
 });
 
-test("default execution still resumes an unfinished week", () => {
-  const root = mkdtempSync(path.join(tmpdir(), "atlas-weekly-"));
+test("an explicit dry-run rerun can be resumed without selecting a live edition", (t) => {
+  const root = testRoot(t);
+  const options = { root, now: NOW, dryRun: true, rerun: false };
+  const { state } = resolveWeeklyRun({ ...options, rerun: true });
+  const dir = path.join(root, "atlas-memory", "weekly");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(path.join(dir, `${state.weekKey}.json`), JSON.stringify(state));
+
+  assert.match(state.weekKey, /-dry-r2$/);
+  assert.equal(resolveWeeklyRun({ ...options, edition: state.weekKey }).state.runId, state.runId);
+  assert.throws(() => resolveWeeklyRun({ ...options, edition: state.weekKey, dryRun: false }), /current mode/);
+});
+
+test("default execution still resumes an unfinished week", (t) => {
+  const root = testRoot(t);
   const dir = path.join(root, "atlas-memory", "weekly");
   mkdirSync(dir, { recursive: true });
   const base = weekKey(NOW);

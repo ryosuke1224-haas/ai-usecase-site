@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import test from "node:test";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import path from "node:path";
+import test, { type TestContext } from "node:test";
+import { blogDraft } from "./drafts";
 import { reviewItems } from "./qa";
 import { advance, createRun, queuePlan, runUntilSettled } from "./pipeline";
 import { canonicalUrl, dedupeSources, selectTopics } from "./research";
-import type { BlogDraft, QueueInsert, SourceRecord, WeeklyState } from "./types";
+import type { BlogDraft, QueueInsert, SourceRecord } from "./types";
 
 const NOW = new Date("2026-11-16T00:00:00.000Z");
 const PRODUCTS = [{ slug: "ai-customer-response-assistant", name: "On-brand Reply Review Queue" }];
@@ -25,10 +27,16 @@ function source(patch: Partial<SourceRecord> = {}): SourceRecord {
   };
 }
 
-function deps(fetchSources: () => Promise<SourceRecord[]>, inserts: QueueInsert[] = []) {
+function deps(root: string, fetchSources: () => Promise<SourceRecord[]>, inserts: QueueInsert[] = []) {
   return {
+    root,
     now: NOW,
     products: PRODUCTS,
+    writeArticle: async ({ candidate }: Parameters<typeof import("./writer").writeArticle>[0]) => {
+      const draft = blogDraft(source(), "2026-W47", PRODUCTS);
+      if (candidate.id !== draft.slug) return { status: "rejected" as const, reason: "Fixture has no draft for this topic." };
+      return { status: "draft" as const, draft };
+    },
     knownUrls: [] as string[],
     knownTitles: [] as string[],
     fetchSources,
@@ -39,6 +47,14 @@ function deps(fetchSources: () => Promise<SourceRecord[]>, inserts: QueueInsert[
       },
     },
   };
+}
+
+function testRoot(t: TestContext): string {
+  const parent = path.resolve("test-results");
+  mkdirSync(parent, { recursive: true });
+  const root = mkdtempSync(path.join(parent, "weekly-pipeline-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  return root;
 }
 
 test("duplicate sources collapse to one topic", () => {
@@ -108,7 +124,8 @@ test("QA drops stale, duplicate, unsupported, and unknown blueprint links", () =
   assert.match(duplicate[0]?.reasons.join(" ") ?? "", /duplicate source/);
 });
 
-test("only QA pass items are inserted, and a second pass does not duplicate them", async () => {
+test("only QA pass items are inserted, and a second pass does not duplicate them", async (t) => {
+  const root = testRoot(t);
   const inserts: QueueInsert[] = [];
   const seen = new Set<string>();
   let state = createRun(NOW, "weekly-test");
@@ -122,7 +139,7 @@ test("only QA pass items are inserted, and a second pass does not duplicate them
       return "inserted" as const;
     },
   };
-  state = await runUntilSettled(state, { ...deps(async () => [source()]), queue });
+  state = await runUntilSettled(state, { ...deps(root, async () => [source()]), queue });
   assert.equal(state.status, "succeeded");
   assert.equal(state.stage, "DONE");
   assert.equal(inserts.length > 0, true);
@@ -130,19 +147,20 @@ test("only QA pass items are inserted, and a second pass does not duplicate them
   assert.equal(inserts.some((item) => item.kind === "newsletter"), true);
   assert.equal(queuePlan(state).every((item) => state.qa.some((decision) => decision.pass && decision.slug === item.draft.slug)), true);
   const queued = inserts.length;
-  const again = await runUntilSettled(state, { ...deps(async () => [source()]), queue });
+  const again = await runUntilSettled(state, { ...deps(root, async () => [source()]), queue });
   assert.equal(again.status, "succeeded");
   assert.equal(inserts.length, queued);
 
   again.stage = "REVIEW_QUEUE";
   again.status = "running";
   again.completed = again.completed.filter((stage) => stage !== "REVIEW_QUEUE");
-  const resumed = await advance(again, { ...deps(async () => [source()]), queue });
+  const resumed = await advance(again, { ...deps(root, async () => [source()]), queue });
   assert.equal(inserts.length, queued);
   assert.equal(resumed.counts.duplicates > 0, true);
 });
 
-test("a failed research stage resumes without repeating a finished fetch", async () => {
+test("a failed research stage resumes without repeating a finished fetch", async (t) => {
+  const root = testRoot(t);
   let calls = 0;
   const fetchSources = async () => {
     calls += 1;
@@ -150,10 +168,10 @@ test("a failed research stage resumes without repeating a finished fetch", async
     return [source()];
   };
   const inserts: QueueInsert[] = [];
-  let state = await advance(createRun(NOW, "weekly-resume"), deps(fetchSources, inserts));
+  let state = await advance(createRun(NOW, "weekly-resume"), deps(root, fetchSources, inserts));
   assert.equal(state.status, "failed");
   assert.equal(state.stage, "RESEARCH");
-  state = await runUntilSettled(state, deps(fetchSources, inserts));
+  state = await runUntilSettled(state, deps(root, fetchSources, inserts));
   assert.equal(calls, 2);
   assert.equal(state.stage, "DONE");
   assert.equal(state.completed.includes("RESEARCH"), true);
@@ -162,7 +180,7 @@ test("a failed research stage resumes without repeating a finished fetch", async
 
 test("weekly command does not publish, send, deploy, or create Stripe objects", () => {
   const files = ["index.ts", "pipeline.ts", "remote.ts", "drafts.ts", "qa.ts", "resolve-run.ts"].map((file) => readFileSync(`scripts/atlas-weekly/${file}`, "utf8")).join("\n");
-  assert.doesNotMatch(files, /checkout\.sessions\.create|stripe\.products|vercel deploy|git push|published_at:\s*now|status:\s*"PUBLISHED"|status:\s*"SENT"/);
+  assert.doesNotMatch(files, /checkout\.sessions\.create|stripe\.products|vercel deploy|git push|published_at:\s*now|status:\s*"APPROVED"|status:\s*"PUBLISHED"|status:\s*"SENT"/);
   assert.match(files, /READY_FOR_REVIEW/);
   assert.match(readFileSync("scripts/atlas-weekly/index.ts", "utf8"), /--rerun/);
   assert.match(readFileSync("scripts/atlas-weekly/index.ts", "utf8"), /Completed week reused/);
