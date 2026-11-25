@@ -155,6 +155,28 @@ test("read-only Codex receives all research over stdin and the host writes only 
   assert.deepEqual(Object.fromEntries(packageFiles.map((name) => [name, read(name)])), packageContent);
 });
 
+test("nonzero writer exits preserve child output locally without adding it to run history or drafts", async (t) => {
+  const { candidate } = fixture(t);
+  const child = { status: 1, stdout: "Partial response", stderr: "Error: child startup failed" };
+  const run = () => writeArticle({
+    writer: "codex", candidate, lookup: () => "codex.exe", execute: async () => child,
+  });
+  const results = await Promise.all([run(), run()]);
+  const diagnostics = path.join(path.dirname(candidate.outputDir), "writer-errors");
+  const logs = readdirSync(diagnostics);
+  assert.equal(logs.length, 2);
+  for (const result of results) {
+    if (result.status !== "failed") assert.fail(JSON.stringify(result));
+    assert.match(result.reason, /codex CLI failed \(exit 1\)/);
+    assert.ok(!result.reason.includes(child.stdout) && !result.reason.includes(child.stderr));
+  }
+  for (const log of logs) {
+    assert.ok(results.some((result) => result.status === "failed" && result.reason.endsWith(log + ".")));
+    assert.deepEqual(JSON.parse(readFileSync(path.join(diagnostics, log), "utf8")), { writer: "codex", ...child });
+  }
+  assert.deepEqual(readdirSync(candidate.outputDir), []);
+});
+
 test("missing or unreadable research produces a structured rejection without invoking Codex", async (t) => {
   for (const name of ["brief.json", "sources.json", "instructions.md"]) {
     const { candidate, file } = fixture(t);

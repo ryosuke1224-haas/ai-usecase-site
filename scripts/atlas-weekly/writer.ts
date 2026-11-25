@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import {
   AgentTimeoutError,
@@ -196,7 +197,22 @@ The caller writes the final artifacts into the designated drafts directory.
       stdin,
     });
     if (result.status !== 0) {
-      return { status: "failed", reason: `${writer} CLI failed (exit ${result.status ?? "signal"}).` };
+      const reason = `${writer} CLI failed (exit ${result.status ?? "signal"}).`;
+      // Keep raw child output in the ignored edition directory, outside draft and run-history records.
+      const diagnostics = path.join(path.dirname(candidate.outputDir), "writer-errors");
+      const filename = `${candidate.id}-${randomUUID()}.json`;
+      try {
+        fs.mkdirSync(diagnostics, { recursive: true });
+        fs.writeFileSync(path.join(diagnostics, filename), JSON.stringify({
+          writer,
+          status: result.status,
+          stdout: result.stdout,
+          stderr: result.stderr,
+        }, null, 2) + "\n", { flag: "wx", mode: 0o600 });
+      } catch {
+        return { status: "failed", reason: `${reason} Local writer diagnostics could not be saved.` };
+      }
+      return { status: "failed", reason: `${reason} See local writer-errors/${filename}.` };
     }
     const response = result.stdout.trim();
     const json = /^\x60\x60\x60json\s*\n([\s\S]+)\n\x60\x60\x60$/i.exec(response)?.[1] ?? response;
