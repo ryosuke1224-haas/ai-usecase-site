@@ -11,7 +11,7 @@ import { researchPackage, saveResearchPackage } from "./research-package";
 import { resolveWeeklyRun } from "./resolve-run";
 import { reviewItems } from "./qa";
 import type { SourceRecord } from "./types";
-import { codexLaunch, selectWriter, writeArticle } from "./writer";
+import { codexLaunch, planEditorialTopics, selectWriter, writeArticle } from "./writer";
 
 const now = new Date("2026-11-16T00:00:00Z");
 const primary: SourceRecord = {
@@ -94,7 +94,7 @@ test("research artifacts contain relevant evidence, dates, claims, and known blu
   assert.match(read("instructions.md"), /Japanese editorial/);
   assert.doesNotMatch(read("instructions.md"), /仕事でどう使える|Atlasの見方|明日試すなら/);
   assert.equal(brief.editorial.articleType, "news");
-  assert.match(brief.editorial.centralQuestion, /What changed/);
+  assert.ok(brief.editorial.centralQuestion.length > 12);
   assert.ok(brief.editorial.limitations.length);
 });
 
@@ -276,12 +276,12 @@ test("live research requires an actual page match and never fetches unapproved d
   const excerpt = "OpenAI described an agent update that helps support teams review replies before anything is sent to a customer.";
   const visited: string[] = [];
   const report = await researchTopic({
-    primary, question: "Can support teams triage and review replies?", gap: "official product support",
+    primary: { ...primary, editorialPlan: { question: "Can small teams use change tracking?", readerValue: "Readers can compare simple change tracking techniques.", queries: ["audit logs official documentation", "small team version history"] } },
     writer: "codex", cwd: process.cwd(),
     search: async (_cwd, prompt) => {
       assert.match(prompt, /official documentation/);
       return [
-        { url: "https://openai.com/support-agent-docs", excerpt },
+        { url: "https://learn.microsoft.com/version-history-docs", excerpt, relevance: "Provides a documented approach to change tracking." },
         { url: "https://openai.com/unverified", excerpt },
         { url: "https://example.net/unsafe", excerpt },
       ];
@@ -290,34 +290,42 @@ test("live research requires an actual page match and never fetches unapproved d
       visited.push(String(url));
       assert.equal(options?.redirect, "error");
       const body = String(url).endsWith("docs") ? excerpt : "Different content.";
-      return new Response(`<title>OpenAI support agent documentation</title><p>${body}</p>`, { headers: { "content-type": "text/html" } });
+      return new Response(`<title>Microsoft version history</title><p>${body}</p>`, { headers: { "content-type": "text/html" } });
     },
   });
   assert.equal(report.queries.length, 2);
-  assert.deepEqual(visited, ["https://openai.com/support-agent-docs", "https://openai.com/unverified"]);
+  assert.deepEqual(visited, ["https://learn.microsoft.com/version-history-docs", "https://openai.com/unverified"]);
   assert.deepEqual(report.sources.map(({ summary, evidenceRole }) => [summary, evidenceRole]), [[excerpt, "primary"]]);
   assert.ok(report.limitations.length);
 });
 
-test("editorial depth requires distinct passages and verified additional citations", async (t) => {
+test("editorial planning can select an evergreen question without fixed slots", async () => {
+  const note = { ...primary, canonicalUrl: "atlas-note:private-filename.md", internal: true, evergreen: true };
+  const proposal = { seed: 1, articleType: "enterprise-strategy", question: "How can a small company preserve validated analysis?",
+    readerValue: "An operating model for reusing verified evidence.", queries: ["public research query"] };
+  const planned = await planEditorialTopics("codex", process.cwd(), [primary, note], async (_writer, _cwd, prompt) => {
+    assert.match(prompt, /Use AI\. Build with AI\. Transform with AI\./);
+    assert.doesNotMatch(prompt, /private-filename/);
+    return [proposal, proposal, { ...proposal, seed: 100 }];
+  });
+  assert.equal(planned.length, 1);
+  assert.equal(planned[0].canonicalUrl, note.canonicalUrl);
+  assert.equal(planned[0].editorialType, "enterprise-strategy");
+  assert.deepEqual(planned[0].editorialPlan, { question: proposal.question, readerValue: proposal.readerValue, queries: [] });
+});
+
+test("a planned article can cite verified evidence without citing the seed or filling a template", async (t) => {
   const { candidate } = fixture(t);
   const url = "https://openai.com/fetched-support";
-  const paragraphs = freeformNews.split("\n\n");
-  const markdown = `${freeformNews}\n\n[補足資料](${url})`;
-  const output = { ...metadata, markdown, sourceUrls: [primary.canonicalUrl, url],
-    depthEvidence: { industryContext: paragraphs[0], limitations: paragraphs[2] } };
-  const run = (patch: Partial<typeof output>) => writeArticle({
+  const markdown = freeformNews.replace(primary.canonicalUrl, url);
+  const run = (sourceUrls: string[]) => writeArticle({
     writer: "codex",
-    candidate: { ...candidate, sourceUrls: [...candidate.sourceUrls, url], supplementalUrls: [url],
-      requiredSupplement: true, depthRequirements: ["industryContext", "limitations"] },
+    candidate: { ...candidate, sourceUrls: [...candidate.sourceUrls, url], verifiedEvidenceUrls: [url] },
     lookup: () => "codex.exe",
-    execute: async () => ({ status: 0, stderr: "", stdout: JSON.stringify({ ...output, ...patch }) }),
+    execute: async () => ({ status: 0, stderr: "", stdout: JSON.stringify({ ...metadata, markdown, sourceUrls }) }),
   });
-  assert.deepEqual(await run({ depthEvidence: { industryContext: paragraphs[0], limitations: paragraphs[0] } }),
-    { status: "rejected", reason: "Draft did not demonstrate the required topic-specific depth." });
-  const missingCitation = await run({ sourceUrls: [primary.canonicalUrl] });
-  assert.deepEqual(missingCitation, { status: "rejected", reason: "Draft did not cite any verified additional research." });
-  assert.equal((await run({})).status, "draft");
+  assert.equal((await run([primary.canonicalUrl])).status, "failed");
+  assert.equal((await run([url])).status, "draft");
 });
 
 test("nonzero writer exits preserve child output locally without adding it to run history or drafts", async (t) => {

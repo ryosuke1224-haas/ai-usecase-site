@@ -107,12 +107,17 @@ export function blogTopicStrength(blog: BlogDraft, source?: SourceRecord): numbe
 
 function typedEditorialFailures(blog: BlogDraft, source: SourceRecord, research: readonly SourceRecord[]): string[] {
   const text = [blog.title, blog.summary, blog.body, blog.editorialTakeaway ?? ""].join("\n");
-  const support = source.internal ? [] : supportingSourcesRelevant(source, research);
+  const support = source.internal ? [] : source.editorialPlan
+    ? research.filter((item) => item.supplementFor === source.canonicalUrl)
+    : supportingSourcesRelevant(source, research);
   const allowed = new Set([source.canonicalUrl, ...support.map((item) => item.canonicalUrl),
     ...(tipByUrl(source.canonicalUrl)?.sourceUrls ?? [])]);
   const links = [...blog.body.matchAll(/\]\((https:\/\/[^\s)]+)\)/g)].map((match) => match[1]);
   const reasons: string[] = [];
-  if ((!source.internal && !blog.sourceUrls.includes(source.canonicalUrl)) || blog.sourceUrls.some((url) => !allowed.has(url) || url.startsWith("atlas-note:"))
+  const citedRequiredEvidence = source.editorialPlan && !source.evergreen
+    ? support.some((item) => blog.sourceUrls.includes(item.canonicalUrl))
+    : blog.sourceUrls.includes(source.canonicalUrl);
+  if ((!source.internal && !citedRequiredEvidence) || blog.sourceUrls.some((url) => !allowed.has(url) || url.startsWith("atlas-note:"))
       || links.some((url) => !blog.sourceUrls.includes(url))
       || (!source.internal && blog.sourceUrls.some((url) => !links.includes(url)))) reasons.push("unverified citation");
   if ([source, ...support.filter((item) => blog.sourceUrls.includes(item.canonicalUrl))]
@@ -123,11 +128,13 @@ function typedEditorialFailures(blog: BlogDraft, source: SourceRecord, research:
   if (sensitiveEditorialText(text) || /\b(?:PRIMARY_FACT|PRODUCT_DOC|SUPPORTING_EVIDENCE|COUNTERPOINT|CONTEXT)\b/.test(text)) {
     reasons.push("internal reference or possible credential");
   }
-  const minimum = blog.editorialType === "practical-tip" ? 180 : 280;
+  const minimum = source.editorialPlan ? 1 : blog.editorialType === "practical-tip" ? 180 : 280;
   if (blog.body.trim().length < minimum || !blog.summary.trim() || !blog.editorialTakeaway?.trim()) {
     reasons.push("article too thin for editorial review");
   }
-  if (blog.editorialType === "news" && !blog.body.includes(source.publisher)) reasons.push("missing news attribution");
+  if (blog.editorialType === "news" && blog.sourceUrls.includes(source.canonicalUrl) && !blog.body.includes(source.publisher)) {
+    reasons.push("missing news attribution");
+  }
   if (source.internal && !source.publicationEligible && !blog.internal) reasons.push("internal evidence must remain local");
   if (source.internal && !/Atlas/.test(blog.body)) reasons.push("missing editorial note attribution");
   return reasons;
@@ -185,7 +192,7 @@ export function reviewItems(input: {
         ? typedEditorialFailures(blog, source, input.sources)
         : editorialFailures(blog, source, input.sources)) : []),
     ];
-    if (source && !source.internal && publishers.has(source.publisher.trim().toLowerCase())) reasons.push("publisher concentration");
+    if (source && !source.internal && !source.editorialPlan && publishers.has(source.publisher.trim().toLowerCase())) reasons.push("publisher concentration");
     const citedEvidence = [
       ...(source?.internal ? [source.summary] : []),
       ...blog.sourceUrls.map((url) => input.sources.find((item) => item.canonicalUrl === url && item.supplementFor === blog.canonicalUrl)?.summary

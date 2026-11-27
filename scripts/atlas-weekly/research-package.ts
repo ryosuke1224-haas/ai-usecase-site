@@ -32,7 +32,7 @@ export function researchPackage(input: {
   const editionDir = path.join(weeklyDir(root), edition);
   const researchDir = path.join(editionDir, "research", id);
   const outputDir = path.join(editionDir, "drafts");
-  const brief = buildResearchBrief(primary, primary.internal ? [] : research);
+  const brief = buildResearchBrief(primary, primary.internal ? [] : primary.editorialPlan ? input.report?.sources ?? [] : research);
   const editorial = prepareEditorialBrief(brief, research, input.report);
   const tip = primary.evergreen ? tipByUrl(primary.canonicalUrl) : undefined;
   const records = [primary, ...brief.supports.map(({ source }) => source)];
@@ -45,6 +45,7 @@ export function researchPackage(input: {
     factExcerpt: record.summary.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
     quantitativeClaims: quantitativeClaims(record.summary),
     evidenceRole: record.evidenceRole ?? (record.internal ? "curated note" : "feed excerpt"),
+    relevanceToQuestion: record.supplementFor ? record.implication : undefined,
   }));
   // The curated tip URLs back its documentation excerpt jointly.
   for (const url of tip?.sourceUrls.slice(1) ?? []) {
@@ -52,9 +53,7 @@ export function researchPackage(input: {
   }
   const blueprintSlugs = primary.internal ? [] : relatedBlueprints(primary, products);
   const instructions = `${EDITORIAL_INSTRUCTIONS}
-When the editorial brief includes depthRequirements, include a depthEvidence JSON object mapping each key
-to a different exact passage from your Markdown (30–500 characters) that substantively addresses it.
-If additional research is recorded, use and cite at least one of those sources.
+Address the editorial question and reader value. Cite the sources actually used. The seed may be only a lead.
 Manual output belongs in ../../drafts/${id}.md and ../../drafts/${id}.json.
 Use {"status":"draft","title":"...","summary":"...","practicalTakeaway":"...","sourceUrls":["..."]}.
 For weak evidence use {"status":"rejected","reason":"..."} in the JSON file.
@@ -92,9 +91,8 @@ For weak evidence use {"status":"rejected","reason":"..."} in the JSON file.
       instructions,
       editorialType: editorial.articleType,
       internal: primary.internal && !primary.publicationEligible,
-      depthRequirements: Object.keys(editorial.depthRequirements ?? {}),
-      supplementalUrls: input.report?.sources.map((source) => source.canonicalUrl) ?? [],
-      requiredSupplement: Boolean(input.report?.sources.length),
+      verifiedEvidenceUrls: primary.editorialPlan && !primary.internal && !primary.evergreen
+        ? input.report?.sources.map((source) => source.canonicalUrl) : undefined,
     },
     sources,
     brief: briefFile,

@@ -159,14 +159,11 @@ export function isDirectlyRelevantSupport(
   question = researchQuestionFor(primary),
 ): boolean {
   if (candidate.canonicalUrl === primary.canonicalUrl) return false;
-  if (candidate.supplementFor && candidate.supplementFor !== primary.canonicalUrl) return false;
+  if (candidate.supplementFor) return candidate.supplementFor === primary.canonicalUrl;
   if (candidate.evergreen) return false;
   if (isLowValueNews(candidate.title, candidate.summary)) return false;
   const primaryText = `${primary.title} ${primary.summary}`.toLowerCase();
   const candidateText = `${candidate.title} ${candidate.summary}`.toLowerCase();
-  // Generic model-family coverage does not substantiate a sector-specific deployment.
-  if (/\b(?:sports|basketball|arena|warriors|entertainment district)\b/.test(primaryText)
-      && !/\b(?:sports|basketball|arena|warriors|entertainment district)\b/.test(candidateText)) return false;
   const shared = sharedTopicTokens(primary, candidate);
   const meaningful = meaningfulOverlap(shared);
   const score = supportRelevanceScore(primary, candidate, question);
@@ -191,7 +188,7 @@ export function buildResearchBrief(
   research: readonly SourceRecord[],
   limit = 3,
 ): ResearchBrief {
-  const question = researchQuestionFor(primary);
+  const question = primary.editorialPlan?.question ?? researchQuestionFor(primary);
   const rejected: ResearchBrief["rejected"] = [];
   const supports: ResearchBrief["supports"] = [];
   for (const item of research) {

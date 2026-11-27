@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { describeSource, SOURCE_GROUPS, storedCategory, type SourceGroup } from "./editorial";
 import { canSustainResearchedArticle } from "./research-depth";
-import { chooseTip } from "./tips";
+import { chooseTip, TIP_TOPICS } from "./tips";
 import type { SourceRecord, WeeklyCategory } from "./types";
 
 const FOCUS = [
@@ -137,6 +137,20 @@ export function selectTopics(records: readonly SourceRecord[], limit = 4): Sourc
 function editionLane(record: SourceRecord): "news" | "practical" {
   const focus = describeSource(record).focus;
   return focus === "ai-at-work" || focus === "enterprise" ? "practical" : "news";
+}
+
+export function editorialPool(records: readonly SourceRecord[], notes: readonly SourceRecord[],
+  knownUrls: readonly string[], retrievedAt: string): SourceRecord[] {
+  const known = new Set(knownUrls);
+  const feeds = dedupeSources(records).filter((source) => !known.has(source.canonicalUrl)
+    && source.publishedAt && Date.parse(source.publishedAt) >= Date.parse(retrievedAt) - 21 * 86400000)
+    .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "")).slice(0, 24);
+  const tips = TIP_TOPICS.map((tip): SourceRecord => ({
+    url: tip.sourceUrls[0], canonicalUrl: tip.sourceUrls[0], title: tip.title, publisher: "Atlas",
+    publishedAt: null, retrievedAt, summary: tip.sourceSummary, relevance: 40,
+    implication: tip.summary, evergreen: true, editorialType: "practical-tip",
+  }));
+  return [...feeds, ...dedupeSources(tips.filter((source) => !known.has(source.canonicalUrl))).slice(0, 10), ...notes.slice(0, 8)];
 }
 
 /** Prefer researched depth over filling every weekly slot. */

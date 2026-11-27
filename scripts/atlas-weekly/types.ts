@@ -14,6 +14,7 @@ export type WeeklyStage = (typeof WEEKLY_STAGES)[number];
 export const ARTICLE_CATEGORIES = ["ai-news", "us-tech", "practical-ai", "technical"] as const;
 export type WeeklyCategory = (typeof ARTICLE_CATEGORIES)[number];
 export type EditorialType = "news" | "practical-tip" | "enterprise-strategy" | "field-note";
+export type EditorialPlan = { question: string; readerValue: string; queries: string[] };
 
 export type SourceRecord = {
   url: string;
@@ -28,6 +29,7 @@ export type SourceRecord = {
   /** Documentation-backed advice that is not a news story. */
   evergreen?: boolean;
   editorialType?: EditorialType;
+  editorialPlan?: EditorialPlan;
   internal?: boolean;
   publicationEligible?: boolean;
   tags?: string[];

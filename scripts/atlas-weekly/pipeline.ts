@@ -1,7 +1,7 @@
 import { blueprintCandidates, newsletterDraft, type KnownProduct } from "./drafts";
 import { fieldNoteSources } from "./editorial-brief";
 import { blogTopicStrength, reviewItems } from "./qa";
-import { selectEdition } from "./research";
+import { editorialPool, selectEdition } from "./research";
 import { researchPackage, saveResearchPackage } from "./research-package";
 import { writeArticle, type Writer } from "./writer";
 import {
@@ -28,7 +28,8 @@ export type WeeklyDeps = {
   knownUrls: readonly string[];
   knownTitles: readonly string[];
   fetchSources?: () => Promise<WeeklyState["research"]>;
-  enrichTopic?: (primary: SourceRecord, pool: readonly SourceRecord[]) => Promise<ResearchReport>;
+  planTopics?: (pool: readonly SourceRecord[]) => Promise<SourceRecord[]>;
+  enrichTopic?: (primary: SourceRecord) => Promise<ResearchReport>;
   queue?: QueueWrite;
   dryRun?: boolean;
 };
@@ -136,7 +137,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
     if (stage === "RESEARCH") {
       if (!deps.fetchSources) return fail(active, now, "Research fetcher is not configured.");
       const research = await deps.fetchSources();
-      if (research.length === 0 && !fieldNoteSources(deps.root, now.toISOString(), deps.dryRun).length) {
+      if (research.length === 0 && !deps.planTopics && !fieldNoteSources(deps.root, now.toISOString(), deps.dryRun).length) {
         return fail(active, now, "No sources were retrieved.");
       }
       return finishStage(active, stage, now, {
@@ -145,14 +146,11 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       });
     }
     if (stage === "SELECT") {
-      const selected = [
-        ...selectEdition(active.research, active.weekKey, deps.knownUrls, now.toISOString()),
-        ...fieldNoteSources(deps.root, now.toISOString(), deps.dryRun).slice(0, 2),
-      ];
-      const research = [
-        ...active.research,
-        ...selected.filter((item) => item.evergreen && !active.research.some((record) => record.canonicalUrl === item.canonicalUrl)),
-      ];
+      const notes = fieldNoteSources(deps.root, now.toISOString(), deps.dryRun);
+      const selected = deps.planTopics
+        ? await deps.planTopics(editorialPool(active.research, notes, deps.knownUrls, now.toISOString()))
+        : [...selectEdition(active.research, active.weekKey, deps.knownUrls, now.toISOString()), ...notes.slice(0, 2)];
+      const research = [...new Map([...active.research, ...selected].map((item) => [item.canonicalUrl, item])).values()];
       return finishStage(active, stage, now, {
         selected,
         research,
@@ -163,7 +161,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       const reports = { ...active.researchReports };
       if (stage === "RESEARCH_PACKAGE" && deps.enrichTopic) {
         for (const primary of active.selected) {
-          reports[primary.canonicalUrl] ??= await deps.enrichTopic(primary, active.research);
+          reports[primary.canonicalUrl] ??= await deps.enrichTopic(primary);
         }
       }
       const packages = active.selected.map((primary) => researchPackage({
