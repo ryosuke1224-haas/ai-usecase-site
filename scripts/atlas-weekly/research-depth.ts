@@ -5,7 +5,7 @@ export function normalizeClaim(claim: string): string {
 }
 
 export function quantitativeClaims(text: string): string[] {
-  return text.match(/(?:[$¥]\s*\d+(?:[.,]\d+)*|\d+(?:[.,]\d+)*\s?(?:%|％|\$|usd|jpy|円))/gi) ?? [];
+  return text.match(/(?:[$¥][^\S\r\n]*\d+(?:[.,]\d+)*|(?<![a-z0-9_.,])\d+(?:[.,]\d+)*[^\S\r\n]*(?:%|％|\$(?![a-z_])|usd|jpy|円))/gi) ?? [];
 }
 
 const LOW_VALUE = [

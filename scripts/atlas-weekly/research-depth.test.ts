@@ -6,12 +6,21 @@ import {
   buildResearchBrief,
   canSustainResearchedArticle,
   isDirectlyRelevantSupport,
+  quantitativeClaims,
   researchQuestionFor,
   supportingSourcesRelevant,
 } from "./research-depth";
 import type { SourceRecord } from "./types";
 
 const NOW = "2026-11-18T00:00:00.000Z";
+
+test("PowerShell UTF8 followed by a variable is not a currency claim", () => {
+  const command = "$prompt = Get-Content -Raw -Encoding UTF8";
+  for (const newline of ["\n", "\r\n"]) {
+    assert.deepEqual(quantitativeClaims(command + newline + "$prompt | & $codexExe exec '-'"), []);
+  }
+  assert.deepEqual(quantitativeClaims("Costs $8, 8 $, or 800円 with a 10% discount."), ["$8", "8 $", "800円", "10%"]);
+});
 
 function source(patch: Partial<SourceRecord> = {}): SourceRecord {
   const url = patch.canonicalUrl ?? patch.url ?? "https://example.com/story";

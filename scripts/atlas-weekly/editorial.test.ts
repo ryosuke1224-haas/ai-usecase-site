@@ -25,6 +25,11 @@ import { selectTopics } from "./research";
 import type { BlogDraft, SourceRecord } from "./types";
 
 const NOW = new Date("2026-11-16T00:00:00.000Z");
+
+test("ordinary descriptions of generated files are not editorial process disclosures", () => {
+  assert.equal(hasMetaEditorialLanguage("AIが生成した資料を月報に添付する。"), false);
+  assert.equal(hasMetaEditorialLanguage("この記事を生成した手順を示します。"), true);
+});
 const PRODUCTS = [{ slug: "ai-customer-response-assistant", name: "On-brand Reply Review Queue" }];
 
 function source(patch: Partial<SourceRecord> = {}): SourceRecord {

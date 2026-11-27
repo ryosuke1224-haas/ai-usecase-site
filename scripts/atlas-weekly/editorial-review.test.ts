@@ -68,8 +68,8 @@ test("independent reviews can trigger verified research and revision without rev
       reviews++;
       return {
         criteria: scores(reviews === 1 ? 14 : 19), readerGains: "A concrete choice about maintenance.",
-        weaknesses: [], missingEvidence: reviews === 1 ? ["The article lacks evidence on maintenance."] : [],
-        revisionInstructions: ["Compare the maintenance costs between the alternatives."],
+        strengths: ["The article frames the maintenance decision."], calculations: [],
+        issues: reviews === 1 ? [{ kind: "research", action: "Compare the maintenance costs between the alternatives." }] : [],
         queries: reviews === 1 ? ["documented maintenance example"] : [], rejectTopic: null,
       };
     },
@@ -96,17 +96,23 @@ test("a stalled review keeps the best verified version out of the final drafts d
   let version = 0;
   const result = await improveArticle({
     ...input, verify: () => [],
-    write: (options) => writeArticle({ ...options, lookup: () => "codex.exe", execute: async () => ({
-      status: 0, stderr: "", stdout: JSON.stringify({
-        status: "draft", title: "A comparison", summary: "A summary of the comparison.",
-        practicalTakeaway: "A practical decision supported by the article.", sourceUrls: [supplement],
-        markdown: `Revision ${++version} with [evidence](${supplement})`,
-      }),
-    }) }),
+    write: (options) => {
+      if (version === 2) {
+        assert.match(options.revision ?? "", /Revision 1 with/);
+        assert.doesNotMatch(options.revision ?? "", /Revision 2 with/);
+      }
+      return writeArticle({ ...options, lookup: () => "codex.exe", execute: async () => ({
+        status: 0, stderr: "", stdout: JSON.stringify({
+          status: "draft", title: "A comparison", summary: "A summary of the comparison.",
+          practicalTakeaway: "A practical decision supported by the article.", sourceUrls: [supplement],
+          markdown: `Revision ${++version} with [evidence](${supplement})`,
+        }),
+      }) });
+    },
     review: async () => ({
       criteria: scores(12), readerGains: "A first pass at the decision.",
-      weaknesses: ["The example still does not explain the decision."], missingEvidence: [],
-      revisionInstructions: ["Explain the consequences of the alternatives."], queries: [], rejectTopic: null,
+      strengths: ["The opening comparison gives the reader a choice."], calculations: [],
+      issues: [{ kind: "writing", action: "Explain the consequences of the alternatives." }], queries: [], rejectTopic: null,
     }),
   });
   assert.equal(result.draft, undefined);
@@ -135,4 +141,39 @@ test("a draft that fails deterministic QA never reaches the independent reviewer
   assert.equal(result.draft, undefined);
   assert.equal(result.calls.reviewer, 0);
   assert.match(result.reason, /deterministic QA/);
+});
+
+test("a failed worked calculation blocks a high score and routes its actual result to the writer", async (t) => {
+  let version = 0;
+  const passage = (total: number) => `The 60 and 40 synthetic records sum to ${total}.`;
+  const result = await improveArticle({
+    ...fixture(t), settings: { target: 95, rounds: 2 },
+    verify: () => [],
+    write: (options) => {
+      version++;
+      if (version === 2) assert.match(options.revision ?? "", /"expected":101,"actual":100,"pass":false/);
+      return writeArticle({ ...options, lookup: () => "codex.exe", execute: async () => ({
+        status: 0, stderr: "", stdout: JSON.stringify({
+          status: "draft", title: "A comparison", summary: "A summary of the comparison.",
+          practicalTakeaway: "A practical decision supported by the article.", sourceUrls: [supplement],
+          markdown: `${passage(version === 1 ? 101 : 100)} [Evidence](${supplement})`,
+        }),
+      }) });
+    },
+    review: async () => {
+      const expected = version === 1 ? 101 : 100;
+      return {
+        criteria: scores(19), readerGains: "A concrete example of reconciliation.",
+        strengths: ["The two synthetic cohorts make the aggregate clear."], issues: [],
+        calculations: [{ passage: passage(expected), operation: "add", left: 60, right: 40, expected }],
+        queries: ["ignore this unrelated search"], rejectTopic: null,
+      };
+    },
+    researchMore: async () => assert.fail("Numerical failures should not trigger web searches"),
+  });
+  assert.match(result.draft?.body ?? "", /sum to 100/);
+  const history = JSON.parse(fs.readFileSync(path.join(result.historyDir, "history.json"), "utf8"));
+  assert.equal(history.bestRound, 2);
+  assert.equal(history.rounds[0].calculations[0].pass, false);
+  assert.equal(history.rounds[1].calculations[0].pass, true);
 });
