@@ -128,6 +128,8 @@ Research uses Codex live search or Cursor Ask when web search is available, with
 
 Atlas discovers Markdown notes with editorial metadata in `atlas-memory/field-notes/`. The writer receives only the curated public evidence and lesson. Pending notes can be previewed in dry runs. Approved, publication-eligible notes can produce sanitized articles for the Review Queue and newsletter after QA. A human still approves publication.
 
+External writers use a separate editorial reviewer with [editable guidance](scripts/atlas-weekly/editorial-reviewer.md) and [owner feedback and examples](scripts/atlas-weekly/editorial-feedback.md). The reviewer sees the current draft and its evidence, with no previous scores. Drafts must pass deterministic QA and meet `ATLAS_EDITORIAL_TARGET` (default 95 out of 100) with no unresolved evidence gaps. `ATLAS_EDITORIAL_ROUNDS` caps writing and review rounds per topic (default 4, maximum 8). Repeated drafts, stalled scores, and fundamentally weak topics can stop earlier. Versioned drafts, reviews, and verified additional research are kept locally under the edition's `editorial-reviews/` directory. Only accepted agent versions reach the normal drafts directory. Manual drafts remain available locally and need a completed editorial review before they can enter the Review Queue or newsletter.
+
 Outside dry run, only QA-passing items can be inserted as `READY_FOR_REVIEW`. Existing queue sources and titles, including rejected ones, are checked for duplicates. Reviewers should check the brief's editorial questions against the full draft, including the originality of the analysis and the strength of its evidence. Approval and publishing are separate human actions in the admin console.
 
 ## Deploy on Vercel

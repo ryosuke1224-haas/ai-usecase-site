@@ -110,6 +110,7 @@ export type WeeklyState = {
   pendingDrafts?: string[];
   writerRejections?: QaDecision[];
   researchReports?: Record<string, ResearchReport>;
+  editorialRuns?: Record<string, { accepted: boolean; writer: number; reviewer: number; additionalResearch: number }>;
   runId: string;
   weekKey: string;
   stage: WeeklyStage | "DONE";

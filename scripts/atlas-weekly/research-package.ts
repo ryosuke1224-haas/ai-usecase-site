@@ -32,7 +32,8 @@ export function researchPackage(input: {
   const editionDir = path.join(weeklyDir(root), edition);
   const researchDir = path.join(editionDir, "research", id);
   const outputDir = path.join(editionDir, "drafts");
-  const brief = buildResearchBrief(primary, primary.internal ? [] : primary.editorialPlan ? input.report?.sources ?? [] : research);
+  const brief = buildResearchBrief(primary, primary.internal ? [] : primary.editorialPlan ? input.report?.sources ?? [] : research,
+    primary.editorialPlan ? 9 : 3);
   const editorial = prepareEditorialBrief(brief, research, input.report);
   const tip = primary.evergreen ? tipByUrl(primary.canonicalUrl) : undefined;
   const records = [primary, ...brief.supports.map(({ source }) => source)];

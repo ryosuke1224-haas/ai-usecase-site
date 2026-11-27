@@ -3,6 +3,7 @@ import { COLLECTIONS_PRODUCT_SLUG } from "@/src/lib/payments/products";
 import { loadAtlasLocalEnv } from "../atlas-auto/local-env";
 import { WEEKLY_FEEDS } from "./feeds";
 import { researchTopic } from "./live-research";
+import { editorialReviewSettings } from "./editorial-review";
 import { writeWeeklyState } from "./files";
 import { runUntilSettled } from "./pipeline";
 import { dedupeSources, fetchFeed } from "./research";
@@ -68,6 +69,7 @@ async function main() {
     fetchSources: async () => fetched?.records ?? state.research,
     planTopics: writer === "none" ? undefined : (pool) => planEditorialTopics(writer, root, pool),
     enrichTopic: writer === "none" ? undefined : (primary) => researchTopic({ primary, writer, cwd: root }),
+    editorialReview: editorialReviewSettings(),
     queue: dryRun ? undefined : supabaseQueue() ?? undefined,
   });
   writeWeeklyState(root, finished, dryRun);

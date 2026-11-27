@@ -1,5 +1,6 @@
 import { blueprintCandidates, newsletterDraft, type KnownProduct } from "./drafts";
 import { fieldNoteSources } from "./editorial-brief";
+import { improveArticle, type editorialReviewSettings } from "./editorial-review";
 import { blogTopicStrength, reviewItems } from "./qa";
 import { editorialPool, selectEdition } from "./research";
 import { researchPackage, saveResearchPackage } from "./research-package";
@@ -30,6 +31,7 @@ export type WeeklyDeps = {
   fetchSources?: () => Promise<WeeklyState["research"]>;
   planTopics?: (pool: readonly SourceRecord[]) => Promise<SourceRecord[]>;
   enrichTopic?: (primary: SourceRecord) => Promise<ResearchReport>;
+  editorialReview?: ReturnType<typeof editorialReviewSettings>;
   queue?: QueueWrite;
   dryRun?: boolean;
 };
@@ -113,13 +115,17 @@ function finishStage(state: WeeklyState, stage: WeeklyStage, now: Date, patch: P
   };
 }
 
-export function queuePlan(state: WeeklyState): QueueInsert[] {
+export function queuePlan(state: WeeklyState, requireEditorialReview = false): QueueInsert[] {
   const passing = new Set(state.qa.filter((item) => item.pass).map((item) => `${item.kind}:${item.slug}`));
   const items: QueueInsert[] = [];
   for (const draft of state.blogs) {
-    if (!draft.internal && passing.has(`blog:${draft.slug}`)) items.push({ kind: "blog", draft });
+    if (!draft.internal && passing.has(`blog:${draft.slug}`)
+        && (!requireEditorialReview || state.editorialRuns?.[draft.slug]?.accepted)) items.push({ kind: "blog", draft });
   }
-  if (state.newsletter && passing.has(`newsletter:${state.newsletter.slug}`)) {
+  // A saved newsletter can predate the reviewer. Queue it only if every public QA survivor was reviewed.
+  const allPublicSurvivorsReviewed = !requireEditorialReview || (items.length > 0
+    && state.blogs.every((draft) => draft.internal || !passing.has(`blog:${draft.slug}`) || state.editorialRuns?.[draft.slug]?.accepted));
+  if (state.newsletter && allPublicSurvivorsReviewed && passing.has(`newsletter:${state.newsletter.slug}`)) {
     items.push({ kind: "newsletter", draft: state.newsletter });
   }
   for (const draft of state.blueprints) {
@@ -164,7 +170,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
           reports[primary.canonicalUrl] ??= await deps.enrichTopic(primary);
         }
       }
-      const packages = active.selected.map((primary) => researchPackage({
+      const inputs = active.selected.map((primary) => ({
         root: deps.root,
         edition: active.weekKey,
         primary,
@@ -172,6 +178,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
         report: reports[primary.canonicalUrl],
         products: deps.products,
       }));
+      const packages = inputs.map(researchPackage);
       if (stage === "RESEARCH_PACKAGE") {
         for (const pkg of packages) saveResearchPackage(pkg);
         return finishStage(active, stage, now, { researchReports: reports });
@@ -181,9 +188,25 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       const pendingDrafts: string[] = [];
       const writerRejections: QaDecision[] = [];
       const write = deps.writeArticle ?? writeArticle;
-      for (const { candidate, brief } of packages) {
+      const editorialRuns = { ...active.editorialRuns };
+      for (const [index, { candidate, brief }] of packages.entries()) {
         if (brief.editorial.rejection) {
           writerRejections.push({ kind: "blog", slug: candidate.id, pass: false, reasons: [brief.editorial.rejection] });
+          continue;
+        }
+        if (deps.editorialReview && deps.writer && deps.writer !== "none") {
+          const result = await improveArticle({
+            ...inputs[index], writer: deps.writer, settings: deps.editorialReview, write,
+            verify: (draft, sources) => reviewItems({
+              now, sources: [...active.research, ...sources], blogs: [draft], newsletter: null,
+              blueprints: [], knownUrls: deps.knownUrls, knownTitles: deps.knownTitles,
+              knownSlugs: deps.products.map((product) => product.slug),
+            })[0].reasons,
+          });
+          reports[candidate.primaryUrl] = result.report;
+          editorialRuns[candidate.id] = { accepted: Boolean(result.draft), ...result.calls };
+          if (result.draft) blogs.push(result.draft);
+          else writerRejections.push({ kind: "blog", slug: candidate.id, pass: false, reasons: [result.reason] });
           continue;
         }
         const outcome = await write({ writer: deps.writer ?? "none", candidate });
@@ -198,6 +221,8 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       return finishStage(active, stage, now, {
         pendingDrafts,
         writerRejections,
+        researchReports: reports,
+        editorialRuns,
         blogs,
         counts: { ...active.counts, blogs: blogs.length },
       });
@@ -225,7 +250,8 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
         knownTitles: deps.knownTitles,
       });
       const passingBlogs = active.blogs.filter((blog) =>
-        !blog.internal && qaWithoutLetter.some((item) => item.kind === "blog" && item.slug === blog.slug && item.pass),
+        !blog.internal && (!deps.editorialReview || active.editorialRuns?.[blog.slug]?.accepted)
+          && qaWithoutLetter.some((item) => item.kind === "blog" && item.slug === blog.slug && item.pass),
       );
       const byUrl = new Map(active.research.map((source) => [source.canonicalUrl, source]));
       passingBlogs.sort((left, right) => blogTopicStrength(right, byUrl.get(right.canonicalUrl))
@@ -249,7 +275,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
         },
       });
     }
-    const plan = queuePlan(active);
+    const plan = queuePlan(active, Boolean(deps.editorialReview));
     if (deps.dryRun) return finishStage(active, "REVIEW_QUEUE", now, {});
     if (!deps.queue) return fail(active, now, "Review Queue storage is not configured.");
     const queued = [...active.queued];
