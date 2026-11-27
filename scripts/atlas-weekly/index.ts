@@ -2,6 +2,9 @@ import { LAUNCH_PRODUCTS } from "@/src/lib/payments/launch-catalog";
 import { COLLECTIONS_PRODUCT_SLUG } from "@/src/lib/payments/products";
 import { loadAtlasLocalEnv } from "../atlas-auto/local-env";
 import { WEEKLY_FEEDS } from "./feeds";
+import { prepareEditorialBrief } from "./editorial-brief";
+import { researchTopic } from "./live-research";
+import { buildResearchBrief } from "./research-depth";
 import { writeWeeklyState } from "./files";
 import { runUntilSettled } from "./pipeline";
 import { dedupeSources, fetchFeed } from "./research";
@@ -65,6 +68,10 @@ async function main() {
     knownTitles: known.titles,
     dryRun,
     fetchSources: async () => fetched?.records ?? state.research,
+    enrichTopic: (primary, pool) => {
+      const brief = prepareEditorialBrief(buildResearchBrief(primary, pool), pool);
+      return researchTopic({ primary, question: brief.centralQuestion, gap: brief.additionalInformationNeeded, writer, cwd: root });
+    },
     queue: dryRun ? undefined : supabaseQueue() ?? undefined,
   });
   writeWeeklyState(root, finished, dryRun);

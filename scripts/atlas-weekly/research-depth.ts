@@ -159,8 +159,14 @@ export function isDirectlyRelevantSupport(
   question = researchQuestionFor(primary),
 ): boolean {
   if (candidate.canonicalUrl === primary.canonicalUrl) return false;
+  if (candidate.supplementFor && candidate.supplementFor !== primary.canonicalUrl) return false;
   if (candidate.evergreen) return false;
   if (isLowValueNews(candidate.title, candidate.summary)) return false;
+  const primaryText = `${primary.title} ${primary.summary}`.toLowerCase();
+  const candidateText = `${candidate.title} ${candidate.summary}`.toLowerCase();
+  // Generic model-family coverage does not substantiate a sector-specific deployment.
+  if (/\b(?:sports|basketball|arena|warriors|entertainment district)\b/.test(primaryText)
+      && !/\b(?:sports|basketball|arena|warriors|entertainment district)\b/.test(candidateText)) return false;
   const shared = sharedTopicTokens(primary, candidate);
   const meaningful = meaningfulOverlap(shared);
   const score = supportRelevanceScore(primary, candidate, question);
@@ -169,8 +175,6 @@ export function isDirectlyRelevantSupport(
   if (meaningful.length >= 2 && score >= 36) return true;
   if (meaningful.length >= 1 && score >= 48) return true;
   // Same product family: gemini tasks ↔ gemini productivity docs / reporting
-  const primaryText = `${primary.title} ${primary.summary}`.toLowerCase();
-  const candidateText = `${candidate.title} ${candidate.summary}`.toLowerCase();
   if (/gemini/.test(primaryText) && /gemini/.test(candidateText) && /task/.test(primaryText) && /task|chat|agent|productivity|spark/.test(candidateText)) {
     return true;
   }
@@ -205,7 +209,8 @@ export function buildResearchBrief(
       score: supportRelevanceScore(primary, item, question),
     });
   }
-  supports.sort((a, b) => b.score - a.score || b.source.relevance - a.source.relevance);
+  supports.sort((a, b) => Number(Boolean(b.source.supplementFor)) - Number(Boolean(a.source.supplementFor))
+    || b.score - a.score || b.source.relevance - a.source.relevance);
   return {
     question,
     primary,

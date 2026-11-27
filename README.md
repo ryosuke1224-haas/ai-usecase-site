@@ -122,7 +122,13 @@ Each package lives at `atlas-memory/weekly/<edition>/research/<id>/`. It contain
 
 Cursor requires an authenticated `agent` CLI on PATH. Codex requires a recent `codex` CLI on PATH with a local ChatGPT login. Both run in a read-only mode from the candidate directory with a five-minute timeout. Atlas Weekly reads the three research files and sends their contents to Codex over stdin so its sandbox does not need filesystem tools. The adapter captures each writer’s response and writes the validated Markdown and metadata into `drafts/`. Writer failure stops the edition without switching providers. A writer rejection stays local as a failed QA decision.
 
-Outside dry run, only QA-passing items can be inserted as `READY_FOR_REVIEW`. Existing queue sources and titles, including rejected ones, are checked for duplicates. Approval and publishing are separate human actions in the admin console.
+The research package separates source evidence from an editorial brief. The brief records the audience, question, direction, and evidence gaps. For newly packaged topics, Atlas asks the writer to point to distinct passages that cover the type-specific depth requirements. The writer chooses the structure. News uses `ai-news`, practical tips and enterprise strategy use `practical-ai`, and field notes use `technical`.
+
+With Codex selected, a separate read-only research call uses ChatGPT-authenticated live web search, with a 90-second deadline per topic. Atlas independently fetches up to three proposed public pages from approved publishers, without redirects, and accepts only directly relevant passages found in the retrieved page. Packages record queries, excerpts, attribution, source roles, and any research limits. Feed-led topics without verified additional evidence are deferred. Curated documentation remains usable for evergreen tips. Cursor and manual writer modes currently have no verified live-search integration.
+
+Atlas discovers Markdown notes with editorial metadata in `atlas-memory/field-notes/`. The writer receives only the curated public evidence and lesson. Pending notes can be previewed in dry runs. Approved, publication-eligible notes can produce sanitized articles for the Review Queue and newsletter after QA. A human still approves publication.
+
+Outside dry run, only QA-passing items can be inserted as `READY_FOR_REVIEW`. Existing queue sources and titles, including rejected ones, are checked for duplicates. Reviewers should check the brief's editorial questions against the full draft, including the originality of the analysis and the strength of its evidence. Approval and publishing are separate human actions in the admin console.
 
 ## Deploy on Vercel
 

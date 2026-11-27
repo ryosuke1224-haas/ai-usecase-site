@@ -1,5 +1,6 @@
 import { blueprintCandidates, newsletterDraft, type KnownProduct } from "./drafts";
-import { reviewItems } from "./qa";
+import { fieldNoteSources } from "./editorial-brief";
+import { blogTopicStrength, reviewItems } from "./qa";
 import { selectEdition } from "./research";
 import { researchPackage, saveResearchPackage } from "./research-package";
 import { writeArticle, type Writer } from "./writer";
@@ -10,6 +11,8 @@ import {
   type QaDecision,
   type QueueInsert,
   type QueueWrite,
+  type ResearchReport,
+  type SourceRecord,
   type WeeklyStage,
   type WeeklyState,
 } from "./types";
@@ -25,6 +28,7 @@ export type WeeklyDeps = {
   knownUrls: readonly string[];
   knownTitles: readonly string[];
   fetchSources?: () => Promise<WeeklyState["research"]>;
+  enrichTopic?: (primary: SourceRecord, pool: readonly SourceRecord[]) => Promise<ResearchReport>;
   queue?: QueueWrite;
   dryRun?: boolean;
 };
@@ -112,7 +116,7 @@ export function queuePlan(state: WeeklyState): QueueInsert[] {
   const passing = new Set(state.qa.filter((item) => item.pass).map((item) => `${item.kind}:${item.slug}`));
   const items: QueueInsert[] = [];
   for (const draft of state.blogs) {
-    if (passing.has(`blog:${draft.slug}`)) items.push({ kind: "blog", draft });
+    if (!draft.internal && passing.has(`blog:${draft.slug}`)) items.push({ kind: "blog", draft });
   }
   if (state.newsletter && passing.has(`newsletter:${state.newsletter.slug}`)) {
     items.push({ kind: "newsletter", draft: state.newsletter });
@@ -132,14 +136,19 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
     if (stage === "RESEARCH") {
       if (!deps.fetchSources) return fail(active, now, "Research fetcher is not configured.");
       const research = await deps.fetchSources();
-      if (research.length === 0) return fail(active, now, "No sources were retrieved.");
+      if (research.length === 0 && !fieldNoteSources(deps.root, now.toISOString(), deps.dryRun).length) {
+        return fail(active, now, "No sources were retrieved.");
+      }
       return finishStage(active, stage, now, {
         research,
         counts: { ...active.counts, researched: research.length },
       });
     }
     if (stage === "SELECT") {
-      const selected = selectEdition(active.research, active.weekKey, deps.knownUrls, now.toISOString());
+      const selected = [
+        ...selectEdition(active.research, active.weekKey, deps.knownUrls, now.toISOString()),
+        ...fieldNoteSources(deps.root, now.toISOString(), deps.dryRun).slice(0, 2),
+      ];
       const research = [
         ...active.research,
         ...selected.filter((item) => item.evergreen && !active.research.some((record) => record.canonicalUrl === item.canonicalUrl)),
@@ -151,23 +160,34 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       });
     }
     if (stage === "RESEARCH_PACKAGE" || stage === "BLOG_DRAFT") {
+      const reports = { ...active.researchReports };
+      if (stage === "RESEARCH_PACKAGE" && deps.enrichTopic) {
+        for (const primary of active.selected) {
+          reports[primary.canonicalUrl] ??= await deps.enrichTopic(primary, active.research);
+        }
+      }
       const packages = active.selected.map((primary) => researchPackage({
         root: deps.root,
         edition: active.weekKey,
         primary,
-        research: active.research,
+        research: [...(reports[primary.canonicalUrl]?.sources ?? []), ...active.research],
+        report: reports[primary.canonicalUrl],
         products: deps.products,
       }));
       if (stage === "RESEARCH_PACKAGE") {
         for (const pkg of packages) saveResearchPackage(pkg);
-        return finishStage(active, stage, now, {});
+        return finishStage(active, stage, now, { researchReports: reports });
       }
 
       const blogs: BlogDraft[] = [];
       const pendingDrafts: string[] = [];
       const writerRejections: QaDecision[] = [];
       const write = deps.writeArticle ?? writeArticle;
-      for (const { candidate } of packages) {
+      for (const { candidate, brief } of packages) {
+        if (brief.editorial.rejection) {
+          writerRejections.push({ kind: "blog", slug: candidate.id, pass: false, reasons: [brief.editorial.rejection] });
+          continue;
+        }
         const outcome = await write({ writer: deps.writer ?? "none", candidate });
         if (outcome.status === "failed") return fail(active, now, `${candidate.id}: ${outcome.reason}`);
         if (outcome.status === "pending") pendingDrafts.push(candidate.id);
@@ -185,14 +205,11 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
       });
     }
     if (stage === "NEWSLETTER_DRAFT") {
-      const newsletter = newsletterDraft(active.weekKey, active.blogs);
-      return finishStage(active, stage, now, {
-        newsletter,
-        counts: { ...active.counts, newsletter: newsletter ? 1 : 0 },
-      });
+      // Retain this checkpoint for saved editions. Draft the digest after article QA.
+      return finishStage(active, stage, now, {});
     }
     if (stage === "BLUEPRINT_CANDIDATES") {
-      const blueprints = blueprintCandidates(active.selected, deps.products, active.weekKey);
+      const blueprints = blueprintCandidates(active.selected.filter((source) => !source.internal), deps.products, active.weekKey);
       return finishStage(active, stage, now, {
         blueprints,
         counts: { ...active.counts, blueprints: blueprints.length },
@@ -201,7 +218,7 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
     if (stage === "QA") {
       const qaWithoutLetter = reviewItems({
         now,
-        sources: active.research,
+        sources: [...active.research, ...Object.values(active.researchReports ?? {}).flatMap((report) => report.sources)],
         blogs: active.blogs,
         newsletter: null,
         blueprints: active.blueprints,
@@ -210,15 +227,17 @@ export async function advance(state: WeeklyState, deps: WeeklyDeps): Promise<Wee
         knownTitles: deps.knownTitles,
       });
       const passingBlogs = active.blogs.filter((blog) =>
-        qaWithoutLetter.some((item) => item.kind === "blog" && item.slug === blog.slug && item.pass),
+        !blog.internal && qaWithoutLetter.some((item) => item.kind === "blog" && item.slug === blog.slug && item.pass),
       );
+      const byUrl = new Map(active.research.map((source) => [source.canonicalUrl, source]));
+      passingBlogs.sort((left, right) => blogTopicStrength(right, byUrl.get(right.canonicalUrl))
+        - blogTopicStrength(left, byUrl.get(left.canonicalUrl)));
       const newsletter = newsletterDraft(active.weekKey, passingBlogs);
-      const passingUrls = new Set(passingBlogs.map((blog) => blog.canonicalUrl));
+      const passingUrls = new Set(passingBlogs.flatMap((blog) => blog.sourceUrls));
       const qa = [...(active.writerRejections ?? []), ...qaWithoutLetter];
       if (newsletter) {
         const reasons: string[] = [];
-        if (newsletter.sourceUrls.length === 0) reasons.push("newsletter has no sources");
-        if (newsletter.sourceUrls.every((url) => !passingUrls.has(url))) reasons.push("newsletter stories did not pass");
+        if (newsletter.sourceUrls.some((url) => !passingUrls.has(url))) reasons.push("newsletter cites evidence outside passing articles");
         qa.push({ kind: "newsletter", slug: newsletter.slug, pass: reasons.length === 0, reasons });
       }
       return finishStage(active, stage, now, {

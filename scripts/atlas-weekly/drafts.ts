@@ -96,42 +96,28 @@ export function blogDraft(
 }
 
 export function newsletterDraft(weekKey: string, blogs: readonly BlogDraft[]): NewsletterDraft | null {
-  if (blogs.length === 0) return null;
+  const [lead, ...rest] = blogs.filter((blog) => !blog.internal);
+  if (!lead) return null;
   const slug = `weekly-${weekKey.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-  const stories = blogs.map((blog) => {
-    const url = blog.sourceUrls[0] ?? "";
-    return [
-      `## ${blog.title}`,
-      "",
-      blog.summary,
-      "",
-      "仕事での次の一歩は、記事末尾の「明日試すなら」にある確認作業を一つだけ選ぶことです。",
-      "",
-      url ? `出典: [原文](${url})` : "",
-    ].filter(Boolean).join("\n");
-  });
-  const related = blogs.flatMap((blog) => blog.relatedBlueprints)[0] ?? null;
+  const context = rest.slice(0, 2);
+  const desk = [...new Set([lead, ...context].flatMap((blog) => blog.sourceUrls))];
+  const summary = lead.editorialTakeaway ?? lead.summary;
   const body = [
-    "今週のAtlasの論点を、公開前の確認用にまとめました。ベンダーの更新一覧ではありません。この下書きは送信しません。",
-    "",
-    ...stories,
-    "",
-    "## 関連テンプレート",
-    "",
-    related
-      ? `既存テンプレート \`${related}\` が近い話題です。新しい販売や価格はここには書きません。`
-      : "今週の話題に直結する既存テンプレートは付けていません。",
-    "",
-    "## 製品の更新",
-    "",
-    "公開中のテンプレートと購入の仕組みは、この下書きでは変更しません。",
-  ].join("\n");
+    `## 今週の焦点 — ${lead.title}`,
+    lead.summary,
+    lead.editorialTakeaway ?? "",
+    ...context.flatMap((blog) => [
+      `## ${blog.editorialType === "practical-tip" ? "手元で検証するなら" : "別の論点"} — ${blog.title}`,
+      blog.editorialTakeaway ?? blog.summary,
+    ]),
+    ...(desk.length ? ["## 参照した資料", ...desk.map((url, index) => `- [資料 ${index + 1}](${url})`)] : []),
+  ].filter(Boolean).join("\n\n");
   return {
     slug,
-    title: clip(`今週のAI実務メモ ${weekKey}`, 80),
-    summary: "確認用の週次ニュースレター下書きです。送信はまだ始まりません。",
+    title: clip(`Atlas Weekly — ${lead.title}`, 80),
+    summary,
     body,
-    sourceUrls: blogs.flatMap((blog) => blog.sourceUrls),
+    sourceUrls: desk,
     status: "READY_FOR_REVIEW",
   };
 }

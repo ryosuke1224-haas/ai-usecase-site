@@ -13,6 +13,7 @@ export type WeeklyStage = (typeof WEEKLY_STAGES)[number];
 
 export const ARTICLE_CATEGORIES = ["ai-news", "us-tech", "practical-ai", "technical"] as const;
 export type WeeklyCategory = (typeof ARTICLE_CATEGORIES)[number];
+export type EditorialType = "news" | "practical-tip" | "enterprise-strategy" | "field-note";
 
 export type SourceRecord = {
   url: string;
@@ -26,7 +27,15 @@ export type SourceRecord = {
   implication: string;
   /** Documentation-backed advice that is not a news story. */
   evergreen?: boolean;
+  editorialType?: EditorialType;
+  internal?: boolean;
+  publicationEligible?: boolean;
+  tags?: string[];
+  evidenceRole?: "primary" | "commentary";
+  supplementFor?: string;
 };
+
+export type ResearchReport = { queries: string[]; sources: SourceRecord[]; limitations: string[] };
 
 export type BlogDraft = {
   slug: string;
@@ -40,6 +49,9 @@ export type BlogDraft = {
   seoDescription: string;
   status: "READY_FOR_REVIEW";
   canonicalUrl: string;
+  editorialType?: EditorialType;
+  editorialTakeaway?: string;
+  internal?: boolean;
 };
 
 export type NewsletterDraft = {
@@ -95,6 +107,7 @@ export type WeeklyState = {
   writerVersion?: 1;
   pendingDrafts?: string[];
   writerRejections?: QaDecision[];
+  researchReports?: Record<string, ResearchReport>;
   runId: string;
   weekKey: string;
   stage: WeeklyStage | "DONE";

@@ -415,5 +415,5 @@ test("blueprint candidates require a repeatable workflow and stay optional", () 
   assert.equal(blueprintCandidates([funding], PRODUCTS, "2026-W46").length, 0);
   const letter = newsletterDraft("2026-W46", [article]);
   assert.equal(letter?.body.includes(funding.title), false);
-  assert.match(letter?.body ?? "", /明日試すなら|次の一歩/);
+  assert.match(letter?.body ?? "", /今週の焦点/);
 });

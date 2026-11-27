@@ -1,5 +1,7 @@
-import { editorialFailures } from "./editorial";
-import { isAuthoritativePublisher, normalizeClaim, quantitativeClaims } from "./research-depth";
+import { editorialFailures, hasFabricatedFirstPerson, hasMetaEditorialLanguage, paraphrasesSource, titleRepeatsSource } from "./editorial";
+import { isAuthoritativePublisher, normalizeClaim, quantitativeClaims, supportingSourcesRelevant } from "./research-depth";
+import { tipByUrl } from "./tips";
+import { sensitiveEditorialText } from "./editorial-safety";
 import type { BlueprintCandidate, BlogDraft, NewsletterDraft, QaDecision, SourceRecord } from "./types";
 
 const STALE_MS = 21 * 24 * 60 * 60 * 1000;
@@ -30,7 +32,9 @@ function unsupported(body: string, source: string): boolean {
 function storyProblems(source: SourceRecord | undefined, now: Date, seen: Set<string>): string[] {
   const reasons: string[] = [];
   if (!source) return ["missing source"];
-  if (!source.canonicalUrl.startsWith("https://")) reasons.push("source is not https");
+  if (!source.canonicalUrl.startsWith("https://") && !(source.internal && source.canonicalUrl.startsWith("atlas-note:"))) {
+    reasons.push("source is not https");
+  }
   if (!source.evergreen) {
     if (!source.publishedAt || Number.isNaN(Date.parse(source.publishedAt))) reasons.push("missing publish date");
     else if (now.getTime() - Date.parse(source.publishedAt) > STALE_MS) reasons.push("stale story");
@@ -88,16 +92,45 @@ export function overlappingBlogTopics(
 /** Higher score wins when two candidate blogs cover the same topic. */
 export function blogTopicStrength(blog: BlogDraft, source?: SourceRecord): number {
   let score = source?.relevance ?? 0;
+  if (source && isAuthoritativePublisher(source.publisher)) score += 18;
+  if (blog.editorialType) return score;
   // Prefer synthesis and judgment over raw source count or length padding.
   if (/あわせて|共通|一方|制限|途中確認/.test(blog.body)) score += 16;
   score += Math.min(blog.sourceUrls.length, 2) * 6;
   score += Math.min(Math.floor(blog.body.trim().length / 80), 12);
   if (blog.relatedBlueprints.length > 0) score += 10;
-  if (source && isAuthoritativePublisher(source.publisher)) score += 18;
   if (/仕事|営業|サポート|担当|管理|経理|顧客|手順/.test(blog.body)) score += 6;
   if (/明日試すなら/.test(blog.body) && sectionAfter(blog.body, "明日試すなら").length >= 40) score += 8;
   if (/Atlasの見方/.test(blog.body) && /今試し|待ちます|向いて/.test(blog.body)) score += 8;
   return score;
+}
+
+function typedEditorialFailures(blog: BlogDraft, source: SourceRecord, research: readonly SourceRecord[]): string[] {
+  const text = [blog.title, blog.summary, blog.body, blog.editorialTakeaway ?? ""].join("\n");
+  const support = source.internal ? [] : supportingSourcesRelevant(source, research);
+  const allowed = new Set([source.canonicalUrl, ...support.map((item) => item.canonicalUrl),
+    ...(tipByUrl(source.canonicalUrl)?.sourceUrls ?? [])]);
+  const links = [...blog.body.matchAll(/\]\((https:\/\/[^\s)]+)\)/g)].map((match) => match[1]);
+  const reasons: string[] = [];
+  if ((!source.internal && !blog.sourceUrls.includes(source.canonicalUrl)) || blog.sourceUrls.some((url) => !allowed.has(url) || url.startsWith("atlas-note:"))
+      || links.some((url) => !blog.sourceUrls.includes(url))
+      || (!source.internal && blog.sourceUrls.some((url) => !links.includes(url)))) reasons.push("unverified citation");
+  if ([source, ...support.filter((item) => blog.sourceUrls.includes(item.canonicalUrl))]
+    .some((item) => paraphrasesSource(blog.body, item, true))) reasons.push("source paraphrase");
+  if (titleRepeatsSource(blog.title, source.title)) reasons.push("translated source title");
+  if (hasFabricatedFirstPerson(text)) reasons.push("fabricated personal experience");
+  if (hasMetaEditorialLanguage(text)) reasons.push("meta editorial language");
+  if (sensitiveEditorialText(text) || /\b(?:PRIMARY_FACT|PRODUCT_DOC|SUPPORTING_EVIDENCE|COUNTERPOINT|CONTEXT)\b/.test(text)) {
+    reasons.push("internal reference or possible credential");
+  }
+  const minimum = blog.editorialType === "practical-tip" ? 180 : 280;
+  if (blog.body.trim().length < minimum || !blog.summary.trim() || !blog.editorialTakeaway?.trim()) {
+    reasons.push("article too thin for editorial review");
+  }
+  if (blog.editorialType === "news" && !blog.body.includes(source.publisher)) reasons.push("missing news attribution");
+  if (source.internal && !source.publicationEligible && !blog.internal) reasons.push("internal evidence must remain local");
+  if (source.internal && !/Atlas/.test(blog.body)) reasons.push("missing editorial note attribution");
+  return reasons;
 }
 
 function rejectWeakerDuplicateTopics(
@@ -148,10 +181,16 @@ export function reviewItems(input: {
     const source = byUrl.get(blog.canonicalUrl);
     const reasons = [
       ...storyProblems(source, input.now, seen),
-      ...(source ? editorialFailures(blog, source, input.sources) : []),
+      ...(source ? (blog.editorialType
+        ? typedEditorialFailures(blog, source, input.sources)
+        : editorialFailures(blog, source, input.sources)) : []),
     ];
-    if (source && publishers.has(source.publisher.trim().toLowerCase())) reasons.push("publisher concentration");
-    const citedEvidence = blog.sourceUrls.map((url) => byUrl.get(url)?.summary ?? "").join("\n");
+    if (source && !source.internal && publishers.has(source.publisher.trim().toLowerCase())) reasons.push("publisher concentration");
+    const citedEvidence = [
+      ...(source?.internal ? [source.summary] : []),
+      ...blog.sourceUrls.map((url) => input.sources.find((item) => item.canonicalUrl === url && item.supplementFor === blog.canonicalUrl)?.summary
+        ?? byUrl.get(url)?.summary ?? ""),
+    ].join("\n");
     if (source && unsupported([blog.title, blog.summary, blog.body].join("\n"), citedEvidence)) reasons.push("unsupported claim");
     if (input.knownTitles.some((title) =>
       normalizeText(title) === normalizeText(blog.title) || nearDuplicate(title, blog.title))) {

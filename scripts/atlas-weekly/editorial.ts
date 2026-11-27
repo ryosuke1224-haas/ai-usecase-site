@@ -497,9 +497,9 @@ export function titleRepeatsSource(title: string, sourceTitle: string): boolean 
   return shared / sourceTokens.length >= 0.6;
 }
 
-export function paraphrasesSource(body: string, source: Pick<SourceRecord, "title" | "summary">): boolean {
+export function paraphrasesSource(body: string, source: Pick<SourceRecord, "title" | "summary">, includeLead = false): boolean {
   // Compare analysis sections only; the lead may name the source title as a fact.
-  const idx = body.search(/##\s*仕事で/);
+  const idx = includeLead ? -1 : body.search(/##\s*仕事で/);
   const analysis = (idx >= 0 ? body.slice(idx) : body)
     // Keep link labels in the prose, then remove any bare or autolinked URLs.
     .replace(/\[([^\]\n]*)\]\((?:<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))*)(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'))?\)/g, "$1")

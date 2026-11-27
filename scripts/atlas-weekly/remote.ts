@@ -79,6 +79,14 @@ export function supabaseQueue(): QueueWrite | null {
 export async function rememberRun(state: WeeklyState): Promise<void> {
   const supabase = client();
   if (!supabase) return;
+  const remoteState = {
+    ...state,
+    research: state.research.filter((source) => !source.internal),
+    selected: state.selected.filter((source) => !source.internal),
+    blogs: state.blogs.filter((draft) => !draft.canonicalUrl.startsWith("atlas-note:")),
+    researchReports: Object.fromEntries(Object.entries(state.researchReports ?? {})
+      .filter(([url]) => !url.startsWith("atlas-note:"))),
+  };
   const { error } = await supabase.from("atlas_weekly_runs").upsert({
     run_id: state.runId,
     week_key: state.weekKey,
@@ -88,7 +96,7 @@ export async function rememberRun(state: WeeklyState): Promise<void> {
     finished_at: state.finishedAt,
     counts: state.counts,
     errors: state.errors,
-    state,
+    state: remoteState,
   }, { onConflict: "week_key" });
   if (error) throw new Error("Weekly run history was not saved.");
 }

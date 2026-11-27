@@ -24,7 +24,7 @@ const FOCUS = [
 export function canonicalUrl(value: string): string {
   try {
     const url = new URL(value);
-    if (url.protocol !== "https:") return "";
+    if (url.protocol !== "https:" || url.username || url.password) return "";
     url.hash = "";
     for (const key of [...url.searchParams.keys()]) {
       if (key.startsWith("utm_") || key === "ref" || key === "source") url.searchParams.delete(key);
