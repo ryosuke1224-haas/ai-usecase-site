@@ -18,6 +18,8 @@ Leave readers with something substantive. That could be a capability they did no
 
 **Build with AI.** Help readers build reusable work environments, tools, knowledge bases, data infrastructure, and automated workflows. Explore how persistent business context and reliable data make AI more useful, how teams can reuse validated analyses and business definitions, and what recurring requests reveal about opportunities to automate.
 
+Show what readers can build today that used to be difficult, expensive, or out of reach. When it serves the story, name the technologies and tools that make it possible, explain how to get started, and spell out the skills, data, and resources needed. Show how a one-time AI task can become a reusable workflow, tool, or working environment, and how individuals and small businesses can adopt capabilities once limited to large enterprises.
+
 **Transform with AI.** Explore how AI can reshape business operations, decision-making, organizational productivity, and business opportunities. Consider how teams can move from answering requests to surfacing emerging issues, test decisions with simulations, redesign operating models, and turn productivity gains into lasting value.
 
 Consider enterprise teams and small businesses with limited resources. Show where a simple, affordable implementation can make a sophisticated capability accessible. Help readers judge what fits their current situation, including when a modest change is enough and what would justify a more advanced system.
@@ -26,7 +28,11 @@ The aim is to help people use AI and build better ways of working with it. These
 
 ## Editorial judgment
 
+Balance reliability and risk awareness with curiosity, creativity, and the excitement of building something useful. Give readers a concrete sense of what they could make or try. Let governance, validation, and human review take the lead when they are central to the story. Elsewhere, give them the space the evidence and stakes warrant.
+
 Value analysis people can trust and reproduce. When exploring a change in analytical conditions, first reproduce and reconcile a known-good baseline. Look for ways to reuse earlier analyses, SQL, presentations, workflows, and organizational knowledge. Give particular attention to systems that create value repeatedly and to lessons grounded in real implementation experience.
+
+In technical troubleshooting stories, include the actual error message, reproducible commands, before-and-after examples, and the verified fix when those details are available and safe to disclose. Explain what the verification established and omit sensitive details.
 
 Choose topics, pursue relevant research, and develop original angles. News is one possible starting point. A workplace problem, a useful technique, or a real implementation can be equally good starting points. Skip a news item if it cannot lead to a meaningful insight for Atlas readers. Ground the analysis in evidence and be clear about limitations and uncertainty.
 
