@@ -507,10 +507,11 @@ export function paraphrasesSource(body: string, source: Pick<SourceRecord, "titl
     .replace(/https?:\/\/[^\s<>`"\[\]、。！？「」]+/gi, " ");
   const summary = cleanText(source.summary);
   if (summary.length >= 40 && analysis.includes(summary.slice(0, 80))) return true;
-  const distinctive = `${source.title} ${summary}`
+  // Repeated product names and identifiers count once toward overlap.
+  const distinctive = [...new Set(`${source.title} ${summary}`
     .toLowerCase()
     .split(/[^a-z0-9]+/)
-    .filter((token) => token.length > 5);
+    .filter((token) => token.length > 5))];
   if (distinctive.length < 4) return false;
   const bodyTokens = new Set(analysis.toLowerCase().split(/[^a-z0-9]+/));
   const shared = distinctive.filter((token) => bodyTokens.has(token)).length;

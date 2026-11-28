@@ -26,6 +26,15 @@ import type { BlogDraft, SourceRecord } from "./types";
 
 const NOW = new Date("2026-11-16T00:00:00.000Z");
 
+test("repeated product names do not dominate source-paraphrase overlap", () => {
+  const source = {
+    title: "Introducing Tool Retrieval in the Gemini API",
+    summary: "Gemini Tool Retrieval supports deferred loading. Gemini Tool Retrieval can reduce redundant parameter definitions. Gemini Tool Retrieval runs within the Interactions API and charges standard model rates.",
+  };
+  assert.equal(paraphrasesSource("GeminiのInteractions APIでTool Retrievalを固定リストと比べ、照会の取りこぼしを調べる。", source, true), false);
+  assert.equal(paraphrasesSource(source.summary, source, true), true);
+});
+
 test("ordinary descriptions of generated files are not editorial process disclosures", () => {
   assert.equal(hasMetaEditorialLanguage("AIが生成した資料を月報に添付する。"), false);
   assert.equal(hasMetaEditorialLanguage("この記事を生成した手順を示します。"), true);
