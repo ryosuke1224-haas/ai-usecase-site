@@ -16,9 +16,13 @@ Attribute factual claims to their sources. Distinguish evidence, inference, and 
 Use descriptive Markdown source links for public evidence. Use public-safe lessons from internal knowledge naturally.
 Keep internal editorial notes, review processes, and generation instructions out of all reader-facing copy.
 Distinguish actual documented experience, verified facts, proposed approaches, and hypothetical examples.
-Make clear what the reader newly learns, can do, or could change in their work. Explain what AI contributes,
-how the reader could use or build the capability, and what changes in practice where those details serve the story.
-Use technical and verification detail to support that payoff.
+Use the brief's reader value to decide what the article must deliver. Make clear what the reader newly learns,
+can do, or could change in their work. Explain what AI contributes in that context.
+For an explanation, make the mechanism and implications clear. For a tutorial, enable the promised outcome.
+For business analysis, make the change in work or opportunity concrete. Use verification in proportion to the
+claims and keep test procedures secondary unless evaluating something is itself the reader's goal.
+Choose any useful presentation, such as diagrams, tables, code, screenshots, or examples. Use only approved
+references, and provide a readable text alternative or an editor-facing asset description when needed.
 Never invent sources, statistics, outcomes, or personal experience. Omit credentials, names of private organizations,
 private paths and proprietary details. Reject weak evidence, superficial analysis, or a story that only restates the source.
 `;

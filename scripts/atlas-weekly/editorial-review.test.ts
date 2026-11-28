@@ -52,6 +52,7 @@ test("independent reviews can trigger verified research and revision without rev
       if (writes === 2) {
         assert.ok(options.candidate.sourceUrls.includes(extra));
         assert.match(options.revision ?? "", /Compare the maintenance costs/);
+        assert.match(options.revision ?? "", /move, compress, or remove procedures that crowd out the payoff/);
         assert.doesNotMatch(options.revision ?? "", /"points"|"score"/);
       }
       const cited = writes === 1 ? supplement : extra;
@@ -65,6 +66,7 @@ test("independent reviews can trigger verified research and revision without rev
     },
     review: async (_writer, _cwd, prompt) => {
       assert.doesNotMatch(prompt, /"points":|"score":|Maximum editorial rounds/);
+      assert.match(prompt, /An explanation can earn full credit/);
       reviews++;
       return {
         criteria: scores(reviews === 1 ? 14 : 19), readerGains: "A concrete choice about maintenance.",

@@ -92,6 +92,7 @@ test("research artifacts contain relevant evidence, dates, claims, and known blu
   assert.ok(!sources[1].factExcerpt.includes("preview.png"));
   assert.ok(!read("sources.json").includes(otherUrl));
   assert.match(read("instructions.md"), /Japanese editorial/);
+  assert.match(read("instructions.md"), /For an explanation, make the mechanism and implications clear/);
   assert.doesNotMatch(read("instructions.md"), /仕事でどう使える|Atlasの見方|明日試すなら/);
   assert.equal(brief.editorial.articleType, "news");
   assert.ok(brief.editorial.centralQuestion.length > 12);
@@ -316,6 +317,7 @@ test("editorial planning can select an evergreen question without fixed slots", 
     queries: ["public research query"] };
   const planned = await planEditorialTopics("codex", process.cwd(), [primary, note], async (_writer, _cwd, prompt) => {
     assert.match(prompt, /Use AI\. Build with AI\. Transform with AI\./);
+    assert.match(prompt, /Use readerValue to state the primary promise/);
     assert.doesNotMatch(prompt, /private-filename/);
     return [proposal, proposal, { ...proposal, seed: 100 }];
   });

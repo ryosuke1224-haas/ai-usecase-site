@@ -213,6 +213,9 @@ the strongest alternative, and why the chosen angle offers a better evidence-bac
 building opportunity. Weigh novelty and curiosity. Choose a narrow angle when its payoff is strongest.
 Before assigning a story, check what the intended reader would newly learn, be able to do, or change in their work.
 Discard or reframe angles with no specific payoff. Favor a worthwhile discovery over procedural detail added for its own sake.
+Use readerValue to state the primary promise in plain language so the writer and reviewer can judge the same purpose.
+Choose an angle the available or obtainable evidence can deliver. If a runnable tutorial would require inputs or results
+unlikely to be available, consider an explanation with a clear reader payoff. The purpose is independent of the articleType label.
 Keep the question under 380 characters. Use one concise sentence each for thesis, alternativeAngle, and readerValue,
 and at most two sentences for rationale. Keep alternativeAngle and readerValue under 450 characters and rationale under 600.
 Formulate up to two distinct public search queries to answer the chosen question.
