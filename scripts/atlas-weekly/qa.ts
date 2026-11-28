@@ -136,7 +136,6 @@ function typedEditorialFailures(blog: BlogDraft, source: SourceRecord, research:
     reasons.push("missing news attribution");
   }
   if (source.internal && !source.publicationEligible && !blog.internal) reasons.push("internal evidence must remain local");
-  if (source.internal && !/Atlas/.test(blog.body)) reasons.push("missing editorial note attribution");
   return reasons;
 }
 

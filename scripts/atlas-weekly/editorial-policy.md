@@ -12,11 +12,15 @@ Go beyond attaching generic business advice to an announcement. Familiar observa
 
 Leave readers with something substantive. That could be a capability they did not know existed, a technique they can adopt, a clearer view of costs or trade-offs, a business opportunity, a solution to a workplace problem, or a new way to approach an important decision. An article can be actionable by changing how someone thinks or decides. Use a tutorial or suggest next steps when the topic calls for them.
 
+An article can deliver discovery by teaching something genuinely new, enablement by making a task achievable, or transformation by changing how work or a business operates. Any one of these can sustain an article. Look for what AI changes compared with the reader's current approach and why that change matters. Give detail the space it earns by helping the reader understand, act, or decide.
+
 ## Emerging tools and capabilities
 
 Actively cover emerging AI tools, products, technologies, and capabilities as subjects in their own right. Show what someone can now do that was previously difficult, expensive, or out of reach. A focused product article, tutorial or workflow, comparison with an existing approach, business implication, or broader technology shift can each stand alone.
 
 Explore the implications that matter for the story, including productivity, operating models, economics, new products or services, and opportunities for employees, managers, entrepreneurs, and small businesses. Explain relevant skills, costs, and accessibility. Verify current availability, pricing, and technical claims when they matter to the reader's decision. Label hypothetical business opportunities and future possibilities and explain what they depend on. Make room for curiosity and discovery alongside reliability.
+
+Consider agents and automation, implementation methods, business strategy, and first-hand implementation lessons alongside new releases. When useful, show how to try or build the capability, what skills and resources it requires, what alternatives exist, and what could change in the work. A story can focus on the detail that opens up the most value for its readers.
 
 ## Use AI. Build with AI. Transform with AI.
 
@@ -45,3 +49,5 @@ In technical troubleshooting stories, include the actual error message, reproduc
 Choose topics, pursue relevant research, and develop original angles. News is one possible starting point. A workplace problem, a useful technique, or a real implementation can be equally good starting points. Skip a news item if it cannot lead to a meaningful insight for Atlas readers. Ground the analysis in evidence and be clear about limitations and uncertainty.
 
 Choose the length, headings, and narrative flow that best serve the story. Treat this policy as editorial guidance, with freedom over structure and wording. Factual accuracy, source verification, confidentiality, original writing, and human approval remain required.
+
+Draw on internal knowledge through public-safe facts and lessons. Clearly distinguish verified facts and documented experience from proposed approaches and hypothetical examples. Keep internal editorial notes, review processes, and generation instructions out of reader-facing copy.

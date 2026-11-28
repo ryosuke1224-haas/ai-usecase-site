@@ -12,7 +12,7 @@ const criterion = (max: number) => z.object({ points: z.number().int().min(0).ma
 const reviewSchema = z.object({
   criteria: z.object({
     readerValue: criterion(20), originality: criterion(20), decisionValue: criterion(15),
-    depth: criterion(15), research: criterion(10), curiosity: criterion(10), readability: criterion(10),
+    depth: criterion(10), research: criterion(10), curiosity: criterion(15), readability: criterion(10),
   }),
   readerGains: text,
   strengths: z.array(text).min(1).max(5),
@@ -124,6 +124,7 @@ export async function improveArticle(input: PackageInput & {
 
 Return only JSON with keys criteria, readerGains, strengths, reframe, issues, calculations, queries, rejectTopic.
 criteria contains readerValue, originality, decisionValue, depth, research, curiosity, readability, each with integer points and explanation.
+Use these maxima in that order: 20, 20, 15, 10, 10, 15, 10. Keep explanations and actions individually under 1400 characters.
 strengths identifies specific insights, examples, or passages worth retaining.
 reframe is null when the current thesis is worth developing. Otherwise give {reason, thesis, readerValue} for a materially better angle supported by the supplied evidence. A draft may depart from the planned thesis if its angle serves readers better. Use rejectTopic if no viable angle is available.
 issues contains {kind, action} objects, with the smallest change that addresses each weakness.

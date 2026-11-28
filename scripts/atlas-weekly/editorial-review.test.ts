@@ -21,9 +21,9 @@ const scores = (points: number) => ({
   readerValue: { points, explanation: "The opening states the business choice concretely." },
   originality: { points: 20, explanation: "The comparison explains a distinct implementation constraint." },
   decisionValue: { points: 15, explanation: "The central example offers a usable decision." },
-  depth: { points: 15, explanation: "The implementation description names the operational consequences." },
+  depth: { points: 10, explanation: "The implementation description names the operational consequences." },
   research: { points: 10, explanation: "The evidence is scoped to the actual deployment." },
-  curiosity: { points: 10, explanation: "The article answers the question posed in the lead." },
+  curiosity: { points: 15, explanation: "The article answers the question posed in the lead." },
   readability: { points: 10, explanation: "The opening and example make the article easy to follow." },
 });
 

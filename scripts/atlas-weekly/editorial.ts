@@ -54,6 +54,7 @@ const ANNOUNCEMENT_TITLE = /利用可能|が追加|を発表|新機能を公開|
 
 /** Reader-facing articles must never explain Atlas generation or editorial process. */
 const META_LANGUAGE = [
+  /\bAtlas\s+editorial\s+(?:notes?|review)\b|Atlas\s*(?:編集(?:ノート|メモ|レビュー)|内部(?:資料|レビュー))/i,
   /発表の見出しや製品の宣伝文は、この記事の構成にしていません/,
   /Atlasの記事が足すのは/,
   /読者が得るのは、元の発表を短くしたものではなく/,

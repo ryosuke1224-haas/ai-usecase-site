@@ -15,3 +15,9 @@ Compare what readers could discover, build, or decide under different angles bef
 ## Give discovery its own editorial value
 
 The owner wants Atlas to actively cover new AI products, tools, and capabilities. A useful story may help a reader understand or try one new capability, compare it with their current workflow, or see a concrete business opportunity. It can focus on the practical implications most relevant to that story. Verify availability, pricing, and technical capabilities where relevant, and make clear when an application or business opportunity is hypothetical.
+
+## Make the capability and its payoff visible
+
+The follow-up analytics pilot widened the thesis to a reusable workspace, but the article still centered on documenting, organizing, and reconciling prior work. The owner wanted the reader to see what AI could make possible, how a team could build toward that capability, and what would change in its work. This is a calibration example for future articles. A detailed procedure earns its place when performing it is itself a meaningful capability for the reader.
+
+Look for discovery, enablement, or transformation. A reader might learn something surprising, become able to do work that was previously difficult or expensive, or see a credible way to change how a team or business operates. Any one can carry a story. Give concrete evidence, a decision, or a usable method more weight than extensive documentation, repeated verification, or generalized advice. Draw on internal lessons without exposing editorial notes or processes, and distinguish documented experience from proposals and illustrative scenarios.

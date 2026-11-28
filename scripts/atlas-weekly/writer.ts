@@ -114,7 +114,8 @@ Do not use tools, access the filesystem or network, or write files. Atlas Weekly
 Return exactly one JSON object. For a draft use status "draft", title, summary, practicalTakeaway,
 sourceUrls, and markdown (the entire article as a JSON string). Cite public URLs as Markdown links.
 Use practicalTakeaway for the reader's main insight or decision, even if no next action is needed.
-For an internal article include the atlas-note identifier only in sourceUrls, and attribute the account in prose.
+For an internal article include the atlas-note identifier only in sourceUrls. Keep internal editorial notes,
+review processes, and generation instructions out of all reader-facing copy.
 Before returning JSON, check that each factual claim has evidence and that the article answers the editorial question.
 Choose the article structure freely and verify every citation against sources.json.
 If the supplied evidence is insufficient, use status "rejected" and a reason.
@@ -210,6 +211,8 @@ Use one supplied seed index per proposal. Skip thin or repetitive ideas. Decide 
 and concrete reader value. Compare genuinely different angles for each selected seed. State the chosen thesis,
 the strongest alternative, and why the chosen angle offers a better evidence-backed discovery, decision, or
 building opportunity. Weigh novelty and curiosity. Choose a narrow angle when its payoff is strongest.
+Before assigning a story, check what the intended reader would newly learn, be able to do, or change in their work.
+Discard or reframe angles with no specific payoff. Favor a worthwhile discovery over procedural detail added for its own sake.
 Keep the question under 380 characters. Use one concise sentence each for thesis, alternativeAngle, and readerValue,
 and at most two sentences for rationale. Keep alternativeAngle and readerValue under 450 characters and rationale under 600.
 Formulate up to two distinct public search queries to answer the chosen question.
@@ -305,7 +308,8 @@ export async function writeArticle({
       fs.writeFileSync(path.join(candidate.researchDir, "revision.md"), revision);
     }
     const prompt = candidate.instructions + `
-For internal articles include the atlas-note identifier only in sourceUrls, and attribute the account in prose.
+For internal articles include the atlas-note identifier only in sourceUrls. Keep internal editorial notes,
+review processes, and generation instructions out of all reader-facing copy.
 Work only from this research directory. Do not run commands that change files or contact services.
 Do not edit app code, commit, push, deploy, publish, or access the Review Queue.
 Return only a JSON object. For a draft use status, title, summary, practicalTakeaway, sourceUrls,

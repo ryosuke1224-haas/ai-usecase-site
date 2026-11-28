@@ -268,6 +268,12 @@ test("field notes use curated excerpts and stay out of the public digest and que
   assert.deepEqual(queuePlan(state), []);
   assert.equal(newsletterDraft(weekKey, [article]), null);
   const publicDraft = { ...article, internal: false, sourceUrls: [] };
+  const check = (body: string) => reviewItems({
+    now, sources: [note], blogs: [{ ...publicDraft, body }], newsletter: null, blueprints: [],
+    knownUrls: [], knownTitles: [], knownSlugs: [],
+  })[0].reasons;
+  assert.ok(!check("A hypothetical workflow can check whether an argument reaches a child process.").includes("meta editorial language"));
+  assert.ok(check("Atlas編集ノートによると、起動時の引数を確認できます。").includes("meta editorial language"));
   assert.equal(queuePlan({ ...state, blogs: [publicDraft] }).length, 1);
   assert.ok(newsletterDraft(weekKey, [publicDraft]));
 });
