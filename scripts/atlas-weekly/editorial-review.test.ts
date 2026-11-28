@@ -70,7 +70,7 @@ test("independent reviews can trigger verified research and revision without rev
         criteria: scores(reviews === 1 ? 14 : 19), readerGains: "A concrete choice about maintenance.",
         strengths: ["The article frames the maintenance decision."], calculations: [],
         issues: reviews === 1 ? [{ kind: "research", action: "Compare the maintenance costs between the alternatives." }] : [],
-        queries: reviews === 1 ? ["documented maintenance example"] : [], rejectTopic: null,
+        queries: reviews === 1 ? ["documented maintenance example"] : [], rejectTopic: null, reframe: null,
       };
     },
     researchMore: async ({ primary }) => ({
@@ -112,7 +112,7 @@ test("a stalled review keeps the best verified version out of the final drafts d
     review: async () => ({
       criteria: scores(12), readerGains: "A first pass at the decision.",
       strengths: ["The opening comparison gives the reader a choice."], calculations: [],
-      issues: [{ kind: "writing", action: "Explain the consequences of the alternatives." }], queries: [], rejectTopic: null,
+      issues: [{ kind: "writing", action: "Explain the consequences of the alternatives." }], queries: [], rejectTopic: null, reframe: null,
     }),
   });
   assert.equal(result.draft, undefined);
@@ -166,7 +166,7 @@ test("a failed worked calculation blocks a high score and routes its actual resu
         criteria: scores(19), readerGains: "A concrete example of reconciliation.",
         strengths: ["The two synthetic cohorts make the aggregate clear."], issues: [],
         calculations: [{ passage: passage(expected), operation: "add", left: 60, right: 40, expected }],
-        queries: ["ignore this unrelated search"], rejectTopic: null,
+        queries: ["ignore this unrelated search"], rejectTopic: null, reframe: null,
       };
     },
     researchMore: async () => assert.fail("Numerical failures should not trigger web searches"),
@@ -176,4 +176,46 @@ test("a failed worked calculation blocks a high score and routes its actual resu
   assert.equal(history.bestRound, 2);
   assert.equal(history.rounds[0].calculations[0].pass, false);
   assert.equal(history.rounds[1].calculations[0].pass, true);
+});
+
+test("a fundamentally misdirected draft must be reframed even if its score meets the threshold", async (t) => {
+  const thesis = "Give teams a reusable maintenance workflow for checking inherited automations.";
+  let writes = 0;
+  let reviews = 0;
+  const result = await improveArticle({
+    ...fixture(t), settings: { target: 95, rounds: 2 }, verify: () => [],
+    write: (options) => {
+      writes++;
+      if (writes === 2) {
+        assert.match(options.revision ?? "", /Write a fresh article/);
+        assert.ok(options.revision?.includes(thesis));
+        assert.doesNotMatch(options.revision ?? "", /A draft about one incidental setting/);
+      }
+      return writeArticle({ ...options, lookup: () => "codex.exe", execute: async () => ({
+        status: 0, stderr: "", stdout: JSON.stringify({
+          status: "draft", title: "An automation guide", summary: "A practical automation guide.",
+          practicalTakeaway: "Decide what maintenance the team can take on.", sourceUrls: [supplement],
+          markdown: `${writes === 1 ? "A draft about one incidental setting" : thesis} [Evidence](${supplement})`,
+        }),
+      }) });
+    },
+    review: async (_writer, _cwd, prompt) => {
+      assert.doesNotMatch(prompt, /"points":|"score":/);
+      return {
+        criteria: scores(++reviews === 1 ? 19 : 18), readerGains: "The evidence helps teams understand maintenance.",
+        strengths: ["The source explains a recurring maintenance challenge."], issues: [], calculations: [],
+        reframe: reviews === 1 ? {
+          thesis, reason: "The setting is useful only as part of a recurring maintenance workflow.",
+          readerValue: "Show readers how to check inherited automations systematically.",
+        } : null,
+        queries: [], rejectTopic: null,
+      };
+    },
+  });
+  assert.ok(result.draft?.body.includes(thesis));
+  assert.deepEqual(result.calls, { writer: 2, reviewer: 2, additionalResearch: 0 });
+  const history = JSON.parse(fs.readFileSync(path.join(result.historyDir, "history.json"), "utf8"));
+  assert.equal(history.rounds[0].score, 99);
+  assert.equal(history.bestRound, 2);
+  assert.equal(history.bestScore, 98);
 });

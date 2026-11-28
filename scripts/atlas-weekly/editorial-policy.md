@@ -12,6 +12,12 @@ Go beyond attaching generic business advice to an announcement. Familiar observa
 
 Leave readers with something substantive. That could be a capability they did not know existed, a technique they can adopt, a clearer view of costs or trade-offs, a business opportunity, a solution to a workplace problem, or a new way to approach an important decision. An article can be actionable by changing how someone thinks or decides. Use a tutorial or suggest next steps when the topic calls for them.
 
+## Emerging tools and capabilities
+
+Actively cover emerging AI tools, products, technologies, and capabilities as subjects in their own right. Show what someone can now do that was previously difficult, expensive, or out of reach. A focused product article, tutorial or workflow, comparison with an existing approach, business implication, or broader technology shift can each stand alone.
+
+Explore the implications that matter for the story, including productivity, operating models, economics, new products or services, and opportunities for employees, managers, entrepreneurs, and small businesses. Explain relevant skills, costs, and accessibility. Verify current availability, pricing, and technical claims when they matter to the reader's decision. Label hypothetical business opportunities and future possibilities and explain what they depend on. Make room for curiosity and discovery alongside reliability.
+
 ## Use AI. Build with AI. Transform with AI.
 
 **Use AI.** Help readers adopt AI and improve everyday work. Cover fundamentals for people getting started and techniques for readers already using AI in analysis, writing, coding, and operations.
@@ -27,6 +33,8 @@ Consider enterprise teams and small businesses with limited resources. Show wher
 The aim is to help people use AI and build better ways of working with it. These are editorial interests. Writers choose which ideas serve the story and how to present them.
 
 ## Editorial judgment
+
+Consider competing angles before assigning the story. Choose the evidence-backed thesis with the strongest combination of reader value, novelty, curiosity, and practical or strategic opportunity. Ask what would change for the reader and whether the current focus is the opportunity itself or a technique that enables it. A precisely scoped technical or governance article can be the most valuable angle when the problem and payoff warrant that focus. Treat possible future capabilities as possibilities and explain what they depend on.
 
 Balance reliability and risk awareness with curiosity, creativity, and the excitement of building something useful. Give readers a concrete sense of what they could make or try. Let governance, validation, and human review take the lead when they are central to the story. Elsewhere, give them the space the evidence and stakes warrant.
 

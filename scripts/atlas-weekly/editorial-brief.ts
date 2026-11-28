@@ -23,6 +23,9 @@ export function prepareEditorialBrief(research: ResearchBrief, pool: readonly So
     category: categories[articleType],
     centralQuestion: primary.editorialPlan?.question ?? question,
     readerValue: primary.editorialPlan?.readerValue ?? primary.implication,
+    thesis: primary.editorialPlan?.thesis,
+    alternativeAngle: primary.editorialPlan?.alternativeAngle,
+    rationale: primary.editorialPlan?.rationale,
     supportingEvidence: supports.map(({ source, role }) => ({ url: source.canonicalUrl, publisher: source.publisher, role })),
     limitations: [
       primary.internal ? "Curated note evidence; no independent verification."

@@ -302,7 +302,11 @@ test("live research requires an actual page match and never fetches unapproved d
 test("editorial planning can select an evergreen question without fixed slots", async () => {
   const note = { ...primary, canonicalUrl: "atlas-note:private-filename.md", internal: true, evergreen: true };
   const proposal = { seed: 1, articleType: "enterprise-strategy", question: "How can a small company preserve validated analysis?",
-    readerValue: "An operating model for reusing verified evidence.", queries: ["public research query"] };
+    readerValue: "An operating model for reusing verified evidence.",
+    thesis: "Approved analysis can become reusable infrastructure.",
+    alternativeAngle: "Teach readers to reproduce a single approved result.",
+    rationale: "Recurring work gives the reader a reason to invest in a reusable system.",
+    queries: ["public research query"] };
   const planned = await planEditorialTopics("codex", process.cwd(), [primary, note], async (_writer, _cwd, prompt) => {
     assert.match(prompt, /Use AI\. Build with AI\. Transform with AI\./);
     assert.doesNotMatch(prompt, /private-filename/);
@@ -311,7 +315,10 @@ test("editorial planning can select an evergreen question without fixed slots", 
   assert.equal(planned.length, 1);
   assert.equal(planned[0].canonicalUrl, note.canonicalUrl);
   assert.equal(planned[0].editorialType, "enterprise-strategy");
-  assert.deepEqual(planned[0].editorialPlan, { question: proposal.question, readerValue: proposal.readerValue, queries: [] });
+  assert.deepEqual(planned[0].editorialPlan, {
+    question: proposal.question, readerValue: proposal.readerValue, thesis: proposal.thesis,
+    alternativeAngle: proposal.alternativeAngle, rationale: proposal.rationale, queries: [],
+  });
 });
 
 test("a planned article can cite verified evidence without citing the seed or filling a template", async (t) => {

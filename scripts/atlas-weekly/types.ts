@@ -14,7 +14,14 @@ export type WeeklyStage = (typeof WEEKLY_STAGES)[number];
 export const ARTICLE_CATEGORIES = ["ai-news", "us-tech", "practical-ai", "technical"] as const;
 export type WeeklyCategory = (typeof ARTICLE_CATEGORIES)[number];
 export type EditorialType = "news" | "practical-tip" | "enterprise-strategy" | "field-note";
-export type EditorialPlan = { question: string; readerValue: string; queries: string[] };
+export type EditorialPlan = {
+  question: string;
+  readerValue: string;
+  queries: string[];
+  thesis?: string;
+  alternativeAngle?: string;
+  rationale?: string;
+};
 
 export type SourceRecord = {
   url: string;

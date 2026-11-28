@@ -54,7 +54,10 @@ export function researchPackage(input: {
   }
   const blueprintSlugs = primary.internal ? [] : relatedBlueprints(primary, products);
   const instructions = `${EDITORIAL_INSTRUCTIONS}
-Address the editorial question and reader value. Cite the sources actually used. The seed may be only a lead.
+Address the editorial question and reader value. Develop the selected thesis when provided. The comparison with
+the alternative explains the editorial choice. Use supporting techniques in proportion to their role in that thesis.
+If a revision assignment changes the thesis, follow its framing within the same evidence and safety limits.
+Cite the sources actually used. The seed may be only a lead.
 Manual output belongs in ../../drafts/${id}.md and ../../drafts/${id}.json.
 Use {"status":"draft","title":"...","summary":"...","practicalTakeaway":"...","sourceUrls":["..."]}.
 For weak evidence use {"status":"rejected","reason":"..."} in the JSON file.
