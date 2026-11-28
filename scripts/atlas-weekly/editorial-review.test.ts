@@ -110,7 +110,7 @@ test("a stalled review keeps the best verified version out of the final drafts d
       }) });
     },
     review: async () => ({
-      criteria: scores(12), readerGains: "A first pass at the decision.",
+      criteria: scores(12), readerGains: ["A first pass at the decision.", "The example names the costs to compare."],
       strengths: ["The opening comparison gives the reader a choice."], calculations: [],
       issues: [{ kind: "writing", action: "Explain the consequences of the alternatives." }], queries: [], rejectTopic: null, reframe: null,
     }),
@@ -121,6 +121,7 @@ test("a stalled review keeps the best verified version out of the final drafts d
   const record = JSON.parse(fs.readFileSync(path.join(result.historyDir, "history.json"), "utf8"));
   assert.equal(record.bestRound, 1);
   assert.equal(record.bestScore, 92);
+  assert.equal(record.rounds[0].review.readerGains, "A first pass at the decision.\nThe example names the costs to compare.");
   assert.ok(fs.existsSync(path.join(result.historyDir, "round-1", "drafts", record.candidate + ".md")));
   assert.ok(!fs.existsSync(path.join(input.root, "atlas-memory", "weekly", input.edition, "drafts", record.candidate + ".md")));
 });

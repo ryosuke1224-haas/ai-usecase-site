@@ -14,7 +14,7 @@ const reviewSchema = z.object({
     readerValue: criterion(20), originality: criterion(20), decisionValue: criterion(15),
     depth: criterion(10), research: criterion(10), curiosity: criterion(15), readability: criterion(10),
   }),
-  readerGains: text,
+  readerGains: z.union([text, z.array(text).min(1).max(5).transform((gains) => gains.join("\n")).pipe(text)]),
   strengths: z.array(text).min(1).max(5),
   reframe: z.object({ reason: text, thesis: text, readerValue: text }).nullable(),
   issues: z.array(z.object({
@@ -126,6 +126,7 @@ Return only JSON with keys criteria, readerGains, strengths, reframe, issues, ca
 criteria contains readerValue, originality, decisionValue, depth, research, curiosity, readability, each with integer points and explanation.
 Use these maxima in that order: 20, 20, 15, 10, 10, 15, 10. Keep explanations and actions individually under 1400 characters.
 strengths identifies specific insights, examples, or passages worth retaining.
+readerGains is a brief string explaining what the reader actually gains.
 reframe is null when the current thesis is worth developing. Otherwise give {reason, thesis, readerValue} for a materially better angle supported by the supplied evidence. A draft may depart from the planned thesis if its angle serves readers better. Use rejectTopic if no viable angle is available.
 issues contains {kind, action} objects, with the smallest change that addresses each weakness.
 Use research for material missing factual evidence, technical for material unverified code/behavior, numerical for missing inputs or calculations the local verifier cannot reproduce, structure for organization, and writing for ordinary edits.

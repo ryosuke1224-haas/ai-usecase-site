@@ -84,7 +84,9 @@ Editorial assignment: ${JSON.stringify(plan)}`, writer);
     const publisher = sources.get(location.hostname);
     if (!publisher || location.port || location.search) continue;
     try {
-      const html = await readPage(url, fetchPage);
+      // Canonical identity drops trailing slashes, but the publisher may require them.
+      location.pathname = new URL(hit.url).pathname;
+      const html = await readPage(location.toString(), fetchPage);
       const excerpt = readableText(hit.excerpt);
       if (excerpt.length < 60 || sensitiveEditorialText(excerpt) || !readableText(html).includes(excerpt)) continue;
       const title = readableText(/<title[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1] ?? "").slice(0, 180);

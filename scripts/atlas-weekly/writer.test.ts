@@ -287,7 +287,7 @@ test("live research requires an actual page match and never fetches unapproved d
     search: async (_cwd, prompt) => {
       assert.match(prompt, /official documentation/);
       return [
-        { url: "https://learn.microsoft.com/version-history-docs", excerpt, relevance: "Provides a documented approach to change tracking." },
+        { url: "https://learn.microsoft.com/version-history-docs/", excerpt, relevance: "Provides a documented approach to change tracking." },
         { url: "https://openai.com/unverified", excerpt },
         { url: "https://example.net/unsafe", excerpt },
       ];
@@ -295,12 +295,13 @@ test("live research requires an actual page match and never fetches unapproved d
     fetchPage: async (url, options) => {
       visited.push(String(url));
       assert.equal(options?.redirect, "error");
-      const body = String(url).endsWith("docs") ? excerpt : "Different content.";
+      const body = String(url).endsWith("docs/") ? excerpt : "Different content.";
       return new Response(`<title>Microsoft version history</title><p>${body}</p>`, { headers: { "content-type": "text/html" } });
     },
   });
   assert.equal(report.queries.length, 2);
-  assert.deepEqual(visited, ["https://learn.microsoft.com/version-history-docs", "https://openai.com/unverified"]);
+  assert.deepEqual(visited, ["https://learn.microsoft.com/version-history-docs/", "https://openai.com/unverified"]);
+  assert.equal(report.sources[0].canonicalUrl, "https://learn.microsoft.com/version-history-docs");
   assert.deepEqual(report.sources.map(({ summary, evidenceRole }) => [summary, evidenceRole]), [[excerpt, "primary"]]);
   assert.ok(report.limitations.length);
 });
